@@ -697,23 +697,30 @@
   method="POST"
   action="/merci.html"
   data-netlify="true"
+  data-netlify-honeypot="bot-field"
 >
-            <div class="small-input-row">
-              <input
-                class="small-input"
-                type="email"
-                name="email"
-                placeholder="Ton email"
-                required
-              />
-              <button class="btn btn-primary" type="submit">
-                Je rejoins la liste
-              </button>
-            </div>
-            <p class="hero-footnote" style="margin-top: 6px;">
-              Aucun spam, aucune promesse de gains. Juste des informations sérieuses sur le projet TORINVEST.
-            </p>
-          </form>
+  <!-- Champ caché obligatoire pour Netlify -->
+  <input type="hidden" name="form-name" value="liste-attente-torinvest" />
+
+  <!-- Honeypot anti-bot (invisible pour les humains) -->
+  <p style="display:none">
+    <label>Ne pas remplir : <input name="bot-field" /></label>
+  </p>
+
+  <div class="small-input-row">
+    <input
+      class="small-input"
+      type="email"
+      name="email"
+      placeholder="Ton email (pour être prévenu)"
+      required
+    />
+    <button class="btn btn-primary" type="submit">
+      Je rejoins la liste
+    </button>
+  </div>
+</form>
+
         </div>
       </section>
 
