@@ -1,200 +1,208 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TORINVEST – Projet Crypto</title>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Crypto – TORINVEST</title>
 
   <style>
     body {
       margin: 0;
       padding: 0;
-      font-family: "Inter", sans-serif;
-      background: #0d0d0d;
-      color: white;
+      background: #0a0a0a;
+      color: #ddd;
+      font-family: 'Inter', sans-serif;
     }
 
     header {
-      padding: 20px 50px;
+      padding: 25px 50px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      background: #0f0f0f;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      justify-content: space-between;
+      background: rgba(0,0,0,0.4);
+      border-bottom: 1px solid rgba(255,191,0,0.2);
     }
 
     .logo {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 22px;
+      font-size: 20px;
+      color: #fff;
       font-weight: 700;
     }
 
     .logo img {
-      height: 45px;
+      height: 40px;
+      border-radius: 6px;
     }
 
     nav a {
-      margin-left: 25px;
-      color: #bbb;
+      margin-left: 20px;
+      color: #ccc;
       text-decoration: none;
-      font-weight: 500;
+      font-size: 15px;
+      transition: 0.3s;
+      position: relative;
     }
 
     nav a:hover {
       color: #ffb400;
     }
 
-    /* Hero */
-    .hero {
-      padding: 120px 50px;
-      text-align: center;
-      background: radial-gradient(circle at 50% 20%, rgba(255,180,0,0.15), transparent 70%);
+    section {
+      max-width: 1100px;
+      margin: auto;
+      padding: 60px 20px;
     }
 
-    .hero h1 {
-      font-size: 56px;
-      font-weight: 800;
+    h1 {
+      font-size: 42px;
+      color: #ffb400;
+      text-align: center;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    p.center {
+      text-align: center;
+      max-width: 700px;
+      margin: auto;
+      line-height: 1.7;
+      font-size: 16px;
+      color: #ccc;
+    }
+
+    .token-card {
+      background: linear-gradient(145deg, #111, #0a0a0a);
+      padding: 40px;
+      border-radius: 14px;
+      margin-top: 50px;
+      border: 1px solid rgba(255,191,0,0.2);
+      box-shadow: 0 0 25px rgba(255,191,0,0.08);
+    }
+
+    .token-card h2 {
+      color: #ffb400;
+      font-size: 28px;
       margin-bottom: 10px;
     }
 
-    .hero p {
-      font-size: 20px;
-      color: #ccc;
-      max-width: 850px;
-      margin: auto;
+    .token-stats {
+      margin-top: 20px;
+      padding: 20px;
+      border-left: 3px solid #ffb400;
+      background: rgba(255,191,0,0.05);
+      border-radius: 6px;
+      font-size: 16px;
+      line-height: 1.8;
     }
 
-    /* Sections */
-    .section {
-      padding: 80px 50px;
-      max-width: 1200px;
-      margin: auto;
-    }
-
-    .section-title {
-      font-size: 34px;
-      font-weight: 700;
-      margin-bottom: 20px;
-    }
-
-    .card {
-      background: #1a1a1a;
-      padding: 25px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 25px;
-    }
-
-    .card h3 {
-      margin-top: 0;
-      font-size: 26px;
-      color: #ffb400;
-    }
-
-    .pill {
+    .solscan-btn {
       display: inline-block;
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.3);
-      margin-right: 8px;
-      font-size: 12px;
-      opacity: 0.75;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #ffb400;
+      color: #000;
+      border-radius: 6px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .solscan-btn:hover {
+      background: #e0a200;
     }
 
     footer {
-      margin-top: 80px;
       text-align: center;
       padding: 30px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      color: #777;
+      margin-top: 60px;
+      color: #555;
       font-size: 14px;
+      border-top: 1px solid rgba(255,191,0,0.1);
     }
   </style>
 </head>
 
 <body>
-
 <header>
   <div class="logo">
-    <img src="forge-logo.png" alt="Torinvest Logo">
+    <img src="forge-logo.png" alt="Torinvest Logo" />
     TORINVEST
   </div>
 
   <nav>
     <a href="index.html">Accueil</a>
+    <a href="trading.html">Trading</a>
+    <a href="macro.html">Macro</a>
+    <a href="communaute.html">Communauté</a>
     <a href="crypto.html" style="color:#ffb400;">Crypto</a>
-    <a href="#contact">Contact</a>
+    <a href="contact.html">Contact</a>
   </nav>
 </header>
 
-<!-- HERO -->
-<section class="hero">
-  <h1>Projet Crypto TORINVEST</h1>
-  <p>Découvrez les tokens de l’écosystème TORINVEST : une vision long terme basée sur la transparence, l’utilité et la construction d’un écosystème durable.</p>
-</section>
 
-<!-- SECTION : Présentation globale -->
-<section class="section">
-  <h2 class="section-title">🌐 Vision du Projet</h2>
+<section>
+  <h1>Les Tokens Officiels TORINVEST</h1>
+  <p class="center">
+    Le projet TORINVEST s'étend désormais dans l’écosystème blockchain, avec deux tokens stratégiques lancés sur Solana.  
+    Chaque token répond à une logique claire : utilité, expérimentation et construction d’un écosystème cohérent.
+  </p>
 
-  <div class="card">
-    <p>TORINVEST développe un écosystème complet autour de deux tokens déjà déployés sur blockchain.  
-    L’objectif : offrir utilité, stabilité, transparence et gouvernance progressive à une communauté engagée.</p>
+  <!-- TOKEN KRM -->
+  <div class="token-card">
+    <h2>🔥 Token KRM</h2>
+    <p>
+      KRM est le premier token expérimental de l’univers TORINVEST.  
+      Il a été conçu pour tester différentes mécaniques : supply dynamique, comportements utilisateurs, liquidité et micro-économie.  
+      Ce token est **déjà en circulation** et commence à se structurer autour d'une petite communauté.
+    </p>
 
-    <p>Chaque token possède un rôle unique : récompenses, gouvernance, utilité future dans des outils et applications TORINVEST.</p>
+    <div class="token-stats">
+      <strong>📌 Informations principales :</strong><br>
+      ➤ Supply actuelle : <strong>20,999,780 KRM</strong><br>
+      ➤ Décimales : 6<br>
+      ➤ Holders : 9<br>
+      ➤ Première émission : 12 nov. 2025<br>
+      ➤ Blockchain : Solana<br>
+      ➤ Adresse : <strong>Cvx4EU...xcBBvA</strong>
+    </div>
+
+    <a class="solscan-btn" href="https://solscan.io/token/Cvx4EUQH9krNR1apuz8eSb SWFDWkhPFGFln3XcBBwA" target="_blank">
+      Voir KRM sur Solscan →
+    </a>
   </div>
-</section>
 
-<!-- TOKEN 1 -->
-<section class="section">
-  <h2 class="section-title">🔥 Token 1 – (Nom de ton token)</h2>
+  <!-- TOKEN ORAX -->
+  <div class="token-card">
+    <h2>🟣 Token ORAX</h2>
+    <p>
+      ORAX est le deuxième token lié au projet.  
+      Il a été pensé plus sérieusement, avec une logique d’offre fixe et une potentielle utilité future dans l’écosystème.  
+      ORAX possède un branding plus abouti et une tokenomics maîtrisée.
+    </p>
 
-  <div class="card">
-    <h3>Description</h3>
-    <p>Ici, on mettra la description de ton premier token : utilité, vision, supply, objectif du projet, etc.</p>
+    <div class="token-stats">
+      <strong>📌 Informations principales :</strong><br>
+      ➤ Supply totale : <strong>1,000,000,000 ORAX</strong><br>
+      ➤ Décimales : 6<br>
+      ➤ Holders : 6<br>
+      ➤ Première émission : 1 nov. 2025<br>
+      ➤ Blockchain : Solana<br>
+      ➤ Adresse : <strong>Ej5okc...txpump</strong>
+    </div>
 
-    <div class="pill">Utility Token</div>
-    <div class="pill">Supply : …</div>
-    <div class="pill">Réseau : …</div>
+    <a class="solscan-btn" href="https://solscan.io/token/Ej5okcJ5oncGizz rwS53gjC9Dn4M7C3Uhzp1Ltxpupmp" target="_blank">
+      Voir ORAX sur Solscan →
+    </a>
   </div>
-</section>
 
-<!-- TOKEN 2 -->
-<section class="section">
-  <h2 class="section-title">🔥 Token 2 – (Nom du second token)</h2>
-
-  <div class="card">
-    <h3>Description</h3>
-    <p>Ici, on mettra tout ce qui concerne ton second token : rôle, utilité dans l’écosystème, caractéristiques, etc.</p>
-
-    <div class="pill">Governance Token</div>
-    <div class="pill">Supply : …</div>
-    <div class="pill">Réseau : …</div>
-  </div>
-</section>
-
-<!-- FUTUR -->
-<section class="section">
-  <h2 class="section-title">🚀 Feuille de Route</h2>
-
-  <div class="card">
-    <h3>Roadmap 2025</h3>
-    <ul>
-      <li>Développement des utilités des tokens</li>
-      <li>Lancement d’outils traders TORINVEST</li>
-      <li>Listing sur davantage de plateformes</li>
-      <li>Lancement d’un tableau de bord crypto dédié</li>
-      <li>Staking + Récompenses communautaires</li>
-    </ul>
-  </div>
 </section>
 
 <footer>
-  © 2025 TORINVEST • Projet Crypto Officiel
+  © 2025 TORINVEST – Trading • Macro • Crypto • Psychologie  
 </footer>
 
 </body>
