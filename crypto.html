@@ -1,548 +1,201 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>TORINVEST – Projet Crypto & Tokens</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TORINVEST – Projet Crypto</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    :root {
-      --bg: #050509;
-      --bg-alt: #0b0b13;
-      --card: #11111c;
-      --card-soft: #151522;
-      --border-subtle: rgba(255, 255, 255, 0.06);
-      --accent: #ffb400;
-      --accent-soft: rgba(255, 180, 0, 0.1);
-      --accent-2: #ff4b5c;
-      --text-main: #f5f5f7;
-      --text-muted: #9a9aad;
-      --pill-bg: rgba(255, 255, 255, 0.06);
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
     body {
       margin: 0;
       padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #151528 0, #050509 55%);
-      color: var(--text-main);
-      min-height: 100vh;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .page {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 18px 16px 40px;
+      font-family: "Inter", sans-serif;
+      background: #0d0d0d;
+      color: white;
     }
 
     header {
+      padding: 20px 50px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      margin-bottom: 26px;
-      gap: 12px;
+      align-items: center;
+      background: #0f0f0f;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
     .logo {
       display: flex;
       align-items: center;
       gap: 10px;
+      font-size: 22px;
+      font-weight: 700;
     }
 
-    .logo-img {
-      height: 40px;
-      width: auto;
-      border-radius: 8px;
-      display: block;
-    }
-
-    .logo-text-main {
-      font-weight: 600;
-      font-size: 17px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .logo-sub {
-      font-size: 11px;
-      color: var(--text-muted);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-    }
-
-    nav {
-      display: flex;
-      gap: 14px;
-      font-size: 14px;
+    .logo img {
+      height: 45px;
     }
 
     nav a {
-      padding: 6px 10px;
-      border-radius: 999px;
-      color: var(--text-muted);
-      background: transparent;
-      transition: 0.18s;
+      margin-left: 25px;
+      color: #bbb;
+      text-decoration: none;
+      font-weight: 500;
     }
 
     nav a:hover {
-      background: rgba(255, 255, 255, 0.06);
-      color: var(--text-main);
+      color: #ffb400;
     }
 
-    nav a.active {
-      background: var(--accent-soft);
-      color: var(--accent);
-      border: 1px solid rgba(255, 180, 0, 0.4);
-    }
-
-    main {
-      display: flex;
-      flex-direction: column;
-      gap: 22px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      background: var(--pill-bg);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--text-muted);
-    }
-
-    .pill-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
+    /* Hero */
     .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-      gap: 18px;
-      align-items: flex-start;
+      padding: 120px 50px;
+      text-align: center;
+      background: radial-gradient(circle at 50% 20%, rgba(255,180,0,0.15), transparent 70%);
     }
 
-    .hero-title {
-      font-size: 30px;
-      line-height: 1.15;
-      margin: 10px 0 10px;
-    }
-
-    .hero-title span {
-      background: linear-gradient(135deg, #ffb400, #ff4b5c);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    .hero-text {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.6;
-      max-width: 540px;
-    }
-
-    .hero-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 12px;
-    }
-
-    .tag {
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .hero-card {
-      background: radial-gradient(circle at top, #25253a 0, #11111c 60%);
-      border-radius: 18px;
-      padding: 16px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
-      font-size: 12px;
-    }
-
-    .hero-card-title {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--text-muted);
+    .hero h1 {
+      font-size: 56px;
+      font-weight: 800;
       margin-bottom: 10px;
     }
 
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+    .hero p {
+      font-size: 20px;
+      color: #ccc;
+      max-width: 850px;
+      margin: auto;
     }
 
-    .metric {
-      padding: 7px 8px;
-      border-radius: 10px;
-      background: rgba(0, 0, 0, 0.32);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .metric-label {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .metric-value {
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    .metric-badge {
-      display: inline-block;
-      margin-top: 4px;
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.4);
-      color: var(--accent);
-    }
-
-    .section-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-      gap: 18px;
-      margin-top: 8px;
-    }
-
+    /* Sections */
     .section {
-      background: var(--card);
-      border-radius: 16px;
-      border: 1px solid var(--border-subtle);
-      padding: 14px 14px 16px;
+      padding: 80px 50px;
+      max-width: 1200px;
+      margin: auto;
     }
 
     .section-title {
-      font-size: 15px;
-      margin-bottom: 6px;
+      font-size: 34px;
+      font-weight: 700;
+      margin-bottom: 20px;
     }
 
-    .section-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-bottom: 10px;
-    }
-
-    .token-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 10px;
-    }
-
-    .token-card {
-      background: var(--card-soft);
+    .card {
+      background: #1a1a1a;
+      padding: 25px;
       border-radius: 12px;
-      border: 1px solid var(--border-subtle);
-      padding: 10px 11px;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin-bottom: 25px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 26px;
+      color: #ffb400;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.3);
+      margin-right: 8px;
       font-size: 12px;
-    }
-
-    .token-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 4px;
-      gap: 6px;
-    }
-
-    .token-name {
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    .token-tag {
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-    }
-
-    .token-meta {
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-
-    .token-links {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-    }
-
-    .chip-link {
-      font-size: 11px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      color: var(--accent);
-    }
-
-    .roadmap-list {
-      list-style: none;
-      font-size: 12px;
-      color: var(--text-muted);
-      display: grid;
-      gap: 6px;
-      margin-top: 6px;
-    }
-
-    .roadmap-item strong {
-      color: var(--text-main);
-    }
-
-    .risk-box {
-      font-size: 11px;
-      color: var(--text-muted);
-      padding: 10px;
-      border-radius: 10px;
-      background: rgba(255, 75, 92, 0.05);
-      border: 1px solid rgba(255, 75, 92, 0.4);
-      margin-top: 6px;
-    }
-
-    .risk-box strong {
-      color: #ff878f;
+      opacity: 0.75;
     }
 
     footer {
-      margin-top: 22px;
-      font-size: 11px;
-      color: var(--text-muted);
+      margin-top: 80px;
       text-align: center;
-    }
-
-    @media (max-width: 800px) {
-      .hero {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .section-grid {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      nav {
-        width: 100%;
-        justify-content: flex-start;
-        flex-wrap: wrap;
-      }
+      padding: 30px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: #777;
+      font-size: 14px;
     }
   </style>
 </head>
 
 <body>
-  <div class="page">
-    <header>
-      <div class="logo">
-        <img src="forge-logo.png" alt="TORINVEST logo" class="logo-img" />
-        <div>
-          <div class="logo-text-main">TORINVEST</div>
-          <div class="logo-sub">TRADING • MACRO • PSYCHO • CRYPTO</div>
-        </div>
-      </div>
 
-      <nav>
-        <a href="index.html">Vision</a>
-        <a href="index.html#trading">Trading</a>
-        <a href="index.html#macro">Macroéconomie</a>
-        <a href="index.html#communaute">Communauté</a>
-        <a href="crypto.html" class="active">Crypto</a>
-        <a href="index.html#contact">Contact</a>
-      </nav>
-    </header>
-
-    <main>
-      <!-- HERO -->
-      <section class="hero">
-        <div>
-          <div class="pill">
-            <span class="pill-dot"></span>
-            PROJET CRYPTO TORINVEST
-          </div>
-
-          <h1 class="hero-title">
-            Deux tokens pour structurer<br />
-            <span>l’univers TORINVEST</span>.
-          </h1>
-
-          <p class="hero-text">
-            L’écosystème crypto TORINVEST vise à connecter la recherche macro, le trading et la
-            communauté autour de deux tokens complémentaires. L’un est conçu comme
-            <strong>token utilitaire</strong> pour l’accès à l’univers TORINVEST, l’autre comme
-            <strong>jeton de gouvernance / valeur interne</strong>.
-          </p>
-
-          <div class="hero-tags">
-            <span class="tag">Pas de promesse de gains</span>
-            <span class="tag">Transparence & pédagogie</span>
-            <span class="tag">Macro, trading & on-chain</span>
-          </div>
-        </div>
-
-        <aside class="hero-card">
-          <div class="hero-card-title">Vue d’ensemble</div>
-
-          <div class="metrics">
-            <div class="metric">
-              <div class="metric-label">Blockchain</div>
-              <div class="metric-value">Solana (SPL)</div>
-              <div class="metric-badge">Frais faibles, rapidité</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Nombre de tokens</div>
-              <div class="metric-value">2 actifs on-chain</div>
-              <div class="metric-badge">Utilité & gouvernance</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Approche</div>
-              <div class="metric-value">Projet long terme</div>
-              <div class="metric-badge">Construire, pas hype</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Public cible</div>
-              <div class="metric-value">Communauté TORINVEST</div>
-              <div class="metric-badge">Traders & curieux</div>
-            </div>
-          </div>
-        </aside>
-      </section>
-
-      <!-- TOKENS + ROADMAP -->
-      <section class="section-grid">
-        <div class="section">
-          <h2 class="section-title">Les 2 tokens TORINVEST</h2>
-          <p class="section-sub">
-            Détail provisoire, à affiner au fur et à mesure de l’avancement du projet.
-            Nous pourrons mettre à jour cette page avec les tokenomics complètes, les liens officiels
-            et la documentation on-chain.
-          </p>
-
-          <div class="token-grid">
-            <!-- TOKEN 1 -->
-            <article class="token-card">
-              <div class="token-header">
-                <div class="token-name">Token 1 – Utilitaire (ex : KRM)</div>
-                <span class="token-tag">Utility / Accès</span>
-              </div>
-              <div class="token-meta">
-                Rôle principal : accès à certaines parties de l’écosystème TORINVEST
-                (communauté privée, outils, modules de formation, bots, etc.).
-              </div>
-              <ul class="roadmap-list">
-                <li>• Accès à des salons privés (Discord / autre)</li>
-                <li>• Accès anticipé à certains contenus & outils</li>
-                <li>• Potentiellement utilisé comme “crédit interne” dans l’univers TORINVEST</li>
-              </ul>
-              <div class="token-links">
-                <!-- 👉 À remplacer par tes vrais liens -->
-                <a class="chip-link" href="#" target="_blank" rel="noopener">Explorer on-chain</a>
-                <a class="chip-link" href="#" target="_blank" rel="noopener">Contrat token</a>
-                <a class="chip-link" href="#" target="_blank" rel="noopener">Documentation</a>
-              </div>
-            </article>
-
-            <!-- TOKEN 2 -->
-            <article class="token-card">
-              <div class="token-header">
-                <div class="token-name">Token 2 – Gouvernance / Valeur interne</div>
-                <span class="token-tag">Gouvernance</span>
-              </div>
-              <div class="token-meta">
-                Rôle principal : réfléchir à une gouvernance de l’univers TORINVEST et un alignement
-                long terme avec la communauté (à définir avec prudence).
-              </div>
-              <ul class="roadmap-list">
-                <li>• Paramètres de la communauté (propositions / votes)</li>
-                <li>• Réflexion sur les droits associés (non-financiers au début)</li>
-                <li>• Possibilité d’intégrer plus tard la logique de trésorerie communautaire</li>
-              </ul>
-              <div class="token-links">
-                <!-- 👉 À remplacer par tes vrais liens -->
-                <a class="chip-link" href="#" target="_blank" rel="noopener">Explorer on-chain</a>
-                <a class="chip-link" href="#" target="_blank" rel="noopener">Contrat token</a>
-                <a class="chip-link" href="#" target="_blank" rel="noopener">Future doc</a>
-              </div>
-            </article>
-          </div>
-        </div>
-
-        <div class="section">
-          <h2 class="section-title">Feuille de route (provisoire)</h2>
-          <p class="section-sub">
-            La roadmap ci-dessous n’est pas une promesse. C’est un plan de travail pour structurer
-            l’univers TORINVEST autour de la pédagogie, du trading, de la macro et de la crypto.
-          </p>
-
-          <ul class="roadmap-list">
-            <li class="roadmap-item">
-              <strong>Phase 1 – Mise en place & transparence</strong><br />
-              Tokens déployés, documentation de base, page explicative (celle que tu lis), suivi
-              des premières interactions on-chain.
-            </li>
-            <li class="roadmap-item">
-              <strong>Phase 2 – Outils & communauté</strong><br />
-              Lier les tokens à des accès concrets : salons privés, outils de suivi macro,
-              bots de veille géopolitique / matières premières, contenus avancés.
-            </li>
-            <li class="roadmap-item">
-              <strong>Phase 3 – Gouvernance progressive</strong><br />
-              Réflexion sur la gouvernance (sans délire de DAO marketing) : votes consultatifs,
-              décisions structurantes pour l’écosystème, trésorerie transparente.
-            </li>
-            <li class="roadmap-item">
-              <strong>Phase 4 – Ajustements & long terme</strong><br />
-              Ajuster la tokenomics, la répartition et l’utilité réelle selon
-              la réalité du projet (et pas l’inverse).
-            </li>
-          </ul>
-
-          <div class="risk-box">
-            <strong>⚠ Avertissement important</strong><br />
-            Les tokens TORINVEST ne sont pas une promesse de gains, ni un produit
-            d’investissement classique. Ils représentent un outil expérimental pour structurer
-            la communauté et certains accès internes. Ne mets jamais plus que ce que tu es prêt
-            à perdre à 100 %, et garde en tête la volatilité extrême du marché crypto.
-          </div>
-        </div>
-      </section>
-
-      <footer>
-        Page provisoire. Les informations pourront être mises à jour à mesure que le
-        projet avance et que la documentation officielle est publiée.
-      </footer>
-    </main>
+<header>
+  <div class="logo">
+    <img src="forge-logo.png" alt="Torinvest Logo">
+    TORINVEST
   </div>
+
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="crypto.html" style="color:#ffb400;">Crypto</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <h1>Projet Crypto TORINVEST</h1>
+  <p>Découvrez les tokens de l’écosystème TORINVEST : une vision long terme basée sur la transparence, l’utilité et la construction d’un écosystème durable.</p>
+</section>
+
+<!-- SECTION : Présentation globale -->
+<section class="section">
+  <h2 class="section-title">🌐 Vision du Projet</h2>
+
+  <div class="card">
+    <p>TORINVEST développe un écosystème complet autour de deux tokens déjà déployés sur blockchain.  
+    L’objectif : offrir utilité, stabilité, transparence et gouvernance progressive à une communauté engagée.</p>
+
+    <p>Chaque token possède un rôle unique : récompenses, gouvernance, utilité future dans des outils et applications TORINVEST.</p>
+  </div>
+</section>
+
+<!-- TOKEN 1 -->
+<section class="section">
+  <h2 class="section-title">🔥 Token 1 – (Nom de ton token)</h2>
+
+  <div class="card">
+    <h3>Description</h3>
+    <p>Ici, on mettra la description de ton premier token : utilité, vision, supply, objectif du projet, etc.</p>
+
+    <div class="pill">Utility Token</div>
+    <div class="pill">Supply : …</div>
+    <div class="pill">Réseau : …</div>
+  </div>
+</section>
+
+<!-- TOKEN 2 -->
+<section class="section">
+  <h2 class="section-title">🔥 Token 2 – (Nom du second token)</h2>
+
+  <div class="card">
+    <h3>Description</h3>
+    <p>Ici, on mettra tout ce qui concerne ton second token : rôle, utilité dans l’écosystème, caractéristiques, etc.</p>
+
+    <div class="pill">Governance Token</div>
+    <div class="pill">Supply : …</div>
+    <div class="pill">Réseau : …</div>
+  </div>
+</section>
+
+<!-- FUTUR -->
+<section class="section">
+  <h2 class="section-title">🚀 Feuille de Route</h2>
+
+  <div class="card">
+    <h3>Roadmap 2025</h3>
+    <ul>
+      <li>Développement des utilités des tokens</li>
+      <li>Lancement d’outils traders TORINVEST</li>
+      <li>Listing sur davantage de plateformes</li>
+      <li>Lancement d’un tableau de bord crypto dédié</li>
+      <li>Staking + Récompenses communautaires</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  © 2025 TORINVEST • Projet Crypto Officiel
+</footer>
+
 </body>
 </html>
