@@ -2,208 +2,558 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Crypto – TORINVEST</title>
 
   <style>
-    body {
+    :root {
+      --bg-main: #050509;
+      --bg-card: #11111b;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.15);
+      --text-main: #f5f5f7;
+      --text-muted: #a4a4bb;
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      background: #0a0a0a;
-      color: #ddd;
-      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, #202040 0, transparent 55%),
+        radial-gradient(circle at bottom, #120808 0, #050509 60%);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     header {
-      padding: 25px 50px;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.12), transparent 55%)
+                  ,
+                  rgba(5, 5, 9, 0.9);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 14px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(0,0,0,0.4);
-      border-bottom: 1px solid rgba(255,191,0,0.2);
     }
 
-    .logo {
+    .logo-wrap {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 20px;
-      color: #fff;
-      font-weight: 700;
     }
 
-    .logo img {
+    .logo-wrap img {
       height: 40px;
-      border-radius: 6px;
+      width: auto;
+      border-radius: 8px;
+    }
+
+    .logo-text-main {
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      font-size: 13px;
+    }
+
+    .logo-text-sub {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-size: 14px;
     }
 
     nav a {
-      margin-left: 20px;
-      color: #ccc;
-      text-decoration: none;
-      font-size: 15px;
-      transition: 0.3s;
       position: relative;
+      text-decoration: none;
+      color: var(--text-muted);
+      padding-bottom: 2px;
     }
 
-    nav a:hover {
-      color: #ffb400;
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), #ff4b5c);
+      transition: width 0.2s ease;
     }
 
-    section {
-      max-width: 1100px;
-      margin: auto;
-      padding: 60px 20px;
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    nav a.active {
+      color: var(--accent);
+    }
+
+    nav a.active::after {
+      width: 100%;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 40px 18px 60px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
+      gap: 32px;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      margin-bottom: 8px;
     }
 
     h1 {
-      font-size: 42px;
-      color: #ffb400;
-      text-align: center;
-      margin-bottom: 20px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 650;
+      line-height: 1.15;
+      margin-bottom: 12px;
     }
 
-    p.center {
-      text-align: center;
-      max-width: 700px;
-      margin: auto;
+    h1 span {
+      color: var(--accent);
+    }
+
+    .hero p {
+      font-size: 14px;
+      color: var(--text-muted);
       line-height: 1.7;
-      font-size: 16px;
-      color: #ccc;
+      max-width: 520px;
     }
 
-    .token-card {
-      background: linear-gradient(145deg, #111, #0a0a0a);
-      padding: 40px;
-      border-radius: 14px;
-      margin-top: 50px;
-      border: 1px solid rgba(255,191,0,0.2);
-      box-shadow: 0 0 25px rgba(255,191,0,0.08);
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
     }
 
-    .token-card h2 {
-      color: #ffb400;
-      font-size: 28px;
+    .chip {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--text-muted);
+    }
+
+    .chip-gold {
+      border-color: rgba(255, 180, 0, 0.6);
+      color: var(--accent);
+    }
+
+    .hero-panel {
+      position: relative;
+      border-radius: 18px;
+      padding: 20px 18px;
+      background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.2), transparent 55%),
+                  radial-gradient(circle at bottom, rgba(255, 75, 92, 0.12), transparent 55%),
+                  #0b0b13;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 22px 45px rgba(0, 0, 0, 0.8);
+    }
+
+    .hero-panel-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
       margin-bottom: 10px;
     }
 
-    .token-stats {
-      margin-top: 20px;
-      padding: 20px;
-      border-left: 3px solid #ffb400;
-      background: rgba(255,191,0,0.05);
-      border-radius: 6px;
-      font-size: 16px;
-      line-height: 1.8;
+    .hero-panel-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 12px;
     }
 
-    .solscan-btn {
+    .hero-panel-label {
+      color: var(--text-muted);
+    }
+
+    .hero-panel-value {
+      font-weight: 500;
+    }
+
+    .pill {
       display: inline-block;
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: #ffb400;
-      color: #000;
-      border-radius: 6px;
-      font-weight: 700;
-      text-decoration: none;
-      transition: 0.3s;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: #fefefe;
     }
 
-    .solscan-btn:hover {
-      background: #e0a200;
+    .pill-krm {
+      border-color: rgba(255, 180, 0, 0.7);
+      color: var(--accent);
+    }
+
+    .pill-orax {
+      border-color: rgba(120, 97, 255, 0.7);
+      color: #c7b6ff;
+    }
+
+    .tokens-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 22px;
+      margin-top: 32px;
+    }
+
+    .token-card {
+      background: radial-gradient(circle at top, rgba(255, 180, 0, 0.05), transparent 55%),
+                  var(--bg-card);
+      border-radius: 16px;
+      padding: 22px 20px 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 16px 32px rgba(0, 0, 0, 0.8);
+    }
+
+    .token-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .token-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .token-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .token-body {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #d6d6e6;
+      margin-bottom: 14px;
+    }
+
+    .token-list {
+      list-style: none;
+      margin-bottom: 14px;
+      padding-left: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .token-list li::before {
+      content: "• ";
+      color: var(--accent);
+    }
+
+    .token-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      flex-wrap: wrap;
+    }
+
+    .btn-solscan {
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #ff4b5c);
+      font-size: 11px;
+      font-weight: 600;
+      color: #1b1305;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-solscan span {
+      font-size: 13px;
+    }
+
+    .vision {
+      margin-top: 40px;
+      padding: 22px 20px 20px;
+      border-radius: 18px;
+      background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.12), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(140, 90, 255, 0.14), transparent 55%),
+                  #050509;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .vision h2 {
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+
+    .vision p {
+      font-size: 14px;
+      color: #d7d7ea;
+      line-height: 1.75;
+      margin-bottom: 12px;
+    }
+
+    .vision-list {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .vision-list li {
+      margin-bottom: 4px;
+    }
+
+    .vision-list li::before {
+      content: "› ";
+      color: var(--accent);
+    }
+
+    .cta-bottom {
+      margin-top: 34px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .cta-bottom a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 9px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .cta-bottom a:hover {
+      background: rgba(255, 255, 255, 0.04);
     }
 
     footer {
       text-align: center;
-      padding: 30px;
-      margin-top: 60px;
-      color: #555;
-      font-size: 14px;
-      border-top: 1px solid rgba(255,191,0,0.1);
+      padding: 26px 18px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    @media (max-width: 860px) {
+      header {
+        padding: 12px 18px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      nav {
+        flex-wrap: wrap;
+      }
+
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .tokens-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
   </style>
 </head>
 
 <body>
 <header>
-  <div class="logo">
-    <img src="forge-logo.png" alt="Torinvest Logo" />
-    TORINVEST
+  <div class="logo-wrap">
+    <img src="forge-logo.png" alt="TORINVEST" />
+    <div>
+      <div class="logo-text-main">TORINVEST</div>
+      <div class="logo-text-sub">TRADING • MACRO • PSYCHO • CRYPTO</div>
+    </div>
   </div>
 
   <nav>
     <a href="index.html">Accueil</a>
-    <a href="trading.html">Trading</a>
-    <a href="macro.html">Macro</a>
-    <a href="communaute.html">Communauté</a>
-    <a href="crypto.html" style="color:#ffb400;">Crypto</a>
-    <a href="contact.html">Contact</a>
+    <a href="index.html#trading">Trading</a>
+    <a href="index.html#macro">Macro</a>
+    <a href="index.html#communaute">Communauté</a>
+    <a href="crypto.html" class="active">Crypto</a>
+    <a href="index.html#contact">Contact</a>
   </nav>
 </header>
 
-
-<section>
-  <h1>Les Tokens Officiels TORINVEST</h1>
-  <p class="center">
-    Le projet TORINVEST s'étend désormais dans l’écosystème blockchain, avec deux tokens stratégiques lancés sur Solana.  
-    Chaque token répond à une logique claire : utilité, expérimentation et construction d’un écosystème cohérent.
-  </p>
-
-  <!-- TOKEN KRM -->
-  <div class="token-card">
-    <h2>🔥 Token KRM</h2>
-    <p>
-      KRM est le premier token expérimental de l’univers TORINVEST.  
-      Il a été conçu pour tester différentes mécaniques : supply dynamique, comportements utilisateurs, liquidité et micro-économie.  
-      Ce token est **déjà en circulation** et commence à se structurer autour d'une petite communauté.
-    </p>
-
-    <div class="token-stats">
-      <strong>📌 Informations principales :</strong><br>
-      ➤ Supply actuelle : <strong>20,999,780 KRM</strong><br>
-      ➤ Décimales : 6<br>
-      ➤ Holders : 9<br>
-      ➤ Première émission : 12 nov. 2025<br>
-      ➤ Blockchain : Solana<br>
-      ➤ Adresse : <strong>Cvx4EU...xcBBvA</strong>
+<main>
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Économie interne TORINVEST</div>
+      <h1>
+        L’univers <span>crypto</span> de la Forge
+      </h1>
+      <p>
+        L’économie TORINVEST vient de s’éveiller. Deux piliers structurent désormais l’univers :
+        <strong>KRM</strong>, la monnaie vivante, et <strong>ORAX</strong>, le symbole de la connaissance dorée.
+      </p>
+      <div class="chips">
+        <div class="chip chip-gold">KRM – Monnaie utilitaire &amp; humaine</div>
+        <div class="chip">ORAX – Savoir, clarté &amp; discipline</div>
+        <div class="chip">Écosystème long terme</div>
+      </div>
     </div>
 
-    <a class="solscan-btn" href="https://solscan.io/token/Cvx4EUQH9krNR1apuz8eSb SWFDWkhPFGFln3XcBBwA" target="_blank">
-      Voir KRM sur Solscan →
-    </a>
-  </div>
-
-  <!-- TOKEN ORAX -->
-  <div class="token-card">
-    <h2>🟣 Token ORAX</h2>
-    <p>
-      ORAX est le deuxième token lié au projet.  
-      Il a été pensé plus sérieusement, avec une logique d’offre fixe et une potentielle utilité future dans l’écosystème.  
-      ORAX possède un branding plus abouti et une tokenomics maîtrisée.
-    </p>
-
-    <div class="token-stats">
-      <strong>📌 Informations principales :</strong><br>
-      ➤ Supply totale : <strong>1,000,000,000 ORAX</strong><br>
-      ➤ Décimales : 6<br>
-      ➤ Holders : 6<br>
-      ➤ Première émission : 1 nov. 2025<br>
-      ➤ Blockchain : Solana<br>
-      ➤ Adresse : <strong>Ej5okc...txpump</strong>
+    <div class="hero-panel">
+      <div class="hero-panel-title">Dashboard FORGE</div>
+      <div class="hero-panel-line">
+        <span class="hero-panel-label">Piliers de l’économie</span>
+        <span class="hero-panel-value">
+          <span class="pill pill-krm">KRM – Énergie</span>
+          <span class="pill pill-orax">ORAX – Savoir</span>
+        </span>
+      </div>
+      <div class="hero-panel-line">
+        <span class="hero-panel-label">Objectif</span>
+        <span class="hero-panel-value">Construire une économie de communauté, pas un casino.</span>
+      </div>
+      <div class="hero-panel-line">
+        <span class="hero-panel-label">Vision</span>
+        <span class="hero-panel-value">Séparer la valeur (KRM) et la connaissance (ORAX).</span>
+      </div>
     </div>
+  </section>
 
-    <a class="solscan-btn" href="https://solscan.io/token/Ej5okcJ5oncGizz rwS53gjC9Dn4M7C3Uhzp1Ltxpupmp" target="_blank">
-      Voir ORAX sur Solscan →
-    </a>
+  <section class="tokens-grid">
+    <!-- KRM -->
+    <article class="token-card">
+      <div class="token-label">Token utilitaire &amp; humain</div>
+      <div class="token-title">KRM — La Monnaie de la Forge</div>
+      <div class="token-sub">
+        Le jeton de valeur, l’énergie brute de l’univers TORINVEST.
+      </div>
+      <div class="token-body">
+        KRM est la <strong>monnaie vivante</strong> du projet TORINVEST.  
+        Il représente l’effort, la contribution et la valeur créée par la communauté elle-même,
+        pas par les institutions.
+      </div>
+      <ul class="token-list">
+        <li>Monnaie interne pour les futurs outils, modules et accès TORINVEST.</li>
+        <li>Récompense potentielle des contributions de la communauté (engagement, défis, projets).</li>
+        <li>Symbole de l’énergie humaine canalisée : discipline, travail, progression.</li>
+        <li>Flux de valeur au cœur de l’écosystème, au service des bâtisseurs, pas des spéculateurs de passage.</li>
+      </ul>
+      <div class="token-body">
+        KRM est pensé comme un <strong>outil</strong>, pas comme un ticket de loterie.  
+        Il accompagne la construction lente et lucide de l’univers TORINVEST.
+      </div>
+      <div class="token-footer">
+        <span>Token Solana – orienté utilité &amp; communauté.</span>
+        <a class="btn-solscan" href="REMPLACE_ICI_URL_SOLSCAN_KRM" target="_blank" rel="noopener">
+          <span>Voir KRM sur Solscan</span> ↗
+        </a>
+      </div>
+    </article>
+
+    <!-- ORAX -->
+    <article class="token-card">
+      <div class="token-label">Token symbolique du savoir</div>
+      <div class="token-title">ORAX — La Connaissance Dorée</div>
+      <div class="token-sub">
+        La lumière dans l’obscurité des marchés.
+      </div>
+      <div class="token-body">
+        ORAX est un jeton symbolique incarnant la sagesse, la clarté et la maîtrise
+        dans un monde saturé de bruit, de hype et de désinformation.
+        Il unit ceux qui veulent comprendre les dynamiques réelles des marchés
+        et dominer leur propre psychologie.
+      </div>
+      <ul class="token-list">
+        <li>Signe d’appartenance à la “garde éclairée” de TORINVEST.</li>
+        <li>Potentiel accès futur à du contenu avancé, des analyses macro et des rooms privées.</li>
+        <li>Symbole d’intelligence, de discipline et d’indépendance face au système.</li>
+        <li>Token de reconnaissance plus que de spéculation : la clarté avant le profit.</li>
+      </ul>
+      <div class="token-body">
+        ORAX n’est pas seulement un actif numérique.  
+        C’est un <strong>marqueur de posture mentale</strong> : choisir la compréhension plutôt que la réaction.
+      </div>
+      <div class="token-footer">
+        <span>Token Solana – orienté savoir &amp; identité de la Forge.</span>
+        <a class="btn-solscan" href="REMPLACE_ICI_URL_SOLSCAN_ORAX" target="_blank" rel="noopener">
+          <span>Voir ORAX sur Solscan</span> ↗
+        </a>
+      </div>
+    </article>
+  </section>
+
+  <section class="vision">
+    <h2>Vision de la tokenisation TORINVEST</h2>
+    <p>
+      TORINVEST n’a pas créé deux tokens pour “faire comme les autres”.
+      L’objectif n’est pas d’alimenter un casino de plus, mais de structurer
+      une <strong>économie de communauté</strong> cohérente, lisible, assumée.
+    </p>
+    <p>
+      La séparation entre KRM et ORAX est volontaire :
+    </p>
+    <ul class="vision-list">
+      <li><strong>KRM</strong> porte la valeur, le mouvement, l’utilité concrète.</li>
+      <li><strong>ORAX</strong> porte le savoir, la lucidité et la discipline mentale.</li>
+      <li>Ensemble, ils créent un binôme : <em>énergie + vision</em>.</li>
+    </ul>
+    <p>
+      La tokenisation TORINVEST est pensée long terme :  
+      construire un espace où les membres ne sont pas des consommateurs,
+      mais des bâtisseurs lucidement armés face aux marchés et à la guerre économique globale.
+    </p>
+  </section>
+
+  <div class="cta-bottom">
+    La Forge continue de se construire, bloc après bloc.  
+    <br />
+    <a href="index.html">← Retourner à la page principale TORINVEST</a>
   </div>
-
-</section>
+</main>
 
 <footer>
-  © 2025 TORINVEST – Trading • Macro • Crypto • Psychologie  
+  © 2025 TORINVEST — Trading • Macro • Crypto • Psychologie.  
+  Aucun conseil en investissement. Univers éducatif &amp; expérimental.
 </footer>
-
 </body>
 </html>
+
