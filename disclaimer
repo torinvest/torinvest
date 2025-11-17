@@ -60,6 +60,7 @@
 
     a {
       color: var(--accent);
+      text-decoration: none;
     }
 
     .back {
@@ -139,4 +140,3 @@
   </div>
 </body>
 </html>
-
