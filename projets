@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Projets – TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: #f5f5f7;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 960px;
+      background: #0e0e18;
+      border-radius: 22px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 22px 60px rgba(0,0,0,0.9);
+      padding: 22px 22px 20px;
+    }
+
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo img {
+      height: 44px;
+      width: auto;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.08em;
+    }
+
+    .logo-sub {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #9a9aad;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,180,0,0.7);
+      background: rgba(255,180,0,0.08);
+      color: #ffb400;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    h1 span {
+      background: linear-gradient(120deg, #ffb400, #ff4b5c);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .intro {
+      font-size: 14px;
+      color: #a7a7b8;
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .divider {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255,180,0,0),
+        rgba(255,180,0,0.9),
+        rgba(255,75,92,0)
+      );
+      margin: 10px 0 16px;
+      opacity: 0.8;
+    }
+
+    .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9a9aad;
+      margin-bottom: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      padding: 12px 12px 10px;
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 13px;
+      color: #a7a7b8;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      gap: 6px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f5f5f7;
+    }
+
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #d1d1e0;
+      white-space: nowrap;
+    }
+
+    .badge.soon {
+      border-color: rgba(255,180,0,0.7);
+      color: #ffb400;
+    }
+
+    .card-footer {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #7f7f93;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .card-footer a {
+      color: #ffb400;
+      text-decoration: none;
+      opacity: 0.9;
+    }
+
+    .card-footer a:hover {
+      opacity: 1;
+    }
+
+    .footer-row {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      color: #7f7f93;
+      align-items: center;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 8px 15px;
+      font-size: 12px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb400, #ff4b5c);
+      color: #1b1305;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.8);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.95);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.18);
+      color: #d1d1e0;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.04);
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .shell {
+        padding: 20px 16px 18px;
+      }
+      .top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="shell">
+    <div class="top">
+      <div class="logo">
+        <img src="forge-logo.png" alt="TORINVEST Logo" />
+        <div class="logo-text">
+          <div class="logo-title">TORINVEST</div>
+          <div class="logo-sub">PROJETS EN CONSTRUCTION</div>
+        </div>
+      </div>
+      <div class="pill">Écosystème TORINVEST</div>
+    </div>
+
+    <h1>Les <span>projets</span> de l’univers TORINVEST 🔧</h1>
+    <p class="intro">
+      TORINVEST n’est pas seulement un site ou une formation, mais un écosystème en construction.
+      Bots, indicateurs, tokens, contenus pédagogiques&nbsp;: chaque projet vise à apporter de la
+      clarté, de la structure et des outils concrets à la communauté, toujours dans une logique
+      <strong>éducative et expérimentale</strong>.
+    </p>
+
+    <div class="divider"></div>
+
+    <div class="section-title">En cours & en préparation</div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Formation TORINVEST</div>
+          <div class="badge soon">Bientôt</div>
+        </div>
+        <p>
+          Une formation structurée sur le trading, la macroéconomie et la psychologie des marchés.
+          Pas de promesse de gains, mais une base solide pour lire le marché avec plus de lucidité
+          et éviter les pièges classiques.
+        </p>
+        <div class="card-footer">
+          <span>Module théorique + pratique</span>
+          <a href="formation.html">Accéder à la page formation →</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Tokens KRM &amp; ORAX</div>
+          <div class="badge">Expérimental</div>
+        </div>
+        <p>
+          Deux tokens symboliques dans l’univers TORINVEST&nbsp;: KRM, lié à la dimension utilitaire
+          &amp; humaine, et ORAX, lié à la connaissance et à la lucidité. Pensés comme des briques
+          de l’écosystème, pas comme des promesses de rendement.
+        </p>
+        <div class="card-footer">
+          <span>Projet blockchain éducatif</span>
+          <a href="crypto.html">En savoir plus sur les tokens →</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Bot géopolitique & macro</div>
+          <div class="badge">Concept</div>
+        </div>
+        <p>
+          Un bot dédié au suivi des tensions géopolitiques, sanctions, guerres commerciales et
+          décisions majeures impactant les devises, matières premières et indices.
+        </p>
+        <div class="card-footer">
+          <span>Alertes & veille contextuelle</span>
+          <span>Discord / app à terme</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Bot matières premières</div>
+          <div class="badge">Concept</div>
+        </div>
+        <p>
+          Suivi des matières premières clés (or, pétrole, cuivre, etc.), des cycles de production,
+          des annonces OPEP, et des liens avec les cycles économiques globaux.
+        </p>
+        <div class="card-footer">
+          <span>Suivi cycles & production</span>
+          <span>Vision long terme</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Indicateurs TradingView TORINVEST</div>
+          <div class="badge soon">En réflexion</div>
+        </div>
+        <p>
+          Création d’indicateurs sur mesure (price action, liquidités, macro-références) pour aider
+          à structurer les décisions et repérer les zones clés sans tomber dans l’usine à gaz.
+        </p>
+        <div class="card-footer">
+          <span>Outils d’analyse</span>
+          <span>Scalping & swing</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Application TORINVEST</div>
+          <div class="badge">Vision</div>
+        </div>
+        <p>
+          Un espace centralisé pour retrouver l’univers TORINVEST&nbsp;: contenus éducatifs, suivi
+          macro, outils, ressources et interactions avec la communauté.
+        </p>
+        <div class="card-footer">
+          <span>Long terme</span>
+          <span>Mobile & web (objectif)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Philosophie globale</div>
+    <p class="intro" style="margin-bottom:10px;">
+      Tous ces projets ont un point commun&nbsp;: <strong>remettre de la structure, de la lucidité
+      et de l’honnêteté</strong> dans un environnement saturé de promesses faciles. TORINVEST ne
+      prétend pas éliminer le risque, mais aider à mieux le comprendre et l’assumer.
+    </p>
+
+    <div class="footer-row">
+      <div class="btn-row">
+        <a href="/" class="btn btn-primary">← Retour au site TORINVEST</a>
+        <a href="forge.html" class="btn btn-ghost">Comprendre la Forge</a>
+      </div>
+      <div>
+        TORINVEST – Écosystème éducatif &amp; expérimental. Aucun conseil en investissement.
+      </div>
+    </div>
+  </div>
+</body>
+</html>
