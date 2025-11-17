@@ -879,6 +879,7 @@
           </p>
 
 <form
+  id="waitlist-form"
   name="liste-attente-torinvest"
   method="POST"
   data-netlify="true"
@@ -886,10 +887,8 @@
 >
   <!-- Champ caché obligatoire pour Netlify -->
   <input type="hidden" name="form-name" value="liste-attente-torinvest" />
-  <!-- Redirection forcée vers merci.html -->
-  <input type="hidden" name="redirect" value="/merci.html" />
 
-  <!-- Honeypot anti-bot (invisible pour les humains) -->
+  <!-- Honeypot anti-bot (invisible) -->
   <p style="display:none">
     <label>Ne pas remplir : <input name="bot-field" /></label>
   </p>
@@ -909,6 +908,7 @@
 </form>
 
 
+
         </div>
       </section>
 
@@ -921,8 +921,34 @@
     </footer>
   </div>
 
-  <script>
+   <script>
+    // année dans le footer
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // gestion Netlify + redirection custom
+    const form = document.getElementById('waitlist-form');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault(); // on empêche le submit "normal"
+
+        const data = new FormData(form);
+
+        // envoi à Netlify (Netlify voit la requête et enregistre le lead)
+        fetch('/', {
+          method: 'POST',
+          body: data
+        })
+        .then(() => {
+          // si tout va bien : on redirige vers ta page Merci
+          window.location.href = 'merci.html';
+        })
+        .catch(() => {
+          // même en cas d'erreur réseau, on envoie vers merci.html
+          window.location.href = 'merci.html';
+        });
+      });
+    }
   </script>
 </body>
 </html>
+
