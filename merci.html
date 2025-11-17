@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Merci – TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      height: 100vh;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: #f5f5f7;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Lueur forge en bas */
+    .forge-glow {
+      position: fixed;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 360px;
+      height: 160px;
+      background: radial-gradient(circle, rgba(255,180,0,0.7), transparent 60%);
+      filter: blur(8px);
+      opacity: 0.8;
+      pointer-events: none;
+      animation: pulse 2.2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(1); }
+      50% { opacity: 0.95; transform: translateX(-50%) scale(1.08); }
+    }
+
+    .box {
+      position: relative;
+      width: 92%;
+      max-width: 480px;
+      padding: 28px 22px 24px;
+      background: #11111c;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.8);
+      text-align: center;
+      animation: fadeIn 0.7s ease-out;
+      z-index: 1;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 4px;
+    }
+
+    .logo img {
+      height: 64px;
+      width: auto;
+      border-radius: 10px;
+      display: block;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #a7a7b8;
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    h1 span {
+      color: #ffb400;
+    }
+
+    p {
+      color: #a7a7b8;
+      font-size: 14px;
+      line-height: 1.55;
+      margin-bottom: 18px;
+    }
+
+    .divider {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg,
+        rgba(255,180,0,0),
+        rgba(255,180,0,0.8),
+        rgba(255,75,92,0)
+      );
+      margin: 8px 0 16px;
+      opacity: 0.7;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb400, #ff4b5c);
+      color: #1b1305;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.8);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.9);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.16);
+      color: #d1d1e0;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.03);
+    }
+
+    .note {
+      font-size: 11px;
+      color: #6f6f82;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 500px) {
+      .box {
+        padding: 24px 18px 20px;
+      }
+      .logo img {
+        height: 56px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="forge-glow"></div>
+
+  <div class="box">
+    <div class="logo">
+      <img src="forge-logo.png" alt="TORINVEST - La Forge s'éveille" />
+      <div class="logo-sub">TORINVEST • LA FORGE S'ÉVEILLE</div>
+    </div>
+
+    <h1>Merci, <span>la forge t’a entendu</span> 🔥</h1>
+    <p>
+      Ton email a bien été ajouté à la liste d'attente TORINVEST.<br/>
+      Tu seras prévenu dès que les premiers modules, outils et accès privés seront disponibles.
+    </p>
+
+    <div class="divider"></div>
+
+    <div class="buttons">
+      <a class="btn btn-primary" href="/">
+        ← Retour au site TORINVEST
+      </a>
+
+      <!-- Remplace # par ton vrai lien Discord / Telegram / autre -->
+      <a class="btn btn-ghost" href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
+        Rejoindre le discord TORINVEST 
+      </a>
+    </div>
+
+    <div class="note">
+      Aucun spam. Tu ne recevras que des infos utiles liées à TORINVEST.
+    </div>
+  </div>
+</body>
+</html>
