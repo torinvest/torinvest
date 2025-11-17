@@ -185,6 +185,62 @@
   justify-content: flex-end;
 }
 
+
+    .ticker {
+      margin-top: 8px;
+      width: 100%;
+      overflow: hidden;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: radial-gradient(circle at 0% 50%, rgba(255, 180, 0, 0.25), transparent 60%),
+                  radial-gradient(circle at 100% 50%, rgba(255, 75, 92, 0.2), transparent 60%),
+                  rgba(0, 0, 0, 0.65);
+      padding: 4px 0;
+    }
+
+    .ticker-track {
+      display: inline-flex;
+      gap: 40px;
+      white-space: nowrap;
+      animation: ticker-scroll 26s linear infinite;
+      padding-left: 100%;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .ticker-track span {
+      opacity: 0.9;
+    }
+
+    @keyframes ticker-scroll {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-100%);
+      }
+    }
+
+    /* Pour que le bandeau prenne bien la largeur côté droit du header */
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      width: 100%;
+    }
+
+    @media (max-width: 880px) {
+      .ticker-track {
+        font-size: 10px;
+        animation-duration: 20s;
+      }
+    }
+    
+    
+    
 .buy-card {
   display: flex;
   flex-direction: column;
@@ -593,6 +649,15 @@
     <div class="buy-sub">Soutenir le projet</div>
   </a>
 </div>
+    <div class="ticker">
+      <div class="ticker-track">
+        <span>⚡ L’économie TORINVEST s’éveille : KRM &amp; ORAX prennent vie.</span>
+        <span>🪙 KRM – Monnaie utilitaire &amp; humaine de la Forge.</span>
+        <span>✨ ORAX – Connaissance dorée, lucidité face au marché.</span>
+        <span>🧠 Trading • Macro • Psychologie • Crypto – Univers TORINVEST.</span>
+        <span>🚨 Aucun conseil en investissement – Projet éducatif &amp; expérimental.</span>
+      </div>
+    </div>
 
 
     </div>
