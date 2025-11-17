@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Airdrop – Les Premiers Forgerons | TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Airdrop Torinvest – gagne des tokens KRM & ORAX en rejoignant la communauté et en invitant d'autres forgerons." />
+
+  <style>
+    :root {
+      --bg: #050509;
+      --bg-alt: #0a0a12;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.12);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+      --danger: #ff4b5c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 40px;
+      width: auto;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 14px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      position: relative;
+      padding-bottom: 3px;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffb400, #ff4b5c);
+      transition: width 0.2s ease;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    /* HERO AIRDROP */
+    .hero-airdrop {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+      gap: 28px;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(255, 180, 0, 0.08);
+      border: 1px solid rgba(255, 180, 0, 0.4);
+      color: var(--accent);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #15d16b;
+      box-shadow: 0 0 6px #15d16b;
+    }
+
+    .hero-title {
+      font-size: clamp(26px, 5vw, 36px);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      margin: 14px 0 10px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(120deg, #ffb400, #ff4b5c);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 540px;
+      margin-bottom: 14px;
+    }
+
+    .hero-list {
+      list-style: none;
+      font-size: 13px;
+      color: var(--muted);
+      display: grid;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .hero-list li::before {
+      content: "•";
+      color: var(--accent);
+      margin-right: 6px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb400, #ff4b5c);
+      color: #1a1305;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.9);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--muted);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    /* CARTE RECOMPENSES */
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+    }
+
+    .card-label {
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .card-text {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .rewards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .reward {
+      padding: 10px 10px 9px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 12px;
+    }
+
+    .reward-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .reward-badge {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    /* SECTIONS */
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+      max-width: 720px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 20px;
+      margin-top: 28px;
+    }
+
+    .steps-list {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .step-item {
+      padding: 9px 11px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-top: 1px;
+    }
+
+    .step-content strong {
+      color: #ffffff;
+    }
+
+    .note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .note span {
+      color: var(--accent);
+    }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 16px;
+      margin-top: 32px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 880px) {
+      .hero-airdrop {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .grid-2 {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      nav {
+        justify-content: flex-start;
+      }
+      .page {
+        padding-top: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">
+        <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img" />
+        <div class="logo-text">
+          <div class="logo-title">TORINVEST</div>
+          <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="index.html#vision">Vision</a>
+        <a href="index.html#trading">Trading</a>
+        <a href="index.html#macro">Macroéconomie</a>
+        <a href="index.html#communaute">Communauté</a>
+        <a href="crypto.html">Crypto</a>
+        <a href="formation.html">Formation</a>
+        <a href="forge-page.html">La Forge</a>
+        <a href="projets.html">Projets</a>
+        <a href="disclaimer.html">Disclaimer</a>
+        <a href="airdrop.html">Airdrop</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="hero-airdrop">
+        <div>
+          <div class="pill">
+            <span class="pill-dot"></span>
+            Airdrop “Les Premiers Forgerons”
+          </div>
+
+          <h1 class="hero-title">
+            La Forge s'ouvre, <span>les premiers forgerons sont récompensés</span>.
+          </h1>
+
+          <p class="hero-sub">
+            Pour célébrer l’arrivée de l’économie <strong>KRM</strong> et <strong>ORAX</strong>, 
+            les premiers membres de la communauté TORINVEST reçoivent des tokens gratuitement –
+            et ceux qui ramènent d’autres forgerons dans la Forge sont encore plus récompensés.
+          </p>
+
+          <ul class="hero-list">
+            <li>Airdrop réservé aux premiers membres actifs de la communauté.</li>
+            <li>Récompenses en KRM + bonus ORAX pour les plus engagés.</li>
+            <li>Rôle spécial <strong>“Forgeron Originel”</strong> sur le Discord.</li>
+          </ul>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
+              Rejoindre le Discord TORINVEST
+            </a>
+            <a class="btn btn-ghost" href="https://t.me/+2qMkEX3KnhowNTU0" target="_blank" rel="noopener">
+              Accéder au Telegram
+            </a>
+          </div>
+        </div>
+<img src="airdrop-forgerons.png">
+        <aside class="card">
+          <div class="card-label">Récompenses</div>
+          <h2 class="card-title">Ce que tu peux gagner</h2>
+          <p class="card-text">
+            L’objectif est simple : récompenser ceux qui croient au projet dès le début 
+            et qui participent activement à la construction de l’univers TORINVEST.
+          </p>
+
+          <div class="rewards-grid">
+            <div class="reward">
+              <div class="reward-title">100 KRM</div>
+              <div>Pour chaque nouveau membre qui rejoint grâce à toi.</div>
+              <div class="reward-badge">Par parrainage validé</div>
+            </div>
+
+            <div class="reward">
+              <div class="reward-title">Bonus ORAX</div>
+              <div>Récompenses supplémentaires pour les plus gros contributeurs.</div>
+              <div class="reward-badge">Top forgerons</div>
+            </div>
+
+            <div class="reward">
+              <div class="reward-title">Rôle “Forgeron Originel”</div>
+              <div>Rôle unique sur le Discord pour les premiers à participer.</div>
+              <div class="reward-badge">Statut permanent</div>
+            </div>
+
+            <div class="reward">
+              <div class="reward-title">Accès prioritaire</div>
+              <div>Accès en avance aux prochaines phases de l’univers TORINVEST.</div>
+              <div class="reward-badge">Whitelist forge</div>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <!-- COMMENT PARTICIPER -->
+      <section>
+        <h2 class="section-title">Comment participer à l’airdrop ?</h2>
+        <p class="section-sub">
+          L’airdrop “Les Premiers Forgerons” est ouvert à toute personne motivée, prête à rejoindre 
+          la communauté, inviter d’autres traders et respecter l’esprit de la Forge : sérieux, lucidité et discipline.
+        </p>
+
+        <div class="grid-2">
+          <div>
+            <ul class="steps-list">
+              <li class="step-item">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                  <strong>Rejoins le Discord TORINVEST</strong><br />
+                  Rentre dans la Forge : salons trading, macro, psychologie et suivi du projet.
+                </div>
+              </li>
+
+              <li class="step-item">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                  <strong>Prépare ton wallet Phantom (Solana)</strong><br />
+                  Crée ou connecte ton wallet Phantom. L’airdrop se fait sur la blockchain Solana.
+                </div>
+              </li>
+
+              <li class="step-item">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                  <strong>Invite 1, 2, 5… ou 10 amis</strong><br />
+                  Plus tu ramènes de forgerons sérieux, plus tu accumules de KRM.
+                </div>
+              </li>
+
+              <li class="step-item">
+                <div class="step-num">4</div>
+                <div class="step-content">
+                  <strong>ENVOIE EN MP DISCORD : “FORGERON”</strong><br />
+                  Un membre de l’équipe vérifiera tes invitations et ton wallet pour valider tes récompenses.
+                </div>
+              </li>
+            </ul>
+
+            <p class="note">
+              <span>Important :</span> l’airdrop reste expérimental et communautaire. 
+              Les tokens n’ont aucune garantie de valeur, et ne constituent pas une promesse de rendement.
+            </p>
+          </div>
+
+          <aside class="card">
+            <div class="card-label">Pourquoi maintenant ?</div>
+            <h3 class="card-title">La Forge vient de s’allumer</h3>
+            <p class="card-text">
+              TORINVEST pose les premières briques de son univers : trading, macro, psychologie, 
+              mais aussi économie interne avec KRM & ORAX.
+            </p>
+            <p class="card-text">
+              Ceux qui sont là au début sont ceux qui prennent le plus de risque…
+              ce sont aussi ceux que la Forge veut remercier en premier.
+            </p>
+            <p class="card-text">
+              Si tu veux faire partie des <strong>premiers forgerons</strong>, c’est maintenant.
+            </p>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
+      <span>Airdrop communautaire & expérimental – aucun conseil en investissement.</span>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
