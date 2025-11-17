@@ -121,6 +121,56 @@
     nav a:hover::after {
       width: 100%;
     }
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 12px;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      opacity: 0.9;
+    }
+
+    .social-links a:hover {
+      color: var(--accent);
+      opacity: 1;
+    }
+
+    .social-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .social-discord {
+      background: #5865f2;
+    }
+
+    .social-telegram {
+      background: #2aabee;
+    }
+
+    .social-youtube {
+      background: #ff0000;
+    }
 
 
     .pill {
@@ -452,22 +502,42 @@
 <body>
   <div class="page">
     <header>
-      <div class="logo">
-       <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
+  <div class="logo">
+    <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
 
-        <div class="logo-text">
-          <div class="logo-title">TORINVEST</div>
-          <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
-        </div>
-      </div>
-  <nav>
-  <a href="#trading">Trading</a>
-  <a href="#macro">Macroéconomie</a>
-  <a href="#communaute">Communauté</a>
-  <a href="crypto.html">Crypto</a>
-  <a href="#contact">Contact</a>
-</nav>
-    </header>
+    <div class="logo-text">
+      <div class="logo-title">TORINVEST</div>
+      <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <nav>
+      <a href="#vision">Vision</a>
+      <a href="#trading">Trading</a>
+      <a href="#macro">Macroéconomie</a>
+      <a href="#communaute">Communauté</a>
+      <a href="crypto.html">Crypto</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="social-links">
+      <a href="https://discord.gg/TON-LIEN-DISCORD" target="_blank" rel="noopener">
+        <span class="social-icon social-discord">D</span>
+        <span>Discord</span>
+      </a>
+      <a href="https://t.me/TON-LIEN-TELEGRAM" target="_blank" rel="noopener">
+        <span class="social-icon social-telegram">T</span>
+        <span>Telegram</span>
+      </a>
+      <a href="https://www.youtube.com/@TON-CHAINE-YOUTUBE" target="_blank" rel="noopener">
+        <span class="social-icon social-youtube">Y</span>
+        <span>YouTube</span>
+      </a>
+    </div>
+  </div>
+</header>
+
 
     <main>
       <section class="hero">
