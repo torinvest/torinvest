@@ -28,13 +28,13 @@
       bottom: -40px;
       left: 50%;
       transform: translateX(-50%);
-      width: 420px;
-      height: 190px;
-      background: radial-gradient(circle, rgba(255,180,0,0.8), transparent 60%);
-      filter: blur(12px);
-      opacity: 0.95;
+      width: 380px;
+      height: 170px;
+      background: radial-gradient(circle, rgba(255,180,0,0.75), transparent 60%);
+      filter: blur(10px);
+      opacity: 0.9;
       pointer-events: none;
-      animation: pulse 2.5s ease-in-out infinite;
+      animation: pulse 2.3s ease-in-out infinite;
       z-index: 0;
     }
 
@@ -43,7 +43,7 @@
       50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
     }
 
-    .shell {
+    .box {
       position: relative;
       width: 100%;
       max-width: 860px;
@@ -94,13 +94,6 @@
       color: #9a9aad;
     }
 
-    .chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: flex-end;
-    }
-
     .chip {
       font-size: 11px;
       padding: 5px 10px;
@@ -110,12 +103,6 @@
       color: #ffb400;
       text-transform: uppercase;
       letter-spacing: 0.14em;
-    }
-
-    .chip.secondary {
-      border-color: rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.03);
-      color: #bfbfd4;
     }
 
     .grid {
@@ -172,6 +159,7 @@
       border: 1px solid rgba(255,255,255,0.05);
       font-size: 13px;
       color: #a7a7b8;
+      margin-bottom: 10px;
     }
 
     .block-title {
@@ -258,7 +246,7 @@
     }
 
     @media (max-width: 520px) {
-      .shell {
+      .box {
         padding: 20px 16px 18px;
       }
       .top {
@@ -272,7 +260,7 @@
 <body>
   <div class="forge-glow"></div>
 
-  <div class="shell">
+  <div class="box">
     <div class="top">
       <div class="logo">
         <img src="forge-logo.png" alt="TORINVEST Logo" />
@@ -281,10 +269,7 @@
           <div class="logo-sub">LA FORGE • UNIVERS</div>
         </div>
       </div>
-      <div class="chip-row">
-        <div class="chip">La Forge TORINVEST</div>
-        <div class="chip secondary">KRM • ORAX • Communauté</div>
-      </div>
+      <div class="chip">La Forge TORINVEST</div>
     </div>
 
     <div class="grid">
@@ -294,15 +279,14 @@
 
         <p>
           La Forge, c’est l’endroit symbolique où se façonnent les traders, les idées, les outils
-          et les projets de l’univers TORINVEST. Rien à voir avec du “signal miracle” ou des promesses
-          de richesse rapide&nbsp;: ici, on travaille la <strong>lucidité</strong>, la
-          <strong>discipline</strong> et la <strong>compréhension profonde</strong> des marchés.
+          et les projets de l’univers TORINVEST. Ici, pas de promesse magique&nbsp;: on travaille la
+          <strong>lucidité</strong>, la <strong>discipline</strong> et la
+          <strong>compréhension profonde</strong> des marchés.
         </p>
 
         <p>
-          Les tokens, les outils, la formation et la communauté font partie d’un même écosystème&nbsp;:
-          <strong>te rendre plus autonome</strong>, plus structuré, plus conscient des risques,
-          et moins dépendant du bruit extérieur.
+          Les tokens, la formation, les outils et la communauté font tous partie d’un même objectif&nbsp;:
+          te rendre plus autonome, plus structuré, et moins dépendant du bruit et des illusions du marché.
         </p>
 
         <div class="divider"></div>
@@ -310,55 +294,42 @@
         <div class="block">
           <div class="block-title">Deux flammes dans la Forge&nbsp;: KRM &amp; ORAX</div>
           <p>
-            Dans l’univers TORINVEST, les deux premiers symboles forgés sont les tokens
-            <strong>KRM</strong> et <strong>ORAX</strong>. Ils ne sont pas là pour vendre du rêve,
-            mais pour incarner deux dimensions complémentaires de l’écosystème.
+            Dans l’univers TORINVEST, les premiers symboles forgés sont les tokens
+            <strong>KRM</strong> et <strong>ORAX</strong>. Ils incarnent deux dimensions complémentaires&nbsp;:
           </p>
           <ul class="list">
             <li><strong>KRM</strong> – Jeton utilitaire &amp; humain, lié à la valeur, aux interactions
                 et à la dimension communautaire.</li>
             <li><strong>ORAX</strong> – Jeton de la connaissance dorée, symbole de clarté, de maîtrise
                 et de souveraineté intellectuelle face au marché.</li>
-            <li>Les deux font partie d’un projet <strong>expérimental et éducatif</strong>, conçu pour
-                structurer un univers plutôt qu’appâter avec du rendement.</li>
           </ul>
+          <p style="font-size:12px; color:#7f7f93; margin-top:6px;">
+            Important&nbsp;: ces éléments restent expérimentaux, sans promesse de rendement, dans une
+            démarche avant tout éducative et symbolique.
+          </p>
         </div>
       </div>
 
       <div>
-        <div class="block" style="margin-bottom: 10px;">
-          <div class="block-title">Ce que la Forge représente</div>
+        <div class="block">
+          <div class="block-title">Ce que représente la Forge</div>
           <ul class="list">
-            <li>Un lieu symbolique où le trader est vu comme un artisan, pas un joueur de casino.</li>
+            <li>Un lieu symbolique&nbsp;: le trader comme artisan, pas comme joueur de casino.</li>
             <li>Un espace mental&nbsp;: routines, plans, journaux, backtests, réflexion.</li>
-            <li>Un filtre&nbsp;: tout ce qui est construit doit avoir du sens, une utilité, une cohérence.</li>
+            <li>Un filtre&nbsp;: chaque projet doit avoir du sens, une utilité, une cohérence.</li>
           </ul>
         </div>
 
-        <div class="block" style="margin-bottom: 10px;">
-          <div class="block-title">Place des tokens dans l’univers</div>
-          <p>
-            Les tokens KRM et ORAX ne sont pas présentés comme des conseils d’achat, mais comme des
-            <strong>pièces du lore TORINVEST</strong> et des éléments techniques de l’écosystème.
-            Ils pourront, à terme, être associés à des accès, des rôles, des outils ou des expériences
-            spécifiques dans la communauté.
-          </p>
-          <p style="font-size:12px; color:#7f7f93;">
-            Important : ils restent expérimentaux, sans promesse de gain, ni garantie d’utilité future.
-          </p>
-        </div>
-
         <div class="block">
-          <div class="block-title">Une forge, pas un casino</div>
+          <div class="block-title">Une Forge, pas un casino</div>
           <p>
-            La Forge TORINVEST est pensée comme un contre-pied à la logique “quick money”.
-            Ici, on accepte les limites humaines, la difficulté du trading et les risques
-            massifs des produits dérivés. On choisit la <strong>patience</strong>, la
-            <strong>structure</strong> et la <strong>prise de conscience</strong>.
+            La Forge TORINVEST est construite comme un contre-pied à la logique “quick money”.
+            On accepte la difficulté du trading, les limites humaines et les risques massifs des
+            produits dérivés pour mieux les encadrer.
           </p>
           <p style="font-size:12px; color:#7f7f93;">
             TORINVEST ne fournit aucun conseil en investissement. Tout ce qui est présenté est
-            éducatif, expérimental et à interpréter avec prudence.
+            éducatif, expérimental et doit être abordé avec prudence.
           </p>
         </div>
       </div>
@@ -367,10 +338,10 @@
     <div class="footer-row">
       <div class="btn-row">
         <a href="/" class="btn btn-primary">← Retour au site TORINVEST</a>
-        <a href="projets.html" class="btn btn-ghost">Voir les projets en cours</a>
+        <a href="projets.html" class="btn btn-ghost">Voir les projets</a>
       </div>
       <div>
-        Univers TORINVEST • La Forge • KRM &amp; ORAX • Projet éducatif &amp; expérimental.
+        Univers TORINVEST • La Forge • Projet éducatif &amp; expérimental.
       </div>
     </div>
   </div>
