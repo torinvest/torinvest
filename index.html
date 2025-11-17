@@ -177,6 +177,44 @@
        border: 1px solid #ffffff33;
 }
 
+    .buy-links {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.buy-card {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  min-width: 120px;
+  transition: 0.2s ease;
+}
+
+.buy-card:hover {
+  background: rgba(255, 180, 0, 0.12);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.buy-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.buy-sub {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+}
+
 
     .pill {
       padding: 3px 9px;
@@ -543,6 +581,19 @@
         <span class="social-icon social-tiktok">T</span>
         <span>TikTok</span>
       </a>
+
+      <div class="buy-links">
+  <a href="https://jup.ag/tokens/Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump" target="_blank" class="buy-card">
+    <div class="buy-title">Acheter KRM</div>
+    <div class="buy-sub">Soutenir le projet</div>
+  </a>
+
+  <a href="https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA" target="_blank" class="buy-card">
+    <div class="buy-title">Acheter ORAX</div>
+    <div class="buy-sub">Soutenir le projet</div>
+  </a>
+</div>
+
 
     </div>
   </div>
