@@ -23,7 +23,7 @@
       padding: 24px 16px;
     }
 
-    .shell {
+    .box {
       width: 100%;
       max-width: 960px;
       background: #0e0e18;
@@ -248,7 +248,7 @@
     }
 
     @media (max-width: 520px) {
-      .shell {
+      .box {
         padding: 20px 16px 18px;
       }
       .top {
@@ -260,7 +260,7 @@
 </head>
 
 <body>
-  <div class="shell">
+  <div class="box">
     <div class="top">
       <div class="logo">
         <img src="forge-logo.png" alt="TORINVEST Logo" />
@@ -274,15 +274,14 @@
 
     <h1>Les <span>projets</span> de l’univers TORINVEST 🔧</h1>
     <p class="intro">
-      TORINVEST n’est pas seulement un site ou une formation, mais un écosystème en construction.
-      Bots, indicateurs, tokens, contenus pédagogiques&nbsp;: chaque projet vise à apporter de la
-      clarté, de la structure et des outils concrets à la communauté, toujours dans une logique
-      <strong>éducative et expérimentale</strong>.
+      TORINVEST est un écosystème en construction. Bots, indicateurs, tokens, contenus pédagogiques&nbsp;:
+      chaque projet vise à apporter de la clarté, de la structure et des outils concrets à la communauté,
+      toujours dans une logique <strong>éducative et expérimentale</strong>.
     </p>
 
     <div class="divider"></div>
 
-    <div class="section-title">En cours & en préparation</div>
+    <div class="section-title">En cours &amp; en préparation</div>
 
     <div class="grid">
       <div class="card">
@@ -292,8 +291,8 @@
         </div>
         <p>
           Une formation structurée sur le trading, la macroéconomie et la psychologie des marchés.
-          Pas de promesse de gains, mais une base solide pour lire le marché avec plus de lucidité
-          et éviter les pièges classiques.
+          Pas de promesse de gains, mais une base plus solide pour lire le marché avec lucidité et éviter
+          les pièges classiques.
         </p>
         <div class="card-footer">
           <span>Module théorique + pratique</span>
@@ -307,9 +306,9 @@
           <div class="badge">Expérimental</div>
         </div>
         <p>
-          Deux tokens symboliques dans l’univers TORINVEST&nbsp;: KRM, lié à la dimension utilitaire
-          &amp; humaine, et ORAX, lié à la connaissance et à la lucidité. Pensés comme des briques
-          de l’écosystème, pas comme des promesses de rendement.
+          Deux tokens symboliques dans l’univers TORINVEST&nbsp;: KRM, lié à la dimension utilitaire &amp; humaine,
+          et ORAX, lié à la connaissance et à la lucidité. Pensés comme des briques de l’écosystème, pas comme des
+          promesses de rendement.
         </p>
         <div class="card-footer">
           <span>Projet blockchain éducatif</span>
@@ -319,15 +318,15 @@
 
       <div class="card">
         <div class="card-header">
-          <div class="card-title">Bot géopolitique & macro</div>
+          <div class="card-title">Bot géopolitique &amp; macro</div>
           <div class="badge">Concept</div>
         </div>
         <p>
-          Un bot dédié au suivi des tensions géopolitiques, sanctions, guerres commerciales et
-          décisions majeures impactant les devises, matières premières et indices.
+          Un bot dédié au suivi des tensions géopolitiques, sanctions, guerres commerciales et décisions majeures
+          impactant devises, matières premières et indices.
         </p>
         <div class="card-footer">
-          <span>Alertes & veille contextuelle</span>
+          <span>Alertes &amp; veille contextuelle</span>
           <span>Discord / app à terme</span>
         </div>
       </div>
@@ -338,11 +337,11 @@
           <div class="badge">Concept</div>
         </div>
         <p>
-          Suivi des matières premières clés (or, pétrole, cuivre, etc.), des cycles de production,
-          des annonces OPEP, et des liens avec les cycles économiques globaux.
+          Suivi des matières premières clés (or, pétrole, cuivre, etc.), des cycles de production, des annonces OPEP,
+          et des liens avec les cycles économiques globaux.
         </p>
         <div class="card-footer">
-          <span>Suivi cycles & production</span>
+          <span>Suivi cycles &amp; production</span>
           <span>Vision long terme</span>
         </div>
       </div>
@@ -353,12 +352,12 @@
           <div class="badge soon">En réflexion</div>
         </div>
         <p>
-          Création d’indicateurs sur mesure (price action, liquidités, macro-références) pour aider
-          à structurer les décisions et repérer les zones clés sans tomber dans l’usine à gaz.
+          Création d’indicateurs sur mesure (price action, liquidités, macro-références) pour aider à structurer
+          les décisions et repérer les zones clés sans tomber dans l’usine à gaz.
         </p>
         <div class="card-footer">
           <span>Outils d’analyse</span>
-          <span>Scalping & swing</span>
+          <span>Scalping &amp; swing</span>
         </div>
       </div>
 
@@ -368,21 +367,21 @@
           <div class="badge">Vision</div>
         </div>
         <p>
-          Un espace centralisé pour retrouver l’univers TORINVEST&nbsp;: contenus éducatifs, suivi
-          macro, outils, ressources et interactions avec la communauté.
+          Un espace centralisé pour retrouver l’univers TORINVEST&nbsp;: contenus éducatifs, suivi macro, outils,
+          ressources et interactions avec la communauté.
         </p>
         <div class="card-footer">
           <span>Long terme</span>
-          <span>Mobile & web (objectif)</span>
+          <span>Mobile &amp; web (objectif)</span>
         </div>
       </div>
     </div>
 
     <div class="section-title">Philosophie globale</div>
     <p class="intro" style="margin-bottom:10px;">
-      Tous ces projets ont un point commun&nbsp;: <strong>remettre de la structure, de la lucidité
-      et de l’honnêteté</strong> dans un environnement saturé de promesses faciles. TORINVEST ne
-      prétend pas éliminer le risque, mais aider à mieux le comprendre et l’assumer.
+      Tous ces projets ont un point commun&nbsp;: <strong>remettre de la structure, de la lucidité et de l’honnêteté</strong>
+      dans un environnement saturé de promesses faciles. TORINVEST ne prétend pas éliminer le risque, mais aider à mieux
+      le comprendre et l’assumer.
     </p>
 
     <div class="footer-row">
