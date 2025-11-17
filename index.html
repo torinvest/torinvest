@@ -54,25 +54,12 @@
       align-items: center;
       gap: 10px;
     }
-.logo-img {
-  height: 40px;
-  width: auto;
-  border-radius: 8px;
-  display: block;
-}
 
-    .logo-mark {
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      background: radial-gradient(circle at 20% 20%, #ffd86a, #ff8c00);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      font-size: 18px;
-      color: #1a1305;
-      box-shadow: 0 0 24px rgba(255, 180, 0, 0.35);
+    .logo-img {
+      height: 40px;
+      width: auto;
+      border-radius: 8px;
+      display: block;
     }
 
     .logo-text {
@@ -121,11 +108,12 @@
     nav a:hover::after {
       width: 100%;
     }
+
     .header-right {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 4px;
+      gap: 6px;
     }
 
     .social-links {
@@ -133,6 +121,7 @@
       gap: 10px;
       flex-wrap: wrap;
       font-size: 12px;
+      margin-top: 4px;
     }
 
     .social-links a {
@@ -171,149 +160,142 @@
     .social-youtube {
       background: #ff0000;
     }
-    
+
     .social-tiktok {
       background: #000000;
-       border: 1px solid #ffffff33;
-}
+      border: 1px solid #ffffff33;
+    }
 
     .buy-links {
-  display: flex;
-  gap: 10px;
-  margin-top: 6px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
+      display: flex;
+      gap: 10px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
 
-    /* Disclaimer plus compact en bas de page */
-#disclaimer {
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
+    .buy-card {
+      display: flex;
+      flex-direction: column;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      min-width: 120px;
+      transition: 0.2s ease;
+    }
 
-#disclaimer .section-title {
-  font-size: 13px;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
+    .buy-card:hover {
+      background: rgba(255, 180, 0, 0.12);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
 
-#disclaimer .section-sub {
-  font-size: 12px;
-  max-width: 720px;
-}
+    .buy-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
 
-.disclaimer-card {
-  max-width: 780px;
-  margin: 0 auto;
-  font-size: 12px;
-}
+    .buy-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
 
-#disclaimer .card-title {
-  font-size: 13px;
-  margin-top: 10px;
-  margin-bottom: 4px;
-}
+    /* Bandeau d’info TORINVEST */
+    .ticker {
+      margin: 4px auto 0;
+      max-width: 760px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(10, 10, 18, 0.9);
+      border: 1px solid rgba(255, 180, 0, 0.45);
+      color: var(--muted);
+      overflow: hidden;
+      position: relative;
+    }
 
-#disclaimer .card-text {
-  font-size: 12px;
-}
+    .ticker::before,
+    .ticker::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      pointer-events: none;
+    }
 
+    .ticker::before {
+      left: 0;
+      background: linear-gradient(to right, rgba(5, 5, 9, 0.9), transparent);
+    }
 
-/* Bandeau d’info fin TORINVEST */
-.ticker {
-  margin: 10px auto 0;
-  max-width: 760px;           /* plus compact que toute la page */
-  padding: 4px 14px;
-  border-radius: 999px;
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  background: rgba(10, 10, 18, 0.9);
-  border: 1px solid rgba(255, 180, 0, 0.45);
-  color: var(--muted);
-  overflow: hidden;
-  position: relative;
-}
+    .ticker::after {
+      right: 0;
+      background: linear-gradient(to left, rgba(5, 5, 9, 0.9), transparent);
+    }
 
-/* léger glow sur les bords */
-.ticker::before,
-.ticker::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 40px;
-  pointer-events: none;
-}
+    .ticker-track {
+      display: inline-flex;
+      gap: 40px;
+      white-space: nowrap;
+      animation: ticker-scroll 30s linear infinite;
+    }
 
-.ticker::before {
-  left: 0;
-  background: linear-gradient(to right, rgba(5, 5, 9, 0.9), transparent);
-}
+    .ticker span {
+      color: #f5f5f7;
+      opacity: 0.9;
+    }
 
-.ticker::after {
-  right: 0;
-  background: linear-gradient(to left, rgba(5, 5, 9, 0.9), transparent);
-}
+    @keyframes ticker-scroll {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
 
-.ticker-track {
-  display: inline-flex;
-  gap: 40px;
-  white-space: nowrap;
-  animation: ticker-scroll 30s linear infinite;
-}
+    /* Disclaimer compact en bas de page */
+    #disclaimer {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
 
-.ticker span {
-  color: #f5f5f7;
-  opacity: 0.9;
-}
+    #disclaimer .section-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
 
-/* animation */
-@keyframes ticker-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
+    #disclaimer .section-sub {
+      font-size: 12px;
+      max-width: 720px;
+    }
 
-    
-    
-    
-.buy-card {
-  display: flex;
-  flex-direction: column;
-  padding: 8px 14px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  min-width: 120px;
-  transition: 0.2s ease;
-}
+    .disclaimer-card {
+      max-width: 780px;
+      margin: 0 auto;
+      font-size: 12px;
+    }
 
-.buy-card:hover {
-  background: rgba(255, 180, 0, 0.12);
-  border-color: var(--accent);
-  transform: translateY(-2px);
-}
+    #disclaimer .card-title {
+      font-size: 13px;
+      margin-top: 10px;
+      margin-bottom: 4px;
+    }
 
-.buy-title {
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.buy-sub {
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.05em;
-}
-
+    #disclaimer .card-text {
+      font-size: 12px;
+    }
 
     .pill {
       padding: 3px 9px;
@@ -386,7 +368,7 @@
       flex-wrap: wrap;
       gap: 10px;
       align-items: center;
-      margin-bottom: 10px;+
+      margin-bottom: 10px;
     }
 
     .btn {
@@ -638,128 +620,75 @@
       .page {
         padding-top: 18px;
       }
+      .header-right {
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
   <div class="page">
     <header>
-  <div class="logo">
-    <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
-
-    <div class="logo-text">
-      <div class="logo-title">TORINVEST</div>
-      <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
-    </div>
-  </div>
-
-  <div class="header-right">
-    <nav>
-      <a href="#vision">Vision</a>
-      <a href="#trading">Trading</a>
-      <a href="#macro">Macroéconomie</a>
-      <a href="#communaute">Communauté</a>
-      <a href="crypto.html">Crypto</a>
-      <a href="#contact">Contact</a>
-            <section id="disclaimer">
-        <h2 class="section-title">Disclaimer</h2>
-        <p class="section-sub">
-          Le contenu TORINVEST est proposé à des fins éducatives et informatives uniquement.
-          Il ne s'agit pas de conseils en investissement ni de recommandations personnalisées.
-        </p>
-
-       <div class="card disclaimer-card">
-
-          <h3 class="card-title">Objectif pédagogique</h3>
-          <p class="card-text">
-            Le contenu proposé par TORINVEST (analyses, vidéos, articles, formations, outils, bots,
-            signaux ou ressources diverses) a pour unique objectif <strong>l’éducation financière
-            et la compréhension des marchés</strong>. Il ne constitue en aucun cas un conseil en
-            investissement, une recommandation personnalisée ou une incitation à trader.
-          </p>
-
-          <h3 class="card-title">Risques liés au trading</h3>
-          <p class="card-text">
-            Le trading est une activité à haut risque. Les produits dérivés comme les CFD, futures,
-            options, produits à effet de levier ou toute forme de spéculation comportent un risque
-            important de perte en capital. <strong>Vous pouvez perdre tout ou partie de votre
-            investissement.</strong> Le trading ne convient pas à tous les profils et demande des
-            compétences, du temps, de la discipline et une gestion du risque rigoureuse.
-          </p>
-
-          <h3 class="card-title">Absence de conseil financier</h3>
-          <p class="card-text">
-            TORINVEST ne fournit : aucun conseil d’investissement, aucune indication d’achat ou de
-            vente, aucune promesse de gains et aucun service de gestion ou de signal financier.
-            Chaque utilisateur reste <strong>seul responsable</strong> de ses décisions et de ses
-            engagements financiers.
-          </p>
-
-          <h3 class="card-title">Dimension expérimentale</h3>
-          <p class="card-text">
-            Certains éléments du projet TORINVEST (tokens, bots, outils, projets annexes) s’inscrivent
-            dans une démarche <strong>expérimentale, éducative et communautaire</strong>. Ils ne
-            doivent en aucun cas être considérés comme des investissements financiers, ni comme une
-            promesse de rendement.
-          </p>
-
-          <h3 class="card-title">En continuant sur ce site</h3>
-          <p class="card-text">
-            En naviguant sur ce site et en consommant le contenu TORINVEST, vous reconnaissez avoir
-            pris connaissance de ces informations et accepter pleinement les risques liés au trading
-            et aux marchés financiers.
-          </p>
+      <div class="logo">
+        <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
+        <div class="logo-text">
+          <div class="logo-title">TORINVEST</div>
+          <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
         </div>
-      </section>
-      
-</main>
-
-    </nav>
-<div class="ticker">
-      <div class="ticker-track">
-        <span>⚡ L’économie TORINVEST s’éveille : KRM &amp; ORAX prennent vie.</span>
-        <span>🪙 KRM – Monnaie utilitaire &amp; humaine de la Forge.</span>
-        <span>✨ ORAX – Connaissance dorée, lucidité face au marché.</span>
-        <span>🧠 Trading • Macro • Psychologie • Crypto – Univers TORINVEST.</span>
-        <span>🚨 Aucun conseil en investissement – Projet éducatif &amp; expérimental.</span>
       </div>
-    <div class="social-links">
-      <a href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
-        <span class="social-icon social-discord">D</span>
-        <span>Discord</span>
-      </a>
-      <a href="https://t.me/+2qMkEX3KnhowNTU0" target="_blank" rel="noopener">
-        <span class="social-icon social-telegram">T</span>
-        <span>Telegram</span>
-      </a>
-      <a href="https://www.youtube.com/@ONZERtv" target="_blank" rel="noopener">
-        <span class="social-icon social-youtube">Y</span>
-        <span>YouTube</span>
-      </a>
-            <a href="https://www.tiktok.com/@live_b00stfr?lang=fr" target="_blank" rel="noopener">
-        <span class="social-icon social-tiktok">T</span>
-        <span>TikTok</span>
-      </a>
 
-      <div class="buy-links">
-  <a href="https://jup.ag/tokens/Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump" target="_blank" class="buy-card">
-    <div class="buy-title">Acheter KRM</div>
-    <div class="buy-sub">Soutenir le projet</div>
-  </a>
+      <div class="header-right">
+        <nav>
+          <a href="#vision">Vision</a>
+          <a href="#trading">Trading</a>
+          <a href="#macro">Macroéconomie</a>
+          <a href="#communaute">Communauté</a>
+          <a href="crypto.html">Crypto</a>
+          <a href="#contact">Contact</a>
+          <a href="#disclaimer">Disclaimer</a>
+        </nav>
 
-  <a href="https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA" target="_blank" class="buy-card">
-    <div class="buy-title">Acheter ORAX</div>
-    <div class="buy-sub">Soutenir le projet</div>
-  </a>
-</div>
-    
-    </div>
+        <div class="ticker">
+          <div class="ticker-track">
+            <span>⚡ L’économie TORINVEST s’éveille : KRM &amp; ORAX prennent vie.</span>
+            <span>🪙 KRM – Monnaie utilitaire &amp; humaine de la Forge.</span>
+            <span>✨ ORAX – Connaissance dorée, lucidité face au marché.</span>
+            <span>🧠 Trading • Macro • Psychologie • Crypto – Univers TORINVEST.</span>
+            <span>🚨 Aucun conseil en investissement – Projet éducatif &amp; expérimental.</span>
+          </div>
+        </div>
 
+        <div class="social-links">
+          <a href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
+            <span class="social-icon social-discord">D</span>
+            <span>Discord</span>
+          </a>
+          <a href="https://t.me/+2qMkEX3KnhowNTU0" target="_blank" rel="noopener">
+            <span class="social-icon social-telegram">T</span>
+            <span>Telegram</span>
+          </a>
+          <a href="https://www.youtube.com/@ONZERtv" target="_blank" rel="noopener">
+            <span class="social-icon social-youtube">Y</span>
+            <span>YouTube</span>
+          </a>
+          <a href="https://www.tiktok.com/@live_b00stfr?lang=fr" target="_blank" rel="noopener">
+            <span class="social-icon social-tiktok">T</span>
+            <span>TikTok</span>
+          </a>
 
-    </div>
-  </div>
-</header>
-
+          <div class="buy-links">
+            <a href="https://jup.ag/tokens/Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump" target="_blank" class="buy-card">
+              <div class="buy-title">Acheter KRM</div>
+              <div class="buy-sub">Soutenir le projet</div>
+            </a>
+            <a href="https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA" target="_blank" class="buy-card">
+              <div class="buy-title">Acheter ORAX</div>
+              <div class="buy-sub">Soutenir le projet</div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
 
     <main>
       <section class="hero">
@@ -966,7 +895,7 @@
         </div>
       </section>
 
-                   <section id="contact">
+      <section id="contact">
         <h2 class="section-title">Rejoindre la liste d'attente</h2>
         <p class="section-sub">
           Le site complet TORINVEST (formation, outils, ressources) est en construction.
@@ -977,41 +906,85 @@
             Laisse simplement ton email ci-dessous. Tu seras ajouté à la liste d'attente TORINVEST.
           </p>
 
-          <!-- Formulaire Netlify ultra simple -->
-      <form
-  name="liste-attente-torinvest"
-  method="POST"
-  action="/merci.html"
-  data-netlify="true"
-  data-netlify-honeypot="bot-field"
->
-  <!-- Champ caché obligatoire pour Netlify -->
-  <input type="hidden" name="form-name" value="liste-attente-torinvest" />
+          <form
+            name="liste-attente-torinvest"
+            method="POST"
+            action="/merci.html"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+          >
+            <input type="hidden" name="form-name" value="liste-attente-torinvest" />
 
-  <!-- Honeypot anti-bot (invisible pour les humains) -->
-  <p style="display:none">
-    <label>Ne pas remplir : <input name="bot-field" /></label>
-  </p>
+            <p style="display:none">
+              <label>Ne pas remplir : <input name="bot-field" /></label>
+            </p>
 
-  <div class="small-input-row">
-    <input
-      class="small-input"
-      type="email"
-      name="email"
-      placeholder="Ton email (pour être prévenu)"
-      required
-    />
-    <button class="btn btn-primary" type="submit">
-      Je rejoins la liste
-    </button>
-  </div>
-</form>
-
+            <div class="small-input-row">
+              <input
+                class="small-input"
+                type="email"
+                name="email"
+                placeholder="Ton email (pour être prévenu)"
+                required
+              />
+              <button class="btn btn-primary" type="submit">
+                Je rejoins la liste
+              </button>
+            </div>
+          </form>
         </div>
       </section>
 
+      <!-- DISCLAIMER en bas de page -->
+      <section id="disclaimer">
+        <h2 class="section-title">Disclaimer</h2>
+        <p class="section-sub">
+          Le contenu TORINVEST est proposé à des fins éducatives et informatives uniquement.
+          Il ne s'agit pas de conseils en investissement ni de recommandations personnalisées.
+        </p>
 
+        <div class="card disclaimer-card">
+          <h3 class="card-title">Objectif pédagogique</h3>
+          <p class="card-text">
+            Le contenu proposé par TORINVEST (analyses, vidéos, articles, formations, outils, bots,
+            signaux ou ressources diverses) a pour unique objectif
+            <strong>l’éducation financière et la compréhension des marchés</strong>. Il ne constitue en aucun
+            cas un conseil en investissement, une recommandation personnalisée ou une incitation à trader.
+          </p>
 
+          <h3 class="card-title">Risques liés au trading</h3>
+          <p class="card-text">
+            Le trading est une activité à haut risque. Les produits dérivés comme les CFD, futures,
+            options, produits à effet de levier ou toute forme de spéculation comportent un risque
+            important de perte en capital. <strong>Vous pouvez perdre tout ou partie de votre
+            investissement.</strong> Le trading ne convient pas à tous les profils et demande des
+            compétences, du temps, de la discipline et une gestion du risque rigoureuse.
+          </p>
+
+          <h3 class="card-title">Absence de conseil financier</h3>
+          <p class="card-text">
+            TORINVEST ne fournit : aucun conseil d’investissement, aucune indication d’achat ou de
+            vente, aucune promesse de gains et aucun service de gestion ou de signal financier.
+            Chaque utilisateur reste <strong>seul responsable</strong> de ses décisions et de ses
+            engagements financiers.
+          </p>
+
+          <h3 class="card-title">Dimension expérimentale</h3>
+          <p class="card-text">
+            Certains éléments du projet TORINVEST (tokens, bots, outils, projets annexes) s’inscrivent
+            dans une démarche <strong>expérimentale, éducative et communautaire</strong>. Ils ne
+            doivent en aucun cas être considérés comme des investissements financiers, ni comme une
+            promesse de rendement.
+          </p>
+
+          <h3 class="card-title">En continuant sur ce site</h3>
+          <p class="card-text">
+            En naviguant sur ce site et en consommant le contenu TORINVEST, vous reconnaissez avoir
+            pris connaissance de ces informations et accepter pleinement les risques liés au trading
+            et aux marchés financiers.
+          </p>
+        </div>
+      </section>
     </main>
 
     <footer>
