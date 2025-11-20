@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Bootcamp – TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Bootcamp TORINVEST – Sessions vidéo pédagogiques sur le trading, la macro et la psychologie des marchés." />
+
+  <style>
+    :root {
+      --bg: #050509;
+      --bg-alt: #0a0a12;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.12);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 40px;
+      width: auto;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 14px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      position: relative;
+      padding-bottom: 3px;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffb400, #ff4b5c);
+      transition: width 0.2s ease;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(255, 180, 0, 0.08);
+      border: 1px solid rgba(255, 180, 0, 0.4);
+      color: var(--accent);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #15d16b;
+      box-shadow: 0 0 6px #15d16b;
+    }
+
+    .hero-title {
+      font-size: clamp(26px, 4.4vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      margin-bottom: 10px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(120deg, #ffb400, #ff4b5c);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      max-width: 620px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
+      gap: 22px;
+      align-items: flex-start;
+      margin-top: 10px;
+    }
+
+    .video-card {
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+      padding: 14px;
+    }
+
+    .video-frame {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16/9 */
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+    }
+
+    .video-frame iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .video-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .text-card {
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 16px 16px 14px;
+    }
+
+    .text-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .text-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .text-body {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 11px;
+      color: var(--muted);
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 16px;
+      margin-top: 32px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      nav {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">
+        <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img" />
+        <div class="logo-text">
+          <div class="logo-title">TORINVEST</div>
+          <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="index.html">Vision</a>
+        <a href="index.html#trading">Trading</a>
+        <a href="index.html#macro">Macroéconomie</a>
+        <a href="index.html#communaute">Communauté</a>
+        <a href="crypto.html">Crypto</a>
+        <a href="formation.html">Formation</a>
+        <a href="forge-page.html">La Forge</a>
+        <a href="projets.html">Projets</a>
+        <a href="airdrop.html">Airdrop</a>
+        <a href="video.html">Vidéos</a>
+        <a href="bootcamp.html">Bootcamp</a>
+        <a href="disclaimer.html">Disclaimer</a>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <div class="pill">
+          <span class="pill-dot"></span>
+          Bootcamp TORINVEST – Session vidéo
+        </div>
+
+        <h1 class="hero-title">
+          Bootcamp <span>TORINVEST</span>
+        </h1>
+
+        <p class="hero-sub">
+          Ici, tu retrouves les sessions clés du Bootcamp TORINVEST : une vidéo focus,
+          et juste à côté le contexte, les notions travaillées et la logique derrière
+          ce que tu montres aux membres.
+        </p>
+
+        <div class="layout">
+          <!-- BLOC VIDÉO -->
+          <div class="video-card">
+            <div class="video-frame">
+              <!-- Remplace ID_DE_TA_VIDEO par l'ID YouTube (ce qui vient après v=) -->
+              <iframe
+                src="https://www.youtube.com/embed/ID_DE_TA_VIDEO"
+                title="Bootcamp TORINVEST"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <p class="video-note">
+              La vidéo est diffusée via YouTube. Le téléchargement direct n’est pas autorisé depuis cette page.
+            </p>
+          </div>
+
+          <!-- BLOC TEXTE -->
+          <aside class="text-card">
+            <div class="text-title">Titre de la session Bootcamp</div>
+            <div class="text-sub">
+              Tu peux modifier ce texte pour présenter la session : contexte, objectif,
+              marché analysé, style (price action, macro, psychologie...).
+            </div>
+            <div class="text-body">
+              <p>
+                ✦ Exemple :  
+                Dans cette session, on décortique un mouvement de l’or en session
+                London/NY, en liant :
+              </p>
+              <p>
+                • Le contexte macro (taux, dollar, news)  
+                • La structure de marché (liquidités, zones clés)  
+                • La psychologie du trader (peur, FOMO, impatience)
+              </p>
+              <p style="margin-top:8px;">
+                Tu peux écrire ici autant que tu veux : détailler la logique,
+                expliquer les erreurs fréquentes, donner un cadre de travail
+                pour ceux qui regardent le replay.
+              </p>
+
+              <div>
+                <span class="tag">Bootcamp</span>
+                <span class="tag">Session vidéo</span>
+                <span class="tag">TORINVEST</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
+      <span>Projet éducatif & expérimental • Aucun conseil en investissement.</span>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
