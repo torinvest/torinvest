@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Liens Utiles – TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #050509;
+      --bg-alt: #0a0a12;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255,180,0,0.15);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 40px;
+      border-radius: 8px;
+    }
+
+    .logo-text .logo-title {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    nav a {
+      position: relative;
+      padding-bottom: 3px;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffb400, #ff4b5c);
+      transition: width 0.2s ease;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .section-sub {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 24px;
+      max-width: 720px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: 0.15s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+
+    .card-text {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+      min-height: 40px;
+    }
+
+    .btn {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 7px 12px;
+      font-size: 12px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      transition: 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      color: #1a1405;
+    }
+
+    footer {
+      margin-top: 40px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- HEADER -->
+    <header>
+      <div class="logo">
+        <img src="forge-logo.png" class="logo-img" />
+        <div class="logo-text">
+          <div class="logo-title">TORINVEST</div>
+          <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="index.html">Vision</a>
+        <a href="crypto.html">Crypto</a>
+        <a href="formation.html">Formation</a>
+        <a href="bootcamp.html">Bootcamp</a>
+        <a href="liens.html">Liens utiles</a>
+        <a href="disclaimer.html">Disclaimer</a>
+      </nav>
+    </header>
+
+    <!-- CONTENT -->
+    <main>
+      <h1 class="section-title">Liens utiles TORINVEST</h1>
+      <p class="section-sub">
+        Outils indispensables pour analyser les marchés, construire tes plans de trading et suivre l’actualité financière.
+      </p>
+
+      <div class="grid">
+
+        <!-- TRADINGVIEW -->
+        <div class="card">
+          <div class="card-title">TradingView</div>
+          <p class="card-text">La plateforme de graphiques la plus utilisée au monde. Indicateurs, alertes, analyses.</p>
+          <a href="https://www.tradingview.com" target="_blank" class="btn">Accéder</a>
+        </div>
+
+        <!-- INVESTING -->
+        <div class="card">
+          <div class="card-title">Investing.com</div>
+          <p class="card-text">Calendrier économique, news macro, annonces et indicateurs mondiaux.</p>
+          <a href="https://www.investing.com" target="_blank" class="btn">Accéder</a>
+        </div>
+
+        <!-- MYFXBOOK -->
+        <div class="card">
+          <div class="card-title">MyFXBook</div>
+          <p class="card-text">Suivi de performance, statistiques de trading et portefeuilles publics.</p>
+          <a href="https://www.myfxbook.com" target="_blank" class="btn">Accéder</a>
+        </div>
+
+        <!-- FXREPLAY -->
+        <div class="card">
+          <div class="card-title">FXReplay</div>
+          <p class="card-text">Backtests modernes en conditions réelles : idéal pour progresser proprement.</p>
+          <a href="https://www.fxreplay.com" target="_blank" class="btn">Accéder</a>
+        </div>
+
+        <!-- FOREXFACTORY -->
+        <div class="card">
+          <div class="card-title">ForexFactory</div>
+          <p class="card-text">News impactantes, forums, calendrier économique clair et très utilisé.</p>
+          <a href="https://www.forexfactory.com" target="_blank" class="btn">Accéder</a>
+        </div>
+
+        <!-- BLOOMBERG -->
+        <div class="card">
+          <div class="card-title">Bloomberg Markets</div>
+          <p class="card-text">Actualités financières de haut niveau, données macro, taux et marchés mondiaux.</p>
+          <a href="https://www.bloomberg.com/markets" target="_blank" class="btn">Accéder</a>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <span>© <span id="year"></span> TORINVEST</span>
+      <span>Projet éducatif & expérimental</span>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
