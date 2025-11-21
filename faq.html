@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>FAQ – TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="FAQ TORINVEST – Questions fréquentes sur le projet, la communauté, les tokens KRM & ORAX, le trading et les risques." />
+
+  <style>
+    :root {
+      --bg: #050509;
+      --bg-alt: #0a0a12;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.12);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 40px;
+      width: auto;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 14px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      position: relative;
+      padding-bottom: 3px;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffb400, #ff4b5c);
+      transition: width 0.2s ease;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(255, 180, 0, 0.08);
+      border: 1px solid rgba(255, 180, 0, 0.4);
+      color: var(--accent);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #15d16b;
+      box-shadow: 0 0 6px #15d16b;
+    }
+
+    .hero-title {
+      font-size: clamp(26px, 4.4vw, 34px);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    .hero-title span {
+      background: linear-gradient(120deg, #ffb400, #ff4b5c);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      max-width: 720px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.35fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .faq-card {
+      background: var(--card);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.06);
+      padding: 14px 16px 12px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.7);
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .faq-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+
+    .q {
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      color: #f5f5f7;
+    }
+
+    .a {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .note {
+      margin-top: 26px;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 780px;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 16px;
+      margin-top: 32px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 860px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      nav {
+        justify-content: flex-start;
+      }
+      .faq-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">
+        <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img" />
+        <div class="logo-text">
+          <div class="logo-title">TORINVEST</div>
+          <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="index.html">Vision</a>
+        <a href="crypto.html">Crypto</a>
+        <a href="formation.html">Formation</a>
+        <a href="bootcamp.html">Bootcamp</a>
+        <a href="forge-page.html">La Forge</a>
+        <a href="projets.html">Projets</a>
+        <a href="airdrop.html">Airdrop</a>
+        <a href="liens.html">Liens utiles</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="equipe.html">Équipe</a>
+        <a href="faq.html">FAQ</a>
+        <a href="disclaimer.html">Disclaimer</a>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <div class="pill">
+          <span class="pill-dot"></span>
+          Questions fréquentes TORINVEST
+        </div>
+
+        <h1 class="hero-title">
+          FAQ <span>TORINVEST</span>
+        </h1>
+
+        <p class="hero-sub">
+          Tu trouveras ici les réponses aux questions les plus fréquentes sur la Forge,
+          la communauté, les tokens, le trading et les risques. Si tu ne trouves pas ta réponse,
+          tu pourras passer par le Discord ou les réseaux.
+        </p>
+
+        <div class="faq-grid">
+          <!-- COLONNE 1 -->
+          <div class="faq-card">
+            <div class="faq-label">Général</div>
+
+            <div class="q">TORINVEST, c’est quoi exactement ?</div>
+            <div class="a">
+              TORINVEST est un univers autour du trading, de la macroéconomie et de la psychologie des marchés.
+              Le but : t’aider à lire le marché avec plus de lucidité, pas te vendre des promesses de gains rapides.
+            </div>
+
+            <div class="q">Est-ce une société, une formation, une communauté ?</div>
+            <div class="a">
+              TORINVEST est d’abord une communauté et un univers pédagogique. Des formations structurées,
+              outils et services pourront arriver, mais toujours dans une logique éducative, pas de promesse miracle.
+            </div>
+
+            <div class="q">Est-ce que TORINVEST donne des signaux d’achat/vente ?</div>
+            <div class="a">
+              Non. Le projet peut analyser les marchés, partager des lectures et des scénarios,
+              mais il ne donne pas de signaux “clés en main” ni de conseils personnalisés.
+            </div>
+
+            <div class="q">Est-ce que je peux débuter totalement de zéro ?</div>
+            <div class="a">
+              Oui, l’objectif est justement de construire des ressources pour les débutants :
+              compréhension des bases, du vocabulaire, des risques, des erreurs classiques et
+              de la réalité des marchés.
+            </div>
+          </div>
+
+          <!-- COLONNE 2 -->
+          <div class="faq-card">
+            <div class="faq-label">Trading & Risques</div>
+
+            <div class="q">Est-ce que le trading est fait pour tout le monde ?</div>
+            <div class="a">
+              Non. Le trading est une activité à risque élevé qui demande du temps, de la discipline,
+              du recul et une capacité à encaisser des pertes financières et psychologiques.
+              Il ne convient pas à tous les profils.
+            </div>
+
+            <div class="q">Puis-je perdre de l’argent en utilisant ce que j’apprends ici ?</div>
+            <div class="a">
+              Oui. Même avec une méthode sérieuse, tu peux perdre de l’argent.
+              TORINVEST n’annule pas le risque, il t’aide à mieux le comprendre et mieux le gérer,
+              mais le risque de perte reste toujours présent.
+            </div>
+
+            <div class="q">TORINVEST fait-il du conseil en investissement ?</div>
+            <div class="a">
+              Non. Tout ce qui est diffusé (vidéos, textes, lives, outils) est éducatif
+              et informatif. Aucune recommandation personnalisée, aucune gestion de capital,
+              aucun “fais ceci / achète cela”.
+            </div>
+
+            <div class="q">Dois-je utiliser de l’effet de levier ?</div>
+            <div class="a">
+              L’effet de levier augmente autant les gains potentiels que les pertes.
+              Il doit être utilisé avec prudence, ou pas du tout si tu débutes.
+              Rien ne t’oblige à l’utiliser pour apprendre à lire un marché.
+            </div>
+          </div>
+
+          <!-- COLONNE 3 -->
+          <div class="faq-card">
+            <div class="faq-label">Tokens KRM & ORAX</div>
+
+            <div class="q">KRM et ORAX, c’est quoi ?</div>
+            <div class="a">
+              KRM est la “monnaie utilitaire” de l’univers TORINVEST, avec une dimension humaine
+              et communautaire. ORAX est le token symbolique du savoir, de la clarté et de la lucidité
+              face aux marchés.
+            </div>
+
+            <div class="q">Les tokens sont-ils une promesse de gains financiers ?</div>
+            <div class="a">
+              Non. Les tokens s’inscrivent dans une démarche expérimentale, communautaire
+              et symbolique. Ils ne doivent pas être considérés comme une promesse de rendement
+              ni comme une garantie de gain.
+            </div>
+
+            <div class="q">Comment recevoir des tokens (airdrops, rôles, etc.) ?</div>
+            <div class="a">
+              Certains airdrops et rôles (comme “Forgeron originel”) sont liés à la participation
+              dans la communauté : présence sur Discord, contribution, invitations, implication
+              dans l’univers TORINVEST. Les modalités sont précisées sur les pages dédiées.
+            </div>
+
+            <div class="q">Est-ce que je suis obligé d’utiliser les tokens pour suivre TORINVEST ?</div>
+            <div class="a">
+              Non. Tu peux suivre le contenu, les lives, les formations et la communauté
+              sans jamais toucher aux tokens. Ils sont un plus, pas une obligation.
+            </div>
+          </div>
+
+          <!-- COLONNE 4 -->
+          <div class="faq-card">
+            <div class="faq-label">Technique & Accès</div>
+
+            <div class="q">Je ne reçois pas les mails / confirmations, que faire ?</div>
+            <div class="a">
+              Vérifie d’abord ton dossier spam / promotions. Si rien n’apparaît,
+              tu peux te réinscrire avec la même adresse ou une autre, 
+              ou passer par Discord pour signaler le problème.
+            </div>
+
+            <div class="q">Où sont gérées mes données (email, etc.) ?</div>
+            <div class="a">
+              Les emails collectés servent uniquement à te prévenir de l’avancement du projet,
+              de la sortie des modules ou d’événements spéciaux. Ils ne sont pas revendus.
+            </div>
+
+            <div class="q">Je ne comprends pas comment créer un wallet Phantom (Solana).</div>
+            <div class="a">
+              Une ressource dédiée sera mise en place (guide ou vidéo). En attendant,
+              tu peux suivre le tutoriel officiel Phantom en veillant à bien sécuriser
+              ta phrase de récupération et à ne jamais la partager.
+            </div>
+
+            <div class="q">Comment poser une question si elle n’est pas dans la FAQ ?</div>
+            <div class="a">
+              Tu peux passer par le Discord TORINVEST ou les réseaux associés (Telegram, YouTube…).
+              La FAQ sera mise à jour au fur et à mesure des questions les plus fréquentes.
+            </div>
+          </div>
+        </div>
+
+        <p class="note">
+          TORINVEST évolue en continu. Cette FAQ est une base : elle sera enrichie au fur et à mesure
+          que le projet avance et que la communauté pose de nouvelles questions.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
+      <span>Projet éducatif & expérimental • Aucun conseil en investissement.</span>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
