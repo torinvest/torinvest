@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Minage TORINVEST – Kaspa, Ergo, Flux & Co</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #050509;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.12);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 16px 56px;
+    }
+
+    h1 {
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(120deg, #ffb400, #ff4b5c);
+      -webkit-background-clip: text;
+      color: transparent;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      max-width: 640px;
+      margin: 0 auto 26px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 180, 0, 0.5);
+      background: rgba(255, 180, 0, 0.09);
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin: 0 auto 16px;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #15d16b;
+      box-shadow: 0 0 6px #15d16b;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    p.lead {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .small {
+      font-size: 11px;
+      color: #7e7e96;
+    }
+
+    .block {
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 14px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .block strong {
+      color: var(--accent);
+    }
+
+    .list {
+      margin: 10px 0 0 0;
+      padding-left: 16px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .list li {
+      margin-bottom: 4px;
+    }
+
+    /* Bouton retour accueil */
+    .btn-home {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 180, 0, 0.16);
+      border: 1px solid rgba(255, 180, 0, 0.4);
+      color: var(--accent);
+      font-size: 12px;
+      text-decoration: none;
+      backdrop-filter: blur(6px);
+      transition: 0.2s ease;
+    }
+
+    .btn-home:hover {
+      background: rgba(255, 180, 0, 0.3);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 820px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="pill">
+      <span class="pill-dot"></span>
+      MINAGE TORINVEST
+    </div>
+
+    <h1>Minage & Proof-of-Work chez TORINVEST</h1>
+    <p class="subtitle">
+      Une branche de la Forge tournée vers les projets Proof-of-Work modernes :
+      Kaspa, Ergo, Flux… et d’autres à venir. Objectif : comprendre les
+      économies derrière ces réseaux, pas juste “brancher des rigs”.
+    </p>
+
+    <section>
+      <h2>Notre approche du minage</h2>
+      <p class="lead">
+        TORINVEST ne vend pas de rêve de “revenus passifs”. Le minage, c’est :
+        des coûts, du risque, de la volatilité et de la technique. Ici, on
+        s’intéresse aux projets PoW qui ont une logique économique, une
+        communauté réelle et un potentiel d’écosystème, pas juste un pump.
+      </p>
+    </section>
+
+    <section>
+      <h2>Projets suivis par la Forge</h2>
+
+      <div class="grid">
+        <!-- KASPA -->
+        <article class="card">
+          <div class="tag">Kaspa (KAS)</div>
+          <h3 class="card-title">Layer PoW ultra-rapide</h3>
+          <p>
+            Kaspa utilise un DAG (BlockDAG) qui permet des blocs très fréquents
+            et une finalité rapide, tout en restant en Proof-of-Work.
+          </p>
+          <p class="small">
+            💡 Intérêt TORINVEST : réfléchir au rôle de Kaspa comme
+            “cash PoW rapide” et à sa place dans un portefeuille long terme très
+            spéculatif.
+          </p>
+        </article>
+
+        <!-- ERGO -->
+        <article class="card">
+          <div class="tag">Ergo (ERG)</div>
+          <h3 class="card-title">PoW + finance programmable</h3>
+          <p>
+            Ergo combine Proof-of-Work et smart contracts, avec un fort focus
+            sur la décentralisation et l’expérimentation DeFi.
+          </p>
+          <p class="small">
+            💡 Intérêt TORINVEST : laboratoire PoW/DeFi, réflexion sur la
+            soutenabilité des revenus de minage et des frais sur le long terme.
+          </p>
+        </article>
+
+        <!-- FLUX -->
+        <article class="card">
+          <div class="tag">Flux (FLUX)</div>
+          <h3 class="card-title">Infra décentralisée & cloud</h3>
+          <p>
+            Flux se positionne comme une couche d’infrastructure décentralisée
+            (hébergement, nodes, services) soutenue par un réseau PoW.
+          </p>
+          <p class="small">
+            💡 Intérêt TORINVEST : lien entre minage, ressources serveurs et
+            avenir d’un “cloud décentralisé” réellement utilisé.
+          </p>
+        </article>
+      </div>
+
+      <div class="block">
+        <strong>À venir :</strong> d’autres projets PoW pourront rejoindre cette
+        page (Nexa, Bitcoin orienté ordinals / L2, projets GPU émergents, etc.).
+        Le but n’est pas de lister “toutes les coins” mais de suivre quelques
+        dossiers avec sérieux.
+      </div>
+    </section>
+
+    <section>
+      <h2>Ce que tu trouveras ici, à terme</h2>
+      <div class="block">
+        <ul class="list">
+          <li>Des résumés clairs des projets PoW suivis par TORINVEST.</li>
+          <li>Des pistes de réflexion sur la rentabilité (sans promesse de gain).</li>
+          <li>Des liens vers des outils utiles : calculateurs, explorers, pools, etc.</li>
+          <li>Une vision “macro + énergie + game theory” du minage, pas juste “quel hashrate ?”.</li>
+        </ul>
+      </div>
+      <p class="small">
+        ⚠️ Rien ici ne constitue un conseil en investissement ni une incitation à
+        acheter du matériel. Le minage reste une activité risquée, dépendante du
+        prix des coins, du coût de l’énergie et de l’évolution des protocoles.
+      </p>
+    </section>
+  </div>
+
+  <!-- Bouton retour accueil -->
+  <a href="index.html" class="btn-home">← Retour accueil</a>
+</body>
+</html>
