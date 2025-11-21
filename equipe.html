@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Équipe – TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #050509;
+      --bg-alt: #0a0a12;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.12);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 40px;
+      border-radius: 8px;
+    }
+
+    .logo-title {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      position: relative;
+      padding-bottom: 3px;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffb400, #ff4b5c);
+      transition: width 0.2s ease;
+    }
+
+    nav a:hover::after {
+      width: 100%;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .section-sub {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 720px;
+      margin-bottom: 24px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2.4fr) minmax(0, 2fr);
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 16px 16px 14px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.7);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .card-text {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .two-col-mini {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mini-card {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.05);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mini-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+
+    footer {
+      margin-top: 34px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 14px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 860px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      nav {
+        justify-content: flex-start;
+      }
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="logo">
+        <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img" />
+        <div class="logo-text">
+          <div class="logo-title">TORINVEST</div>
+          <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="index.html">Vision</a>
+        <a href="crypto.html">Crypto</a>
+        <a href="formation.html">Formation</a>
+        <a href="bootcamp.html">Bootcamp</a>
+        <a href="forge-page.html">La Forge</a>
+        <a href="projets.html">Projets</a>
+        <a href="liens.html">Liens utiles</a>
+        <a href="roadmap.html">Roadmap</a>
+        <a href="equipe.html">Équipe</a>
+        <a href="disclaimer.html">Disclaimer</a>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <div class="section-title">Équipe & origine du projet</div>
+        <p class="section-sub">
+          Derrière TORINVEST, il n’y a pas une “société anonyme” qui vend du rêve,
+          mais un parcours réel : un trader qui a mangé des stops, des frustrations,
+          des challenges propfirm, des manipulations apparentes… et qui a décidé de
+          transformer tout ça en méthode, en pédagogie et en Forge.
+        </p>
+
+        <div class="layout">
+          <div class="card">
+            <div class="badge">Le forgeron derrière TORINVEST</div>
+            <div class="card-title">Un parcours de marché, pas de marketing</div>
+            <p class="card-text">
+              TORINVEST est porté par un trader qui vive le marché au quotidien :
+              scalping, swing, challenges propfirm, psychologie, remise en question,
+              observation du macro et des liquidités.  
+              <br><br>
+              L’objectif n’est pas de se mettre en scène comme un “gourou”
+              mais de créer un espace où on parle vrai : drawdowns, erreurs,
+              biais psychologiques, illusions des plateformes, spreads abusifs,
+              pression des objectifs, peur de repasser les mêmes erreurs.
+              <br><br>
+              TORINVEST, c’est la tentative de reprendre le contrôle :
+              comprendre l’algorithme du marché, les acteurs, le contexte macro,
+              et redonner une structure aux traders qui veulent s’élever.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="badge">Ce que TORINVEST n’est pas</div>
+            <div class="two-col-mini">
+              <div class="mini-card">
+                <div class="mini-title">Pas de promesse de gains</div>
+                <div>
+                  Pas de “x2 par mois”, pas de “setup magique”. 
+                  Juste du travail, de la méthode, et du temps.
+                </div>
+              </div>
+              <div class="mini-card">
+                <div class="mini-title">Pas de culte de la personnalité</div>
+                <div>
+                  Le but n’est pas de te faire suivre aveuglément quelqu’un,
+                  mais de te rendre plus autonome dans ta lecture du marché.
+                </div>
+              </div>
+              <div class="mini-card">
+                <div class="mini-title">Pas d’illusion de contrôle total</div>
+                <div>
+                  Le marché restera toujours plus fort que nous. 
+                  L’enjeu, c’est la gestion du risque et du mental.
+                </div>
+              </div>
+              <div class="mini-card">
+                <div class="mini-title">Pas de déconnexion du réel</div>
+                <div>
+                  On parle de macro, de dettes, de banque centrale,
+                  de géopolitique – pas juste de “setup du jour”.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+    <footer>
+      <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
+      <span>Projet éducatif & expérimental • Aucun conseil en investissement.</span>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
