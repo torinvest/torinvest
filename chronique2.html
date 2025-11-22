@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TORINVEST — Chronique #2 | La Fed perd sa légitimité face à Trump</title>
+
+  <style>
+    :root{
+      --bg:#070709;
+      --bg-soft:#0c0d10;
+      --bg-card:#111218;
+      --bg-card-2:#0e0f14;
+      --gold:#e3c16f;
+      --orange:#ff9a3c;
+      --orange-2:#ff6b2c;
+      --text:#e9eaee;
+      --muted:#a7adba;
+      --line: rgba(255,255,255,0.08);
+      --radius:18px;
+      --shadow: 0 18px 60px rgba(0,0,0,.6);
+      --maxw:1100px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background:
+        radial-gradient(1200px 800px at 70% -10%, #141625 0%, var(--bg) 55%),
+        radial-gradient(900px 500px at 10% 115%, rgba(255,107,44,0.08), transparent 60%);
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      letter-spacing:0.2px;
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+    a{ color:inherit; text-decoration:none; }
+    .container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+
+    /* ============ TOP NAV (simple, à ton style) ============ */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(6px);
+      background: rgba(7,7,9,0.72);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar .inner{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 0;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:800; letter-spacing:.8px;
+    }
+    .brand .logo{
+      width:34px; height:34px; border-radius:10px;
+      background: radial-gradient(circle at 30% 15%, #fff, var(--gold) 55%, #3a2b12 100%);
+      box-shadow: 0 0 16px rgba(227,193,111,.7);
+    }
+    .nav{
+      display:flex; gap:14px; flex-wrap:wrap; font-size:13px; color:var(--muted);
+    }
+    .nav a{ padding:6px 8px; border-radius:8px; }
+    .nav a:hover{ color:#fff; background:rgba(255,255,255,0.04); }
+
+    /* ============ HERO ============ */
+    header.hero{
+      position:relative; overflow:hidden;
+      padding:86px 0 64px;
+      border-bottom:1px solid var(--line);
+      background:
+        radial-gradient(800px 500px at 15% 0%, rgba(227,193,111,0.08), transparent 60%),
+        radial-gradient(700px 550px at 90% 10%, rgba(120,163,255,0.08), transparent 60%);
+    }
+    .hero-grid{
+      display:grid; grid-template-columns: 1.15fr 0.85fr; gap:22px; align-items:center;
+    }
+    .hero-badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:7px 11px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--line);
+      border-radius:999px;
+      font-size:12px; color:var(--muted);
+      backdrop-filter: blur(6px);
+    }
+    .dot{
+      width:7px; height:7px; border-radius:50%;
+      background:linear-gradient(180deg,var(--gold),var(--orange));
+      box-shadow:0 0 10px rgba(255,154,60,.8);
+    }
+    h1{
+      font-size: clamp(30px, 4.0vw, 50px);
+      margin:14px 0 10px; line-height:1.12;
+      text-transform:uppercase; letter-spacing:1px;
+    }
+    .hero p{
+      color:var(--muted); font-size: clamp(14px, 1.6vw, 18px);
+      margin:0 0 18px;
+    }
+    .hero-cta{ display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
+    .btn{
+      padding:11px 15px; border-radius:12px; font-weight:700; font-size:14px;
+      border:1px solid var(--line); background:var(--bg-soft); color:var(--text);
+      transition:.25s ease; box-shadow: var(--shadow);
+    }
+    .btn:hover{ transform:translateY(-2px); border-color:rgba(227,193,111,0.25); }
+    .btn.gold{
+      background: linear-gradient(180deg, #2a2212, #15110a);
+      border-color: rgba(227,193,111,0.35);
+      color:#f6e7bd;
+      box-shadow: 0 10px 40px rgba(227,193,111,0.16);
+    }
+
+    .hero-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+      border:1px solid var(--line); border-radius: var(--radius);
+      padding:18px; position:relative; overflow:hidden;
+      min-height: 210px;
+    }
+    .hero-card::after{
+      content:""; position:absolute; inset:-45% -25%;
+      background:
+        radial-gradient(520px 320px at 70% 30%, rgba(255,107,44,0.10), transparent 60%),
+        radial-gradient(520px 320px at 30% 50%, rgba(227,193,111,0.10), transparent 60%);
+      transform: rotate(9deg);
+    }
+    .stat{
+      display:grid; grid-template-columns:1fr 1fr; gap:12px; position:relative; z-index:1;
+    }
+    .k{
+      background:var(--bg-card); border:1px solid var(--line);
+      border-radius:14px; padding:14px;
+    }
+    .k .label{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.6px; }
+    .k .value{ font-size:18px; font-weight:800; margin-top:4px; color:#fff; }
+    .value.gold{ color:var(--gold); }
+    .value.orange{ color:var(--orange); }
+
+    /* ============ SECTIONS ============ */
+    section{ padding:56px 0; }
+    .section-title{
+      display:flex; align-items:end; justify-content:space-between; gap:10px; margin-bottom:16px;
+    }
+    h2{
+      font-size: clamp(20px, 2.4vw, 28px);
+      margin:0; color:#fff;
+      letter-spacing:.6px; text-transform:uppercase;
+    }
+    .subtitle{ color:var(--muted); font-size:14px; }
+
+    /* ============ CARDS / GRID ============ */
+    .grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:14px; }
+    .card{
+      background: var(--bg-card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:18px;
+      box-shadow: var(--shadow);
+      transform: translateY(10px);
+      opacity:0;
+      transition: .7s ease;
+      position:relative; overflow:hidden;
+    }
+    .card.reveal{ transform:none; opacity:1; }
+    .card h3{ margin:0 0 6px; font-size:16px; letter-spacing:.4px; }
+    .card p{ margin:0; color:var(--muted); font-size:14px; }
+
+    /* petit liseré forge */
+    .card::before{
+      content:""; position:absolute; inset:auto 0 0 0; height:2px;
+      background: linear-gradient(90deg, transparent, rgba(255,154,60,.8), rgba(227,193,111,.8), transparent);
+      opacity:.7;
+    }
+
+    /* ============ TIMELINE ============ */
+    .timeline{ display:grid; gap:12px; margin-top:12px; }
+    .time-item{
+      background: var(--bg-card-2);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px 16px 16px 54px;
+      position:relative;
+      opacity:0; transform: translateY(10px);
+      transition:.7s ease;
+    }
+    .time-item.reveal{ opacity:1; transform:none; }
+    .time-dot{
+      position:absolute; left:16px; top:18px; width:18px; height:18px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--orange) 60%, #3a1e0e 100%);
+      border-radius:50%; box-shadow:0 0 14px rgba(255,107,44,.8);
+    }
+    .time-item h4{ margin:0 0 6px; font-size:15px; text-transform:uppercase; letter-spacing:.5px; }
+    .time-item .range{ color:var(--gold); font-weight:800; font-size:12px; letter-spacing:.8px; }
+    .time-item p{ margin:6px 0 0; color:var(--muted); font-size:14px; }
+
+    /* ============ SPLIT ============ */
+    .split{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .panel{
+      background:var(--bg-card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:18px;
+    }
+    .panel ul{ margin:8px 0 0 16px; color:var(--muted); }
+    .panel li{ margin:6px 0; }
+
+    /* ============ QUOTE ============ */
+    .quote{
+      background: linear-gradient(180deg, rgba(255,154,60,0.06), transparent);
+      border:1px dashed rgba(255,154,60,0.35);
+      border-radius: var(--radius);
+      padding:18px;
+      color:#f8f2e6;
+      font-size:15px;
+    }
+
+    /* ============ CTA ============ */
+    .cta{
+      background:
+        radial-gradient(600px 260px at 10% 0%, rgba(227,193,111,0.08), transparent 60%),
+        var(--bg-soft);
+      border:1px solid var(--line);
+      border-radius:22px; padding:22px; text-align:center;
+    }
+    .cta h3{ margin:0 0 8px; font-size:20px; text-transform:uppercase; letter-spacing:.8px; }
+    .cta p{ margin:0 0 12px; color:var(--muted); font-size:14px; }
+
+    footer{
+      padding:26px 0; border-top:1px solid var(--line);
+      color:#8a8f9b; font-size:13px; text-align:center;
+      background:#060607;
+    }
+
+    /* ============ BRAISES (embers) ============ */
+    .embers{
+      position:absolute; inset:0; pointer-events:none; opacity:.65;
+      background:
+        radial-gradient(2px 2px at 10% 80%, rgba(255,154,60,.9), transparent 55%),
+        radial-gradient(2px 2px at 30% 70%, rgba(227,193,111,.9), transparent 55%),
+        radial-gradient(1.5px 1.5px at 65% 85%, rgba(255,107,44,.9), transparent 55%),
+        radial-gradient(2px 2px at 80% 75%, rgba(227,193,111,.9), transparent 55%);
+      animation: floatEmbers 10s linear infinite;
+      mix-blend-mode: screen;
+    }
+    @keyframes floatEmbers{
+      0%{ transform: translateY(0); filter: blur(0px); }
+      50%{ transform: translateY(-14px); filter: blur(.3px);}
+      100%{ transform: translateY(0); filter: blur(0px);}
+    }
+
+    /* ============ RESPONSIVE ============ */
+    @media (max-width: 900px){
+      .hero-grid{ grid-template-columns:1fr; }
+      .grid{ grid-template-columns:1fr 1fr; }
+      .split{ grid-template-columns:1fr; }
+    }
+    @media (max-width: 520px){
+      .grid{ grid-template-columns:1fr; }
+      header.hero{ padding-top:70px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="container inner">
+      <div class="brand">
+        <div class="logo"></div>
+        <div>TORINVEST</div>
+      </div>
+      <nav class="nav">
+        <a href="/index.html">Accueil</a>
+        <a href="/chroniques.html">Chroniques</a>
+        <a href="/macro.html">Macro</a>
+        <a href="/crypto.html">Crypto</a>
+        <a href="/forge-page.html">La Forge</a>
+        <a href="/contact.html">Contact</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="embers"></div>
+    <div class="container hero-grid">
+      <div>
+        <div class="hero-badge"><span class="dot"></span> CHRONIQUES TORINVEST — LONG CYCLES / STRUCTURE</div>
+        <h1>La Fed perd sa légitimité<br>face à Trump</h1>
+        <p>
+          Une banque centrale n’existe que par sa crédibilité.
+          Quand un pouvoir politique attaque publiquement cette crédibilité,
+          on ne parle plus seulement de taux… on parle de régime.
+        </p>
+        <div class="hero-cta">
+          <a class="btn gold" href="#thesis">Lire la thèse</a>
+          <a class="btn" href="#timeline">Chronologie</a>
+          <a class="btn" href="#impacts">Conséquences marché</a>
+        </div>
+      </div>
+
+      <div class="hero-card" aria-hidden="true">
+        <div class="stat">
+          <div class="k">
+            <div class="label">Objet</div>
+            <div class="value">Indépendance Fed</div>
+          </div>
+          <div class="k">
+            <div class="label">Pression politique</div>
+            <div class="value orange">Trump</div>
+          </div>
+          <div class="k">
+            <div class="label">Risque central</div>
+            <div class="value">Perte de confiance</div>
+          </div>
+          <div class="k">
+            <div class="label">Lecture Forge</div>
+            <div class="value gold">Choc de régime</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- THESIS -->
+  <section id="thesis">
+    <div class="container">
+      <div class="section-title">
+        <h2>Thèse TORINVEST</h2>
+        <div class="subtitle">Quand la politique casse l’ancre monétaire</div>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>1) La Fed = une institution de foi</h3>
+          <p>
+            La monnaie moderne tient sur une croyance : la banque centrale
+            agit pour la stabilité, pas pour un clan. Si cette croyance vacille,
+            le pricing du risque change.
+          </p>
+        </article>
+        <article class="card">
+          <h3>2) Trump vise le symbole</h3>
+          <p>
+            Les attaques répétées sur Powell ne sont pas anodines.
+            Elles testent la frontière entre pouvoir élu et pouvoir monétaire.
+          </p>
+        </article>
+        <article class="card">
+          <h3>3) Le marché lit un “nouveau régime”</h3>
+          <p>
+            Si l’indépendance devient négociable,
+            alors le futur devient plus inflationniste,
+            plus instable et plus “réel”.
+          </p>
+        </article>
+      </div>
+
+      <div style="height:14px"></div>
+
+      <div class="quote">
+        Dans la Forge, on lit ça comme un basculement :
+        **quand l’ancre institutionnelle saute, le marché se réfugie dans le tangible.**
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline">
+    <div class="container">
+      <div class="section-title">
+        <h2>Chronologie du conflit</h2>
+        <div class="subtitle">De la critique aux menaces institutionnelles</div>
+      </div>
+
+      <div class="timeline">
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">2018–2020</div>
+          <h4>Premières attaques</h4>
+          <p>
+            Trump critique la Fed pour “freiner la croissance”.
+            La politique entre dans la salle des machines monétaires.
+          </p>
+        </div>
+
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">2021–2023</div>
+          <h4>Inflation + choix douloureux</h4>
+          <p>
+            Après le choc inflationniste, la Fed remonte les taux.
+            Son rôle d’“adulte dans la pièce” devient impopulaire.
+          </p>
+        </div>
+
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">2024–2025</div>
+          <h4>Escalade publique</h4>
+          <p>
+            Trump reprend une ligne frontale :
+            accusations de Fed “politique”, pression pour des baisses plus fortes,
+            et menaces sur les gouverneurs.
+          </p>
+        </div>
+
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">Maintenant</div>
+          <h4>Test de crédibilité mondial</h4>
+          <p>
+            Les autres banques centrales observent.
+            Si l’institution dominante est fragilisée,
+            l’ordre monétaire global se recompose.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACTS -->
+  <section id="impacts">
+    <div class="container">
+      <div class="section-title">
+        <h2>Conséquences marché</h2>
+        <div class="subtitle">Ce que le pricing “entend” vraiment</div>
+      </div>
+
+      <div class="split">
+        <div class="panel">
+          <h3 style="margin:0 0 6px;">Effets directs</h3>
+          <ul>
+            <li>Hausse de la prime de risque sur le dollar</li>
+            <li>Volatilité accrue sur les taux US</li>
+            <li>Plus de “bruit politique” dans le pricing</li>
+            <li>Risque de décisions monétaires perçues comme opportunistes</li>
+          </ul>
+        </div>
+
+        <div class="panel" style="border-color:rgba(255,154,60,0.35); background:linear-gradient(180deg, rgba(255,154,60,0.05), var(--bg-card));">
+          <h3 style="margin:0 0 6px; color:var(--orange);">Lecture Forge (long terme)</h3>
+          <ul>
+            <li>Régime plus inflationniste par nature</li>
+            <li>Retour de la valeur vers les actifs “réels”</li>
+            <li>Recherche de refuges hors institutions</li>
+            <li>Cycle long : papier → tangible → souveraineté</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="height:14px"></div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Or & Commodities</h3>
+          <p>
+            Si la confiance baisse, l’or redevient
+            une assurance institutionnelle.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Dollar</h3>
+          <p>
+            Le dollar reste dominant,
+            mais sa “qualité institutionnelle” devient un débat.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Actions</h3>
+          <p>
+            Les multiples deviennent plus sensibles
+            au narratif politique et au risque de régime.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONCLUSION -->
+  <section>
+    <div class="container">
+      <div class="cta">
+        <h3>Conclusion TORINVEST</h3>
+        <p>
+          Cette chronique n’est pas une prediction “court terme”.
+          C’est une lecture structurelle : **une banque centrale attaquée
+          finit toujours par provoquer une prime de risque durable.**
+          Et le marché se prépare à ça avant que le grand public ne le voie.
+        </p>
+        <div class="hero-cta" style="justify-content:center;">
+          <a class="btn gold" href="/chroniques.html">Retour aux chroniques</a>
+          <a class="btn" href="/discord">Rejoindre la Forge</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © TORINVEST TRADING — Chroniques long cycles. Aucun conseil en investissement.
+  </footer>
+
+  <script>
+    // Reveal cards + timeline
+    const revealEls = [...document.querySelectorAll('.card, .time-item')];
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          e.target.classList.add('reveal');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => io.observe(el));
+
+    // Soft parallax hero glow
+    const hero = document.querySelector('.hero');
+    window.addEventListener('mousemove', (ev) => {
+      const x = (ev.clientX / window.innerWidth - 0.5) * 6;
+      const y = (ev.clientY / window.innerHeight - 0.5) * 6;
+      hero.style.backgroundPosition = `${50 + x}% ${0 + y}%`;
+    }, { passive:true });
+  </script>
+</body>
+</html>
