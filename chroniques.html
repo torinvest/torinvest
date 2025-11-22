@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TorInvest — Chroniques de Forge</title>
+  <link rel="stylesheet" href="/styles.css"><!-- si tu as un css global -->
+  <style>
+    /* si pas de css global, tu peux réutiliser les variables de la page article */
+    body{ margin:0; font-family:system-ui; color:#e8ebf5; background:#05060a; }
+    .container{ max-width:1100px; margin:0 auto; padding:0 20px; }
+    header{ padding:70px 0 30px; border-bottom:1px solid rgba(255,255,255,.07); }
+    h1{ font-size:clamp(28px,4vw,44px); margin:0 0 8px; font-weight:800; }
+    p{ color:#9aa3b6; margin:0; }
+
+    .toolbar{
+      display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 0;
+    }
+    .chip{
+      font-size:13px; padding:7px 12px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(255,255,255,.03);
+      cursor:pointer; user-select:none;
+    }
+    .chip.active{ border-color:rgba(243,165,42,.6); color:#ffcc6d; }
+
+    .list{ padding:25px 0 60px; display:grid; gap:12px; }
+    .item{
+      background:#0e1320; border:1px solid rgba(255,255,255,.07);
+      border-radius:18px; padding:16px; display:grid; gap:6px;
+      transition:.2s ease; box-shadow:0 18px 50px rgba(0,0,0,.55);
+    }
+    .item:hover{ transform:translateY(-2px); border-color:rgba(243,165,42,.25); }
+    .meta{ display:flex; gap:8px; flex-wrap:wrap; font-size:12px; color:#9aa3b6; }
+    .tag{ padding:3px 8px; border-radius:999px; background:rgba(243,165,42,.12); color:#ffcc6d; }
+    .title{ font-size:18px; font-weight:800; }
+    .excerpt{ color:#9aa3b6; font-size:14px; }
+    .cta{ margin-top:4px; font-weight:700; color:#f3a52a; font-size:14px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="width:7px;height:7px;border-radius:50%;background:#f3a52a;box-shadow:0 0 10px #f3a52a;"></span>
+        <div style="font-size:12px;color:#9aa3b6;">TORINVEST • LA FORGE</div>
+      </div>
+      <h1>Chroniques de Forge</h1>
+      <p>
+        Une note par mois. Ici on parle régimes, cycles longs, fractures structurelles —
+        pas le bruit du marché.
+      </p>
+
+      <div class="toolbar">
+        <div class="chip active" data-filter="all">Tout</div>
+        <div class="chip" data-filter="regimes">Régimes</div>
+        <div class="chip" data-filter="commodities">Ressources</div>
+        <div class="chip" data-filter="geopolitique">Géopolitique</div>
+        <div class="chip" data-filter="IA">IA / Tech</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container list" id="chroniques">
+
+    <!-- CHRONIQUE #1 -->
+    <article class="item" data-tags="regimes,commodities,geopolitique">
+      <div class="meta">
+        <span>Nov 2025</span>
+        <span class="tag">Régimes</span>
+        <span class="tag">Cycles longs</span>
+      </div>
+      <div class="title">Changement de régime & réallocation des élites (2008–2025)</div>
+      <div class="excerpt">
+        Du “papier” au “réel” : hausse des taux, rareté des ressources,
+        fragmentation commerciale… Pourquoi les ultra-riches reforgent leurs portefeuilles.
+      </div>
+      <a class="cta" href="/chroniques/changement-regime-2008-2025.html">Lire la chronique →</a>
+    </article>
+
+    <!-- Tu dupliques ce bloc chaque mois -->
+
+  </main>
+
+  <script>
+    const chips = document.querySelectorAll('.chip');
+    const items = document.querySelectorAll('.item');
+
+    chips.forEach(chip=>{
+      chip.addEventListener('click', ()=>{
+        chips.forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+
+        const f = chip.dataset.filter;
+        items.forEach(it=>{
+          const tags = (it.dataset.tags||"").split(',');
+          it.style.display = (f==="all" || tags.includes(f)) ? "grid" : "none";
+        });
+      })
+    })
+  </script>
+
+</body>
+</html>
