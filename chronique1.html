@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TorInvest — Changement de régime & réallocation des élites (2008–2025)</title>
+
+  <style>
+    :root{
+      --bg-0:#05060a;
+      --bg-1:#070a12;
+      --bg-2:#0b0f1c;
+      --card:#0e1320;
+      --card-2:#0b1020;
+      --line:rgba(255,255,255,.07);
+      --text:#e8ebf5;
+      --muted:#9aa3b6;
+
+      /* Accent TorInvest / Forge (orange-or site) */
+      --accent:#f3a52a;
+      --accent-2:#ffcc6d;
+      --accent-soft:rgba(243,165,42,.16);
+
+      --radius:18px;
+      --radius-lg:22px;
+      --shadow:0 18px 50px rgba(0,0,0,.55);
+      --maxw:1100px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% -15%, #11183a 0%, transparent 60%),
+        radial-gradient(1000px 700px at 90% -10%, #0f2240 0%, transparent 58%),
+        radial-gradient(900px 700px at 50% 120%, #0b0e1c 0%, var(--bg-0) 60%);
+      letter-spacing:.2px; line-height:1.6;
+    }
+    a{ color:inherit; text-decoration:none; }
+    .container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+
+    /* ====== TOP STRIP (style site) ====== */
+    .top-strip{
+      position:sticky; top:0; z-index:30;
+      backdrop-filter: blur(8px);
+      background: linear-gradient(180deg, rgba(5,6,10,.9), rgba(5,6,10,.55));
+      border-bottom:1px solid var(--line);
+    }
+    .top-inner{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 0;
+      font-size:13px; color:var(--muted);
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border:1px solid var(--line);
+      border-radius:999px; background:rgba(255,255,255,.03);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+    }
+    .pill .dot{
+      width:7px; height:7px; border-radius:50%;
+      background:var(--accent);
+      box-shadow:0 0 10px var(--accent);
+    }
+    .top-links{ display:flex; gap:10px; flex-wrap:wrap; }
+    .top-links a{ padding:4px 8px; border-radius:999px; }
+    .top-links a:hover{ background:rgba(255,255,255,.04); color:#fff; }
+
+    /* ====== HERO ====== */
+    header.hero{
+      position:relative; overflow:hidden;
+      padding:80px 0 56px;
+      border-bottom:1px solid var(--line);
+    }
+    .hero-grid{
+      display:grid; grid-template-columns: 1.2fr .8fr; gap:22px; align-items:center;
+    }
+    h1{
+      font-size: clamp(30px, 4.2vw, 50px);
+      margin:14px 0 10px; line-height:1.12;
+      font-weight:800;
+    }
+    .hero p{
+      color:var(--muted);
+      font-size: clamp(14px, 1.55vw, 18px);
+      margin:0 0 16px;
+    }
+
+    .hero-cta{ display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+    .btn{
+      padding:12px 16px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:14px;
+      border:1px solid var(--line);
+      background:rgba(10,14,24,.8);
+      color:var(--text);
+      transition:.25s ease;
+      box-shadow: var(--shadow);
+    }
+    .btn:hover{ transform:translateY(-2px); border-color:var(--accent-soft); }
+    .btn.accent{
+      background: linear-gradient(180deg, #ffb13b, #f19a18);
+      border-color:transparent;
+      color:#0b0c10;
+      box-shadow:0 12px 40px rgba(243,165,42,.25);
+    }
+
+    /* Hero right card (dashboard vibe) */
+    .hero-card{
+      position:relative;
+      background:
+        radial-gradient(600px 220px at 30% 0%, rgba(255,255,255,.04), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+      border:1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding:16px;
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .hero-card::after{
+      content:"";
+      position:absolute; inset:-25% -15%;
+      background: radial-gradient(520px 260px at 70% 15%, rgba(243,165,42,.22), transparent 60%);
+      transform: rotate(6deg);
+      z-index:-1;
+    }
+    .stat{
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    }
+    .k{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:12px;
+    }
+    .k .label{
+      color:var(--muted); font-size:11px;
+      text-transform:uppercase; letter-spacing:.7px;
+    }
+    .k .value{
+      margin-top:4px;
+      font-size:18px; font-weight:800; color:#fff;
+    }
+    .value.accent{ color:var(--accent-2); }
+
+    /* ====== SECTIONS ====== */
+    section{ padding:52px 0; }
+    .section-title{
+      display:flex; align-items:end; justify-content:space-between; gap:10px; margin-bottom:16px;
+    }
+    h2{
+      font-size: clamp(20px, 2.5vw, 30px);
+      margin:0; font-weight:800;
+    }
+    .subtitle{ color:var(--muted); font-size:14px; }
+
+    /* ====== CARDS ====== */
+    .grid{
+      display:grid; grid-template-columns: repeat(3,1fr); gap:12px;
+    }
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+      opacity:0; transform: translateY(10px);
+      transition: .7s ease;
+      position:relative;
+    }
+    .card.reveal{ opacity:1; transform:none; }
+    .card h3{ margin:0 0 6px; font-size:16px; letter-spacing:.2px; }
+    .card p{ margin:0; color:var(--muted); font-size:14px; }
+
+    /* Small forge accent corner */
+    .card::after{
+      content:"";
+      position:absolute; right:-30px; top:-30px;
+      width:80px; height:80px; border-radius:50%;
+      background: radial-gradient(circle, rgba(243,165,42,.20), transparent 60%);
+      filter: blur(6px);
+      pointer-events:none;
+      opacity:.8;
+    }
+
+    /* ====== TIMELINE ====== */
+    .timeline{ display:grid; gap:10px; margin-top:12px; }
+    .time-item{
+      background: var(--card-2);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 14px 14px 50px;
+      position:relative;
+      opacity:0; transform: translateY(10px);
+      transition:.7s ease;
+    }
+    .time-item.reveal{ opacity:1; transform:none; }
+    .time-dot{
+      position:absolute; left:14px; top:16px; width:18px; height:18px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--accent) 60%);
+      border-radius:50%;
+      box-shadow:0 0 14px rgba(243,165,42,.9);
+    }
+    .time-item h4{
+      margin:2px 0 6px; font-size:15px; font-weight:800;
+    }
+    .time-item .range{
+      color:var(--accent-2); font-weight:800; font-size:12px; letter-spacing:.7px;
+    }
+    .time-item p{ margin:4px 0 0; color:var(--muted); font-size:14px; }
+
+    /* ====== SPLIT ====== */
+    .split{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .panel{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:16px;
+    }
+    .panel ul{ margin:8px 0 0 16px; color:var(--muted); }
+    .panel li{ margin:6px 0; }
+
+    /* ====== QUOTE ====== */
+    .quote{
+      background:
+        linear-gradient(180deg, rgba(243,165,42,.08), transparent),
+        var(--card);
+      border:1px dashed rgba(243,165,42,.5);
+      border-radius: var(--radius);
+      padding:16px;
+      color:#f7f1e3; font-size:15px;
+    }
+
+    /* ====== CTA ====== */
+    .cta{
+      background:
+        radial-gradient(600px 280px at 10% 0%, rgba(243,165,42,.10), transparent 60%),
+        rgba(10,14,24,.9);
+      border:1px solid var(--line);
+      border-radius:22px; padding:20px; text-align:center;
+      box-shadow: var(--shadow);
+    }
+    .cta h3{ margin:0 0 6px; font-size:20px; font-weight:900; }
+    .cta p{ margin:0 0 10px; color:var(--muted); font-size:14px; }
+
+    footer{
+      padding:22px 0; border-top:1px solid var(--line);
+      color:#8a8f9b; font-size:13px; text-align:center;
+      background: rgba(4,5,8,.85);
+    }
+
+    /* ====== EMBERS (decor) ====== */
+    .embers{
+      position:absolute; inset:0; pointer-events:none; opacity:.55;
+      background:
+        radial-gradient(2px 2px at 10% 20%, rgba(243,165,42,.9), transparent 60%),
+        radial-gradient(2px 2px at 80% 30%, rgba(243,165,42,.7), transparent 60%),
+        radial-gradient(1.8px 1.8px at 55% 70%, rgba(255,204,109,.9), transparent 60%),
+        radial-gradient(1.6px 1.6px at 30% 60%, rgba(255,204,109,.8), transparent 60%);
+      animation: floatEmbers 9s ease-in-out infinite alternate;
+      mix-blend-mode: screen;
+    }
+    @keyframes floatEmbers{
+      from{ transform: translateY(0px); filter: blur(0px); }
+      to{ transform: translateY(-18px); filter: blur(.4px); }
+    }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 900px){
+      .hero-grid{ grid-template-columns:1fr; }
+      .grid{ grid-template-columns:1fr 1fr; }
+      .split{ grid-template-columns:1fr; }
+    }
+    @media (max-width: 520px){
+      .grid{ grid-template-columns:1fr; }
+      header.hero{ padding-top:64px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP STRIP -->
+  <div class="top-strip">
+    <div class="container top-inner">
+      <div class="pill"><span class="dot"></span> UNIVERS TORINVEST • LA FORGE • CYCLES LONGS</div>
+      <nav class="top-links">
+        <a href="/">Accueil</a>
+        <a href="/laforge">La Forge</a>
+        <a href="/macroeconomie">Macroéconomie</a>
+        <a href="/chroniques">Chroniques</a>
+        <a href="/contact">Contact</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="embers"></div>
+
+    <div class="container hero-grid">
+      <div>
+        <div class="pill"><span class="dot"></span> TORINVEST — Régimes • Cycles • Souveraineté</div>
+
+        <h1>Changement de régime<br>2008 → 2025</h1>
+
+        <p>
+          Depuis les subprimes, l’atelier du monde a basculé :
+          d’un capitalisme de <b>papier</b> (taux 0, QE, tech)
+          vers un capitalisme du <b>réel</b> (ressources, énergie, souveraineté).
+          <br><br>
+          Cette chronique pose la pièce sur l’enclume : <b>quand le coût du capital remonte,
+          les élites reforgent leurs portefeuilles</b>.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn accent" href="#timeline">Voir la chronologie</a>
+          <a class="btn" href="#moves">Pourquoi ils réallouent</a>
+          <a class="btn" href="#map">Carte TorInvest</a>
+        </div>
+      </div>
+
+      <aside class="hero-card" aria-hidden="true">
+        <div class="stat">
+          <div class="k">
+            <div class="label">Régime 1</div>
+            <div class="value">Argent gratuit</div>
+          </div>
+          <div class="k">
+            <div class="label">Régime 2</div>
+            <div class="value accent">Retour du réel</div>
+          </div>
+          <div class="k">
+            <div class="label">Moteur 2008–2020</div>
+            <div class="value">QE + Tech</div>
+          </div>
+          <div class="k">
+            <div class="label">Moteur 2021–2035</div>
+            <div class="value accent">Ressources + Souveraineté</div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <!-- 3 PLAQUES -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Les 3 plaques tectoniques</h2>
+        <div class="subtitle">Monétaire • Géopolitique • Technologique</div>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>1) Monétaire & dette</h3>
+          <p>
+            2008 a déclenché le QE. 2020 l’a saturé.
+            2022+ remet le coût du capital au centre :
+            l’acier des taux casse les châteaux de papier.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>2) Ressources & réel</h3>
+          <p>
+            Énergie, engrais, eau, nourriture, logistique.
+            Tout ce qui semblait banal redevient stratégique :
+            le monde se met à payer la rareté.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>3) IA & vulnérabilité</h3>
+          <p>
+            L’IA concentre la valeur… et expose les systèmes.
+            Plus tout devient numérique, plus le tangible sert de plan B.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section id="timeline">
+    <div class="container">
+      <div class="section-title">
+        <h2>Chronologie 2008 → 2025</h2>
+        <div class="subtitle">Les coups de marteau qui expliquent la réallocation</div>
+      </div>
+
+      <div class="timeline">
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">2008–2012</div>
+          <h4>Planche à billets de la survie</h4>
+          <p>
+            Subprimes → QE massif → taux ≈ 0%.
+            Le papier triomphe parce que l’argent ne coûte rien.
+          </p>
+        </div>
+
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">2013–2019</div>
+          <h4>Euphorie structurée</h4>
+          <p>
+            Globalisation, inflation faible, tech en hyper-croissance.
+            Les fortunes se concentrent sur les actions “duration”.
+          </p>
+        </div>
+
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">2020</div>
+          <h4>La rupture</h4>
+          <p>
+            Covid révèle la fragilité du réel :
+            chaînes logistiques, énergie, dépendances.
+            Les family offices prennent note.
+          </p>
+        </div>
+
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">2021–2022</div>
+          <h4>Retour brutal du monde physique</h4>
+          <p>
+            Inflation mondiale, choc énergétique,
+            taux en hausse : fin de l’argent gratuit.
+            Repricing violent des actifs papier.
+          </p>
+        </div>
+
+        <div class="time-item">
+          <span class="time-dot"></span>
+          <div class="range">2023–2025</div>
+          <h4>Nouveau régime</h4>
+          <p>
+            Fragmentation commerciale, tensions chroniques, IA dominante.
+            Le réel & le privé deviennent des piliers de robustesse.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOVES -->
+  <section id="moves">
+    <div class="container">
+      <div class="section-title">
+        <h2>Pourquoi ils réallouent</h2>
+        <div class="subtitle">Paper → Real assets</div>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Désensibilisation aux taux</h3>
+          <p>
+            Actions et obligations redeviennent hypersensibles au coût de l’argent.
+            Les élites réduisent la concentration papier.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Achats “utilitaires”</h3>
+          <p>
+            Terres agricoles, forêts, eau, énergie privée, infrastructures.
+            Des actifs rares, utiles, souverains.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>Résilience privée</h3>
+          <p>
+            Domaines autonomes, sécurité, logistique, abris renforcés :
+            options rationnelles sur le chaos long.
+          </p>
+        </article>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="quote">
+        “Ils ne fuient pas un crash demain.  
+        Ils reforgent une robustesse sur 20 ans :
+        l’utile reprend le dessus sur le narratif.”
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section id="map">
+    <div class="container">
+      <div class="section-title">
+        <h2>Carte TorInvest</h2>
+        <div class="subtitle">Ancien monde vs Nouveau monde</div>
+      </div>
+
+      <div class="split">
+        <div class="panel">
+          <h3 style="margin:0 0 6px;">Ancien monde (2008–2020)</h3>
+          <ul>
+            <li>Argent gratuit / QE</li>
+            <li>Globalisation maximale</li>
+            <li>Tech & croissance future</li>
+            <li>Inflation faible</li>
+            <li>Fortunes concentrées en actions</li>
+          </ul>
+        </div>
+
+        <div class="panel" style="border-color:rgba(243,165,42,.45); background:
+          linear-gradient(180deg, rgba(243,165,42,.08), var(--card));">
+          <h3 style="margin:0 0 6px; color:var(--accent-2);">
+            Nouveau monde (2021–2035)
+          </h3>
+          <ul>
+            <li>Rareté des ressources</li>
+            <li>Souveraineté & relocalisation</li>
+            <li>Cycles inflationnistes</li>
+            <li>Énergie / eau / nourriture stratégiques</li>
+            <li>Résilience physique / cyber</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section>
+    <div class="container">
+      <div class="cta">
+        <h3>TorInvest — Lire les régimes, pas le bruit</h3>
+        <p>
+          Pour la version vidéo / infographie ou l’analyse live
+          (or, dollar, taux, commodities), on continue sur YouTube & Discord.
+        </p>
+        <div class="hero-cta" style="justify-content:center;">
+          <a class="btn accent" href="/contact">Accéder aux analyses</a>
+          <a class="btn" href="/discord">Rejoindre le Discord</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © TorInvest Trading — Macro, cycles & price action. Tous droits réservés.
+  </footer>
+
+  <script>
+    // Reveal on scroll
+    const revealEls = [...document.querySelectorAll('.card, .time-item')];
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          e.target.classList.add('reveal');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => io.observe(el));
+  </script>
+</body>
+</html>
