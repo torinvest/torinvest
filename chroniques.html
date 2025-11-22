@@ -3,129 +3,190 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TorInvest — Chroniques de Forge</title>
-  <link rel="stylesheet" href="/styles.css"><!-- si tu as un css global -->
+  <title>TORINVEST — Chroniques</title>
+
   <style>
-    /* si pas de css global, tu peux réutiliser les variables de la page article */
-    body{ margin:0; font-family:system-ui; color:#e8ebf5; background:#05060a; }
-    .container{ max-width:1100px; margin:0 auto; padding:0 20px; }
-    header{ padding:70px 0 30px; border-bottom:1px solid rgba(255,255,255,.07); }
-    h1{ font-size:clamp(28px,4vw,44px); margin:0 0 8px; font-weight:800; }
-    p{ color:#9aa3b6; margin:0; }
+    :root{
+      --bg:#070709;
+      --bg-soft:#0c0d10;
+      --bg-card:#111218;
+      --gold:#e3c16f;
+      --orange:#ff9a3c;
+      --text:#e9eaee;
+      --muted:#a7adba;
+      --line: rgba(255,255,255,0.08);
+      --radius:18px;
+      --shadow: 0 18px 60px rgba(0,0,0,.6);
+      --maxw:1100px;
+    }
 
-    .toolbar{
-      display:flex; gap:10px; flex-wrap:wrap; margin:18px 0 0;
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background:
+        radial-gradient(1200px 800px at 70% -10%, #141625 0%, var(--bg) 55%);
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      letter-spacing:0.2px; line-height:1.6;
     }
-    .chip{
-      font-size:13px; padding:7px 12px; border-radius:999px;
-      border:1px solid rgba(255,255,255,.07);
-      background:rgba(255,255,255,.03);
-      cursor:pointer; user-select:none;
-    }
-    .chip.active{ border-color:rgba(243,165,42,.6); color:#ffcc6d; }
+    .container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
 
-    .list{ padding:25px 0 60px; display:grid; gap:12px; }
-    .item{
-      background:#0e1320; border:1px solid rgba(255,255,255,.07);
-      border-radius:18px; padding:16px; display:grid; gap:6px;
-      transition:.2s ease; box-shadow:0 18px 50px rgba(0,0,0,.55);
+    header{
+      padding:70px 0 30px;
+      border-bottom:1px solid var(--line);
     }
-    .item:hover{ transform:translateY(-2px); border-color:rgba(243,165,42,.25); }
-    .meta{ display:flex; gap:8px; flex-wrap:wrap; font-size:12px; color:#9aa3b6; }
-    .tag{ padding:3px 8px; border-radius:999px; background:rgba(243,165,42,.12); color:#ffcc6d; }
-    .title{ font-size:18px; font-weight:800; }
-    .excerpt{ color:#9aa3b6; font-size:14px; }
-    .cta{ margin-top:4px; font-weight:700; color:#f3a52a; font-size:14px; }
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:7px 11px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--line);
+      border-radius:999px; font-size:12px; color:var(--muted);
+    }
+    .dot{
+      width:7px; height:7px; border-radius:50%;
+      background:linear-gradient(180deg,var(--gold),var(--orange));
+      box-shadow:0 0 10px rgba(255,154,60,.8);
+    }
+    h1{
+      font-size: clamp(26px, 3.5vw, 42px);
+      margin:14px 0 6px; text-transform:uppercase; letter-spacing:1px;
+    }
+    p{ margin:0; color:var(--muted); }
+
+    .panel{
+      margin-top:22px;
+      background:var(--bg-card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    }
+
+    label{
+      font-size:13px; color:var(--muted);
+      text-transform:uppercase; letter-spacing:.8px;
+    }
+
+    select{
+      background:var(--bg-soft);
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:12px;
+      font-weight:700; font-size:14px;
+      outline:none; min-width:260px;
+      cursor:pointer;
+    }
+    select:focus{
+      border-color:rgba(227,193,111,0.35);
+      box-shadow:0 0 0 3px rgba(227,193,111,0.12);
+    }
+
+    .btn{
+      padding:10px 14px; border-radius:12px; font-weight:800; font-size:14px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,#2a2212,#15110a);
+      color:#f6e7bd; cursor:pointer;
+      transition:.2s ease; box-shadow:var(--shadow);
+    }
+    .btn:hover{ transform:translateY(-2px); }
+
+    .list{
+      margin-top:16px;
+      display:grid; gap:12px;
+    }
+    .card{
+      background:var(--bg-card);
+      border:1px solid var(--line);
+      border-radius:16px; padding:16px;
+      display:flex; flex-direction:column; gap:6px;
+      transition:.25s ease;
+    }
+    .card:hover{
+      border-color:rgba(255,154,60,0.35);
+      transform:translateY(-2px);
+    }
+    .card .title{
+      font-weight:800; letter-spacing:.3px;
+    }
+    .card .meta{
+      color:var(--muted); font-size:13px;
+    }
+
+    footer{
+      padding:26px 0; margin-top:40px;
+      border-top:1px solid var(--line);
+      color:#8a8f9b; font-size:13px; text-align:center;
+      background:#060607;
+    }
   </style>
 </head>
+
 <body>
 
   <header>
     <div class="container">
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="width:7px;height:7px;border-radius:50%;background:#f3a52a;box-shadow:0 0 10px #f3a52a;"></span>
-        <div style="font-size:12px;color:#9aa3b6;">TORINVEST • LA FORGE</div>
-      </div>
-      <h1>Chroniques de Forge</h1>
+      <div class="badge"><span class="dot"></span> CHRONIQUES TORINVEST — LONG TERME / STRUCTURE</div>
+      <h1>Les Chroniques de la Forge</h1>
       <p>
-        Une note par mois. Ici on parle régimes, cycles longs, fractures structurelles —
-        pas le bruit du marché.
+        Sélectionne une chronique pour basculer instantanément.
+        Tu peux changer les titres affichés ici sans toucher aux fichiers.
       </p>
 
-      <div class="toolbar">
-        <div class="chip active" data-filter="all">Tout</div>
-        <div class="chip" data-filter="regimes">Régimes</div>
-        <div class="chip" data-filter="commodities">Ressources</div>
-        <div class="chip" data-filter="geopolitique">Géopolitique</div>
-        <div class="chip" data-filter="IA">IA / Tech</div>
+      <!-- MENU DÉROULANT -->
+      <div class="panel">
+        <label for="chronoSelect">Choisir une chronique :</label>
+
+        <select id="chronoSelect">
+          <!-- value = chemin réel du fichier (ne change pas)
+               texte = nom affiché (tu peux changer quand tu veux) -->
+          <option value="/chronique1.html">Changement de régime & réallocation des élites (2008–2025)</option>
+          <option value="/chronique2.html">Perte de légitimité de la Fed vs Trump</option>
+
+          <!-- AJOUTE ICI LES FUTURES CHRONIQUES -->
+          <!-- <option value="/chronique3.html">Titre affiché de la chronique 3</option> -->
+        </select>
+
+        <button class="btn" id="goBtn">Ouvrir</button>
       </div>
+
+      <!-- LISTE (optionnelle mais cool) -->
+      <div class="list">
+        <a class="card" href="/chronique1.html">
+          <div class="title">Changement de régime & réallocation des élites (2008–2025)</div>
+          <div class="meta">Chronique #1 — long cycles / macro / élites</div>
+        </a>
+
+        <a class="card" href="/chronique2.html">
+          <div class="title">Perte de légitimité de la Fed vs Trump</div>
+          <div class="meta">Chronique #2 — institutions / régime monétaire</div>
+        </a>
+      </div>
+
     </div>
   </header>
 
-  <main class="container list" id="chroniques">
-
-    <!-- CHRONIQUE #1 -->
-    <article class="item" data-tags="regimes,commodities,geopolitique">
-      <div class="meta">
-        <span>Nov 2025</span>
-        <span class="tag">Régimes</span>
-        <span class="tag">Cycles longs</span>
-      </div>
-      <div class="title">Changement de régime & réallocation des élites (2008–2025)</div>
-      <div class="excerpt">
-        Du “papier” au “réel” : hausse des taux, rareté des ressources,
-        fragmentation commerciale… Pourquoi les ultra-riches reforgent leurs portefeuilles.
-      </div>
-      <a class="cta" href="/chronique1.html">Lire la chronique →</a>
-    </article>
-
-    <!-- Tu dupliques ce bloc chaque mois -->
-
-  </main>
+  <footer>
+    © TORINVEST TRADING — Chroniques long cycles. Aucun conseil en investissement.
+  </footer>
 
   <script>
-    const chips = document.querySelectorAll('.chip');
-    const items = document.querySelectorAll('.item');
+    const select = document.getElementById("chronoSelect");
+    const btn = document.getElementById("goBtn");
 
-    chips.forEach(chip=>{
-      chip.addEventListener('click', ()=>{
-        chips.forEach(c=>c.classList.remove('active'));
-        chip.classList.add('active');
+    function goChronique(){
+      const target = select.value;
+      if(target) window.location.href = target;
+    }
 
-        const f = chip.dataset.filter;
-        items.forEach(it=>{
-          const tags = (it.dataset.tags||"").split(',');
-          it.style.display = (f==="all" || tags.includes(f)) ? "grid" : "none";
-        });
-      })
-    })
+    btn.addEventListener("click", goChronique);
+    select.addEventListener("change", goChronique); // switch direct quand tu choisis
   </script>
-<a href="/" class="back-home-btn">← Retour accueil</a>
 
-<style>
-.back-home-btn {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #f5f5f7;
-  backdrop-filter: blur(4px);
-  transition: 0.2s ease;
-  z-index: 9999;
-}
+</body>
+</html>
 
-.back-home-btn:hover {
-  background: rgba(255, 180, 0, 0.25);
-  border-color: rgba(255, 180, 0, 0.6);
-  transform: translateY(-2px);
-}
-</style>
 
 </body>
 </html>
