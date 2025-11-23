@@ -1,0 +1,586 @@
+from pathlib import Path, PurePosixPath
+
+html = r"""<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TORINVEST — Chronique 3 | La Grande Tokenisation (2024–2035)</title>
+  <meta name="description" content="Chronique TORINVEST #3 : tokenisation des actifs dans un cycle long d’érosion de confiance dans le dollar. Impacts sur marchés, crypto, or et géopolitique." />
+
+  <!-- ====== TORINVEST / LA FORGE STYLE (self‑contained, comme Chronique 1 & 2) ====== -->
+  <style>
+    :root{
+      --bg:#07080b;
+      --bg-soft:#0d0f14;
+      --bg-card:#11131a;
+      --bg-card-2:#0e1016;
+      --gold:#f2b84b;         /* or/ambre TORINVEST */
+      --gold-2:#ff8f2b;       /* orange Forge */
+      --gold-soft: rgba(242,184,75,0.16);
+      --text:#e9eaee;
+      --muted:#a6adba;
+      --line: rgba(255,255,255,0.08);
+      --radius:18px;
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
+      --maxw:1100px;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      letter-spacing:0.2px; line-height:1.6;
+      background:
+        radial-gradient(1200px 800px at 70% -10%, #151a33 0%, var(--bg) 55%),
+        radial-gradient(900px 650px at -10% 20%, rgba(255,143,43,0.06), transparent 60%),
+        radial-gradient(900px 650px at 105% 40%, rgba(242,184,75,0.08), transparent 60%);
+      min-height:100vh;
+    }
+    a{ color:inherit; text-decoration:none; }
+    .container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+
+    /* ====== TOP MINIBAR (discret, ne remplace pas ta navbar globale) ====== */
+    .topbar{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(8px);
+      background: rgba(6,7,10,0.7);
+      border-bottom:1px solid var(--line);
+    }
+    .topbar-inner{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:12px 0;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.6px;
+    }
+    .brand .logo{
+      width:30px; height:30px; border-radius:8px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--gold) 55%, #3a250b 100%);
+      box-shadow:0 0 18px rgba(242,184,75,.6);
+    }
+    .crumbs{
+      font-size:12px; color:var(--muted);
+      display:flex; align-items:center; gap:8px;
+    }
+    .crumbs a{ color:#cfd5e2; }
+    .crumbs .sep{ opacity:.5; }
+
+    /* ====== HERO ====== */
+    header.hero{
+      position:relative; overflow:hidden;
+      padding:72px 0 46px;
+      border-bottom:1px solid var(--line);
+      background:
+        radial-gradient(800px 520px at 8% -10%, rgba(242,184,75,0.08), transparent 60%),
+        radial-gradient(900px 520px at 90% 0%, rgba(255,143,43,0.07), transparent 62%);
+    }
+    .hero-grid{
+      display:grid; grid-template-columns: 1.25fr 0.75fr; gap:24px; align-items:center;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:7px 12px; border-radius:999px;
+      background:rgba(255,255,255,0.04); border:1px solid var(--line);
+      font-size:12px; color:var(--muted); letter-spacing:.5px;
+    }
+    .badge .dot{
+      width:7px; height:7px; border-radius:50%;
+      background: linear-gradient(180deg, var(--gold), var(--gold-2));
+      box-shadow:0 0 10px rgba(255,143,43,.8);
+    }
+    h1{
+      margin:14px 0 10px; line-height:1.08;
+      font-size: clamp(28px, 4.1vw, 50px);
+      text-transform:uppercase; letter-spacing:1px;
+    }
+    .hero p{ color:var(--muted); font-size: clamp(14px, 1.6vw, 18px); margin:0 0 16px; }
+    .hero-cta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; }
+    .btn{
+      padding:11px 14px; border-radius:12px; font-weight:600; font-size:14px;
+      border:1px solid var(--line); background:var(--bg-soft); color:var(--text);
+      transition:.25s ease; box-shadow: var(--shadow);
+    }
+    .btn:hover{ transform:translateY(-2px); border-color:var(--gold-soft); }
+    .btn.gold{
+      background: linear-gradient(180deg, #2b1d0c, #140f08);
+      border-color: rgba(242,184,75,0.45);
+      color: #ffe3a6;
+      box-shadow: 0 10px 40px rgba(242,184,75,0.18);
+    }
+
+    .hero-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.01));
+      border:1px solid var(--line); border-radius: var(--radius);
+      padding:16px; position:relative; overflow:hidden;
+    }
+    .hero-card::after{
+      content:""; position:absolute; inset:-45% -25%;
+      background: radial-gradient(520px 320px at 70% 30%, rgba(242,184,75,0.14), transparent 60%);
+      transform: rotate(8deg);
+    }
+    .stat{
+      position:relative; z-index:1;
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    }
+    .stat .k{
+      background:var(--bg-card);
+      border:1px solid var(--line);
+      border-radius:14px; padding:12px;
+    }
+    .k .label{
+      color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.7px;
+    }
+    .k .value{ font-size:17px; font-weight:800; margin-top:4px; color:#fff; }
+    .value.gold{ color:var(--gold); }
+
+    /* ====== SECTIONS ====== */
+    section{ padding:52px 0; }
+    .section-title{
+      display:flex; align-items:end; justify-content:space-between; gap:10px; margin-bottom:14px;
+    }
+    h2{
+      font-size: clamp(19px, 2.5vw, 28px);
+      margin:0; text-transform:uppercase; letter-spacing:.7px; color:#fff;
+    }
+    .subtitle{ color:var(--muted); font-size:14px; }
+
+    /* ====== CARDS ====== */
+    .grid{
+      display:grid; grid-template-columns: repeat(3,1fr); gap:14px;
+    }
+    .card{
+      background: var(--bg-card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+      transform: translateY(8px);
+      opacity:0;
+      transition: .6s ease;
+    }
+    .card.reveal{ transform:none; opacity:1; }
+    .card h3{ margin:0 0 6px; font-size:16px; letter-spacing:.4px; }
+    .card p{ margin:0; color:var(--muted); font-size:14px; }
+
+    /* ====== TEXT BLOCKS ====== */
+    .block{
+      background:var(--bg-card-2);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px;
+      box-shadow: var(--shadow);
+      opacity:0; transform: translateY(10px);
+      transition:.6s ease;
+    }
+    .block.reveal{ opacity:1; transform:none; }
+    .block h3{ margin:0 0 8px; font-size:16px; text-transform:uppercase; letter-spacing:.6px; }
+    .block p{ margin:8px 0 0; color:var(--muted); font-size:15px; }
+    .block ul{ margin:8px 0 0 18px; color:var(--muted); }
+    .block li{ margin:6px 0; }
+
+    .quote{
+      margin-top:12px;
+      background: linear-gradient(180deg, rgba(242,184,75,0.06), transparent);
+      border:1px dashed rgba(242,184,75,0.4);
+      border-radius: var(--radius);
+      padding:16px;
+      color:#f5f1e4;
+      font-size:15px;
+    }
+
+    /* ====== SPLIT ====== */
+    .split{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+    /* ====== CTA ====== */
+    .cta{
+      background:
+        radial-gradient(650px 260px at 10% 0%, rgba(242,184,75,0.10), transparent 60%),
+        radial-gradient(650px 260px at 90% 0%, rgba(255,143,43,0.08), transparent 60%),
+        var(--bg-soft);
+      border:1px solid var(--line);
+      border-radius:22px; padding:22px; text-align:center;
+    }
+    .cta h3{
+      margin:0 0 8px; font-size:20px; text-transform:uppercase; letter-spacing:.8px;
+    }
+    .cta p{ margin:0 0 12px; color:var(--muted); font-size:14px; }
+
+    footer{
+      padding:26px 0; border-top:1px solid var(--line);
+      color:#8a8f9b; font-size:13px; text-align:center;
+      background: #06070a;
+    }
+
+    /* ====== RESPONSIVE ====== */
+    @media (max-width: 900px){
+      .hero-grid{ grid-template-columns:1fr; }
+      .grid{ grid-template-columns:1fr 1fr; }
+      .split{ grid-template-columns:1fr; }
+    }
+    @media (max-width: 520px){
+      .grid{ grid-template-columns:1fr; }
+      header.hero{ padding-top:64px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ====== MINI TOPBAR ====== -->
+  <div class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>TORINVEST</div>
+      </div>
+      <div class="crumbs">
+        <a href="index.html">Accueil</a>
+        <span class="sep">•</span>
+        <a href="chroniques.html">Chroniques</a>
+        <span class="sep">•</span>
+        <span>Chronique 3</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== HERO ====== -->
+  <header class="hero">
+    <div class="container hero-grid">
+      <div>
+        <div class="badge"><span class="dot"></span> CHRONIQUES TORINVEST — MACRO / CYCLES LONGS</div>
+        <h1>La Grande Tokenisation<br>2024 → 2035</h1>
+        <p>
+          Dans un cycle où la confiance dans le dollar s’effrite, les actifs changent d’enveloppe.
+          La tokenisation n’est pas une mode : c’est une conséquence logique d’un monde multipolaire.
+        </p>
+        <div class="hero-cta">
+          <a class="btn gold" href="#part1">Commencer la lecture</a>
+          <a class="btn" href="chroniques.html">↩ Retour aux chroniques</a>
+          <a class="btn" href="crypto.html">Univers Crypto</a>
+        </div>
+      </div>
+
+      <div class="hero-card" aria-hidden="true">
+        <div class="stat">
+          <div class="k">
+            <div class="label">Cycle dominant</div>
+            <div class="value">Érosion de confiance</div>
+          </div>
+          <div class="k">
+            <div class="label">Mutation clé</div>
+            <div class="value gold">Tokenisation</div>
+          </div>
+          <div class="k">
+            <div class="label">Gagnants</div>
+            <div class="value">Réel + Réseaux</div>
+          </div>
+          <div class="k">
+            <div class="label">Risque</div>
+            <div class="value gold">Hyper‑liquidité</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ====== PROLOGUE ====== -->
+  <section id="part1">
+    <div class="container">
+      <div class="section-title">
+        <h2>Prologue — Le dollar, l’hégémon qui vieillit</h2>
+        <div class="subtitle">1944 → 2035 : fin du monopole, pas fin de la monnaie</div>
+      </div>
+
+      <div class="block">
+        <p>
+          Depuis Bretton Woods, le dollar est plus qu’une monnaie : c’est un <strong>ancrage psychologique mondial</strong>.
+          Il ordonne les flux, la dette, les prix, et jusqu’aux rapports de force géopolitiques.
+        </p>
+        <p>
+          Mais comme toute puissance monétaire, le cycle du dollar n’est pas éternel.
+          On peut manipuler les taux, injecter du QE, influencer les marchés… mais on ne peut pas forcer
+          <strong>le monde entier à continuer d’y croire</strong>.
+        </p>
+        <p>
+          Depuis 2016–2022, plusieurs signaux faibles deviennent structurants :
+        </p>
+        <ul>
+          <li>Fragmentation des alliances et des chaînes commerciales.</li>
+          <li>Dé‑dollarisation progressive (accords bilatéraux, systèmes alternatifs à Swift).</li>
+          <li>Sanctions financières utilisées comme arme politique.</li>
+          <li>Dettes publiques qui croissent plus vite que la production réelle.</li>
+          <li>Banques centrales qui accumulent l’or comme en période de guerre monétaire.</li>
+        </ul>
+        <div class="quote">
+          Une monnaie dominante ne meurt pas par crash soudain.  
+          Elle décline par <strong>érosion de confiance</strong> sur un cycle long.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== WHY TOKENIZATION ====== -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Pourquoi la tokenisation explose quand le dollar doute</h2>
+        <div class="subtitle">Changer l’enveloppe pour survivre au changement de régime</div>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Besoin de règles stables</h3>
+          <p>
+            Quand le socle monétaire se politise, la valeur cherche des rails
+            plus neutres que les États.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Transferts hors‑banques</h3>
+          <p>
+            Contrôle, censures, délais… Les réseaux tokenisés offrent des flux
+            directs, globaux, instantanés.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Marchés 24/7</h3>
+          <p>
+            On sort d’une finance “horaire”.
+            Les actifs deviennent liquides en continu.
+          </p>
+        </article>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="block">
+        <p>
+          La tokenisation n’est pas “mettre un actif sur une blockchain”.
+          C’est <strong>changer la nature du droit de propriété</strong>, sa liquidité et son accessibilité.
+          Dans un monde incertain, les élites cherchent :
+        </p>
+        <ul>
+          <li>des actifs fractionnables et accessibles,</li>
+          <li>des marchés ouverts,</li>
+          <li>des titres transférables sans intermédiaires,</li>
+          <li>des infrastructures difficiles à censurer.</li>
+        </ul>
+        <p>
+          Bref : des actifs tokenisés <strong>pas parce que c’est crypto</strong>,  
+          mais parce que c’est plus résilient dans un cycle long de baisse de confiance.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== 4 MOTORS ====== -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Les 4 moteurs de la tokenisation post‑dollar</h2>
+        <div class="subtitle">2024 → 2035</div>
+      </div>
+
+      <div class="split">
+        <div class="block">
+          <h3>1) Un dollar trop politique</h3>
+          <p>
+            Sanctions, restrictions, gel d’avoirs : le dollar n’est plus neutre.
+            Les pays émergents veulent des actifs <strong>hors‑Swift, hors‑Fed, hors‑dollar</strong>.
+          </p>
+        </div>
+        <div class="block">
+          <h3>2) Inflation structurelle</h3>
+          <p>
+            Quand l’inflation devient un régime :
+            cash qui fond, obligations en rendement réel négatif, actions corrélées aux taux.
+            Les actifs tokenisés apportent accès mondial et arbitrages rapides.
+          </p>
+        </div>
+        <div class="block">
+          <h3>3) Montée des marchés privés</h3>
+          <p>
+            80% de la valeur est hors bourse (private equity, infra, immobilier non coté).
+            Tokeniser = rendre liquide l’illiquide, et ouvrir l’accès.
+          </p>
+        </div>
+        <div class="block">
+          <h3>4) Stablecoins = dollars 2.0</h3>
+          <p>
+            Les stablecoins circulent même quand la Fed ferme la porte.
+            Le dollar officiel perd du terrain, mais le <strong>dollar tokenisé</strong> gagne de l’usage.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== MARKETS IMPACTS ====== -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Avantages & dangers pour les marchés</h2>
+        <div class="subtitle">Hyper‑liquidité, hyper‑volatilité</div>
+      </div>
+
+      <div class="split">
+        <div class="block" style="border-color:rgba(46,204,113,0.25);">
+          <h3>✔ Avantages</h3>
+          <ul>
+            <li><strong>Liquidité mondiale 24/7</strong> : fin des marchés enfermés.</li>
+            <li><strong>Moins d’intermédiaires</strong> : la finance redevient protocole.</li>
+            <li><strong>Fractionnement</strong> : actifs rares accessibles.</li>
+            <li><strong>Transparence</strong> : preuve cryptographique de l’existant.</li>
+          </ul>
+        </div>
+
+        <div class="block" style="border-color:rgba(231,76,60,0.30);">
+          <h3>✖ Dangers</h3>
+          <ul>
+            <li><strong>Hyper‑liquidité</strong> → volatilité structurée.</li>
+            <li><strong>Contournement régulatoire</strong> : réponse politique inévitable.</li>
+            <li><strong>Risque sous‑jacent</strong> : tokeniser n’efface pas le risque réel.</li>
+            <li><strong>Fragmentation</strong> : bulles locales en cas de crise.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== DOLLAR / CRYPTO ====== -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Impacts sur le dollar, la crypto et l’or</h2>
+        <div class="subtitle">Mutation du centre de gravité</div>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Le dollar ne disparaît pas</h3>
+          <p>
+            Il passe d’un monopole mondial à un acteur dominant parmi plusieurs réseaux.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Les matières premières re‑ancrent</h3>
+          <p>
+            Or, énergie, métaux stratégiques : quand la monnaie doute,
+            le réel redevient la base.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Les blockchains deviennent des bourses</h3>
+          <p>
+            Obligations privées, immobilier, infra, private equity :
+            la tokenisation est le “use case” long terme.
+          </p>
+        </article>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="block">
+        <h3>Et la crypto dans tout ça ?</h3>
+        <p>
+          Dans ce nouveau régime, la crypto n’est pas “l’alternative rebelle”,
+          elle devient <strong>l’infrastructure parallèle</strong> :
+        </p>
+        <ul>
+          <li>Adoption institutionnelle accélérée.</li>
+          <li>Narratif anti‑monopole : Bitcoin comme assurance.</li>
+          <li>Stablecoins comme rails de paiements apatrides.</li>
+          <li>Mais aussi régulations, fiscalité, et surveillance accrue.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== SYNTHESIS ====== -->
+  <section>
+    <div class="container">
+      <div class="section-title">
+        <h2>Synthèse — Dé‑dollarisation silencieuse</h2>
+        <div class="subtitle">Le monde change d’enveloppe de valeur</div>
+      </div>
+
+      <div class="block">
+        <p>
+          On n’assiste pas à une chute du dollar.
+          On assiste à la fin du dollar comme <strong>monopole</strong>.
+        </p>
+        <p>
+          Dans un monde multipolaire :
+        </p>
+        <ul>
+          <li>l’or redevient une ancre,</li>
+          <li>le physique reprend du pouvoir,</li>
+          <li>les marchés privés migrent vers la tokenisation,</li>
+          <li>les stablecoins deviennent des dollars apatrides.</li>
+        </ul>
+        <div class="quote">
+          La tokenisation est la réponse à une question simple :  
+          <strong>si je ne fais plus confiance à une monnaie, à quelle infrastructure je confie ma valeur ?</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====== CTA ====== -->
+  <section>
+    <div class="container">
+      <div class="cta">
+        <h3>TORINVEST — Lire les régimes, pas le bruit</h3>
+        <p>
+          Si tu veux l’analyse live (taux, dollar, or, commodities, crypto),
+          on enchaîne sur YouTube & le Discord.
+        </p>
+        <div class="hero-cta" style="justify-content:center;">
+          <a class="btn gold" href="chroniques.html">Voir toutes les chroniques</a>
+          <a class="btn" href="discord.html">Rejoindre le Discord</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    © TORINVEST Trading — Macro, cycles & price action. Tous droits réservés.
+  </footer>
+
+  <!-- ====== ANIMATIONS (reveal + glow) ====== -->
+  <script>
+    // Reveal on scroll (cards + blocks)
+    const revealEls = [...document.querySelectorAll('.card, .block')];
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if(e.isIntersecting){
+          e.target.classList.add('reveal');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => io.observe(el));
+
+    // Soft glow drift for hero
+    const hero = document.querySelector('.hero');
+    let t = 0;
+    function drift(){
+      t += 0.004;
+      const x = 50 + Math.sin(t) * 2.5;
+      const y = 0 + Math.cos(t*1.2) * 2.5;
+      hero.style.backgroundPosition = `${x}% ${y}%`;
+      requestAnimationFrame(drift);
+    }
+    drift();
+  </script>
+
+</body>
+</html>
+"""
+
+out_path = Path("/mnt/data/chronique3.html")
+out_path.write_text(html, encoding="utf-8")
+str(out_path)
+
