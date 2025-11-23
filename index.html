@@ -1,1081 +1,987 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>TORINVEST - Communauté Trading & Macro</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="TORINVEST - Univers dédié au trading, à la macroéconomie et à la psychologie des marchés." />
-  <style>
-    :root {
-      --bg: #050509;
-      --bg-alt: #0a0a12;
-      --card: #11111c;
-      --accent: #ffb400;
-      --accent-soft: rgba(255, 180, 0, 0.12);
-      --text: #f5f5f7;
-      --muted: #9a9aad;
-      --danger: #ff4b5c;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #151528 0, #050509 55%);
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .page {
-      max-width: 1120px;
-      margin: 0 auto;
-      padding: 24px 16px 64px;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-img {
-      height: 40px;
-      width: auto;
-      border-radius: 8px;
-      display: block;
-    }
-
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .logo-title {
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      font-size: 14px;
-    }
-
-    .logo-sub {
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    nav {
-      display: flex;
-      gap: 18px;
-      font-size: 13px;
-      color: var(--muted);
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    nav a {
-      position: relative;
-      padding-bottom: 3px;
-    }
-
-    nav a::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      bottom: 0;
-      width: 0;
-      height: 2px;
-      background: linear-gradient(90deg, #ffb400, #ff4b5c);
-      transition: width 0.2s ease;
-    }
-
-    nav a:hover::after {
-      width: 100%;
-    }
-
-    .header-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 6px;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      font-size: 12px;
-      margin-top: 4px;
-    }
-
-    .social-links a {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--muted);
-      opacity: 0.9;
-    }
-
-    .social-links a:hover {
-      color: var(--accent);
-      opacity: 1;
-    }
-
-    .social-icon {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: #ffffff;
-    }
-
-    .social-discord {
-      background: #5865f2;
-    }
-
-    .social-telegram {
-      background: #2aabee;
-    }
-
-    .social-youtube {
-      background: #ff0000;
-    }
-
-    .social-tiktok {
-      background: #000000;
-      border: 1px solid #ffffff33;
-    }
-
-    .buy-links {
-      display: flex;
-      gap: 10px;
-      margin-top: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .buy-card {
-      display: flex;
-      flex-direction: column;
-      padding: 8px 14px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: var(--text);
-      min-width: 120px;
-      transition: 0.2s ease;
-    }
-
-    .buy-card:hover {
-      background: rgba(255, 180, 0, 0.12);
-      border-color: var(--accent);
-      transform: translateY(-2px);
-    }
-
-    .buy-title {
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
-    }
-
-    .buy-sub {
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-    }
-
-    /* Bandeau d’info TORINVEST */
-    .ticker {
-      margin: 4px auto 0;
-      max-width: 760px;
-      padding: 4px 14px;
-      border-radius: 999px;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background: rgba(10, 10, 18, 0.9);
-      border: 1px solid rgba(255, 180, 0, 0.45);
-      color: var(--muted);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .ticker::before,
-    .ticker::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      width: 40px;
-      pointer-events: none;
-    }
-
-    .ticker::before {
-      left: 0;
-      background: linear-gradient(to right, rgba(5, 5, 9, 0.9), transparent);
-    }
-
-    .ticker::after {
-      right: 0;
-      background: linear-gradient(to left, rgba(5, 5, 9, 0.9), transparent);
-    }
-
-    .ticker-track {
-      display: inline-flex;
-      gap: 40px;
-      white-space: nowrap;
-      animation: ticker-scroll 30s linear infinite;
-    }
-
-    .ticker span {
-      color: #f5f5f7;
-      opacity: 0.9;
-    }
-
-    @keyframes ticker-scroll {
-      from {
-        transform: translateX(0);
-      }
-      to {
-        transform: translateX(-50%);
-      }
-    }
-
- 
-
-    .pill {
-      padding: 3px 9px;
-      border-radius: 999px;
-      background: rgba(255, 180, 0, 0.08);
-      border: 1px solid rgba(255, 180, 0, 0.4);
-      color: var(--accent);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #15d16b;
-      box-shadow: 0 0 6px #15d16b;
-    }
-
-    .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
-      gap: 32px;
-      align-items: center;
-      margin-bottom: 40px;
-    }
-
-    .hero-title {
-      font-size: clamp(28px, 5vw, 40px);
-      font-weight: 800;
-      letter-spacing: 0.02em;
-      margin: 14px 0 10px;
-    }
-
-    .hero-title span {
-      background: linear-gradient(120deg, #ffb400, #ff4b5c);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    .hero-sub {
-      font-size: 14px;
-      max-width: 520px;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-
-    .hero-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
-
-    .tag {
-      font-size: 11px;
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      color: var(--muted);
-    }
-
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .btn {
-      border-radius: 999px;
-      padding: 9px 16px;
-      font-size: 13px;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 500;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #ffb400, #ff4b5c);
-      color: #1a1305;
-      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.9);
-    }
-
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--muted);
-    }
-
-    .btn-ghost:hover {
-      background: rgba(255, 255, 255, 0.03);
-    }
-
-    .hero-footnote {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .hero-card {
-      background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.11), transparent 55%),
-                  radial-gradient(circle at bottom right, rgba(255, 75, 92, 0.11), transparent 55%),
-                  var(--bg-alt);
-      border-radius: 20px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      padding: 18px 18px 16px;
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
-    }
-
-    .hero-card-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 12px;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .hero-metrics {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .metric {
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 12px;
-      padding: 9px 10px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .metric-label {
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 4px;
-    }
-
-    .metric-value {
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    .metric-value.positive {
-      color: #15d16b;
-    }
-
-    .metric-value.negative {
-      color: var(--danger);
-    }
-
-    .hero-mini {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .chip-row {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .chip {
-      padding: 3px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(0, 0, 0, 0.25);
-    }
-
-    .section-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-
-    .section-sub {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 14px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 14px 14px 13px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .card-label {
-      font-size: 11px;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 4px;
-    }
-
-    .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 4px;
-    }
-
-    .card-text {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .card-footer {
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .badge-soft {
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-size: 11px;
-    }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .list {
-      list-style: none;
-      font-size: 13px;
-      color: var(--muted);
-      display: grid;
-      gap: 6px;
-    }
-
-    .list li::before {
-      content: "•";
-      color: var(--accent);
-      margin-right: 6px;
-    }
-
-    .small-input-row {
-      margin-top: 10px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .small-input {
-      flex: 1 1 160px;
-      min-width: 0;
-      padding: 7px 9px;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(0, 0, 0, 0.4);
-      color: var(--text);
-      font-size: 13px;
-      outline: none;
-    }
-
-    .small-input::placeholder {
-      color: #5f5f73;
-    }
-
-    footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      padding-top: 16px;
-      margin-top: 16px;
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    @media (max-width: 880px) {
-      .hero {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .hero-card {
-        order: -1;
-      }
-      .grid-3 {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .two-col {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      nav {
-        justify-content: flex-start;
-      }
-      .page {
-        padding-top: 18px;
-      }
-      .header-right {
-        align-items: flex-start;
-      }
-    }
-    /* MINI DASHBOARD - TORINVEST */
-.mini-dashboard-wrap{
-  margin-top: 18px;
-  padding: 14px 14px 6px;
-  background: rgba(10,12,18,0.55);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 16px;
-  box-shadow: 0 0 30px rgba(0,0,0,0.45) inset;
+<meta charset="UTF-8" />
+<title>TORINVEST - Communauté Trading & Macro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="TORINVEST - Univers dédié au trading, à la macroéconomie et à la psychologie des marchés." />
+<style>
+:root {
+--bg: #050509;
+--bg-alt: #0a0a12;
+--card: #11111c;
+--accent: #ffb400;
+--accent-soft: rgba(255, 180, 0, 0.12);
+--text: #f5f5f7;
+--muted: #9a9aad;
+--danger: #ff4b5c;
 }
 
-.mini-dashboard-title{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size: 12px;
-  letter-spacing: .6px;
-  text-transform: uppercase;
-  color: #c9b37e;
-  margin: 2px 0 10px;
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
 }
 
-.mini-dashboard-title .dot{
-  width:7px;height:7px;border-radius:50%;
-  background:#c9b37e; box-shadow:0 0 8px #c9b37e;
+body {
+font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+background: radial-gradient(circle at top, #151528 0, #050509 55%);
+color: var(--text);
+line-height: 1.6;
 }
 
-.mini-dashboard-grid{
-  display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+a {
+color: inherit;
+text-decoration: none;
 }
 
-.mini-card{
-  background: rgba(8,10,14,0.9);
-  border: 1px solid rgba(255,255,255,0.05);
-  border-radius: 14px;
-  padding: 8px;
-  min-height: 180px;
-  position:relative;
-  overflow:hidden;
+.page {
+max-width: 1120px;
+margin: 0 auto;
+padding: 24px 16px 64px;
 }
 
-.mini-card-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:6px;
+header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 16px;
+margin-bottom: 32px;
 }
 
-.mini-badge{
-  font-size:11px;
-  font-weight:700;
-  color:#f1f1f1;
-  background: rgba(255,255,255,0.06);
-  padding:4px 8px;
-  border-radius: 999px;
+.logo {
+display: flex;
+align-items: center;
+gap: 10px;
 }
 
-.mini-sub{
-  font-size:11px;
-  color:#8b93a7;
+.logo-img {
+height: 40px;
+width: auto;
+border-radius: 8px;
+display: block;
 }
 
-/* responsive */
-@media (max-width: 1100px){
-  .mini-dashboard-grid{ grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 600px){
-  .mini-dashboard-grid{ grid-template-columns: 1fr; }
+.logo-text {
+display: flex;
+flex-direction: column;
 }
 
-  </style>
+.logo-title {
+font-weight: 700;
+letter-spacing: 0.08em;
+font-size: 14px;
+}
+
+.logo-sub {
+font-size: 11px;
+color: var(--muted);
+text-transform: uppercase;
+letter-spacing: 0.12em;
+}
+
+nav {
+display: flex;
+gap: 18px;
+font-size: 13px;
+color: var(--muted);
+flex-wrap: wrap;
+justify-content: flex-end;
+}
+
+nav a {
+position: relative;
+padding-bottom: 3px;
+}
+
+nav a::after {
+content: "";
+position: absolute;
+left: 0;
+bottom: 0;
+width: 0;
+height: 2px;
+background: linear-gradient(90deg, #ffb400, #ff4b5c);
+transition: width 0.2s ease;
+}
+
+nav a:hover::after {
+width: 100%;
+}
+
+.header-right {
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+gap: 6px;
+}
+
+.social-links {
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+font-size: 12px;
+margin-top: 4px;
+}
+
+.social-links a {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+color: var(--muted);
+opacity: 0.9;
+}
+
+.social-links a:hover {
+color: var(--accent);
+opacity: 1;
+}
+
+.social-icon {
+width: 18px;
+height: 18px;
+border-radius: 999px;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+font-size: 11px;
+font-weight: 700;
+color: #ffffff;
+}
+
+.social-discord {
+background: #5865f2;
+}
+
+.social-telegram {
+background: #2aabee;
+}
+
+.social-youtube {
+background: #ff0000;
+}
+
+.social-tiktok {
+background: #000000;
+border: 1px solid #ffffff33;
+}
+
+.buy-links {
+display: flex;
+gap: 10px;
+margin-top: 6px;
+flex-wrap: wrap;
+justify-content: flex-end;
+}
+
+.buy-card {
+display: flex;
+flex-direction: column;
+padding: 8px 14px;
+border-radius: 12px;
+background: rgba(255, 255, 255, 0.03);
+border: 1px solid rgba(255, 255, 255, 0.08);
+color: var(--text);
+min-width: 120px;
+transition: 0.2s ease;
+}
+
+.buy-card:hover {
+background: rgba(255, 180, 0, 0.12);
+border-color: var(--accent);
+transform: translateY(-2px);
+}
+
+.buy-title {
+font-size: 13px;
+font-weight: 600;
+letter-spacing: 0.02em;
+}
+
+.buy-sub {
+font-size: 11px;
+color: var(--muted);
+letter-spacing: 0.05em;
+}
+
+/* Bandeau d’info TORINVEST */
+.ticker {
+margin: 4px auto 0;
+max-width: 760px;
+padding: 4px 14px;
+border-radius: 999px;
+font-size: 11px;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+background: rgba(10, 10, 18, 0.9);
+border: 1px solid rgba(255, 180, 0, 0.45);
+color: var(--muted);
+overflow: hidden;
+position: relative;
+}
+
+.ticker::before,
+.ticker::after {
+content: "";
+position: absolute;
+top: 0;
+bottom: 0;
+width: 40px;
+pointer-events: none;
+}
+
+.ticker::before {
+left: 0;
+background: linear-gradient(to right, rgba(5, 5, 9, 0.9), transparent);
+}
+
+.ticker::after {
+right: 0;
+background: linear-gradient(to left, rgba(5, 5, 9, 0.9), transparent);
+}
+
+.ticker-track {
+display: inline-flex;
+gap: 40px;
+white-space: nowrap;
+animation: ticker-scroll 30s linear infinite;
+}
+
+.ticker span {
+color: #f5f5f7;
+opacity: 0.9;
+}
+
+@keyframes ticker-scroll {
+from {
+transform: translateX(0);
+}
+to {
+transform: translateX(-50%);
+}
+}
+
+
+
+.pill {
+padding: 3px 9px;
+border-radius: 999px;
+background: rgba(255, 180, 0, 0.08);
+border: 1px solid rgba(255, 180, 0, 0.4);
+color: var(--accent);
+font-size: 11px;
+text-transform: uppercase;
+letter-spacing: 0.12em;
+display: inline-flex;
+align-items: center;
+gap: 6px;
+}
+
+.pill-dot {
+width: 7px;
+height: 7px;
+border-radius: 999px;
+background: #15d16b;
+box-shadow: 0 0 6px #15d16b;
+}
+
+.hero {
+display: grid;
+grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+gap: 32px;
+align-items: center;
+margin-bottom: 40px;
+}
+
+.hero-title {
+font-size: clamp(28px, 5vw, 40px);
+font-weight: 800;
+letter-spacing: 0.02em;
+margin: 14px 0 10px;
+}
+
+.hero-title span {
+background: linear-gradient(120deg, #ffb400, #ff4b5c);
+-webkit-background-clip: text;
+color: transparent;
+}
+
+.hero-sub {
+font-size: 14px;
+max-width: 520px;
+color: var(--muted);
+margin-bottom: 16px;
+}
+
+.hero-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+margin-bottom: 18px;
+}
+
+.tag {
+font-size: 11px;
+padding: 4px 9px;
+border-radius: 999px;
+background: rgba(255, 255, 255, 0.02);
+border: 1px solid rgba(255, 255, 255, 0.04);
+color: var(--muted);
+}
+
+.hero-actions {
+display: flex;
+flex-wrap: wrap;
+gap: 10px;
+align-items: center;
+margin-bottom: 10px;
+}
+
+.btn {
+border-radius: 999px;
+padding: 9px 16px;
+font-size: 13px;
+border: none;
+cursor: pointer;
+display: inline-flex;
+align-items: center;
+gap: 8px;
+font-weight: 500;
+transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.btn-primary {
+background: linear-gradient(135deg, #ffb400, #ff4b5c);
+color: #1a1305;
+box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+}
+
+.btn-primary:hover {
+transform: translateY(-1px);
+box-shadow: 0 14px 34px rgba(0, 0, 0, 0.9);
+}
+
+.btn-ghost {
+background: transparent;
+border: 1px solid rgba(255, 255, 255, 0.1);
+color: var(--muted);
+}
+
+.btn-ghost:hover {
+background: rgba(255, 255, 255, 0.03);
+}
+
+.hero-footnote {
+font-size: 11px;
+color: var(--muted);
+}
+
+.hero-card {
+background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.11), transparent 55%),
+radial-gradient(circle at bottom right, rgba(255, 75, 92, 0.11), transparent 55%),
+var(--bg-alt);
+border-radius: 20px;
+border: 1px solid rgba(255, 255, 255, 0.05);
+padding: 18px 18px 16px;
+box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+}
+
+.hero-card-header {
+display: flex;
+justify-content: space-between;
+margin-bottom: 12px;
+font-size: 12px;
+color: var(--muted);
+}
+
+.hero-metrics {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 10px;
+margin-bottom: 12px;
+}
+
+.metric {
+background: rgba(0, 0, 0, 0.3);
+border-radius: 12px;
+padding: 9px 10px;
+border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.metric-label {
+font-size: 11px;
+color: var(--muted);
+margin-bottom: 4px;
+}
+
+.metric-value {
+font-size: 14px;
+font-weight: 600;
+}
+
+.metric-value.positive {
+color: #15d16b;
+}
+
+.metric-value.negative {
+color: var(--danger);
+}
+
+.hero-mini {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 8px;
+font-size: 11px;
+color: var(--muted);
+}
+
+.chip-row {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+}
+
+.chip {
+padding: 3px 7px;
+border-radius: 999px;
+border: 1px solid rgba(255, 255, 255, 0.06);
+background: rgba(0, 0, 0, 0.25);
+}
+
+.section-title {
+font-size: 16px;
+font-weight: 600;
+margin-bottom: 6px;
+}
+
+.section-sub {
+font-size: 13px;
+color: var(--muted);
+margin-bottom: 14px;
+}
+
+.grid-3 {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 16px;
+margin-bottom: 32px;
+}
+
+.card {
+background: var(--card);
+border-radius: 16px;
+padding: 14px 14px 13px;
+border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.card-label {
+font-size: 11px;
+color: var(--accent);
+text-transform: uppercase;
+letter-spacing: 0.12em;
+margin-bottom: 4px;
+}
+
+.card-title {
+font-size: 14px;
+font-weight: 600;
+margin-bottom: 4px;
+}
+
+.card-text {
+font-size: 13px;
+color: var(--muted);
+margin-bottom: 8px;
+}
+
+.card-footer {
+font-size: 11px;
+color: var(--muted);
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+
+.badge-soft {
+padding: 2px 7px;
+border-radius: 999px;
+background: var(--accent-soft);
+color: var(--accent);
+font-size: 11px;
+}
+
+.two-col {
+display: grid;
+grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
+gap: 16px;
+margin-bottom: 32px;
+}
+
+.list {
+list-style: none;
+font-size: 13px;
+color: var(--muted);
+display: grid;
+gap: 6px;
+}
+
+.list li::before {
+content: "•";
+color: var(--accent);
+margin-right: 6px;
+}
+
+.small-input-row {
+margin-top: 10px;
+display: flex;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+.small-input {
+flex: 1 1 160px;
+min-width: 0;
+padding: 7px 9px;
+border-radius: 999px;
+border: 1px solid rgba(255, 255, 255, 0.08);
+background: rgba(0, 0, 0, 0.4);
+color: var(--text);
+font-size: 13px;
+outline: none;
+}
+
+.small-input::placeholder {
+color: #5f5f73;
+}
+
+footer {
+border-top: 1px solid rgba(255, 255, 255, 0.06);
+padding-top: 16px;
+margin-top: 16px;
+font-size: 11px;
+color: var(--muted);
+display: flex;
+justify-content: space-between;
+flex-wrap: wrap;
+gap: 8px;
+}
+
+@media (max-width: 880px) {
+.hero {
+grid-template-columns: minmax(0, 1fr);
+}
+.hero-card {
+order: -1;
+}
+.grid-3 {
+grid-template-columns: minmax(0, 1fr);
+}
+.two-col {
+grid-template-columns: minmax(0, 1fr);
+}
+nav {
+justify-content: flex-start;
+}
+.page {
+padding-top: 18px;
+}
+.header-right {
+align-items: flex-start;
+}
+}
+</style>
 </head>
 <body>
-  <div class="page">
-    <header>
-      <div class="logo">
-        <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
-        <div class="logo-text">
-          <div class="logo-title">TORINVEST</div>
-          <div class="logo-sub">TRADING • CRYPTO • BOURSE • MACRO • PSYCHO</div>
-        </div>
-      </div>
+<div class="page">
+<header>
+<div class="logo">
+<img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
 
-      <div class="header-right">
-        <nav>
-          <a href="histoire.html">Histoire des Marchés</a>
-          <a href="forge-page.html">La Forge</a>
-          <a href="chroniques.html">Chroniques</a>
-          <a href="equipe.html">Équipe</a>
-          <a href="roadmap.html">Roadmap</a>
-          <a href="projets.html">Projets</a>
-          <a href="#vision">Vision</a>
-          <a href="#trading">Trading</a>
-          <a href="#macro">Macroéconomie</a>
-          <a href="#communaute">Communauté</a>
-          <a href="crypto.html">Crypto</a>
-          <a href="video.html">Vidéos</a>
-          <a href="bootcamp.html">Bootcamp</a>
-          <a href="formation.html">Formation</a>
-          <a href="airdrop.html">Airdrop</a>
-          <a href="nft.html">NFT</a>
-          <a href="minage.html">Minage</a>
-          <a href="partenaires.html">Partenaires</a>
-          <a href="copytrading.html">Copy Trading</a>
-          <a href="liens.html">Liens utiles</a>
-          <a href="#contact">Contact</a>
-          <a href="whitepaper.html">White Paper</a>
-          <a href="disclaimer.html">Disclaimer</a>
-          <a href="faq.html">FAQ</a>
-        </nav>
+<div class="logo-text">
+<div class="logo-title">TORINVEST</div>
+<div class="logo-sub">TRADING • CRYPTO • BOURSE • MACRO • PSYCHO</div>
+</div>
+</div>
 
-        <div class="ticker">
-          <div class="ticker-track">
-            <span>⚡ L’économie TORINVEST s’éveille : KRM &amp; ORAX prennent vie.</span>
-            <span>🪙 KRM – Monnaie utilitaire &amp; humaine de la Forge.</span>
-            <span>✨ ORAX – Connaissance dorée, lucidité face au marché.</span>
-            <span>🧠 Trading • Macro • Psychologie • Crypto – Univers TORINVEST.</span>
-            <span>🚨 Aucun conseil en investissement – Projet éducatif &amp; expérimental.</span>
-          </div>
-        </div>
+<div class="header-right">
+<nav>
+<a href='/histoire'>Histoire des Marchés</a>
 
-        <div class="social-links">
-          <a href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
-            <span class="social-icon social-discord">D</span>
-            <span>Discord</span>
-          </a>
-          <a href="https://t.me/+2qMkEX3KnhowNTU0" target="_blank" rel="noopener">
-            <span class="social-icon social-telegram">T</span>
-            <span>Telegram</span>
-          </a>
-          <a href="https://www.youtube.com/@ONZERtv" target="_blank" rel="noopener">
-            <span class="social-icon social-youtube">Y</span>
-            <span>YouTube</span>
-          </a>
-          <a href="https://www.tiktok.com/@live_b00stfr?lang=fr" target="_blank" rel="noopener">
-            <span class="social-icon social-tiktok">T</span>
-            <span>TikTok</span>
-          </a>
+<a href='/forge-page'>La Forge</a>
 
-          <div class="buy-links">
-            <a href="https://jup.ag/tokens/Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump" target="_blank" class="buy-card">
-              <div class="buy-title">Acheter KRM</div>
-              <div class="buy-sub">Soutenir le projet</div>
-            </a>
-            <a href="https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA" target="_blank" class="buy-card">
-              <div class="buy-title">Acheter ORAX</div>
-              <div class="buy-sub">Soutenir le projet</div>
-            </a>
-          </div>
-        </div>
-      </div>
-    </header>
+<a href='/chroniques'>Chroniques</a>
 
-    <main>
-      <section class="hero">
-        <div>
-          <div class="pill">
-            <span class="pill-dot"></span>
-            Univers TORINVEST en construction
-          </div>
-          <h1 class="hero-title">
-            Une <span>communauté</span> pour comprendre le marché, pas le subir.
-          </h1>
-          <p class="hero-sub">
-            TORINVEST, c’est un univers dédié au trading, à la macroéconomie et à la psychologie des marchés.
-            Objectif : reprendre le contrôle face aux algos, aux liquidités et à la manipulation apparente des marchés.
-          </p>
-          <div class="hero-tags">
-            <span class="tag">Trading sur l'or & indices</span>
-            <span class="tag">Macro globale & géopolitique</span>
-            <span class="tag">Psychologie & discipline</span>
-          </div>
-          <div class="hero-actions">
-            <button class="btn btn-primary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
-              Rejoindre la liste d'attente
-            </button>
-            <button class="btn btn-ghost" onclick="document.getElementById('vision').scrollIntoView({behavior:'smooth'})">
-              Découvrir la vision TORINVEST
-            </button>
-          </div>
-          <p class="hero-footnote">
-            Pas de promesse de gains. Juste du travail sérieux, de la méthode et une lecture plus lucide du marché.
-          </p>
-        </div>
+<a href='/equipe'>Équipe</a>
 
-        <aside class="hero-card" aria-label="Aperçu TORINVEST">
-          <div class="hero-card-header">
-            <span>Dashboard TORINVEST</span>
-            <span>v0.1 • Bientôt en ligne</span>
-          </div>
-          <div class="hero-metrics">
-            <div class="metric">
-              <div class="metric-label">Actif focus</div>
-              <div class="metric-value">Gold (XAU/USD)</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Style</div>
-              <div class="metric-value">Price Action</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Horizon</div>
-              <div class="metric-value">Scalping & Swing</div>
-            </div>
-          </div>
-          <div class="hero-metrics">
-            <div class="metric">
-              <div class="metric-label">Sessions ciblées</div>
-              <div class="metric-value">London & NY</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Focus macro</div>
-              <div class="metric-value positive">US • Japon • Chine</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Risque</div>
-              <div class="metric-value negative">Contrôle & discipline</div>
-            </div>
-          </div>
-          <div class="hero-mini">
-            <div class="chip-row">
-              <div class="chip">ICT & liquidités</div>
-              <div class="chip">Corrélations macro</div>
-              <div class="chip">Backtests structurés</div>
-            </div>
-          </div>
-        </aside>
-      </section>
+<a href='/roadmap'>Roadmap</a>
 
-      <section id="vision">
-        <h2 class="section-title">Vision TORINVEST</h2>
-        <p class="section-sub">
-          Construire une communauté capable de lire le marché avec lucidité : comprendre les flux, les cycles,
-          la macro et les jeux de liquidité plutôt que de se faire piloter par la peur et l'euphorie.
-        </p>
-        <div class="grid-3">
-          <article class="card">
-            <div class="card-label">Pilier 1</div>
-            <h3 class="card-title">Trading structuré</h3>
-            <p class="card-text">
-              Méthodes claires, plans écrits, backtests, journaux de trades. On ne clique pas au hasard, on exécute un plan.
-            </p>
-            <div class="card-footer">
-              <span>Scalping & swing sur l'or</span>
-              <span class="badge-soft">Price Action</span>
-            </div>
-          </article>
+<a href='/projets'>Projets</a>
 
-          <article class="card">
-            <div class="card-label">Pilier 2</div>
-            <h3 class="card-title">Lecture macro & géopolitique</h3>
-            <p class="card-text">
-              Comprendre ce que regardent les banques centrales, les flux de capitaux, les tensions géopolitiques et leurs
-              impacts sur les actifs clés.
-            </p>
-            <div class="card-footer">
-              <span>États-Unis, Japon, Chine, UE</span>
-              <span class="badge-soft">Macro globale</span>
-            </div>
-          </article>
+<a href="#vision">Vision</a>
 
-          <article class="card">
-            <div class="card-label">Pilier 3</div>
-            <h3 class="card-title">Psychologie & discipline</h3>
-            <p class="card-text">
-              Lutter contre l'overtrading, la peur de manquer, la frustration des spreads, des stops chassés et des propfirms.
-            </p>
-            <div class="card-footer">
-              <span>Plans, routines, checklists</span>
-              <span class="badge-soft">Mental & risque</span>
-            </div>
-          </article>
-        </div>
-      </section>
+<a href="#trading">Trading</a>
 
-      <section id="trading" class="two-col">
-        <div>
-          <h2 class="section-title">Zone Trading & Stratégie</h2>
-          <p class="section-sub">
-            TORINVEST se concentre d'abord sur l'or (XAU/USD), avec une approche Price Action, ICT, zones de liquidité,
-            structures multi-timeframes et corrélations macro.
-          </p>
-          <ul class="list">
-            <li>Analyse multi-timeframe : du weekly au M1 pour l'exécution.</li>
-            <li>Focus sur les retournements structurés et les entrées agressives en zone de liquidité.</li>
-            <li>Travail sur les corrélations avec les taux, le dollar, les indices et certaines matières premières.</li>
-            <li>Backtests et méthodes écrites pour progresser sans s'autodétruire.</li>
-          </ul>
-        </div>
-        <aside class="card">
-          <div class="card-label">Bientôt</div>
-          <h3 class="card-title">Mini-formation “Fondamentale & Pricing”</h3>
-          <p class="card-text">
-            Un module d'introduction pour les débutants et intermédiaires : comprendre ce qui fait bouger un actif,
-            comment suivre un calendrier économique et comment intégrer la macro dans ses décisions.
-          </p>
-          <div class="card-footer">
-            <span>Format vidéo + PDF</span>
-            <span class="badge-soft">Accès prioritaire liste d'attente</span>
-          </div>
-        </aside>
-      </section>
+<a href="#macro">Macroéconomie</a>
 
-      <section id="macro" class="two-col">
-        <div>
-          <h2 class="section-title">Macroéconomie & géopolitique</h2>
-          <p class="section-sub">
-            L'objectif : devenir capable de lire les tensions commerciales, les politiques monétaires, la dette,
-            les cycles et leurs impacts sur les marchés financiers.
-          </p>
-          <ul class="list">
-            <li>Suivi des grandes zones : USA, Japon, Chine, Europe, pays producteurs de matières premières.</li>
-            <li>Analyse des politiques monétaires et du risque lié aux taux de rendement des obligations.</li>
-            <li>Impact des guerres commerciales, des sanctions et des ruptures d'approvisionnement.</li>
-            <li>Travail sur les corrélations entre matières premières, devises et indices.</li>
-          </ul>
-        </div>
-        <aside class="card">
-          <div class="card-label">Projet</div>
-          <h3 class="card-title">Bot & veille macro TORINVEST</h3>
-          <p class="card-text">
-            Un bot Discord / application pour suivre les tensions géopolitiques, les matières premières,
-            les annonces majeures et leurs impacts potentiels sur le marché.
-          </p>
-          <div class="card-footer">
-            <span>Phase de conception</span>
-            <span class="badge-soft">À venir</span>
-          </div>
-        </aside>
-      </section>
+<a href="#communaute">Communauté</a>
 
-      <section id="communaute">
-        <h2 class="section-title">Communauté TORINVEST</h2>
-        <p class="section-sub">
-          L'objectif n'est pas de vendre du rêve, mais de construire une base solide : partage d'analyses,
-          retours d'expérience, routines, erreurs et améliorations.
-        </p>
-        <div class="grid-3">
-          <article class="card">
-            <h3 class="card-title">Live & sessions de marché</h3>
-            <p class="card-text">
-              Sessions de marché pour analyser ensemble le contexte, les zones, les liquidités et les pièges potentiels.
-            </p>
-          </article>
-          <article class="card">
-            <h3 class="card-title">Espace débutants</h3>
-            <p class="card-text">
-              Ressources pour ceux qui démarrent : vocabulaire, bases de trading, gestion du risque, erreurs classiques à éviter.
-            </p>
-          </article>
-          <article class="card">
-            <h3 class="card-title">Espace avancé</h3>
-            <p class="card-text">
-              Pour les profils plus expérimentés : discussions sur l'algorithme de marché, les propfirms, les corrélations complexes.
-            </p>
-          </article>
-        </div>
-      </section>
+<a href='/crypto'>Crypto</a>
 
-      <section id="contact">
-        <h2 class="section-title">Rejoindre la liste d'attente</h2>
-        <p class="section-sub">
-          Le site complet TORINVEST (formation, outils, ressources) est en construction.
-          Laisse ton email pour être prévenu dès l'ouverture des premiers modules et de la communauté.
-        </p>
-        <div class="card">
-          <p class="card-text">
-            Laisse simplement ton email ci-dessous. Tu seras ajouté à la liste d'attente TORINVEST.
-          </p>
+<a href='/video'>Vidéos</a>
 
-<form
-  id="waitlist-form"
-  name="liste-attente-torinvest"
-  method="POST"
-  data-netlify="true"
-  data-netlify-honeypot="bot-field"
->
-  <!-- Champ caché obligatoire pour Netlify -->
-  <input type="hidden" name="form-name" value="liste-attente-torinvest" />
+<a href='/bootcamp'>Bootcamp</a>
 
-  <!-- Honeypot anti-bot (invisible) -->
-  <p style="display:none">
-    <label>Ne pas remplir : <input name="bot-field" /></label>
-  </p>
+<a href='/formation'>Formation</a>
 
-  <div class="small-input-row">
-    <input
-      class="small-input"
-      type="email"
-      name="email"
-      placeholder="Ton email (pour être prévenu)"
-      required
-    />
-    <button class="btn btn-primary" type="submit">
-      Je rejoins la liste
-    </button>
-  </div>
+<a href='/airdrop'>Airdrop</a>
+
+<a href='/nft'>NFT</a>
+
+<a href='/minage'>Minage</a>
+
+<a href='/partenaires'>Partenaires</a>
+
+<a href='/copytrading'>Copy Trading</a>
+
+<a href='/liens'>Liens utiles</a>
+
+<a href="#contact">Contact</a>
+
+<a href='/whitepaper'>White Paper</a>
+
+<a href='/disclaimer'>Disclaimer</a>
+
+<a href='/faq'>FAQ</a>
+
+</nav>
+
+<div class="ticker">
+<div class="ticker-track">
+<span>⚡ L’économie TORINVEST s’éveille : KRM &amp; ORAX prennent vie.</span>
+<span>🪙 KRM – Monnaie utilitaire &amp; humaine de la Forge.</span>
+<span>✨ ORAX – Connaissance dorée, lucidité face au marché.</span>
+<span>🧠 Trading • Macro • Psychologie • Crypto – Univers TORINVEST.</span>
+<span>🚨 Aucun conseil en investissement – Projet éducatif &amp; expérimental.</span>
+</div>
+</div>
+
+<div class="social-links">
+<a href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
+
+<span class="social-icon social-discord">D</span>
+<span>Discord</span>
+</a>
+<a href="https://t.me/+2qMkEX3KnhowNTU0" target="_blank" rel="noopener">
+
+<span class="social-icon social-telegram">T</span>
+<span>Telegram</span>
+</a>
+<a href="https://www.youtube.com/@ONZERtv" target="_blank" rel="noopener">
+
+<span class="social-icon social-youtube">Y</span>
+<span>YouTube</span>
+</a>
+<a href="https://www.tiktok.com/@live_b00stfr?lang=fr" target="_blank" rel="noopener">
+
+<span class="social-icon social-tiktok">T</span>
+<span>TikTok</span>
+</a>
+
+<div class="buy-links">
+<a href="https://jup.ag/tokens/Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump" target="_blank" class="buy-card">
+<div class="buy-title">Acheter KRM</div>
+<div class="buy-sub">Soutenir le projet</div>
+</a>
+<a href="https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA" target="_blank" class="buy-card">
+<div class="buy-title">Acheter ORAX</div>
+<div class="buy-sub">Soutenir le projet</div>
+</a>
+</div>
+</div>
+</div>
+</header>
+
+<main>
+<section class="hero">
+<div>
+<div class="pill">
+<span class="pill-dot"></span>
+Univers TORINVEST en construction
+</div>
+<h1 class="hero-title">
+Une <span>communauté</span> pour comprendre le marché, pas le subir.
+</h1>
+<p class="hero-sub">
+TORINVEST, c’est un univers dédié au trading, à la macroéconomie et à la psychologie des marchés.
+Objectif : reprendre le contrôle face aux algos, aux liquidités et à la manipulation apparente des marchés.
+</p>
+<div class="hero-tags">
+<span class="tag">Trading sur l'or & indices</span>
+<span class="tag">Macro globale & géopolitique</span>
+<span class="tag">Psychologie & discipline</span>
+</div>
+<div class="hero-actions">
+<button class="btn btn-primary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">
+Rejoindre la liste d'attente
+</button>
+<button class="btn btn-ghost" onclick="document.getElementById('vision').scrollIntoView({behavior:'smooth'})">
+Découvrir la vision TORINVEST
+</button>
+</div>
+<p class="hero-footnote">
+Pas de promesse de gains. Juste du travail sérieux, de la méthode et une lecture plus lucide du marché.
+</p>
+</div>
+
+<aside class="hero-card" aria-label="Aperçu TORINVEST">
+<div class="hero-card-header">
+<span>Dashboard TORINVEST</span>
+<span>v0.1 • Bientôt en ligne</span>
+</div>
+<div class="hero-metrics">
+<div class="metric">
+<div class="metric-label">Actif focus</div>
+<div class="metric-value">Gold (XAU/USD)</div>
+</div>
+<div class="metric">
+<div class="metric-label">Style</div>
+<div class="metric-value">Price Action</div>
+</div>
+<div class="metric">
+<div class="metric-label">Horizon</div>
+<div class="metric-value">Scalping & Swing</div>
+</div>
+</div>
+<div class="hero-metrics">
+<div class="metric">
+<div class="metric-label">Sessions ciblées</div>
+<div class="metric-value">London & NY</div>
+</div>
+<div class="metric">
+<div class="metric-label">Focus macro</div>
+<div class="metric-value positive">US • Japon • Chine</div>
+</div>
+<div class="metric">
+<div class="metric-label">Risque</div>
+<div class="metric-value negative">Contrôle & discipline</div>
+</div>
+</div>
+<div class="hero-mini">
+<div class="chip-row">
+<div class="chip">ICT & liquidités</div>
+<div class="chip">Corrélations macro</div>
+<div class="chip">Backtests structurés</div>
+</div>
+</div>
+</aside>
+</section>
+
+<section id="vision">
+<h2 class="section-title">Vision TORINVEST</h2>
+<p class="section-sub">
+Construire une communauté capable de lire le marché avec lucidité : comprendre les flux, les cycles,
+la macro et les jeux de liquidité plutôt que de se faire piloter par la peur et l'euphorie.
+</p>
+<div class="grid-3">
+<article class="card">
+<div class="card-label">Pilier 1</div>
+<h3 class="card-title">Trading structuré</h3>
+<p class="card-text">
+Méthodes claires, plans écrits, backtests, journaux de trades. On ne clique pas au hasard, on exécute un plan.
+</p>
+<div class="card-footer">
+<span>Scalping & swing sur l'or</span>
+<span class="badge-soft">Price Action</span>
+</div>
+</article>
+
+<article class="card">
+<div class="card-label">Pilier 2</div>
+<h3 class="card-title">Lecture macro & géopolitique</h3>
+<p class="card-text">
+Comprendre ce que regardent les banques centrales, les flux de capitaux, les tensions géopolitiques et leurs
+impacts sur les actifs clés.
+</p>
+<div class="card-footer">
+<span>États-Unis, Japon, Chine, UE</span>
+<span class="badge-soft">Macro globale</span>
+</div>
+</article>
+
+<article class="card">
+<div class="card-label">Pilier 3</div>
+<h3 class="card-title">Psychologie & discipline</h3>
+<p class="card-text">
+Lutter contre l'overtrading, la peur de manquer, la frustration des spreads, des stops chassés et des propfirms.
+</p>
+<div class="card-footer">
+<span>Plans, routines, checklists</span>
+<span class="badge-soft">Mental & risque</span>
+</div>
+</article>
+</div>
+</section>
+
+<section id="trading" class="two-col">
+<div>
+<h2 class="section-title">Zone Trading & Stratégie</h2>
+<p class="section-sub">
+TORINVEST se concentre d'abord sur l'or (XAU/USD), avec une approche Price Action, ICT, zones de liquidité,
+structures multi-timeframes et corrélations macro.
+</p>
+<ul class="list">
+<li>Analyse multi-timeframe : du weekly au M1 pour l'exécution.</li>
+<li>Focus sur les retournements structurés et les entrées agressives en zone de liquidité.</li>
+<li>Travail sur les corrélations avec les taux, le dollar, les indices et certaines matières premières.</li>
+<li>Backtests et méthodes écrites pour progresser sans s'autodétruire.</li>
+</ul>
+</div>
+<aside class="card">
+<div class="card-label">Bientôt</div>
+<h3 class="card-title">Mini-formation “Fondamentale & Pricing”</h3>
+<p class="card-text">
+Un module d'introduction pour les débutants et intermédiaires : comprendre ce qui fait bouger un actif,
+comment suivre un calendrier économique et comment intégrer la macro dans ses décisions.
+</p>
+<div class="card-footer">
+<span>Format vidéo + PDF</span>
+<span class="badge-soft">Accès prioritaire liste d'attente</span>
+</div>
+</aside>
+</section>
+
+<section id="macro" class="two-col">
+<div>
+<h2 class="section-title">Macroéconomie & géopolitique</h2>
+<p class="section-sub">
+L'objectif : devenir capable de lire les tensions commerciales, les politiques monétaires, la dette,
+les cycles et leurs impacts sur les marchés financiers.
+</p>
+<ul class="list">
+<li>Suivi des grandes zones : USA, Japon, Chine, Europe, pays producteurs de matières premières.</li>
+<li>Analyse des politiques monétaires et du risque lié aux taux de rendement des obligations.</li>
+<li>Impact des guerres commerciales, des sanctions et des ruptures d'approvisionnement.</li>
+<li>Travail sur les corrélations entre matières premières, devises et indices.</li>
+</ul>
+</div>
+<aside class="card">
+<div class="card-label">Projet</div>
+<h3 class="card-title">Bot & veille macro TORINVEST</h3>
+<p class="card-text">
+Un bot Discord / application pour suivre les tensions géopolitiques, les matières premières,
+les annonces majeures et leurs impacts potentiels sur le marché.
+</p>
+<div class="card-footer">
+<span>Phase de conception</span>
+<span class="badge-soft">À venir</span>
+</div>
+</aside>
+</section>
+
+<section id="communaute">
+<h2 class="section-title">Communauté TORINVEST</h2>
+<p class="section-sub">
+L'objectif n'est pas de vendre du rêve, mais de construire une base solide : partage d'analyses,
+retours d'expérience, routines, erreurs et améliorations.
+</p>
+<div class="grid-3">
+<article class="card">
+<h3 class="card-title">Live & sessions de marché</h3>
+<p class="card-text">
+Sessions de marché pour analyser ensemble le contexte, les zones, les liquidités et les pièges potentiels.
+</p>
+</article>
+<article class="card">
+<h3 class="card-title">Espace débutants</h3>
+<p class="card-text">
+Ressources pour ceux qui démarrent : vocabulaire, bases de trading, gestion du risque, erreurs classiques à éviter.
+</p>
+</article>
+<article class="card">
+<h3 class="card-title">Espace avancé</h3>
+<p class="card-text">
+Pour les profils plus expérimentés : discussions sur l'algorithme de marché, les propfirms, les corrélations complexes.
+</p>
+</article>
+</div>
+</section>
+
+<section id="contact">
+<h2 class="section-title">Rejoindre la liste d'attente</h2>
+<p class="section-sub">
+Le site complet TORINVEST (formation, outils, ressources) est en construction.
+Laisse ton email pour être prévenu dès l'ouverture des premiers modules et de la communauté.
+</p>
+<div class="card">
+<p class="card-text">
+Laisse simplement ton email ci-dessous. Tu seras ajouté à la liste d'attente TORINVEST.
+</p>
+
+<form id='waitlist-form' method='POST' name='liste-attente-torinvest'>
+<!-- Champ caché obligatoire pour Netlify -->
+<input type="hidden" name="form-name" value="liste-attente-torinvest" />
+
+<!-- Honeypot anti-bot (invisible) -->
+<p style="display:none">
+<label>Ne pas remplir : <input name="bot-field" /></label>
+</p>
+
+<div class="small-input-row">
+<input
+class="small-input"
+type="email"
+name="email"
+placeholder="Ton email (pour être prévenu)"
+required
+/>
+<button class="btn btn-primary" type="submit">
+Je rejoins la liste
+</button>
+</div>
 </form>
 
 
 
-        </div>
-      </section>
+</div>
+</section>
 
-     
-    </main>
 
-    <footer>
-      <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
-      <span>Site en version bêta</span>
-    </footer>
-  </div>
+</main>
 
-   <script>
-    // année dans le footer
-    document.getElementById("year").textContent = new Date().getFullYear();
+<footer>
+<span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
+<span>Site en version bêta</span>
+</footer>
+</div>
 
-    // gestion Netlify + redirection custom
-    const form = document.getElementById('waitlist-form');
-    if (form) {
-      form.addEventListener('submit', function (e) {
-        e.preventDefault(); // on empêche le submit "normal"
-
-        const data = new FormData(form);
-
-        // envoi à Netlify (Netlify voit la requête et enregistre le lead)
-        fetch('/', {
-          method: 'POST',
-          body: data
-        })
-        .then(() => {
-          // si tout va bien : on redirige vers ta page Merci
-          window.location.href = 'merci.html';
-        })
-        .catch(() => {
-          // même en cas d'erreur réseau, on envoie vers merci.html
-          window.location.href = 'merci.html';
-        });
-      });
-    }
-  </script>
-  <script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-  const miniChartConfig = (symbol) => ({
-    autosize: true,
-    symbol,
-    interval: "60",
-    timezone: "Europe/Paris",
-    theme: "dark",
-    style: "1",
-    locale: "fr",
-    toolbar_bg: "#0b0e14",
-    enable_publishing: false,
-    hide_top_toolbar: true,
-    hide_legend: true,
-    hide_side_toolbar: true,
-    allow_symbol_change: false,
-    save_image: false,
-    container_id: null
-  });
+// année dans le footer
+document.getElementById("year").textContent = new Date().getFullYear();
 
-  // GOLD XAUUSD
-  new TradingView.widget({
-    ...miniChartConfig("OANDA:XAUUSD"),
-    container_id: "tv_gold"
-  });
+// gestion Netlify + redirection custom
+const form = document.getElementById('waitlist-form');
+if (form) {
+form.addEventListener('submit', function (e) {
+e.preventDefault(); // on empêche le submit "normal"
 
-  // EURUSD
-  new TradingView.widget({
-    ...miniChartConfig("OANDA:EURUSD"),
-    container_id: "tv_eurusd"
-  });
+const data = new FormData(form);
 
-  // DXY (Dollar Index)
-  new TradingView.widget({
-    ...miniChartConfig("TVC:DXY"),
-    container_id: "tv_dxy"
-  });
-
-  // S&P500
-  new TradingView.widget({
-    ...miniChartConfig("SP:SPX"),
-    container_id: "tv_spx"
-  });
+// envoi à Netlify (Netlify voit la requête et enregistre le lead)
+fetch('/', {
+method: 'POST',
+body: data
+})
+.then(() => {
+// si tout va bien : on redirige vers ta page Merci
+window.location.href = 'merci.html';
+})
+.catch(() => {
+// même en cas d'erreur réseau, on envoie vers merci.html
+window.location.href = 'merci.html';
+});
+});
+}
 </script>
-
 </body>
 </html>
-
