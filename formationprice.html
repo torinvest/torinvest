@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Formation TORINVEST — La Forge</title>
+
+  <!-- Fonts (safe default) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Cinzel:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#07080b;
+      --bg-soft:#0c0f14;
+      --panel:#0e1117;
+      --panel-2:#10141b;
+      --gold:#d4a550;
+      --gold-soft:#f1d08b;
+      --text:#e9e1cf;
+      --muted:#a9b0bf;
+      --line:rgba(255,255,255,.07);
+      --glow:rgba(212,165,80,.35);
+      --radius:18px;
+      --radius-lg:22px;
+      --shadow:0 20px 60px rgba(0,0,0,.6);
+    }
+
+    *{box-sizing:border-box;}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(1200px 700px at 70% -10%, #14182a 0%, transparent 55%),
+                  radial-gradient(900px 600px at 0% 0%, #1a1210 0%, transparent 60%),
+                  var(--bg);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+
+    /* Subtle moving forge glow */
+    body::before{
+      content:"";
+      position:fixed; inset:-20%;
+      background:
+        radial-gradient(600px 280px at 30% 10%, rgba(255,140,70,.08), transparent 60%),
+        radial-gradient(500px 260px at 80% 20%, rgba(212,165,80,.06), transparent 60%),
+        radial-gradient(800px 420px at 50% 85%, rgba(255,90,60,.05), transparent 70%);
+      filter: blur(40px);
+      animation: forgeFloat 12s ease-in-out infinite alternate;
+      pointer-events:none;
+      z-index:-1;
+    }
+    @keyframes forgeFloat{
+      0%{transform:translateY(0) translateX(0) scale(1);} 
+      100%{transform:translateY(-2%) translateX(2%) scale(1.03);} 
+    }
+
+    header{
+      position:sticky; top:0; z-index:50;
+      background:rgba(7,8,11,.7);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      max-width:1200px; margin:0 auto; padding:14px 18px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text);
+    }
+    .brand-logo{
+      width:38px; height:38px; border-radius:50%;
+      display:grid; place-items:center;
+      background: radial-gradient(circle at 30% 20%, #232a3a, #0a0d12 60%);
+      border:1px solid var(--line);
+      box-shadow:0 0 18px rgba(0,0,0,.8) inset;
+      font-weight:800; color:var(--gold); letter-spacing:.5px;
+    }
+    .brand-title{
+      font-weight:800; letter-spacing:.9px; font-size:14px; text-transform:uppercase;
+    }
+    .nav-actions{ display:flex; gap:8px; }
+
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+      padding:10px 14px; border-radius:12px; font-weight:700; font-size:14px;
+      text-decoration:none; cursor:pointer; transition:.2s ease;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+    }
+    .btn:hover{ transform:translateY(-1px); background:rgba(255,255,255,.06); }
+    .btn-gold{
+      background: linear-gradient(180deg, #f2d089, #d4a550 60%, #b98a35);
+      color:#0a0b0e; border:none; box-shadow:0 10px 30px var(--glow);
+    }
+    .btn-gold:hover{ filter:saturate(1.1) brightness(1.05); }
+
+    .container{ max-width:1200px; margin:0 auto; padding:0 18px; }
+
+    /* HERO */
+    .hero{
+      padding:70px 0 35px;
+      position:relative;
+    }
+    .hero-grid{
+      display:grid; grid-template-columns:1.1fr .9fr; gap:20px; align-items:center;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px; font-size:11px; letter-spacing:.7px;
+      text-transform:uppercase; color:var(--gold-soft);
+      background:rgba(212,165,80,.08); border:1px solid rgba(212,165,80,.25);
+    }
+    .hero h1{
+      font-family:Cinzel, serif;
+      font-size:48px; line-height:1.08; margin:14px 0 12px;
+      color:#f7eedc;
+      text-shadow:0 10px 50px rgba(0,0,0,.9);
+    }
+    .hero h1 .gold{ color:var(--gold); }
+    .hero p{
+      font-size:17px; color:#c9cfdb; max-width:680px;
+    }
+    .hero-cta{ margin-top:18px; display:flex; flex-wrap:wrap; gap:10px; }
+    .hero-points{ margin-top:14px; display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:8px; }
+    .point{
+      background:rgba(255,255,255,.03); border:1px solid var(--line);
+      padding:10px 12px; border-radius:12px; font-size:13px; color:#d9d1c1;
+    }
+
+    .hero-card{
+      background: linear-gradient(180deg, rgba(16,20,27,.95), rgba(9,12,18,.95));
+      border:1px solid var(--line); border-radius:var(--radius-lg);
+      padding:16px; box-shadow: var(--shadow);
+      position:relative; overflow:hidden;
+    }
+    .hero-card::after{
+      content:""; position:absolute; inset:-40%;
+      background: radial-gradient(500px 260px at 50% 20%, rgba(212,165,80,.12), transparent 60%);
+      transform:rotate(8deg);
+    }
+    .price{
+      display:flex; align-items:end; gap:10px; margin-top:4px;
+    }
+    .price .value{ font-size:44px; font-weight:800; color:var(--gold); }
+    .price .currency{ font-size:16px; color:#e7dfcf; padding-bottom:8px; }
+    .price .note{ font-size:12px; color:var(--muted); padding-bottom:10px; }
+
+    .stats{ margin-top:10px; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .stat{
+      background:rgba(0,0,0,.35); border:1px solid var(--line);
+      border-radius:12px; padding:10px; text-align:center;
+    }
+    .stat .n{ font-weight:800; color:#fff; font-size:16px; }
+    .stat .l{ font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; }
+
+    /* Sections */
+    section{ padding:28px 0; }
+
+    .section-title{
+      display:flex; align-items:center; gap:10px; margin-bottom:12px;
+      text-transform:uppercase; letter-spacing:.9px; font-weight:800; font-size:13px;
+      color:var(--gold-soft);
+    }
+    .section-title .dot{ width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 10px var(--glow); }
+
+    /* MOCKUPS */
+    .mockup-grid{
+      display:grid; grid-template-columns:repeat(12,1fr); gap:12px;
+    }
+    .mockup{
+      background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden;
+      position:relative; box-shadow: var(--shadow);
+      transform: translateY(8px); opacity:0; transition:.7s ease;
+    }
+    .mockup.reveal{ transform: translateY(0); opacity:1; }
+    .mockup img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+    .mockup.book{ grid-column: span 4; min-height:380px; }
+    .mockup.laptop1{ grid-column: span 5; min-height:260px; }
+    .mockup.laptop2{ grid-column: span 5; min-height:260px; }
+    .mockup.mobile{ grid-column: span 3; min-height:380px; }
+
+    .mockup::after{
+      content:""; position:absolute; inset:0;
+      background: radial-gradient(600px 260px at 20% 20%, rgba(255,160,80,.12), transparent 60%),
+                  radial-gradient(700px 300px at 80% 80%, rgba(212,165,80,.10), transparent 65%);
+      pointer-events:none;
+    }
+
+    /* CONTENT BLOCKS */
+    .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+    .panel{
+      background:linear-gradient(180deg, var(--panel), var(--panel-2));
+      border:1px solid var(--line); border-radius:var(--radius);
+      padding:16px; box-shadow: var(--shadow);
+    }
+
+    .list{ display:grid; gap:8px; margin:0; padding:0; list-style:none; }
+    .list li{
+      background:rgba(255,255,255,.03); border:1px solid var(--line);
+      padding:10px 12px; border-radius:12px; font-size:14px; color:#e8e0cf;
+      display:flex; align-items:flex-start; gap:8px;
+    }
+    .list li .b{ color:var(--gold-soft); font-weight:700; }
+
+    /* PAYMENT */
+    .pay-row{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; }
+    .pay-icons{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .chip{
+      font-size:12px; color:#cfd6e4; letter-spacing:.4px;
+      padding:6px 8px; border-radius:999px; border:1px dashed var(--line);
+      background:rgba(255,255,255,.02);
+    }
+
+    /* FAQ */
+    details{
+      background:rgba(255,255,255,.03); border:1px solid var(--line);
+      border-radius:12px; padding:10px 12px;
+    }
+    details summary{ cursor:pointer; font-weight:700; color:#f0e7d4; }
+    details p{ color:#c9cfdb; font-size:14px; margin:8px 0 0; }
+
+    footer{
+      border-top:1px solid var(--line);
+      padding:20px 0 40px; color:var(--muted); font-size:12px;
+      text-align:center;
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .hero-grid{ grid-template-columns:1fr; }
+      .mockup.book{ grid-column: span 6; }
+      .mockup.mobile{ grid-column: span 6; }
+      .mockup.laptop1, .mockup.laptop2{ grid-column: span 12; }
+      .grid-2{ grid-template-columns:1fr; }
+      .hero h1{ font-size:38px; }
+    }
+    @media (max-width: 560px){
+      .hero h1{ font-size:32px; }
+      .hero-points{ grid-template-columns:1fr; }
+      .mockup-grid{ grid-template-columns:1fr; }
+      .mockup.book, .mockup.mobile, .mockup.laptop1, .mockup.laptop2{ grid-column: span 12; min-height:auto; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav container">
+    <a class="brand" href="/index.html">
+      <div class="brand-logo">T</div>
+      <div>
+        <div class="brand-title">TORINVEST</div>
+        <div style="font-size:11px;color:var(--muted);letter-spacing:.3px;">La Forge • Formation</div>
+      </div>
+    </a>
+    <div class="nav-actions">
+        <a class="btn" href="https://www.torinvest-trading.com">Accueil</a>
+      <a class="btn" href="/communaute.html">FAQ</a>
+      <a class="btn btn-gold" href="/faq">Liste d'attente</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero container">
+    <div class="hero-grid">
+      <div>
+        <div class="badge">Formation officielle • La Forge Torinvest</div>
+        <h1>Deviens <span class="gold">Forgeron</span> du marché.</h1>
+        <p>
+          Une formation pensée pour comprendre le marché en profondeur : macroéconomie, cycles, psychologie, price action et exécution.
+          Un parcours clair pour passer de l'intuition au raisonnement structuré.
+        </p>
+
+        <div class="hero-cta">
+          <a class="btn btn-gold" href="#acheter">Accéder à la formation</a>
+          <a class="btn" href="#programme">Voir le programme</a>
+        </div>
+
+        <div class="hero-points">
+          <div class="point">✔ Macro & cycles mondiaux</div>
+          <div class="point">✔ Price Action & logique marché</div>
+          <div class="point">✔ Psychologie & discipline</div>
+          <div class="point">✔ Accès illimité + MAJ</div>
+        </div>
+      </div>
+
+      <div class="hero-card" aria-label="Carte prix">
+        <div class="section-title"><span class="dot"></span> Offre actuelle</div>
+        <div style="font-size:14px;color:#c9cfdb;">Formation Torinvest — V1</div>
+        <div class="price">
+          <div class="value">XX</div>
+          <div class="currency">€</div>
+          <div class="note">/ accès complet</div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><div class="n">10+</div><div class="l">Modules</div></div>
+          <div class="stat"><div class="n">3</div><div class="l">Piliers</div></div>
+          <div class="stat"><div class="n">∞</div><div class="l">Accès</div></div>
+        </div>
+
+        <div style="margin-top:12px; font-size:12px; color:var(--muted)">
+          * Remplace “XX€” par ton prix final.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOCKUPS -->
+  <section class="container">
+    <div class="section-title"><span class="dot"></span> Aperçu visuel</div>
+    <div class="mockup-grid">
+      <figure class="mockup book" data-tilt>
+        <img src="https://www.torinvest-trading.com/livresformation.png" alt="Mockup livre Torinvest" loading="lazy" />
+      </figure>
+      <figure class="mockup laptop1" data-tilt>
+        <img src="https://www.torinvest-trading.com/portableformation.png" alt="Mockup laptop Torinvest" loading="lazy" />
+      </figure>
+      <figure class="mockup laptop2" data-tilt>
+        <img src="https://www.torinvest-trading.com/portableformation2.png" alt="Mockup laptop Torinvest" loading="lazy" />
+      </figure>
+      <figure class="mockup mobile" data-tilt>
+        <img src="https://www.torinvest-trading.com/smartphoneformation.png" alt="Mockup mobile Torinvest" loading="lazy" />
+      </figure>
+    </div>
+  </section>
+
+  <!-- PROGRAMME + POUR QUI -->
+  <section id="programme" class="container">
+    <div class="grid-2">
+      <div class="panel">
+        <div class="section-title"><span class="dot"></span> Description de la formation</div>
+        <p style="color:#c9cfdb; font-size:15px; line-height:1.6; margin-top:6px;">
+         🔥 PRÉSENTATION OFFICIELLE — FORMATION TORINVEST : LA FORGE
+
+Comprendre le marché ne doit pas être un acte de foi.
+C’est une compétence. Une lecture. Une méthode.
+Et c’est exactement ce que propose LA FORGE TORINVEST : une formation complète, structurée et conçue pour ceux qui veulent arrêter de subir le marché et commencer à le lire avec lucidité.
+
+Cette formation réunit trois dimensions essentielles :
+
+🛡️ 1 — Le PRICE ACTION moderne (ICT & lecture institutionnelle)
+
+La Forge te montre comment lire le marché comme les algorithmes, les banques et les institutionnels :
+
+Structure du marché (MS, BOS, CHOCH)
+
+Zones de liquidité (liquidity grabs, equal highs/lows, imbalances)
+
+POI, FVG, OTE, inefficiencies
+
+Timing des sessions (Asia, London, New York)
+
+Entrées de précision (scalping & swing)
+
+Gestion du risque et du trade comme un pro
+
+Ce n’est pas du chartisme basique.
+C’est une lecture opérationnelle, logique et cohérente du comportement des prix.
+Un langage du marché… que tu vas enfin comprendre.
+
+🌍 2 — Macro & Cycles : lire ce que les autres tradent sans comprendre
+
+La plupart des traders observent les graphiques.
+Les professionnels observent le contexte.
+
+Dans cette formation, tu vas apprendre :
+
+Comment fonctionnent les banques centrales et leurs cycles
+
+Comment analyser l’inflation, les taux, les rendements obligataires
+
+Comment comprendre l’or, l’EURUSD, le DXY, les indices, les corrélations
+
+Comment anticiper les flux avant les mouvements
+
+Comment déceler les périodes de tension vs les périodes d’expansion
+
+La macro devient une arme, pas un concept flou.
+Tu sauras pourquoi le marché bouge… pas seulement comment.
+
+🧠 3 — Discipline, mental & stabilité émotionnelle
+
+La vérité :
+Ce n’est pas la technique qui détruit les traders.
+C’est le mental.
+
+Dans la Forge, tu vas construire :
+
+Une routine d’analyse solide
+
+Une discipline d’exécution
+
+Une gestion émotionnelle stable
+
+Un process clair : avant → pendant → après le trade
+
+Un véritable système de backtest et de journalisation
+
+Tu vas apprendre à trader proprement, sans impulsivité, sans chaos.
+
+⚒️ Un parcours pensé pour t’amener d’un état à un autre
+
+La Forge n’est pas une simple formation.
+C’est un chemin.
+
+Tu vas passer de :
+
+❌ “Je ne comprends pas ces mouvements absurdes”
+à
+✔️ “Je sais dans quel cycle on est, où sont les liquidités, et ce que fait le marché.”
+
+De :
+
+❌ “Je n’arrive pas à tenir une stratégie”
+à
+✔️ “J’ai un plan clair, une routine, une méthode.”
+
+De :
+
+❌ “Je trade sous stress, dans le doute”
+à
+✔️ “Je lis le marché avec calme, logique, et certitude.”
+
+🔥 Ce que tu sauras faire après la formation
+
+✔ Analyser un marché comme un analyste institutionnel
+✔ Trouver les zones clés et les liquidiés importantes
+✔ Entrer avec précision en Price Action
+✔ Comprendre les cycles macro & les moments favorables
+✔ Construire une stratégie stable (scalping / swing)
+✔ Gérer ton risque et ton mental
+✔ Éviter les pièges classiques des traders perdants
+✔ Rester discipliné, structuré et lucide
+
+🧩 3 Piliers — 1 Méthode — Ton avancée
+
+La Forge Torinvest te permet de bâtir ton propre style,
+mais sur une base solide, réaliste et professionnelle.
+
+Ce n’est pas une formation “vendeur de rêve”.
+C’est une formation pour ceux qui veulent réellement progresser,
+comprendre le marché, et devenir autonomes.
+
+🚀 **Bienvenue dans la Forge.
+
+Là où les traders se construisent.**
+        </p>
+        <ul class="list" style="margin-top:10px;">
+          <li><span class="b">PILIER 1 :</span> Trading structuré — plan, exécution, backtests, journaux.</li>
+          <li><span class="b">PILIER 2 :</span> Macro & géopolitique — banques centrales, cycles, flux mondiaux.</li>
+          <li><span class="b">PILIER 3 :</span> Psychologie & discipline — stabilité émotionnelle, routine, process.</li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <div class="section-title"><span class="dot"></span> Pour qui ?</div>
+        <ul class="list">
+          <li>Débutants qui veulent une base claire et logique.</li>
+          <li>Traders intermédiaires qui cherchent un cadre macro + price action.</li>
+          <li>Avancés qui veulent une lecture "cycle + liquidité" Torinvest.</li>
+          <li>Investisseurs crypto / or / FX voulant comprendre le contexte global.</li>
+        </ul>
+
+        <div style="margin-top:12px; font-size:13px; color:var(--muted);">
+          Objectif Torinvest : comprendre le marché, pas le subir.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACHETER / PAIEMENT -->
+  <section id="acheter" class="container">
+    <div class="panel">
+      <div class="section-title"><span class="dot"></span> Accès & paiement</div>
+      <div class="pay-row">
+        <div>
+          <div style="font-weight:800; font-size:18px; color:#fff;">Formation TORINVEST — Accès complet</div>
+          <div style="color:#c9cfdb; font-size:14px; margin-top:4px;">Accès immédiat + mises à jour futures incluses.</div>
+        </div>
+
+        <div style="text-align:right;">
+          <div class="price">
+            <div class="value" style="font-size:36px;">XX</div>
+            <div class="currency">€</div>
+          </div>
+          <div style="font-size:12px; color:var(--muted); margin-top:-4px;">Paiement sécurisé</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:14px;">
+        <!-- Remplace href par ton lien PayPal/Stripe/Upgrade.Chat -->
+        <a class="btn btn-gold" href="https://paypal.me/TONLIEN" target="_blank" rel="noopener">Payer avec PayPal</a>
+        <a class="btn" href="https://TON-LIEN-STRIPE" target="_blank" rel="noopener">Payer par Carte</a>
+        <a class="btn" href="https://TON-LIEN-CRYPTO" target="_blank" rel="noopener">Payer en Crypto</a>
+      </div>
+
+      <div class="pay-icons" style="margin-top:10px;">
+        <span class="chip">PayPal</span>
+        <span class="chip">Visa / Mastercard</span>
+        <span class="chip">Apple Pay / Google Pay</span>
+        <span class="chip">Crypto (USDC / SOL)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container">
+    <div class="section-title"><span class="dot"></span> FAQ</div>
+    <div style="display:grid; gap:8px;">
+      <details>
+        <summary>L’accès est-il illimité ?</summary>
+        <p>Oui. Une fois acheté, tu gardes l’accès à vie, y compris aux mises à jour majeures.</p>
+      </details>
+      <details>
+        <summary>Quel niveau faut-il ?</summary>
+        <p>La formation est progressive : débutants, intermédiaires et avancés peuvent suivre.</p>
+      </details>
+      <details>
+        <summary>Sur quels marchés ?</summary>
+        <p>Macro globale + exécution : or, FX, indices, crypto. Les principes restent les mêmes.</p>
+      </details>
+      <details>
+        <summary>Y a-t-il un support / communauté ?</summary>
+        <p>Oui. Les élèves accèdent à la communauté Torinvest et aux espaces dédiés.</p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  © TORINVEST TRADING — La Forge. Aucun conseil en investissement.  
+</footer>
+
+<script>
+  // Reveal on scroll
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting) e.target.classList.add('reveal');
+    });
+  }, {threshold:.15});
+  document.querySelectorAll('.mockup').forEach(el=>observer.observe(el));
+
+  // Lightweight tilt effect for mockups (no lib)
+  document.querySelectorAll('[data-tilt]').forEach(card=>{
+    const clamp = (n,min,max)=>Math.max(min,Math.min(n,max));
+    card.addEventListener('mousemove', (e)=>{
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      const rx = clamp(-y*8, -8, 8);
+      const ry = clamp(x*8, -8, 8);
+      card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(0)`;
+    });
+    card.addEventListener('mouseleave', ()=>{
+      card.style.transform = '';
+    });
+  });
+</script>
+    <a href="/" class="back-home-btn">← Retour accueil</a>
+
+<style>
+.back-home-btn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f5f5f7;
+  backdrop-filter: blur(4px);
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+
+.back-home-btn:hover {
+  background: rgba(255, 180, 0, 0.25);
+  border-color: rgba(255, 180, 0, 0.6);
+  transform: translateY(-2px);
+}
+</style>
+
+</body>
+</html>
