@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>TORINVEST • Salle des Marchés & Offre Forgeron</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-main: #050509;
+      --bg-card: #0b0c12;
+      --bg-soft: #11121b;
+      --accent-gold: #f3b252;
+      --accent-gold-soft: #f7c979;
+      --accent-red: #ff4b4b;
+      --text-main: #f5f5f7;
+      --text-soft: #a4a6c3;
+      --border-soft: #202231;
+      --shadow-soft: 0 18px 45px rgba(0,0,0,0.7);
+      --radius-xl: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top, #151728 0, #050509 60%);
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* HEADER */
+
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(to right, rgba(5,5,9,0.92), rgba(10,10,18,0.92));
+      border-bottom: 1px solid rgba(243,178,82,0.12);
+    }
+
+    .header-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ffdd9c 0, #f3b252 32%, #7a4b19 80%);
+      box-shadow: 0 0 18px rgba(243,178,82,0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+      color: #120b03;
+      letter-spacing: 1px;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      letter-spacing: 0.18em;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .nav-pill {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(244,244,247,0.1);
+      background: radial-gradient(circle at top, rgba(243,178,82,0.12), rgba(15,15,25,0.95));
+      color: var(--accent-gold-soft);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .nav-link {
+      opacity: 0.8;
+    }
+
+    .nav-link strong {
+      color: var(--accent-gold-soft);
+    }
+
+    @media (max-width: 720px) {
+      .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .nav {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    /* MAIN LAYOUT */
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 26px 18px 80px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 26px;
+      align-items: stretch;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .hero-left {
+      padding: 24px 24px 26px;
+      background: linear-gradient(135deg, rgba(243,178,82,0.11), rgba(7,8,14,0.96));
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(243,178,82,0.28);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent-gold-soft);
+    }
+
+    .hero-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ffdd9c 0, #f3b252 40%, #7a4b19 80%);
+      box-shadow: 0 0 8px rgba(243,178,82,0.7);
+    }
+
+    .hero-separator {
+      width: 1px;
+      height: 13px;
+      background: linear-gradient(to bottom, rgba(244,244,247,0.3), transparent);
+    }
+
+    .hero-tag {
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(244,244,247,0.12);
+      color: var(--text-soft);
+      background: rgba(5,5,9,0.75);
+    }
+
+    .hero-title {
+      font-size: 32px;
+      line-height: 1.1;
+      margin: 4px 0 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero-title span {
+      color: var(--accent-gold);
+    }
+
+    .hero-subtitle {
+      font-size: 14px;
+      color: var(--text-soft);
+      max-width: 560px;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .hero-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(12,16,35,0.8);
+      border: 1px solid rgba(75,147,255,0.45);
+      color: #b4c7ff;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 18px;
+    }
+
+    .hero-highlight-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #92b4ff 0, #4b93ff 45%, #1b2859 85%);
+      box-shadow: 0 0 10px rgba(75,147,255,0.8);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .hero-pill {
+      padding: 10px 10px 11px;
+      border-radius: 14px;
+      border: 1px solid rgba(244,244,247,0.14);
+      background: rgba(7,8,15,0.92);
+      font-size: 11px;
+      line-height: 1.4;
+      color: var(--text-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .hero-pill strong {
+      font-size: 12px;
+      color: var(--accent-gold-soft);
+    }
+
+    @media (max-width: 720px) {
+      .hero-pill:nth-child(3) {
+        grid-column: span 3;
+      }
+    }
+
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-main {
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #f3b252, #f76b1c);
+      color: #120b03;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 8px 25px rgba(247,107,28,0.55);
+    }
+
+    .btn-main span.icon {
+      font-size: 16px;
+    }
+
+    .btn-ghost {
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(244,244,247,0.16);
+      background: rgba(5,5,9,0.75);
+      color: var(--text-soft);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-ghost-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ff9e9e 0, #ff4b4b 45%, #590b1b 85%);
+      box-shadow: 0 0 10px rgba(255,75,75,0.7);
+    }
+
+    .hero-glow {
+      position: absolute;
+      inset: auto -50px -120px;
+      height: 220px;
+      background: radial-gradient(circle at bottom, rgba(243,178,82,0.35) 0, transparent 70%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    /* HERO RIGHT: DASHBOARD MOCKUP */
+
+    .hero-right {
+      padding: 20px 18px 22px;
+      background: radial-gradient(circle at 10% -10%, rgba(243,178,82,0.18), transparent 55%),
+                  radial-gradient(circle at 110% 110%, rgba(75,147,255,0.28), transparent 50%),
+                  #050509;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .dash-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .dash-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-main);
+    }
+
+    .dash-tag {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(244,244,247,0.16);
+      background: rgba(5,5,9,0.8);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .dash-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .dash-card {
+      padding: 10px 11px 12px;
+      border-radius: 12px;
+      background: rgba(8,9,17,0.95);
+      border: 1px solid var(--border-soft);
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .dash-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-soft);
+    }
+
+    .dash-asset {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent-gold-soft);
+    }
+
+    .dash-pct {
+      font-size: 11px;
+    }
+
+    .dash-pct.pos {
+      color: #5fe3a1;
+    }
+
+    .dash-pct.neg {
+      color: #ff8484;
+    }
+
+    .dash-value {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .sparkline {
+      margin-top: 4px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(to right, rgba(243,178,82,0.12), rgba(75,147,255,0.12));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sparkline-inner {
+      position: absolute;
+      inset: 5px 8px 8px;
+      border-radius: 999px;
+      background:
+        linear-gradient(120deg, rgba(95,227,161,0.4), transparent 40%),
+        linear-gradient(300deg, rgba(247,132,82,0.6), transparent 55%);
+      opacity: 0.9;
+    }
+
+    .dash-footer {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .dash-session-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(244,244,247,0.18);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--accent-gold-soft);
+    }
+
+    /* SECTIONS */
+
+    .section {
+      margin-top: 40px;
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+
+    .section-kicker {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent-gold-soft);
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--text-soft);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    .section-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 22px;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .section-layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border-soft);
+      padding: 18px 18px 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    .badge-line {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-soft);
+      margin-bottom: 8px;
+    }
+
+    .list {
+      list-style: none;
+      padding: 0;
+      margin: 10px 0 4px;
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+
+    .list li {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .list-bullet {
+      margin-top: 5px;
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-gold-soft);
+      flex-shrink: 0;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(244,244,247,0.16);
+      font-size: 11px;
+      color: var(--text-soft);
+      background: var(--bg-soft);
+    }
+
+    .label-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .label-tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #5fe3a1 0, #1b5f3a 70%);
+      box-shadow: 0 0 10px rgba(95,227,161,0.8);
+    }
+
+    .price-box {
+      margin-top: 10px;
+      padding: 14px 14px 12px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(243,178,82,0.2), rgba(5,5,9,0.9));
+      border: 1px solid rgba(243,178,82,0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .price-main {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .price-note {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .roadmap-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .roadmap-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .step {
+      padding: 12px 13px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border-soft);
+      background: var(--bg-card);
+      font-size: 12px;
+      color: var(--text-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .step-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent-gold-soft);
+    }
+
+    .step-title {
+      font-size: 13px;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+
+    /* FOOTER MINI */
+
+    .footer-mini {
+      margin-top: 40px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(244,244,247,0.08);
+      font-size: 11px;
+      color: var(--text-soft);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- HEADER TORINVEST -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="brand">
+        <div class="brand-logo">T</div>
+        <div class="brand-text">
+          <div class="brand-title">TORINVEST</div>
+          <div class="brand-sub">LA FORGE • MARCHÉS • MACRO</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <div class="nav-pill">Salle des marchés • Bientôt en ligne</div>
+        <div class="nav-link">Univers : <strong>La Forge s’éveille</strong></div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-left">
+        <div class="hero-badge-row">
+          <div class="hero-dot"></div>
+          <div>Univers TORINVEST</div>
+          <div class="hero-separator"></div>
+          <div>Cycle du marché & salle des marchés</div>
+        </div>
+
+        <h1 class="hero-title">
+          Salle des Marchés <span>TORINVEST</span>
+        </h1>
+        <p class="hero-subtitle">
+          Un espace privé pour lire le marché, pas le subir : live trading, débriefs macro, psychologie du trader et suivi des flux en temps réel sur l’or, l’EURUSD, le DXY, les indices et les cryptos.
+        </p>
+
+        <div class="hero-highlight">
+          <div class="hero-highlight-dot"></div>
+          <span>Accès prévu dans l’offre Forgeron – début 2026</span>
+        </div>
+
+        <div class="hero-grid">
+          <div class="hero-pill">
+            <strong>Sessions live privées</strong>
+            <span>Streams réservés aux membres, lecture du flux, scénarios de trading et revue des plans.</span>
+          </div>
+          <div class="hero-pill">
+            <strong>Salle des marchés TORINVEST</strong>
+            <span>Un salon dédié pour suivre le marché ensemble : flux macro, news, niveaux clés et discipline.</span>
+          </div>
+          <div class="hero-pill">
+            <strong>Cycle & pédagogie</strong>
+            <span>Chaque live s’intègre dans le cycle de formation : Price Action, ICT, macro & psychologie.</span>
+          </div>
+        </div>
+
+        <div class="hero-cta-row">
+          <button class="btn-main">
+            <span class="icon">🔥</span>
+            Rejoindre la liste d’attente Forgeron
+          </button>
+          <div class="btn-ghost">
+            <div class="btn-ghost-dot"></div>
+            Aperçu de l’offre & roadmap 2025–2026
+          </div>
+        </div>
+
+        <div class="hero-glow"></div>
+      </div>
+
+      <!-- DASHBOARD MOCKUP -->
+      <aside class="hero-right">
+        <div class="dash-header">
+          <div>
+            <div class="dash-title">Dashboard Torinvest</div>
+            <div>Flux live • Or, EURUSD, DXY, S&P 500</div>
+          </div>
+          <div class="dash-tag">Vue Salle des Marchés</div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="dash-card">
+            <div class="dash-label">
+              <span class="dash-asset">XAUUSD</span>
+              <span class="dash-pct pos">+1,42%</span>
+            </div>
+            <div class="dash-value">2 480,30</div>
+            <div class="sparkline">
+              <div class="sparkline-inner"></div>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="dash-label">
+              <span class="dash-asset">EURUSD</span>
+              <span class="dash-pct neg">–0,36%</span>
+            </div>
+            <div class="dash-value">1,0732</div>
+            <div class="sparkline">
+              <div class="sparkline-inner"></div>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="dash-label">
+              <span class="dash-asset">DXY</span>
+              <span class="dash-pct">+0,08%</span>
+            </div>
+            <div class="dash-value">101,40</div>
+            <div class="sparkline">
+              <div class="sparkline-inner"></div>
+            </div>
+          </div>
+
+          <div class="dash-card">
+            <div class="dash-label">
+              <span class="dash-asset">S&P 500</span>
+              <span class="dash-pct pos">+0,92%</span>
+            </div>
+            <div class="dash-value">5 280</div>
+            <div class="sparkline">
+              <div class="sparkline-inner"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-footer">
+          <div class="dash-session-pill">Live London & NY</div>
+          <div>Commentaires vocaux, zones de liquidité, contexte macro & gestion du risque.</div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- SECTION 1 : SALLE DES MARCHÉS -->
+    <section class="section" id="salle-marche">
+      <div class="section-title-row">
+        <div>
+          <div class="section-kicker">Salle des Marchés TORINVEST</div>
+          <div class="section-title">Un salon privé pour forger ta lecture du marché</div>
+        </div>
+        <div class="section-sub">
+          Accessible via l’offre Forgeron, la salle des marchés est un espace fermé pour travailler la lecture du flux, la discipline et la compréhension du jeu des grandes mains.
+        </div>
+      </div>
+
+      <div class="section-layout">
+        <article class="card">
+          <div class="badge-line">Ce qui se passera dans la salle des marchés</div>
+          <ul class="list">
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Lives de trading structurés</strong> : préparation, contexte macro, niveaux clés, scénario principal & plans alternatifs.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Stream privé</strong> : un salon dédié (audio + partage d’écran) pour suivre le marché en direct, sans bruit inutile.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Lecture ICT / Price Action</strong> : liquidités, POI, structures, timing, stratégies défensives et offensives.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Psycho & discipline en temps réel</strong> : gestion du FOMO, des pertes, des paliers de taille, de la fatigue et du stress.</span>
+            </li>
+          </ul>
+
+          <div class="chip-row">
+            <div class="chip">Or (XAUUSD)</div>
+            <div class="chip">EURUSD & DXY</div>
+            <div class="chip">Indices US</div>
+            <div class="chip">Macro & géopolitique</div>
+          </div>
+        </article>
+
+        <aside class="card">
+          <div class="badge-line">Sessions typiques (exemple)</div>
+          <ul class="list">
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Pré-London</strong> : contexte du jour, niveaux majeurs, biais directionnel et zones à surveiller.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>NY Open</strong> : réaction aux news US, flux sur l’or et l’EURUSD, plans de scalp & swing.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Debrief</strong> : revue des trades, erreurs, points à améliorer, journaling collectif.</span>
+            </li>
+          </ul>
+
+          <div class="label-tag" style="margin-top:8px;">
+            <div class="label-tag-dot"></div>
+            <span>Accès réservé aux membres Forgeron & aux cycles avancés TORINVEST.</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- SECTION 2 : OFFRE FORGERON -->
+    <section class="section" id="offre-forgeron">
+      <div class="section-title-row">
+        <div>
+          <div class="section-kicker">Offre Forgeron • Accès privé</div>
+          <div class="section-title">L’offre qui ouvre la porte de la Forge</div>
+        </div>
+        <div class="section-sub">
+          L’offre Forgeron regroupe la formation complète (macro, ICT, Price Action, psychologie) + l’accès prioritaire à la salle des marchés quand elle ouvrira.
+        </div>
+      </div>
+
+      <div class="section-layout">
+        <article class="card">
+          <div class="badge-line">Ce qui est prévu dans l’offre Forgeron</div>
+          <ul class="list">
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Formation “La Forge ICT & Price Action”</strong> : modules structurés, PDF, vidéos, cas pratiques.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Accès à la salle des marchés</strong> dès son ouverture : lives, streams privés, analyses avancées.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Salons privés</strong> : questions/réponses, débriefs de journées, accompagnement sur la routine de trading.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Mises à jour continues</strong> : nouvelles vidéos, nouveaux cas, nouvelles chroniques de la Forge.</span>
+            </li>
+          </ul>
+
+          <div class="price-box">
+            <div class="price-main">Offre Forgeron — accès privé</div>
+            <div>Tarif & modalités communiqués à l’ouverture de la Forge.</div>
+            <div class="price-note">
+              Les premiers inscrits sur la liste d’attente bénéficieront de conditions préférentielles et d’un accès prioritaire.
+            </div>
+          </div>
+        </article>
+
+        <aside class="card">
+          <div class="badge-line">Comment ça s’intègre dans ton cycle</div>
+          <ul class="list">
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Étape 1</strong> : comprendre les cycles macro, la logique des banques centrales et le contexte géopolitique.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Étape 2</strong> : maîtriser l’ICT / Price Action et la structure de marché sur l’or & les actifs clés.</span>
+            </li>
+            <li>
+              <span class="list-bullet"></span>
+              <span><strong>Étape 3</strong> : passer dans la salle des marchés pour confronter ta théorie au flux réel, avec un cadre.</span>
+            </li>
+          </ul>
+
+          <div class="chip-row">
+            <div class="chip">Liste d’attente Forgeron</div>
+            <div class="chip">Accès privé salle des marchés</div>
+            <div class="chip">Cycles pédagogiques</div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- SECTION 3 : ROADMAP -->
+    <section class="section" id="roadmap">
+      <div class="section-title-row">
+        <div>
+          <div class="section-kicker">Roadmap 2025–2026</div>
+          <div class="section-title">Quand ouvre la salle des marchés ?</div>
+        </div>
+        <div class="section-sub">
+          L’idée est simple : d’abord la méthode, puis le terrain. La salle des marchés arrive après la mise en place de la Forge pédagogique, pour éviter le bruit et la précipitation.
+        </div>
+      </div>
+
+      <div class="roadmap-grid">
+        <div class="step">
+          <div class="step-label">2025</div>
+          <div class="step-title">Mise en place de la Forge</div>
+          <div>
+            Finalisation des modules de formation (macro, ICT, Price Action, psychologie du trader) et structuration des outils TORINVEST.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-label">Fin 2025</div>
+          <div class="step-title">Pré-lancement Forgeron</div>
+          <div>
+            Ouverture de la liste d’attente, contenus pilotes, premiers lives ponctuels pour tester le format de la future salle des marchés.
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-label">Début 2026</div>
+          <div class="step-title">Ouverture Salle des Marchés</div>
+          <div>
+            Mise en route de la salle des marchés TORINVEST pour les membres Forgeron : live trading régulier, salon privé, suivi des cycles et des flux.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER MINI -->
+    <footer class="footer-mini">
+      <div>© TORINVEST — Univers de la Forge. Aucun conseil en investissement, uniquement de la pédagogie & de l’analyse.</div>
+      <div>Site : <strong>torinvest-trading.com</strong></div>
+    </footer>
+  </main>
+ <a href="/" class="back-home-btn">← Retour accueil</a>
+
+<style>
+.back-home-btn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f5f5f7;
+  backdrop-filter: blur(4px);
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+
+.back-home-btn:hover {
+  background: rgba(255, 180, 0, 0.25);
+  border-color: rgba(255, 180, 0, 0.6);
+  transform: translateY(-2px);
+}
+</style>
+</body>
+</html>
