@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>TorMission – Programme Test & Earn | Torinvest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="TorMission – Programme communautaire Torinvest pour tester l'indicateur Macro Vision Intraday, faire des retours constructifs et gagner des tokens.">
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #111827;
+      --accent-blue: #2563eb;
+      --accent-teal: #14b8a6;
+      --accent-green: #22c55e;
+      --accent-gold: #facc15;
+      --accent-red: #ef4444;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-soft: #1f2937;
+      --radius-lg: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 60%);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    h1, h2, h3 {
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .tagline {
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(20, 184, 166, 0.1));
+      border-radius: 24px;
+      padding: 2rem;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      margin-bottom: 2rem;
+    }
+
+    .hero h1 {
+      font-size: 1.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      max-width: 650px;
+      margin-bottom: 1rem;
+    }
+
+    .hero-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      background: rgba(15, 23, 42, 0.85);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      border: 1px solid rgba(37, 99, 235, 0.4);
+      margin-bottom: 1rem;
+    }
+
+    .hero-highlight span.icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-green);
+    }
+
+    .hero-cta {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn-primary, .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.7rem 1.3rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, transform 0.1s ease, border 0.15s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #14b8a6);
+      border-color: rgba(15, 23, 42, 0.8);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: rgba(148, 163, 184, 0.6);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1.4fr 1fr;
+      }
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), rgba(15, 23, 42, 0.95));
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      padding: 1.3rem;
+    }
+
+    .card h2, .card h3 {
+      margin-bottom: 0.4rem;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      margin-bottom: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    .pill span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-gold);
+    }
+
+    .levels {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .level-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      padding: 1rem;
+    }
+
+    .level-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.4rem;
+    }
+
+    .level-name {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .level-reward {
+      font-size: 0.85rem;
+      color: var(--accent-gold);
+    }
+
+    .level-desc {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul li {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.4rem;
+    }
+
+    ul li::before {
+      content: "•";
+      color: var(--accent-teal);
+      margin-top: 0.15rem;
+      font-size: 0.9rem;
+    }
+
+    .rules-list li::before {
+      color: var(--accent-blue);
+    }
+
+    .badges-grid {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    @media (min-width: 600px) {
+      .badges-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    .badge-card {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 12px;
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      padding: 0.8rem;
+    }
+
+    .badge-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .badge-sub {
+      font-size: 0.8rem;
+      color: var(--accent-teal);
+      margin-bottom: 0.3rem;
+    }
+
+    .section-title {
+      margin-bottom: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .hub-block {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 14px;
+      border: 1px dashed rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .hub-block code {
+      background: rgba(15, 23, 42, 0.9);
+      padding: 0.1rem 0.3rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      color: var(--accent-teal);
+    }
+
+    .footer-note {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <section class="hero">
+      <div class="tagline">TORINVEST • PROGRAMME COMMUNAUTAIRE</div>
+      <h1>TorMission – Programme <br>Test &amp; Earn autour de Macro Vision Intraday™</h1>
+      <p>
+        TorMission est le programme communautaire de Torinvest dédié au test de l'indicateur
+        <strong>Macro Vision Intraday™</strong>. L'objectif : tester l'outil en conditions réelles, remonter des retours constructifs,
+        et récompenser les membres impliqués via des tokens Torinvest.
+      </p>
+      <div class="hero-highlight">
+        <span class="icon"></span>
+        <span>Testez l'indicateur • Donnez votre avis • Gagnez des récompenses</span>
+      </div>
+      <div class="hero-cta">
+        <a href="#missions" class="btn-primary">Voir les missions en cours</a>
+        <a href="#rules" class="btn-outline">Lire les règles du programme</a>
+      </div>
+    </section>
+
+    <section class="grid grid-2" id="missions">
+      <div class="card">
+        <div class="pill"><span class="dot"></span><span>Structure du programme</span></div>
+        <h2>Missions TorMission – 3 niveaux</h2>
+        <p>
+          Les missions sont organisées en trois niveaux pour s'adapter à tous les profils : découverte, analyse et contribution avancée.
+          Plus le niveau est élevé, plus la mission demande de profondeur d'analyse – et plus la récompense est importante.
+        </p>
+        <div class="levels" style="margin-top: 1rem;">
+          <div class="level-card">
+            <div class="level-header">
+              <div class="level-name">Niveau 1 – Découverte</div>
+              <div class="level-reward">≈ 10 tokens</div>
+            </div>
+            <div class="level-desc">Prendre en main l'indicateur et partager un premier retour concret.</div>
+            <ul>
+              <li>Tester Macro Vision Intraday™ sur une session de marché</li>
+              <li>Poster un screenshot et un avis (5–10 lignes) sur Discord</li>
+              <li>Donner une note globale et 2 points forts / 1 axe d'amélioration</li>
+            </ul>
+          </div>
+
+          <div class="level-card">
+            <div class="level-header">
+              <div class="level-name">Niveau 2 – Analyse</div>
+              <div class="level-reward">≈ 25 tokens</div>
+            </div>
+            <div class="level-desc">Réaliser une analyse structurée du comportement de l'indicateur.</div>
+            <ul>
+              <li>Analyse d'une séance (London ou New York)</li>
+              <li>Description du contexte : tendance H1, liquidité M15, session</li>
+              <li>Retour détaillé sur le Context Score et la lecture générale</li>
+            </ul>
+          </div>
+
+          <div class="level-card">
+            <div class="level-header">
+              <div class="level-name">Niveau 3 – Contribution</div>
+              <div class="level-reward">≈ 50–100 tokens</div>
+            </div>
+            <div class="level-desc">Contributions avancées, orientées amélioration et long terme.</div>
+            <ul>
+              <li>Création d'une issue détaillée sur GitHub (bug, suggestion, idée Premium)</li>
+              <li>Propositions d'ajustement de logique ou de fonctionnalités</li>
+              <li>Rédaction de mini-docs, tutos ou retours très structurés</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="pill"><span class="dot"></span><span>Badges & engagement</span></div>
+        <h3>Badges TorMission</h3>
+        <p class="muted" style="margin-bottom: 0.8rem;">
+          Les membres les plus impliqués peuvent obtenir des badges et rôles spécifiques au sein de la communauté Torinvest.
+        </p>
+        <div class="badges-grid">
+          <div class="badge-card">
+            <div class="badge-title">Explorateur</div>
+            <div class="badge-sub">Entrée de programme</div>
+            <p class="muted">1 mission Niveau 1 validée. Prise en main de l'indicateur et premier retour sérieux.</p>
+          </div>
+          <div class="badge-card">
+            <div class="badge-title">Analyste</div>
+            <div class="badge-sub">Profil intermédiaire</div>
+            <p class="muted">Au moins 3 missions Niveau 2 validées. Analyses régulières et structurées.</p>
+          </div>
+          <div class="badge-card">
+            <div class="badge-title">Architecte</div>
+            <div class="badge-sub">Contribution avancée</div>
+            <p class="muted">Plusieurs contributions Niveau 3 ou participation majeure à l'amélioration de l'outil.</p>
+          </div>
+          <div class="badge-card">
+            <div class="badge-title">Sentinel</div>
+            <div class="badge-sub">Veille & fiabilité</div>
+            <p class="muted">Feedbacks réguliers dans le temps, suivi des versions, remontée d'anomalies pertinentes.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="rules">
+      <div class="pill"><span class="dot"></span><span>Règlement</span></div>
+      <h2>Règles du programme TorMission – Test &amp; Earn</h2>
+      <p class="muted" style="margin-bottom: 0.8rem;">
+        Le programme TorMission repose sur une logique simple : participation sérieuse, retours constructifs, transparence et respect.
+      </p>
+
+      <h3 class="section-title">1. Éligibilité</h3>
+      <ul class="rules-list">
+        <li>Être membre du Discord Torinvest.</li>
+        <li>Disposer d'un compte TradingView fonctionnel.</li>
+        <li>Avoir accès à l'indicateur Macro Vision Intraday™.</li>
+        <li>Respecter les règles de la communauté (courtoisie, respect, clarté).</li>
+      </ul>
+
+      <h3 class="section-title">2. Validation des missions</h3>
+      <ul class="rules-list">
+        <li>Chaque mission doit être réalisée selon la description fournie (niveau, format, support).</li>
+        <li>Les retours doivent être concrets, argumentés et lisibles.</li>
+        <li>Les missions sont validées manuellement par l'équipe Torinvest.</li>
+        <li>Les messages vides, troll ou copiés-collés ne sont pas pris en compte.</li>
+      </ul>
+
+      <h3 class="section-title">3. Récompenses</h3>
+      <ul class="rules-list">
+        <li>Les montants en tokens sont indicatifs et peuvent varier selon la qualité des contributions.</li>
+        <li>Des bonus peuvent être attribués pour des retours exceptionnels ou des contributions techniques.</li>
+        <li>Les modalités pratiques (distribution, suivi) sont communiquées sur Discord.</li>
+      </ul>
+
+      <h3 class="section-title">4. Durée & évolution</h3>
+      <ul class="rules-list">
+        <li>TorMission peut être organisé par phases (ex : Phase 1 : décembre – janvier).</li>
+        <li>Le programme peut évoluer : nouvelles missions, nouveaux niveaux, nouveaux outils.</li>
+      </ul>
+
+      <div class="hub-block">
+        <h3 style="margin-bottom: 0.4rem;">Hub de participation</h3>
+        <p class="muted">
+          Toutes les informations pratiques, liens utiles (Discord, GitHub, indicateur TradingView) et missions en cours sont centralisés dans le hub de participation TorMission.
+        </p>
+        <p class="muted" style="margin-top: 0.4rem;">
+          ➜ Channel Discord dédié : <code>#tormission-hub</code><br>
+          ➜ Dépôt GitHub : <code>torinvest/macro-vision-intraday</code> (exemple)<br>
+          ➜ Indicateur : Macro Vision Intraday™ sur TradingView
+        </p>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      TorMission – un programme Torinvest pour construire des outils de marché clairs, utiles et disciplinés, avec la communauté.
+    </div>
+  </div>
+ <a href="/" class="back-home-btn">← Retour accueil</a>
+
+<style>
+.back-home-btn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f5f5f7;
+  backdrop-filter: blur(4px);
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+
+.back-home-btn:hover {
+  background: rgba(255, 180, 0, 0.25);
+  border-color: rgba(255, 180, 0, 0.6);
+  transform: translateY(-2px);
+}
+</style>
+
+</body>
+</html>
+
