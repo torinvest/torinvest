@@ -350,8 +350,8 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
 <script>
   // ⚙️ Mets bien ici les adresses complètes de tes tokens depuis Solscan
-  const KRM_MINT = "TON_ADRESSE_KRM_COMPLÈTE_ICI";
-  const ORAX_MINT = "TON_ADRESSE_ORAX_COMPLÈTE_ICI";
+  const KRM_MINT = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+  const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
 
   const MIN_KRM = 10_000;
   const MIN_ORAX = 2_000_000;
@@ -404,7 +404,10 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
         "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
 
       // Connexion RPC Solana mainnet
-      const connection = new solanaWeb3.Connection("https://api.mainnet-beta.solana.com");
+    const connection = new solanaWeb3.Connection(
+  "https://mainnet.helius-rpc.com/?api-key=45ca60a1-c7be-4b07-900f-131227f53c27"
+);
+
 
       // Récupère tous les comptes SPL du wallet
       const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
