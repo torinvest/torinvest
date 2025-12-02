@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>TorMission – Indicateur #2 : Real Yield Gold Bias | Torinvest</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Indicateur TorMission #2 – Real Yield Gold Bias. Un module macro pour analyser l'impact des taux réels sur l'or, développé avec la communauté Torinvest.">
+  <style>
+    :root {
+      --bg-main: #020617;
+      --bg-panel: #020b1a;
+      --bg-card: #02091a;
+      --bg-soft: #0b1220;
+      --accent-blue: #2563eb;
+      --accent-teal: #14b8a6;
+      --accent-green: #22c55e;
+      --accent-gold: #facc15;
+      --accent-red: #ef4444;
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-soft: #1f2937;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #020617 45%, #000 100%);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2rem 1rem 3rem;
+    }
+
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    a {
+      color: var(--accent-teal);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    h1, h2, h3 {
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .tagline {
+      text-transform: uppercase;
+      color: var(--accent-teal);
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero {
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.25), rgba(15, 23, 42, 0.95));
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -40px -80px;
+      height: 140px;
+      background: radial-gradient(circle at center, rgba(20, 184, 166, 0.18), transparent 60%);
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      font-size: 1.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p {
+      color: var(--text-muted);
+      max-width: 650px;
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 999px;
+      padding: 0.35rem 0.9rem;
+      border: 1px solid rgba(37, 99, 235, 0.5);
+      margin-bottom: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-highlight span.icon {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-green);
+    }
+
+    .hero-cta {
+      margin-top: 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-primary, .btn-outline {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.7rem 1.3rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s ease, transform 0.1s ease, border 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #14b8a6);
+      border-color: rgba(15, 23, 42, 0.9);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .btn-outline {
+      background: rgba(15, 23, 42, 0.8);
+      border-color: rgba(148, 163, 184, 0.6);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background: rgba(15, 23, 42, 1);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      margin-bottom: 0.6rem;
+      color: var(--text-muted);
+    }
+
+    .pill span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-gold);
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (min-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1.5fr 1fr;
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.98));
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      padding: 1.4rem;
+    }
+
+    .card h2, .card h3 {
+      margin-bottom: 0.4rem;
+      font-size: 1.1rem;
+    }
+
+    .card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul li {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    ul li::before {
+      content: "•";
+      color: var(--accent-teal);
+      margin-top: 0.15rem;
+      font-size: 0.9rem;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .section-title {
+      margin-bottom: 0.6rem;
+      font-size: 1.05rem;
+    }
+
+    /* Menu indicateurs (tableau) */
+
+    .indicator-menu {
+      background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.16), rgba(15, 23, 42, 0.98));
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      padding: 1.1rem 1.2rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .indicator-menu h3 {
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .indicator-menu table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.4rem;
+      font-size: 0.88rem;
+    }
+
+    .indicator-menu th,
+    .indicator-menu td {
+      padding: 0.5rem 0.3rem;
+      text-align: left;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.8);
+    }
+
+    .indicator-menu th {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .indicator-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-muted);
+    }
+
+    .indicator-badge span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--accent-teal);
+    }
+
+    .indicator-row {
+      cursor: pointer;
+    }
+
+    .indicator-row a {
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .indicator-row a:hover {
+      text-decoration: underline;
+    }
+
+    .indicator-row.active {
+      background: rgba(15, 118, 110, 0.18);
+    }
+
+    .indicator-row.active td {
+      border-bottom-color: rgba(34, 197, 94, 0.5);
+    }
+
+    .indicator-status {
+      font-size: 0.8rem;
+      color: var(--accent-teal);
+    }
+
+    .indicator-status.soon {
+      color: var(--accent-gold);
+    }
+
+    .indicator-status.locked {
+      color: var(--text-muted);
+    }
+
+    .footer-note {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="tagline">TORINVEST • TOR MISSION • INDICATEUR #2</div>
+      <h1>Real Yield Gold Bias (Torinvest)</h1>
+      <p>
+        Deuxième indicateur communautaire du programme TorMission, <strong>Real Yield Gold Bias</strong> lit pour vous le comportement
+        des taux réels américains et indique si le contexte macro est favorable, défavorable ou neutre pour l'or.
+      </p>
+      <div class="hero-highlight">
+        <span class="icon"></span>
+        <span>Taux réel • Biais macro • Contexte or</span>
+      </div>
+      <div class="hero-cta">
+        <a href="https://www.tradingview.com/" class="btn-primary" target="_blank" rel="noopener noreferrer">Ajouter l'indicateur sur TradingView</a>
+        <a href="/tormission#missions" class="btn-outline">Revenir au programme TorMission</a>
+      </div>
+    </section>
+
+    <!-- MENU INDICATEURS -->
+    <section class="indicator-menu">
+      <h3>Indicateurs TorMission</h3>
+      <p class="muted" style="margin-bottom: 0.3rem;">
+        Navigation entre les différents modules développés avec la communauté Torinvest.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 20%;">#</th>
+            <th>Nom</th>
+            <th style="width: 25%;">Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="indicator-row">
+            <td>Indicateur 1</td>
+            <td><a href="/tormission-indicateur1.html">Macro Vision Intraday™</a></td>
+            <td><span class="indicator-status">En ligne</span></td>
+          </tr>
+          <tr class="indicator-row active">
+            <td>Indicateur 2</td>
+            <td><a href="/tormission-indicateur2.html">Real Yield Gold Bias</a></td>
+            <td><span class="indicator-status">En cours de test</span></td>
+          </tr>
+          <tr class="indicator-row">
+            <td>Indicateur 3</td>
+            <td class="muted">À définir avec la communauté</td>
+            <td><span class="indicator-status soon">À venir</span></td>
+          </tr>
+          <tr class="indicator-row">
+            <td>Indicateur 4</td>
+            <td class="muted">Slot réservé (Roadmap Torinvest)</td>
+            <td><span class="indicator-status locked">Locked</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- CONTENU PRINCIPAL -->
+    <section class="grid grid-2">
+      <!-- Colonne gauche : description & fonctionnement -->
+      <div class="card">
+        <div class="pill"><span class="dot"></span><span>Description & fonctionnement</span></div>
+        <h2 class="section-title">Quel est le rôle de Real Yield Gold Bias ?</h2>
+        <p class="muted">
+          L'indicateur mesure l'environnement des <strong>taux réels</strong> (taux nominaux ajustés de l'inflation) et le traduit en
+          un biais simple pour l'or :
+        </p>
+        <ul style="margin-top: 0.6rem;">
+          <li>🟢 <strong>Régime favorable</strong> : taux réel négatif et en baisse &rarr; contexte macro qui soutient l'or.</li>
+          <li>🔴 <strong>Régime défavorable</strong> : taux réel positif et en hausse &rarr; contexte macro qui pèse sur l'or.</li>
+          <li>⚪ <strong>Régime neutre</strong> : zone intermédiaire ou contradictoire, signal macro faible.</li>
+        </ul>
+        <p class="muted" style="margin-top: 0.7rem;">
+          Il ne remplace pas l'analyse technique ni le Price Action. C'est un <strong>filtre de contexte</strong>, une boussole
+          macro qui aide à adapter votre biais et votre agressivité sur l'or.
+        </p>
+      </div>
+
+      <!-- Colonne droite : missions TorMission -->
+      <div class="card">
+        <div class="pill"><span class="dot"></span><span>TorMission – Test &amp; Earn</span></div>
+        <h3 class="section-title">Missions communautaires liées à l'indicateur</h3>
+        <p class="muted" style="margin-bottom: 0.6rem;">
+          Ce module est le support du <strong>lot de missions TorMission #2</strong>. Les membres peuvent tester l'indicateur et
+          remonter des retours pour faire évoluer la logique macro.
+        </p>
+        <ul>
+          <li><strong>Niveau 1 – Découverte :</strong> installer l'indicateur, observer les changements de couleur, poster un premier retour.</li>
+          <li><strong>Niveau 2 – Analyse :</strong> relier la couleur de fond aux mouvements de l'or, documenter des cas concrets.</li>
+          <li><strong>Niveau 3 – Contribution :</strong> proposer des ajustements de paramètres, de sources de taux réels ou de logique.</li>
+        </ul>
+        <p class="muted" style="margin-top: 0.6rem;">
+          Les contributions validées donnent droit à des <strong>tokens Torinvest</strong>, selon la profondeur et la qualité des retours.
+        </p>
+        <p class="muted" style="margin-top: 0.4rem;">
+          👉 Missions détaillées dans le canal Discord <code>#tormission-missions</code>.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECTION UTILISATION -->
+    <section class="card">
+      <div class="pill"><span class="dot"></span><span>Utilisation dans le trading de l'or</span></div>
+      <h2 class="section-title">Comment intégrer l'indicateur dans votre routine ?</h2>
+      <p class="muted">
+        L'objectif n'est pas de générer un signal "buy/sell" mais de vous indiquer dans quel environnement macro vous évoluez. Quelques
+        lignes directrices :
+      </p>
+      <ul style="margin-top: 0.6rem;">
+        <li>En <strong>fond vert</strong> (favorable), les setups acheteurs sur l'or sont mieux alignés avec le macro.</li>
+        <li>En <strong>fond rouge</strong> (défavorable), la prudence est de mise sur les longs, les ventes sont plus légitimes.</li>
+        <li>Les flèches <strong>Real+</strong> et <strong>Real-</strong> signalent des bascules de régime importantes à noter dans votre journal.</li>
+        <li>L'indicateur est particulièrement intéressant à combiner avec <strong>Macro Vision Intraday™</strong> pour croiser micro & macro.</li>
+      </ul>
+      <p class="muted" style="margin-top: 0.6rem;">
+        À vous, via TorMission, de nous dire dans quels cas l'indicateur est le plus pertinent, et où il doit être affiné.
+      </p>
+    </section>
+
+    <div class="footer-note">
+      Real Yield Gold Bias – Indicateur TorMission #2, développé avec la communauté Torinvest.
+    </div>
+  </div>
+  <a href="/" class="back-home-btn">← Retour accueil</a>
+
+<style>
+.back-home-btn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f5f5f7;
+  backdrop-filter: blur(4px);
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+
+.back-home-btn:hover {
+  background: rgba(255, 180, 0, 0.25);
+  border-color: rgba(255, 180, 0, 0.6);
+  transform: translateY(-2px);
+}
+</style>
+
+</body>
+</html>
