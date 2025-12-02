@@ -441,14 +441,31 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
           ? "Toutes les conditions sont remplies. Tu peux accéder à la Forge TorInvest."
           : "Les conditions ne sont pas encore remplies. Accumule plus de KRM et/ou ORAX pour débloquer la Forge.");
 
-      if (hasAccess) {
-        accessPill.className = "access-pill ok";
-        accessPill.textContent = "✅ Accès autorisé • Bienvenue dans la Forge TorInvest.";
-      } else {
-        accessPill.className = "access-pill ko";
-        accessPill.textContent =
-          "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
-      }
+     const PREMIUM_URL = "/premium.html"; // <-- mets ici l'URL de ta page premium
+
+...
+
+if (hasAccess) {
+  accessPill.className = "access-pill ok";
+  accessPill.textContent = "✅ Accès autorisé • Redirection vers l'espace premium...";
+
+  // Optionnel : tu laisses le texte détaillé dans walletBox comme maintenant
+  walletBox.textContent =
+    "Adresse : " + pubkey + "\n" +
+    "Solde KRM : " + krmBalance + "\n" +
+    "Solde ORAX : " + oraxBalance + "\n\n" +
+    "Toutes les conditions sont remplies. Redirection vers l'espace premium de la Forge TorInvest...";
+
+  // ⬇⬇⬇ Redirection automatique après 2 secondes
+  setTimeout(() => {
+    window.location.href = PREMIUM_URL;
+  }, 2000);
+} else {
+  accessPill.className = "access-pill ko";
+  accessPill.textContent =
+    "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
+}
+
     } catch (err) {
       if (err && err.code === 4001) {
         walletStatus.textContent = "Connexion refusée.";
