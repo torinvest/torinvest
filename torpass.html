@@ -346,54 +346,50 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
     </main>
   </div>
 
-  <!-- Solana Web3.js depuis CDN -->
-  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+ <!-- Solana Web3.js -->
+<script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
 <script>
-  // ⚙️ Mets bien ici les adresses complètes de tes tokens depuis Solscan
-  const KRM_MINT = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
-  const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
+  // ⚙️ RENSEIGNE CES 3 CONSTANTES AVEC LES MÊMES VALEURS QUE TU AS DÉJÀ
+  const KRM_MINT   = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+  const ORAX_MINT  = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
+  const RPC_URL    = "https://mainnet.helius-rpc.com/?api-key=45ca60a1-c7be-4b07-900f-131227f53c27";
+  const PREMIUM_URL = "/premium.html"; // ou l'URL exacte de ta page premium
 
   const MIN_KRM = 10_000;
   const MIN_ORAX = 2_000_000;
 
-  const connectBtn = document.getElementById("connectBtn");
+  const connectBtn   = document.getElementById("connectBtn");
   const walletStatus = document.getElementById("walletStatus");
-  const walletBox = document.getElementById("walletBox");
-  const accessPill = document.getElementById("accessPill");
+  const walletBox    = document.getElementById("walletBox");
+  const accessPill   = document.getElementById("accessPill");
 
   function getPhantomProvider() {
-    // Nouvelle méthode recommandée par Phantom
+    // Méthode moderne Phantom
     if ("phantom" in window) {
       const provider = window.phantom?.solana;
       if (provider?.isPhantom) return provider;
     }
-    // Compatibilité ancienne version
+    // Compat ancienne
     if (window.solana && window.solana.isPhantom) {
       return window.solana;
     }
     return null;
   }
 
-  function shorten(addr) {
-    if (!addr || addr.length < 10) return addr;
-    return addr.slice(0, 4) + "..." + addr.slice(-4);
-  }
-
   async function connectPhantom() {
     const provider = getPhantomProvider();
 
     if (!provider) {
-      walletStatus.textContent = "Aucun wallet Phantom détecté sur ce navigateur.";
+      walletStatus.textContent = "Aucun wallet Phantom détecté.";
       walletBox.textContent =
-        "Installe Phantom (extension Chrome / Brave / Edge) ou autorise-le sur ce site, puis recharge la page. " +
-        "Assure-toi d'utiliser le même navigateur que celui où ton Phantom est installé.";
+        "Installe Phantom (extension navigateur) ou ouvre cette page dans le navigateur intégré de Phantom, puis réessaie.";
       accessPill.className = "access-pill ko";
       accessPill.textContent = "🔒 Accès verrouillé • Wallet Phantom non détecté.";
       return;
     }
 
     try {
-      // Demande de connexion (pop-up Phantom)
+      // 1) Connexion au wallet → pop-up Phantom
       const resp = await provider.connect();
       const pubkey = resp.publicKey.toString();
 
@@ -403,13 +399,10 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
         pubkey +
         "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
 
-      // Connexion RPC Solana mainnet
-    const connection = new solanaWeb3.Connection(
-  "https://mainnet.helius-rpc.com/?api-key=45ca60a1-c7be-4b07-900f-131227f53c27"
-);
+      // 2) Connexion au RPC Helius
+      const connection = new solanaWeb3.Connection(RPC_URL);
 
-
-      // Récupère tous les comptes SPL du wallet
+      // 3) Récupération de tous les comptes SPL
       const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
         new solanaWeb3.PublicKey(pubkey),
         { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") }
@@ -433,46 +426,35 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
 
       const hasAccess = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
 
+      // 4) Affichage info + gestion accès
       walletBox.textContent =
         "Adresse : " + pubkey + "\n" +
         "Solde KRM : " + krmBalance + "\n" +
         "Solde ORAX : " + oraxBalance + "\n\n" +
         (hasAccess
-          ? "Toutes les conditions sont remplies. Tu peux accéder à la Forge TorInvest."
+          ? "Toutes les conditions sont remplies. Redirection vers l'espace premium de la Forge TorInvest..."
           : "Les conditions ne sont pas encore remplies. Accumule plus de KRM et/ou ORAX pour débloquer la Forge.");
 
-     const PREMIUM_URL = "/premium.html"; // <-- mets ici l'URL de ta page premium
+      if (hasAccess) {
+        accessPill.className = "access-pill ok";
+        accessPill.textContent = "✅ Accès autorisé • Redirection vers l'espace premium...";
 
-...
-
-if (hasAccess) {
-  accessPill.className = "access-pill ok";
-  accessPill.textContent = "✅ Accès autorisé • Redirection vers l'espace premium...";
-
-  // Optionnel : tu laisses le texte détaillé dans walletBox comme maintenant
-  walletBox.textContent =
-    "Adresse : " + pubkey + "\n" +
-    "Solde KRM : " + krmBalance + "\n" +
-    "Solde ORAX : " + oraxBalance + "\n\n" +
-    "Toutes les conditions sont remplies. Redirection vers l'espace premium de la Forge TorInvest...";
-
-  // ⬇⬇⬇ Redirection automatique après 2 secondes
-  setTimeout(() => {
-    window.location.href = PREMIUM_URL;
-  }, 2000);
-} else {
-  accessPill.className = "access-pill ko";
-  accessPill.textContent =
-    "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
-}
-
+        // ⬇ Redirection automatique après 2 secondes
+        setTimeout(() => {
+          window.location.href = PREMIUM_URL;
+        }, 2000);
+      } else {
+        accessPill.className = "access-pill ko";
+        accessPill.textContent =
+          "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
+      }
     } catch (err) {
       if (err && err.code === 4001) {
         walletStatus.textContent = "Connexion refusée.";
         walletBox.textContent =
           "Tu as refusé la connexion de Phantom. Tu pourras réessayer plus tard en cliquant sur le bouton ci-dessus.";
       } else {
-        walletStatus.textContent = "Erreur lors de la connexion.";
+        walletStatus.textContent = "Erreur lors de la connexion ou de la récupération des soldes.";
         walletBox.textContent =
           "Un problème est survenu lors de la connexion ou de la récupération des soldes. Détails : " +
           (err && err.message ? err.message : String(err));
@@ -484,6 +466,7 @@ if (hasAccess) {
 
   connectBtn.addEventListener("click", connectPhantom);
 </script>
+
 
     <a href="/" class="back-home-btn">← Retour accueil</a>
 
