@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>La Forge TorInvest – Espace Premium</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617, #020617 40%, #0b1120 100%);
+      color: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .shell {
+      width: 100%;
+      max-width: 1100px;
+      border-radius: 24px;
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: 0 26px 70px rgba(15, 23, 42, 0.95);
+      padding: 26px 26px 22px;
+      backdrop-filter: blur(20px);
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: conic-gradient(from 140deg, #22c55e, #38bdf8, #a855f7, #22c55e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.7);
+    }
+    .logo-inner {
+      width: 72%;
+      height: 72%;
+      border-radius: inherit;
+      border: 2px solid rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at 30% 0, #22c55e, #020617);
+    }
+    .brand-title {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+    .brand-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 5px 11px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.7);
+      letter-spacing: 0.08em;
+    }
+    .pill span { color: #22c55e; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 3.2fr) minmax(0, 2.2fr);
+      gap: 26px;
+    }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .shell { padding: 22px 18px 18px; }
+    }
+
+    h1 {
+      font-size: clamp(26px, 3vw, 32px);
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .hero-gradient {
+      background: linear-gradient(to right, #22c55e, #38bdf8, #a855f7);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+      max-width: 40rem;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tag {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      color: #e5e7eb;
+    }
+    .connect-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .btn-main {
+      border-radius: 999px;
+      padding: 9px 16px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: radial-gradient(circle at 0 0, #22c55e, #38bdf8);
+      color: #020617;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 14px 30px rgba(34, 197, 94, 0.6);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out;
+    }
+    .btn-main:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 34px rgba(34, 197, 94, 0.75);
+      filter: brightness(1.04);
+    }
+    .btn-main:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 18px rgba(34, 197, 94, 0.6);
+    }
+    .hint {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .hint span { color: #38bdf8; }
+
+    .premium-section {
+      margin-top: 12px;
+      padding: 14px 14px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: radial-gradient(circle at top left, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.96));
+    }
+    .premium-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .premium-heading {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .premium-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    @media (max-width: 720px) {
+      .premium-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    .card-small {
+      padding: 10px 10px 9px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(75, 85, 99, 0.7);
+      font-size: 12px;
+    }
+    .card-small h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+    .card-small p {
+      color: #e5e7eb;
+      line-height: 1.3;
+    }
+
+    .side-card {
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.96));
+      position: relative;
+      overflow: hidden;
+    }
+    .side-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .side-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .wallet-status {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .wallet-box {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border-radius: 9px;
+      padding: 6px 9px;
+      border: 1px dashed rgba(148, 163, 184, 0.85);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      word-break: break-all;
+      white-space: pre-line;
+    }
+    .access-pill {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+    }
+    .access-pill.ok {
+      border: 1px solid rgba(34, 197, 94, 0.8);
+      color: #bbf7d0;
+      background: rgba(22, 163, 74, 0.15);
+    }
+    .access-pill.ko {
+      border: 1px solid rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+      background: rgba(127, 29, 29, 0.2);
+    }
+    .side-links {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .side-link {
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: #e5e7eb;
+      text-decoration: none;
+    }
+    .orb {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.25), transparent 70%);
+      top: -40px;
+      right: -40px;
+      pointer-events: none;
+    }
+    .back-link {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="logo-block">
+        <div class="logo-icon"><div class="logo-inner"></div></div>
+        <div>
+          <div class="brand-title">La Forge TorInvest</div>
+          <div class="brand-sub">Espace premium réservé aux détenteurs TorPass</div>
+        </div>
+      </div>
+      <div class="pill">TorPass <span>Vérifié</span> requis</div>
+    </header>
+
+    <main class="grid">
+      <section>
+        <h1>
+          Bienvenue dans <span class="hero-gradient">la Forge TorInvest.</span>
+        </h1>
+        <p class="subtitle">
+          Cet espace est réservé aux forgerons qui détiennent 10 000 KRM et 2 000 000 ORAX. Si ton TorPass est
+          valide, les sections ci-dessous se déverrouillent automatiquement après vérification on-chain.
+        </p>
+
+        <div class="tags">
+          <span class="tag">Accès token-gated KRM + ORAX</span>
+          <span class="tag">Lecture on-chain via Solana</span>
+          <span class="tag">Univers TorInvest</span>
+        </div>
+
+        <div class="connect-row">
+          <button id="connectBtn" class="btn-main">
+            🔗 Vérifier mon TorPass
+          </button>
+          <div class="hint">
+            Si tu es déjà connecté sur la page <span>/torpass</span>, Phantom confirmera simplement ton accès.
+          </div>
+        </div>
+
+        <section id="premiumZone" class="premium-section" style="display:none;">
+          <div class="premium-title">Espace premium</div>
+          <div class="premium-heading">Modules, pépites et analyses réservés à la Forge.</div>
+          <p class="subtitle" style="margin-bottom:10px;">
+            Tu peux remplir cette zone avec tes contenus : sélections de projets, analyses macro, documents, vidéos,
+            liens privés, etc. La zone n'est visible que si le TorPass est valide.
+          </p>
+
+          <div class="premium-grid">
+            <div class="card-small">
+              <h3>Pépites en watchlist</h3>
+              <p>
+                Placeholder : liste de projets crypto, liens DEX, alertes vesting, notes de conviction. Tu pourras
+                remplacer ce texte par ton contenu réel TorInvest.
+              </p>
+            </div>
+            <div class="card-small">
+              <h3>Macro & géopolitique</h3>
+              <p>
+                Placeholder : résumé hebdo macro, tensions géopolitiques, impacts sur l'or, l'argent, le dollar,
+                les matières premières et les cryptos.
+              </p>
+            </div>
+            <div class="card-small">
+              <h3>Zone de documents</h3>
+              <p>
+                Placeholder : liens vers tes PDF, tableaux Google Sheets, backtests, présentations pour ta
+                communauté privée.
+              </p>
+            </div>
+            <div class="card-small">
+              <h3>Notes & mises à jour</h3>
+              <p>
+                Placeholder : messages rapides, changements de stratégie, alertes importantes pour les forgerons qui
+                suivent ton travail.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <a href="/torpass" class="back-link">← Retour vers la page TorPass</a>
+      </section>
+
+      <aside class="side-card">
+        <div class="orb"></div>
+        <div class="side-label">Statut d'accès</div>
+        <div class="side-title">Vérification TorPass (KRM + ORAX)</div>
+
+        <p id="walletStatus" class="wallet-status">Wallet non vérifié.</p>
+        <div id="walletBox" class="wallet-box">
+Adresse : —
+Solde KRM : —
+Solde ORAX : —
+
+Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace premium.
+        </div>
+
+        <div id="accessPill" class="access-pill ko" style="margin-top:8px;">
+          🔒 Accès verrouillé • Conditions non vérifiées.
+        </div>
+
+        <div class="side-links">
+          <a href="/torpass" class="side-link">Vérifier ou obtenir ton TorPass</a>
+          <a href="/" class="side-link">Retour à l'accueil TorInvest</a>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Solana Web3.js -->
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+  <script>
+    // ⚙️ IMPORTANT : remplace ces constantes par les mêmes valeurs que sur /torpass
+    const KRM_MINT = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+    const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
+    const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=45ca60a1-c7be-4b07-900f-131227f53c27";
+
+    const MIN_KRM = 10_000;
+    const MIN_ORAX = 2_000_000;
+
+    const connectBtn = document.getElementById("connectBtn");
+    const walletStatus = document.getElementById("walletStatus");
+    const walletBox = document.getElementById("walletBox");
+    const accessPill = document.getElementById("accessPill");
+    const premiumZone = document.getElementById("premiumZone");
+
+    function getPhantomProvider() {
+      if ("phantom" in window) {
+        const provider = window.phantom?.solana;
+        if (provider?.isPhantom) return provider;
+      }
+      if (window.solana && window.solana.isPhantom) {
+        return window.solana;
+      }
+      return null;
+    }
+
+    async function verifyTorPass() {
+      const provider = getPhantomProvider();
+
+      if (!provider) {
+        walletStatus.textContent = "Aucun wallet Phantom détecté.";
+        walletBox.textContent =
+          "Installe Phantom (extension navigateur) ou ouvre cette page dans le navigateur intégré de Phantom, puis réessaie.";
+        accessPill.className = "access-pill ko";
+        accessPill.textContent = "🔒 Accès verrouillé • Wallet Phantom non détecté.";
+        premiumZone.style.display = "none";
+        return;
+      }
+
+      try {
+        const resp = await provider.connect();
+        const pubkey = resp.publicKey.toString();
+
+        walletStatus.textContent = "Wallet Phantom connecté.";
+        walletBox.textContent =
+          "Adresse : " +
+          pubkey +
+          "\n\nRécupération des soldes KRM & ORAX en cours...";
+
+        const connection = new solanaWeb3.Connection(RPC_URL);
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+          new solanaWeb3.PublicKey(pubkey),
+          { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") }
+        );
+
+        let krmBalance = 0;
+        let oraxBalance = 0;
+
+        for (const { account } of tokenAccounts.value) {
+          const info = account.data.parsed.info;
+          const mint = info.mint;
+          const amount = info.tokenAmount;
+
+          if (mint === KRM_MINT) {
+            krmBalance = Number(amount.uiAmountString || amount.uiAmount || 0);
+          }
+          if (mint === ORAX_MINT) {
+            oraxBalance = Number(amount.uiAmountString || amount.uiAmount || 0);
+          }
+        }
+
+        const hasAccess = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
+
+        walletBox.textContent =
+          "Adresse : " + pubkey + "\n" +
+          "Solde KRM : " + krmBalance + "\n" +
+          "Solde ORAX : " + oraxBalance + "\n\n" +
+          (hasAccess
+            ? "TorPass valide. L'espace premium est déverrouillé."
+            : "TorPass insuffisant. Tu peux accumuler plus de KRM et/ou ORAX pour obtenir l'accès complet.");
+
+        if (hasAccess) {
+          accessPill.className = "access-pill ok";
+          accessPill.textContent = "✅ Accès autorisé • Espace premium déverrouillé.";
+          premiumZone.style.display = "block";
+        } else {
+          accessPill.className = "access-pill ko";
+          accessPill.textContent =
+            "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
+          premiumZone.style.display = "none";
+        }
+      } catch (err) {
+        if (err && err.code === 4001) {
+          walletStatus.textContent = "Connexion refusée.";
+          walletBox.textContent =
+            "Tu as refusé la connexion de Phantom. Tu pourras réessayer plus tard en cliquant sur le bouton ci-dessus.";
+        } else {
+          walletStatus.textContent = "Erreur lors de la connexion ou de la vérification.";
+          walletBox.textContent =
+            "Un problème est survenu lors de la connexion ou de la récupération des soldes. Détails : " +
+            (err && err.message ? err.message : String(err));
+        }
+        accessPill.className = "access-pill ko";
+        accessPill.textContent = "🔒 Accès verrouillé • Erreur de connexion/vérification.";
+        premiumZone.style.display = "none";
+      }
+    }
+
+    connectBtn.addEventListener("click", verifyTorPass);
+  </script>
+  <a href="/" class="back-home-btn">← Retour accueil</a>
+
+<style>
+.back-home-btn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f5f5f7;
+  backdrop-filter: blur(4px);
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+
+.back-home-btn:hover {
+  background: rgba(255, 180, 0, 0.25);
+  border-color: rgba(255, 180, 0, 0.6);
+  transform: translateY(-2px);
+}
+</style>
+</body>
+</html>
