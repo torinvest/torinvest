@@ -39,15 +39,16 @@
       gap: 12px;
     }
     .logo-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 999px;
-      background: conic-gradient(from 140deg, #22c55e, #0ea5e9, #a855f7, #22c55e);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
-    }
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: conic-gradient(from 140deg, #f97316, #fbbf24, #f97316);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 18px rgba(249, 115, 22, 0.7);
+}
+
     .logo-inner {
       width: 72%;
       height: 72%;
@@ -75,7 +76,8 @@
       background: rgba(15, 23, 42, 0.7);
       letter-spacing: 0.08em;
     }
-    .pill span { color: #22c55e; }
+    .pill span { color: #f97316; }
+
 
     .grid {
       display: grid;
@@ -93,10 +95,11 @@
       margin-bottom: 10px;
     }
     .hero-gradient {
-      background: linear-gradient(to right, #22c55e, #38bdf8, #a855f7);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+  background: linear-gradient(to right, #f97316, #fb923c, #facc15);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
     .subtitle {
       font-size: 14px;
       color: #9ca3af;
@@ -123,30 +126,31 @@
       align-items: center;
       margin-bottom: 8px;
     }
-    .btn-main {
-      border-radius: 999px;
-      padding: 9px 16px;
-      border: none;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      background: radial-gradient(circle at 0 0, #22c55e, #38bdf8);
-      color: #020617;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      box-shadow: 0 14px 30px rgba(34, 197, 94, 0.6);
-      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out;
-    }
-    .btn-main:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 16px 34px rgba(34, 197, 94, 0.75);
-      filter: brightness(1.04);
-    }
-    .btn-main:active {
-      transform: translateY(0);
-      box-shadow: 0 10px 18px rgba(34, 197, 94, 0.6);
-    }
+   .btn-main {
+  border-radius: 999px;
+  padding: 9px 16px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: radial-gradient(circle at 0 0, #f97316, #facc15);
+  color: #020617;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 14px 30px rgba(249, 115, 22, 0.55);
+  transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out;
+}
+.btn-main:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 34px rgba(249, 115, 22, 0.75);
+  filter: brightness(1.05);
+}
+.btn-main:active {
+  transform: translateY(0);
+  box-shadow: 0 10px 18px rgba(249, 115, 22, 0.6);
+}
+
     .hint {
       font-size: 12px;
       color: #9ca3af;
@@ -168,25 +172,29 @@
       box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
     }
 
-    .card {
-      border-radius: 18px;
-      padding: 14px 14px 12px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.16), rgba(15, 23, 42, 0.96));
-      position: relative;
-      overflow: hidden;
-    }
+.card {
+  border-radius: 18px;
+  padding: 14px 14px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  background: radial-gradient(circle at top, rgba(249, 115, 22, 0.14), rgba(15, 23, 42, 0.96));
+  position: relative;
+  overflow: hidden;
+}
+
     .card-label {
       font-size: 11px;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #9ca3af;
+      color: #fbbf24;  /* ambre doré */
+;
       margin-bottom: 6px;
     }
     .card-title {
       font-size: 14px;
       font-weight: 600;
       margin-bottom: 10px;
+      color: #f97316; /* orange TorInvest */
+
     }
     .metric-row {
       display: flex;
@@ -228,10 +236,11 @@
       font-size: 11px;
     }
     .access-pill.ok {
-      border: 1px solid rgba(34, 197, 94, 0.8);
-      color: #bbf7d0;
-      background: rgba(22, 163, 74, 0.15);
-    }
+  border: 1px solid rgba(249, 115, 22, 0.9);
+  color: #fed7aa;
+  background: rgba(146, 64, 14, 0.35);
+}
+
     .access-pill.ko {
       border: 1px solid rgba(248, 113, 113, 0.8);
       color: #fecaca;
