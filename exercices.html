@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>La Forge TorInvest – Exercices interactifs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617, #020617 40%, #0b1120 100%);
+      color: #f9fafb;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .shell {
+      width: 100%;
+      max-width: 1100px;
+      border-radius: 24px;
+      background: rgba(15, 23, 42, 0.94);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: 0 26px 70px rgba(15, 23, 42, 0.95);
+      padding: 26px 26px 22px;
+      backdrop-filter: blur(20px);
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+    .logo-block {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: conic-gradient(from 140deg, #f97316, #fbbf24, #f97316);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 18px rgba(249, 115, 22, 0.7);
+    }
+    .logo-inner {
+      width: 72%;
+      height: 72%;
+      border-radius: inherit;
+      border: 2px solid rgba(15, 23, 42, 0.9);
+      background: radial-gradient(circle at 30% 0, #f97316, #020617);
+    }
+    .brand-title {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+    .brand-sub {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .pill {
+      font-size: 11px;
+      text-transform: uppercase;
+      border-radius: 999px;
+      padding: 5px 11px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.7);
+      letter-spacing: 0.08em;
+    }
+    .pill span { color: #f97316; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 3.2fr) minmax(0, 2.2fr);
+      gap: 26px;
+    }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .shell { padding: 22px 18px 18px; }
+    }
+
+    h1 {
+      font-size: clamp(26px, 3vw, 32px);
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .hero-gradient {
+      background: linear-gradient(to right, #f97316, #fb923c, #facc15);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+      max-width: 40rem;
+    }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tag {
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      color: #e5e7eb;
+    }
+    .connect-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .btn-main {
+      border-radius: 999px;
+      padding: 9px 16px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: radial-gradient(circle at 0 0, #f97316, #facc15);
+      color: #020617;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 14px 30px rgba(249, 115, 22, 0.55);
+      transition: transform 0.08s ease-out, box-shadow 0.08s ease-out, filter 0.08s ease-out;
+    }
+    .btn-main:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 34px rgba(249, 115, 22, 0.75);
+      filter: brightness(1.05);
+    }
+    .btn-main:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 18px rgba(249, 115, 22, 0.6);
+    }
+    .hint {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .hint span { color: #facc15; }
+
+    /* Zone exercices */
+    .exercise-section {
+      margin-top: 12px;
+      padding: 14px 14px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: radial-gradient(circle at top, rgba(249, 115, 22, 0.12), rgba(15, 23, 42, 0.96));
+    }
+    .exercise-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .exercise-heading {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .module-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .module-tab {
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      cursor: pointer;
+      transition: 0.12s ease;
+    }
+    .module-tab.active {
+      border-color: rgba(249, 115, 22, 0.9);
+      background: rgba(146, 64, 14, 0.8);
+      color: #ffedd5;
+    }
+
+    .exercise-card {
+      margin-top: 10px;
+      padding: 10px 10px 12px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      font-size: 13px;
+    }
+    .exercise-meta {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .exercise-question {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .answer-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      font-size: 13px;
+      padding: 6px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: 0.12s ease;
+    }
+    .answer-btn:hover {
+      border-color: rgba(148, 163, 184, 0.9);
+      background: rgba(31, 41, 55, 0.95);
+    }
+    .answer-btn.correct {
+      border-color: rgba(34, 197, 94, 0.9);
+      background: rgba(22, 163, 74, 0.25);
+      color: #bbf7d0;
+    }
+    .answer-btn.wrong {
+      border-color: rgba(248, 113, 113, 0.9);
+      background: rgba(127, 29, 29, 0.35);
+      color: #fecaca;
+    }
+    .exercise-explanation {
+      font-size: 12px;
+      color: #e5e7eb;
+      margin-bottom: 8px;
+    }
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+    .btn-secondary {
+      font-size: 12px;
+      border-radius: 999px;
+      padding: 5px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.95);
+      color: #e5e7eb;
+      cursor: pointer;
+      transition: 0.12s ease;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(249, 115, 22, 0.9);
+      color: #fed7aa;
+    }
+
+    .side-card {
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: radial-gradient(circle at top, rgba(249, 115, 22, 0.14), rgba(15, 23, 42, 0.96));
+      position: relative;
+      overflow: hidden;
+    }
+    .side-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #fbbf24;
+      margin-bottom: 6px;
+    }
+    .side-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .wallet-status {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .wallet-box {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 12px;
+      border-radius: 9px;
+      padding: 6px 9px;
+      border: 1px dashed rgba(148, 163, 184, 0.85);
+      background: rgba(15, 23, 42, 0.96);
+      color: #e5e7eb;
+      word-break: break-all;
+      white-space: pre-line;
+    }
+    .access-pill {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+    }
+    .access-pill.ok {
+      border: 1px solid rgba(249, 115, 22, 0.9);
+      color: #fed7aa;
+      background: rgba(146, 64, 14, 0.35);
+    }
+    .access-pill.ko {
+      border: 1px solid rgba(248, 113, 113, 0.8);
+      color: #fecaca;
+      background: rgba(127, 29, 29, 0.2);
+    }
+    .side-links {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .side-link {
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: #e5e7eb;
+      text-decoration: none;
+    }
+    .orb {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(250, 204, 21, 0.25), transparent 70%);
+      top: -40px;
+      right: -40px;
+      pointer-events: none;
+    }
+    .back-link {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .back-home-btn {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+    .back-home-btn:hover {
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="logo-block">
+        <div class="logo-icon"><div class="logo-inner"></div></div>
+        <div>
+          <div class="brand-title">La Forge TorInvest</div>
+          <div class="brand-sub">Exercices interactifs • Price Action • Fonda • Psychologie</div>
+        </div>
+      </div>
+      <div class="pill">TorPass <span>Requis</span></div>
+    </header>
+
+    <main class="grid">
+      <section>
+        <h1>
+          Forge tes réflexes avec <span class="hero-gradient">TorExercises.</span>
+        </h1>
+        <p class="subtitle">
+          Connecte ton wallet, vérifie ton TorPass KRM + ORAX et débloque des exercices interactifs en
+          Price Action, Macro/Fondamentale et Psychologie de trading.
+        </p>
+
+        <div class="tags">
+          <span class="tag">Exercices Price Action</span>
+          <span class="tag">Macro & fondamentale</span>
+          <span class="tag">Psychologie & discipline</span>
+        </div>
+
+        <div class="connect-row">
+          <button id="connectBtn" class="btn-main" onclick="verifyTorPass()">
+            🔗 Vérifier mon TorPass
+          </button>
+          <div class="hint">
+            Si ton TorPass est valide, les modules d'exercices se déverrouillent automatiquement.
+          </div>
+        </div>
+
+        <section id="exerciseZone" class="exercise-section" style="display:none;">
+          <div class="exercise-title">Modules disponibles</div>
+          <div class="exercise-heading">Choisis un module et commence la session.</div>
+
+          <div class="module-tabs">
+            <button class="module-tab active" data-module="price">Price Action</button>
+            <button class="module-tab" data-module="macro">Macro & fondamentale</button>
+            <button class="module-tab" data-module="psycho">Psychologie & discipline</button>
+          </div>
+
+          <div id="exerciseCard" class="exercise-card">
+            <div class="exercise-meta">
+              <span id="moduleLabel">Module : Price Action</span>
+              <span id="progressLabel">Question 1 / 1</span>
+            </div>
+            <div id="questionText" class="exercise-question">
+              Question ici…
+            </div>
+            <div id="answersContainer" class="answers"></div>
+            <div id="explanationBox" class="exercise-explanation" style="display:none;"></div>
+            <div class="score-row">
+              <span id="scoreLabel">Score : 0 / 0</span>
+              <button id="nextBtn" class="btn-secondary" style="display:none;">Question suivante</button>
+            </div>
+          </div>
+        </section>
+
+        <a href="/torpass" class="back-link">← Retour vers la page TorPass</a>
+      </section>
+
+      <aside class="side-card">
+        <div class="orb"></div>
+        <div class="side-label">Statut d'accès</div>
+        <div class="side-title">Vérification TorPass (KRM + ORAX)</div>
+
+        <p id="walletStatus" class="wallet-status">Wallet non vérifié.</p>
+        <div id="walletBox" class="wallet-box">
+Adresse : —
+Solde KRM : —
+Solde ORAX : —
+
+Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercices.
+        </div>
+
+        <div id="accessPill" class="access-pill ko" style="margin-top:8px;">
+          🔒 Accès verrouillé • TorPass non vérifié.
+        </div>
+
+        <div class="side-links">
+          <a href="/torpass" class="side-link">Vérifier ou obtenir ton TorPass</a>
+          <a href="/" class="side-link">Retour à l'accueil TorInvest</a>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <!-- Solana Web3.js -->
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+  <script>
+    // mêmes constantes que sur /torpass et /premium
+    const KRM_MINT = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+    const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
+    const RPC_URL = "https://mainnet.helius-rpc.com/?api-key=45ca60a1-c7be-4b07-900f-131227f53c27";
+
+    const MIN_KRM = 10_000;
+    const MIN_ORAX = 2_000_000;
+
+    const walletStatus = document.getElementById("walletStatus");
+    const walletBox    = document.getElementById("walletBox");
+    const accessPill   = document.getElementById("accessPill");
+    const exerciseZone = document.getElementById("exerciseZone");
+    const moduleTabs   = document.querySelectorAll(".module-tab");
+
+    const moduleLabel   = document.getElementById("moduleLabel");
+    const progressLabel = document.getElementById("progressLabel");
+    const questionText  = document.getElementById("questionText");
+    const answersContainer = document.getElementById("answersContainer");
+    const explanationBox   = document.getElementById("explanationBox");
+    const scoreLabel       = document.getElementById("scoreLabel");
+    const nextBtn          = document.getElementById("nextBtn");
+
+    let currentWallet = null;
+    let hasTorPass = false;
+    let currentModule = "price";
+    let currentIndex  = 0;
+    let scores = {
+      price: { correct: 0, total: 0 },
+      macro: { correct: 0, total: 0 },
+      psycho: { correct: 0, total: 0 },
+    };
+
+    const EXERCISES = {
+      price: [
+        {
+          id: 1,
+          question: "Le marché fait : HH, HL, HH, HL. Quelle est la structure dominante ?",
+          choices: [
+            "Tendance haussière",
+            "Tendance baissière",
+            "Range",
+            "Distribution"
+          ],
+          correctIndex: 0,
+          explanation: "Des Higher High (HH) et Higher Low (HL) indiquent une structure de tendance haussière classique."
+        },
+        {
+          id: 2,
+          question: "Après une longue montée, le prix imprime un double top sur une zone de liquidité et casse ensuite le dernier HL. Comment interprètes-tu cela ?",
+          choices: [
+            "Simple correction dans la tendance haussière",
+            "Changement de structure potentiel vers une tendance baissière",
+            "Range neutre",
+            "Manipulation haussière avant nouveau plus haut"
+          ],
+          correctIndex: 1,
+          explanation: "Un double top sur une zone de liquidité, suivi de la cassure du dernier HL, signale souvent un changement de structure vers la baisse."
+        },
+        {
+          id: 3,
+          question: "Un gros mouvement haussier chasse les stops au-dessus d'un ancien sommet important, puis le prix réintègre rapidement la zone. C'est typiquement :",
+          choices: [
+            "Une cassure saine",
+            "Une accumulation",
+            "Une chasse de liquidité / stop hunt",
+            "Un pullback normal"
+          ],
+          correctIndex: 2,
+          explanation: "Le fait de sortir au-dessus d'un sommet clé puis de réintégrer rapidement est typique d'une chasse de liquidité exécutée par les gros acteurs."
+        }
+      ],
+      macro: [
+        {
+          id: 1,
+          question: "La Fed annonce une hausse des taux plus forte que prévu. À court terme, ce scénario est le plus probable :",
+          choices: [
+            "Dollar en baisse, or en hausse",
+            "Dollar en hausse, pression baissière sur l'or",
+            "Dollar neutre, or en range",
+            "Dollar et or montent tous les deux"
+          ],
+          correctIndex: 1,
+          explanation: "Une hausse des taux renforce en général le dollar et crée une pression baissière sur l'or à court terme."
+        },
+        {
+          id: 2,
+          question: "Les PMI (indicateurs d'activité) passent plusieurs mois sous 50, le chômage commence à monter et la banque centrale devient plus dovish. On est le plus probablement dans :",
+          choices: [
+            "Phase d'expansion",
+            "Sommet du cycle (peak)",
+            "Récession / contraction",
+            "Phase de reprise"
+          ],
+          correctIndex: 2,
+          explanation: "Des PMI sous 50, un chômage en hausse et un ton plus dovish indiquent typiquement une phase de récession ou de contraction de l'activité."
+        },
+        {
+          id: 3,
+          question: "Des sanctions économiques sévères tombent sur un grand exportateur de matières premières. À court terme, l'effet le plus probable sur ces matières est :",
+          choices: [
+            "Baisse forte des prix",
+            "Hausse de la volatilité mais prix stables",
+            "Hausse des prix liée au choc d'offre",
+            "Aucun impact sur les prix"
+          ],
+          correctIndex: 2,
+          explanation: "Des sanctions réduisent l'offre disponible, ce qui tend à créer un choc d'offre et une hausse des prix à court terme."
+        }
+      ],
+      psycho: [
+        {
+          id: 1,
+          question: "Tu viens de subir 3 pertes d'affilée sur la même journée. La réaction la plus saine est :",
+          choices: [
+            "Doubler la taille de position pour se refaire rapidement",
+            "Arrêter de trader et analyser les erreurs à froid",
+            "Changer immédiatement de stratégie/marché",
+            "Continuer à trader normalement pour prouver que tu as raison"
+          ],
+          correctIndex: 1,
+          explanation: "Après plusieurs pertes d'affilée, le mieux est d'arrêter, de se calmer et d'analyser à froid plutôt que de rentrer dans le revenge trading."
+        },
+        {
+          id: 2,
+          question: "Tu as une forte envie de rentrer en position alors que ton plan ne donne aucun signal. C'est souvent le signe de :",
+          choices: [
+            "Très bonne intuition, il faut suivre le feeling",
+            "Discipline parfaite",
+            "Boredom trading (ennui) ou besoin d'action",
+            "Gestion de risque exemplaire"
+          ],
+          correctIndex: 2,
+          explanation: "Trader sans signal du plan, juste pour faire quelque chose, c'est typiquement du boredom trading ou de la recherche d'adrénaline."
+        },
+        {
+          id: 3,
+          question: "Tu déplaces ton stop loss plus loin pour éviter d'être touché, sans raison technique valable. C'est :",
+          choices: [
+            "Une bonne façon de laisser respirer le trade",
+            "Un ajustement logique",
+            "Une violation de ton plan et de ta gestion du risque",
+            "Un signe que le marché est manipulé"
+          ],
+          correctIndex: 2,
+          explanation: "Déplacer le stop sans raison technique casse ta gestion du risque et ouvre la porte aux grosses pertes imprévues."
+        }
+      ]
+    };
+
+    function getPhantomProvider() {
+      if ("phantom" in window) {
+        const provider = window.phantom?.solana;
+        if (provider?.isPhantom) return provider;
+      }
+      if (window.solana && window.solana.isPhantom) {
+        return window.solana;
+      }
+      return null;
+    }
+
+    async function verifyTorPass() {
+      const provider = getPhantomProvider();
+
+      if (!provider) {
+        walletStatus.textContent = "Aucun wallet Phantom détecté.";
+        walletBox.textContent =
+          "Installe Phantom (extension navigateur) ou ouvre cette page dans le navigateur intégré de Phantom, puis réessaie.";
+        accessPill.className = "access-pill ko";
+        accessPill.textContent = "🔒 Accès verrouillé • Wallet Phantom non détecté.";
+        exerciseZone.style.display = "none";
+        return;
+      }
+
+      try {
+        const resp = await provider.connect();
+        const pubkey = resp.publicKey.toString();
+        currentWallet = pubkey;
+
+        walletStatus.textContent = "Wallet Phantom connecté.";
+        walletBox.textContent =
+          "Adresse : " +
+          pubkey +
+          "\n\nRécupération des soldes KRM & ORAX en cours...";
+
+        const connection = new solanaWeb3.Connection(RPC_URL);
+        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+          new solanaWeb3.PublicKey(pubkey),
+          { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") }
+        );
+
+        let krmBalance = 0;
+        let oraxBalance = 0;
+
+        for (const { account } of tokenAccounts.value) {
+          const info = account.data.parsed.info;
+          const mint = info.mint;
+          const amount = info.tokenAmount;
+
+          if (mint === KRM_MINT) {
+            krmBalance = Number(amount.uiAmountString || amount.uiAmount || 0);
+          }
+          if (mint === ORAX_MINT) {
+            oraxBalance = Number(amount.uiAmountString || amount.uiAmount || 0);
+          }
+        }
+
+        const hasAccessNow = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
+        hasTorPass = hasAccessNow;
+
+        walletBox.textContent =
+          "Adresse : " + pubkey + "\n" +
+          "Solde KRM : " + krmBalance + "\n" +
+          "Solde ORAX : " + oraxBalance + "\n\n" +
+          (hasAccessNow
+            ? "TorPass valide. Les modules d'exercices sont déverrouillés."
+            : "TorPass insuffisant. Tu peux accumuler plus de KRM et/ou ORAX pour débloquer tous les modules.");
+
+        if (hasAccessNow) {
+          accessPill.className = "access-pill ok";
+          accessPill.textContent = "✅ Accès autorisé • Exercices déverrouillés.";
+          exerciseZone.style.display = "block";
+          currentModule = "price";
+          currentIndex = 0;
+          scores = {
+            price: { correct: 0, total: 0 },
+            macro: { correct: 0, total: 0 },
+            psycho: { correct: 0, total: 0 },
+          };
+          updateModuleTabs();
+          renderCurrentQuestion();
+        } else {
+          accessPill.className = "access-pill ko";
+          accessPill.textContent =
+            "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
+          exerciseZone.style.display = "none";
+        }
+      } catch (err) {
+        if (err && err.code === 4001) {
+          walletStatus.textContent = "Connexion refusée.";
+          walletBox.textContent =
+            "Tu as refusé la connexion de Phantom. Tu pourras réessayer plus tard en cliquant sur le bouton ci-dessus.";
+        } else {
+          walletStatus.textContent = "Erreur lors de la connexion ou de la vérification.";
+          walletBox.textContent =
+            "Un problème est survenu lors de la connexion ou de la récupération des soldes. Détails : " +
+            (err && err.message ? err.message : String(err));
+        }
+        accessPill.className = "access-pill ko";
+        accessPill.textContent = "🔒 Accès verrouillé • Erreur de connexion/vérification.";
+        exerciseZone.style.display = "none";
+      }
+    }
+
+    function updateModuleTabs() {
+      moduleTabs.forEach((tab) => {
+        const m = tab.getAttribute("data-module");
+        tab.classList.toggle("active", m === currentModule);
+      });
+    }
+
+    function renderCurrentQuestion() {
+      const list = EXERCISES[currentModule];
+      if (!list || list.length === 0) return;
+
+      if (currentIndex >= list.length) {
+        // fin des questions du module
+        currentIndex = 0;
+      }
+
+      const ex = list[currentIndex];
+
+      moduleLabel.textContent =
+        "Module : " +
+        (currentModule === "price"
+          ? "Price Action"
+          : currentModule === "macro"
+          ? "Macro & fondamentale"
+          : "Psychologie & discipline");
+
+      progressLabel.textContent =
+        "Question " + (currentIndex + 1) + " / " + list.length;
+
+      questionText.textContent = ex.question;
+
+      answersContainer.innerHTML = "";
+      ex.choices.forEach((choice, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "answer-btn";
+        btn.textContent = choice;
+        btn.dataset.index = idx.toString();
+        btn.addEventListener("click", () => handleAnswerClick(idx));
+        answersContainer.appendChild(btn);
+      });
+
+      explanationBox.style.display = "none";
+      explanationBox.textContent = "";
+      nextBtn.style.display = "none";
+
+      const sc = scores[currentModule];
+      scoreLabel.textContent = "Score : " + sc.correct + " / " + sc.total;
+    }
+
+    function handleAnswerClick(selectedIndex) {
+      const list = EXERCISES[currentModule];
+      const ex = list[currentIndex];
+      const correct = ex.correctIndex;
+
+      const buttons = answersContainer.querySelectorAll(".answer-btn");
+      buttons.forEach((btn, idx) => {
+        btn.disabled = true;
+        if (idx === correct) {
+          btn.classList.add("correct");
+        } else if (idx === selectedIndex) {
+          btn.classList.add("wrong");
+        }
+      });
+
+      const sc = scores[currentModule];
+      sc.total += 1;
+      if (selectedIndex === correct) {
+        sc.correct += 1;
+      }
+
+      explanationBox.style.display = "block";
+      explanationBox.textContent = ex.explanation;
+      scoreLabel.textContent = "Score : " + sc.correct + " / " + sc.total;
+
+      nextBtn.style.display = "inline-flex";
+    }
+
+    nextBtn.addEventListener("click", () => {
+      currentIndex += 1;
+      renderCurrentQuestion();
+    });
+
+    moduleTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const m = tab.getAttribute("data-module");
+        if (!m) return;
+        currentModule = m;
+        currentIndex = 0;
+        updateModuleTabs();
+        renderCurrentQuestion();
+      });
+    });
+
+    // sécurité : si le bouton existe, on hook aussi l'event
+    const connectBtn = document.getElementById("connectBtn");
+    if (connectBtn) {
+      connectBtn.addEventListener("click", verifyTorPass);
+    }
+  </script>
+
+  <a href="/" class="back-home-btn">← Retour accueil</a>
+</body>
+</html>
