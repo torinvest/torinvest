@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Minage TORINVEST – Kaspa, Ergo, Flux & Co</title>
+  <title>Minage TORINVEST – Kaspa, Ergo, Flux & Iron Fish</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -28,6 +28,7 @@
       line-height: 1.6;
     }
 
+    /* Wrapper principal */
     .page {
       max-width: 980px;
       margin: 0 auto;
@@ -65,6 +66,8 @@
       letter-spacing: 0.15em;
       text-transform: uppercase;
       margin: 0 auto 16px;
+      display: flex;
+      justify-content: center;
     }
 
     .pill-dot {
@@ -86,11 +89,15 @@
       margin-bottom: 22px;
     }
 
+    section {
+      margin-bottom: 26px;
+    }
+
     .grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
-      margin-bottom: 28px;
+      margin-bottom: 20px;
     }
 
     .card {
@@ -132,7 +139,7 @@
       border-radius: 14px;
       padding: 14px 14px 12px;
       border: 1px solid rgba(255, 255, 255, 0.04);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       font-size: 13px;
       color: var(--muted);
     }
@@ -152,7 +159,28 @@
       margin-bottom: 4px;
     }
 
-    /* Bouton retour accueil */
+    /* Bouton lien Iron Fish */
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid rgba(255, 180, 0, 0.4);
+      color: var(--accent);
+      text-decoration: none;
+      background: rgba(255, 180, 0, 0.08);
+      transition: 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 180, 0, 0.18);
+      transform: translateY(-1px);
+    }
+
+    /* Bouton retour accueil fixe en bas à droite */
     .btn-home {
       position: fixed;
       bottom: 20px;
@@ -195,6 +223,7 @@
       économies derrière ces réseaux, pas juste “brancher des rigs”.
     </p>
 
+    <!-- Approche générale -->
     <section>
       <h2>Notre approche du minage</h2>
       <p class="lead">
@@ -205,6 +234,7 @@
       </p>
     </section>
 
+    <!-- Projets suivis -->
     <section>
       <h2>Projets suivis par la Forge</h2>
 
@@ -253,21 +283,24 @@
         </article>
       </div>
 
-    <article class="card">
-        <h3>Iron Fish – PoW confidentiel</h3>
+      <!-- Iron Fish -->
+      <article class="card">
+        <div class="tag">Iron Fish (IRON)</div>
+        <h3 class="card-title">Iron Fish – PoW confidentiel</h3>
         <p>
-            Projet Proof-of-Work focalisé sur la confidentialité. Utilisé par TORINVEST comme laboratoire
-            long terme pour comprendre les enjeux privacy & énergie dans les prochains cycles.
+          Projet Proof-of-Work focalisé sur la confidentialité. Utilisé par TORINVEST comme laboratoire
+          long terme pour comprendre les enjeux privacy & énergie dans les prochains cycles, et comment
+          connecter le minage à une stratégie d’investissement plus large.
         </p>
         <a href="/ironfish.html" class="btn-secondary">
-            🔗 Voir le dossier Iron Fish
+          🔗 Voir le dossier Iron Fish
         </a>
-        </article>
-      </div>
+      </article>
+    </section>
 
- <div class="container">
+    <!-- À venir -->
+    <section>
       <div class="block">
-       
         <strong>À venir :</strong> d’autres projets PoW pourront rejoindre cette
         page (Nexa, Bitcoin orienté ordinals / L2, projets GPU émergents, etc.).
         Le but n’est pas de lister “toutes les coins” mais de suivre quelques
@@ -275,6 +308,7 @@
       </div>
     </section>
 
+    <!-- Ce que tu trouveras ici -->
     <section>
       <h2>Ce que tu trouveras ici, à terme</h2>
       <div class="block">
