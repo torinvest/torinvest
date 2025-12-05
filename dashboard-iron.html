@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>TORINVEST – Iron Fish Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Chart.js depuis CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #050509;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.12);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 20px 10px 40px;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 180, 0, 0.5);
+      background: rgba(255, 180, 0, 0.09);
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #15d16b;
+      box-shadow: 0 0 6px #15d16b;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 6px;
+      background: linear-gradient(120deg, #ffb400, #ff4b5c);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 16px;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .stat-value {
+      font-weight: 500;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .chart-wrapper {
+      background: #0b0b14;
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .chart-title {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: 140px !important; /* petite taille */
+    }
+
+    .small {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .address {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 10px;
+      color: #7f7fa0;
+      word-break: break-all;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 820px) {
+      .cards {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .charts {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="pill">
+      <span class="pill-dot"></span> TORINVEST • IRON FISH
+    </div>
+
+    <h1>Iron Fish – Mining Dashboard</h1>
+    <p class="subtitle">
+      Vue synthétique de ton activité de minage Iron Fish via Herominers.  
+      Objectif : lire en un coup d’œil la puissance, les soldes et le rythme de rewards.
+    </p>
+
+    <!-- Cartes principales -->
+    <div class="cards">
+      <!-- Stats texte -->
+      <div class="card">
+        <div class="card-title">Statut du mineur</div>
+        <div class="stats-grid">
+          <div>
+            <div class="stat-label">Hashrate actuel</div>
+            <div class="stat-value" id="hr">–</div>
+          </div>
+          <div>
+            <div class="stat-label">Hashrate 1h</div>
+            <div class="stat-value" id="hr1h">–</div>
+          </div>
+          <div>
+            <div class="stat-label">Hashrate 24h</div>
+            <div class="stat-value" id="hr24h">–</div>
+          </div>
+          <div>
+            <div class="stat-label">Total payé</div>
+            <div class="stat-value" id="paid">–</div>
+          </div>
+          <div>
+            <div class="stat-label">Non confirmé</div>
+            <div class="stat-value" id="unconfirmed">–</div>
+          </div>
+          <div>
+            <div class="stat-label">En attente</div>
+            <div class="stat-value" id="pending">–</div>
+          </div>
+        </div>
+
+        <p class="small">
+          Adresse suivie :
+          <span class="address">
+            d572538e2ddbc02611f9ab5033be81b17cb4fcb7756865742523861ca320b107
+          </span>
+        </p>
+      </div>
+
+      <!-- Charts -->
+      <div class="card">
+        <div class="card-title">Visualisation rapide</div>
+
+        <div class="charts">
+          <div class="chart-wrapper">
+            <div class="chart-title">Hashrate (instantané, 1h, 24h)</div>
+            <canvas id="hashrateChart"></canvas>
+          </div>
+
+          <div class="chart-wrapper">
+            <div class="chart-title">Répartition des soldes (IRON)</div>
+            <canvas id="balanceChart"></canvas>
+          </div>
+        </div>
+
+        <p class="small">
+          Les graphiques sont là pour donner le “feeling” de la puissance et
+          de la répartition des gains, pas un historique complet.
+        </p>
+      </div>
+    </div>
+
+    <p class="small">
+      ⚠️ Données récupérées en temps réel depuis l’API publique Herominers.
+      Ce dashboard est purement informatif, aucune promesse de gain.  
+      Le style restera aligné avec l’univers TORINVEST (Forge, minage, cycles).
+    </p>
+  </div>
+
+  <script>
+    const address = "d572538e2ddbc02611f9ab5033be81b17cb4fcb7756865742523861ca320b107";
+    const url = `https://ironfish.herominers.com/api/stats_address?address=${address}`;
+
+    let hashrateChart, balanceChart;
+
+    async function loadData() {
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        // ⚠️ Vérifie dans ton navigateur les vrais noms de champs de l’API
+        const hr       = data.hashrate || 0;
+        const hr1h     = data.hashrate_1h || data.hashrate || 0;
+        const hr24h    = data.hashrate_24h || data.hashrate || 0;
+        const totalPaid = data.total_paid || 0;
+        const unconfirmed = data.unconfirmed_balance || 0;
+        const pending = data.pending_balance || 0;
+
+        // Mise à jour du texte
+        document.getElementById('hr').textContent          = hr       + " H/s";
+        document.getElementById('hr1h').textContent        = hr1h     + " H/s";
+        document.getElementById('hr24h').textContent       = hr24h    + " H/s";
+        document.getElementById('paid').textContent        = totalPaid.toFixed ? totalPaid.toFixed(4) + " IRON" : totalPaid + " IRON";
+        document.getElementById('unconfirmed').textContent = unconfirmed + " IRON";
+        document.getElementById('pending').textContent     = pending + " IRON";
+
+        // Création / mise à jour des graphiques
+        buildCharts({ hr, hr1h, hr24h, totalPaid, unconfirmed, pending });
+
+      } catch (e) {
+        console.error("Erreur API Herominers", e);
+      }
+    }
+
+    function buildCharts({ hr, hr1h, hr24h, totalPaid, unconfirmed, pending }) {
+      const hashCtx = document.getElementById('hashrateChart').getContext('2d');
+      const balCtx  = document.getElementById('balanceChart').getContext('2d');
+
+      if (hashrateChart) hashrateChart.destroy();
+      if (balanceChart) balanceChart.destroy();
+
+      hashrateChart = new Chart(hashCtx, {
+        type: 'line',
+        data: {
+          labels: ['Instant', '1h', '24h'],
+          datasets: [{
+            data: [hr, hr1h, hr24h],
+            borderColor: '#ffb400',
+            backgroundColor: 'rgba(255,180,0,0.25)',
+            pointRadius: 2,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#9a9aad', font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: '#9a9aad', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.06)' } }
+          }
+        }
+      });
+
+      balanceChart = new Chart(balCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Total payé', 'Non confirmé', 'En attente'],
+          datasets: [{
+            data: [totalPaid, unconfirmed, pending],
+            backgroundColor: [
+              'rgba(255,180,0,0.8)',
+              'rgba(0,200,160,0.8)',
+              'rgba(255,80,120,0.8)'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#9a9aad', font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: '#9a9aad', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.06)' } }
+          }
+        }
+      });
+    }
+
+    loadData();
+  </script>
+ <a href="/" class="back-home-btn">← Retour accueil</a>
+
+<style>
+.back-home-btn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f5f5f7;
+  backdrop-filter: blur(4px);
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+
+.back-home-btn:hover {
+  background: rgba(255, 180, 0, 0.25);
+  border-color: rgba(255, 180, 0, 0.6);
+  transform: translateY(-2px);
+}
+</style>
+</body>
+</html>
