@@ -8,22 +8,467 @@
         name="description"
         content="Analyse Iron Fish (Proof-of-Work confidentiel) par TORINVEST : vision long terme, minage, stratégie patrimoniale et réallocation vers l'écosystème KRM / ORAX."
     />
-    <!-- Si tu as déjà un fichier CSS global, garde seulement cette ligne en l'adaptant -->
+    <!-- CSS global du site si tu l'utilises -->
     <link rel="stylesheet" href="/assets/css/style.css" />
+
+    <!-- Thème TORINVEST – Forge (spécifique à cette page) -->
+    <style>
+      :root {
+        --bg-main: #050509;
+        --bg-alt: #0b0b13;
+        --card: #11111c;
+        --card-soft: #151525;
+        --accent: #ffb400;
+        --accent-soft: rgba(255, 180, 0, 0.18);
+        --text: #f5f5f7;
+        --muted: #9a9aad;
+        --border-soft: rgba(255, 255, 255, 0.08);
+      }
+
+      body.page-dark {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top, #26264a 0, transparent 45%),
+          radial-gradient(circle at bottom, #120f23 0, #050509 55%);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 0 16px;
+        box-sizing: border-box;
+      }
+
+      /* HEADER */
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(12px);
+        background: linear-gradient(
+          90deg,
+          rgba(5, 5, 9, 0.96),
+          rgba(10, 10, 18, 0.96)
+        );
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .header-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+      }
+
+      .logo {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+      }
+
+      .logo-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at 30% 15%, #ffecb3, #ff8f00);
+        box-shadow: 0 0 18px rgba(255, 180, 0, 0.6);
+      }
+
+      .logo-text {
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--text);
+      }
+
+      .main-nav a {
+        font-size: 13px;
+        text-decoration: none;
+        color: var(--muted);
+        margin-left: 14px;
+        padding: 4px 8px;
+        border-radius: 999px;
+        transition: 0.18s ease;
+      }
+
+      .main-nav a:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .main-nav a.active {
+        color: var(--accent);
+        background: rgba(255, 180, 0, 0.18);
+        border: 1px solid rgba(255, 180, 0, 0.6);
+      }
+
+      /* SECTIONS & HERO */
+      .section {
+        padding: 40px 0;
+      }
+
+      .section-alt {
+        background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.05), transparent 55%),
+                    linear-gradient(180deg, rgba(8, 8, 16, 0.96), rgba(4, 4, 10, 1));
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.8);
+      }
+
+      .hero {
+        padding: 40px 0 28px;
+      }
+
+      .hero-inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+        gap: 24px;
+        align-items: flex-start;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 180, 0, 0.5);
+        background: rgba(255, 180, 0, 0.08);
+        color: var(--accent);
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+      }
+
+      h1 {
+        font-size: 28px;
+        margin: 0 0 10px;
+        font-weight: 800;
+        background: linear-gradient(120deg, #ffb400, #ff4b5c);
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+
+      h2 {
+        font-size: 20px;
+        margin: 0 0 12px;
+        font-weight: 700;
+      }
+
+      h3 {
+        font-size: 16px;
+        margin: 0 0 8px;
+        font-weight: 600;
+      }
+
+      p {
+        margin: 0 0 8px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .section-intro {
+        max-width: 720px;
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 22px;
+      }
+
+      .hero-text p {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      .hero-actions {
+        margin-top: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .btn-primary,
+      .btn-ghost {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: 0.18s ease;
+        border: 1px solid transparent;
+      }
+
+      .btn-primary {
+        background: linear-gradient(120deg, #ffb400, #ff4b5c);
+        color: #050509;
+        border-color: rgba(255, 180, 0, 0.85);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.8);
+      }
+
+      .btn-ghost {
+        background: transparent;
+        color: var(--accent);
+        border-color: rgba(255, 180, 0, 0.6);
+      }
+
+      .btn-ghost:hover {
+        background: rgba(255, 180, 0, 0.12);
+      }
+
+      .hero-side .card {
+        background: var(--card);
+        border-radius: 18px;
+        padding: 16px 16px 12px;
+        border: 1px solid var(--border-soft);
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      }
+
+      .glow-card {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .glow-card::before {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        background:
+          radial-gradient(circle at 10% 0%, rgba(255, 180, 0, 0.24), transparent 50%),
+          radial-gradient(circle at 90% 100%, rgba(120, 180, 255, 0.2), transparent 55%);
+        opacity: 0.35;
+        pointer-events: none;
+      }
+
+      .glow-card h2 {
+        position: relative;
+        z-index: 1;
+      }
+
+      .glow-card ul {
+        position: relative;
+        z-index: 1;
+        list-style: none;
+        padding-left: 0;
+        margin: 8px 0 0;
+      }
+
+      .glow-card li {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+
+      .glow-card strong {
+        color: var(--accent);
+      }
+
+      /* CARDS GRID */
+      .cards-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .cards-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cards-grid.three {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: 18px;
+        padding: 14px 16px 12px;
+        border: 1px solid var(--border-soft);
+      }
+
+      .card ul {
+        padding-left: 16px;
+        margin: 4px 0 0;
+      }
+
+      .card li {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+
+      /* TIMELINE */
+      .timeline {
+        position: relative;
+        margin-top: 16px;
+        padding-left: 18px;
+      }
+
+      .timeline::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg, #ffb400, rgba(255, 255, 255, 0.08));
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 18px;
+      }
+
+      .timeline-marker {
+        position: absolute;
+        left: -2px;
+        top: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        background: #050509;
+        border: 2px solid #ffb400;
+        color: #ffb400;
+        font-size: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .timeline-content {
+        margin-left: 18px;
+        background: var(--card-soft);
+        border-radius: 14px;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+      }
+
+      .timeline-content ul {
+        padding-left: 16px;
+        margin: 4px 0 0;
+      }
+
+      .timeline-content li {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 3px;
+      }
+
+      /* LIST BULLETS */
+      .list-bullets {
+        list-style: none;
+        padding-left: 0;
+        margin-top: 12px;
+      }
+
+      .list-bullets li {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 6px;
+        position: relative;
+        padding-left: 18px;
+      }
+
+      .list-bullets li::before {
+        content: "•";
+        position: absolute;
+        left: 4px;
+        top: 0;
+        color: var(--accent);
+      }
+
+      /* FOOTER */
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        background: linear-gradient(180deg, #050509, #040308);
+        margin-top: 28px;
+      }
+
+      .footer-inner {
+        padding: 12px 16px 16px;
+        text-align: center;
+      }
+
+      .footer-inner p {
+        margin: 0;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      /* Bouton retour accueil (déjà présent) */
+      .back-home-btn {
+        position: fixed;
+        bottom: 22px;
+        right: 22px;
+        padding: 8px 14px;
+        font-size: 12px;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.12);
+        color: #f5f5f7;
+        backdrop-filter: blur(4px);
+        transition: 0.2s ease;
+        z-index: 9999;
+      }
+
+      .back-home-btn:hover {
+        background: rgba(255, 180, 0, 0.25);
+        border-color: rgba(255, 180, 0, 0.6);
+        transform: translateY(-2px);
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 880px) {
+        .hero-inner {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .cards-grid.three {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .cards-grid.two {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        .header-inner {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+        .main-nav a {
+          margin-left: 0;
+          margin-right: 10px;
+        }
+      }
+    </style>
 </head>
 <body class="page-dark">
-    <!-- HEADER GLOBAL (optionnel si déjà inclus ailleurs) -->
+    <!-- HEADER GLOBAL -->
     <header class="site-header">
         <div class="container header-inner">
-            <a href="/index.html" class="logo">
+            <a class="logo" href="/">
                 <span class="logo-icon">🛠️</span>
                 <span class="logo-text">TORINVEST</span>
             </a>
             <nav class="main-nav">
-                <a href="/minage.html">Minage</a>
-                <a href="/airdrop.html">Airdrop</a>
-                <a href="/crypto.html">Crypto</a>
-                <a href="/faq.html" class="active">FAQ</a>
+                <a href="/minage">Minage</a>
+                <a href="/airdrop">Airdrop</a>
+                <a href="/crypto">Crypto</a>
+                <a class="active" href="/faq">FAQ</a>
             </nav>
         </div>
     </header>
@@ -41,7 +486,7 @@
                         patrimoniale long terme dans l’univers TORINVEST.
                     </p>
                     <div class="hero-actions">
-                        <a href="/minage.html" class="btn-ghost">← Retour à la page Minage</a>
+                        <a class="btn-ghost" href="/minage">← Retour à la page Minage</a>
                         <a href="#vision" class="btn-primary">Découvrir la stratégie</a>
                     </div>
                 </div>
@@ -252,44 +697,22 @@
                 </ul>
 
                 <div class="hero-actions" style="margin-top: 2rem;">
-                    <a href="/minage.html" class="btn-ghost">← Retour à la page Minage</a>
+                    <a class="btn-ghost" href="/minage">← Retour à la page Minage</a>
                     <a href="/discord" class="btn-primary">Suivre l’avancement sur Discord</a>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- FOOTER (optionnel si déjà inclus ailleurs) -->
+    <!-- FOOTER -->
     <footer class="site-footer">
         <div class="container footer-inner">
             <p>© TORINVEST. Projet éducatif & expérimental. Aucun conseil en investissement.</p>
         </div>
     </footer>
-   <a href="/" class="back-home-btn">← Retour accueil</a>
 
-<style>
-.back-home-btn {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #f5f5f7;
-  backdrop-filter: blur(4px);
-  transition: 0.2s ease;
-  z-index: 9999;
-}
-
-.back-home-btn:hover {
-  background: rgba(255, 180, 0, 0.25);
-  border-color: rgba(255, 180, 0, 0.6);
-  transform: translateY(-2px);
-}
-</style>
+    <!-- Bouton retour accueil -->
+    <a href="/" class="back-home-btn">← Retour accueil</a>
 </body>
 </html>
+
