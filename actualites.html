@@ -85,9 +85,105 @@
   <!-- LISTE DES NEWS -->
   <main class="news-container">
 
-    <!-- Ici on insère chaque news sous forme de .news-card -->
+    <article class="news-card">
+      <div class="news-meta">
+        07 décembre 2025 · Bêta interne · Bot Discord
+      </div>
+
+      <h2 class="news-title">
+        Lancement de la V1 du Bot <strong>Context Intraday</strong> sur Discord
+      </h2>
+
+      <p class="news-tagline">
+        Un brief instantané du contexte de marché sur l’actif en cours, construit à partir des indicateurs
+        maison Torinvest – et appelé à évoluer avec la communauté TorMission.
+      </p>
+
+      <div class="news-content">
+        <p>
+          Après plusieurs semaines de tests sur les indicateurs macro et intraday, la Forge
+          déploie officiellement la première version du bot <strong>Context Intraday</strong> sur le serveur Discord Torinvest.
+        </p>
+
+        <p>
+          Concrètement, le bot se connecte à tes indicateurs TradingView (taux réel, structure H1,
+          liquidités M15, énergie de session, etc.) et génère automatiquement un brief lisible en quelques
+          secondes :
+        </p>
+
+        <div class="news-highlight">
+          <strong>Objectif :</strong> te donner en un seul message Discord le régime macro, le biais intraday,
+          le niveau de risque et une courte phrase de contexte, directement sur l’actif que tu es en train d’analyser.
+        </div>
+
+        <p>
+          À chaque mise à jour envoyée depuis TradingView, le bot rafraîchit le
+          <strong>Context Intraday</strong> : changement de régime, modification du biais, variation du score
+          de risque… La logique est simple : moins de temps à faire le tour de tous tes indicateurs,
+          plus de temps à réfléchir à tes plans de trade.
+        </p>
+
+        <h3>Un bot qui va évoluer avec le challenge TorMission</h3>
+
+        <p>
+          Cette V1 n’est qu’un point de départ. Le bot est pensé comme un outil vivant,
+          qui va évoluer au fil de la participation des membres au challenge
+          <strong>TorMission</strong>.
+        </p>
+
+        <p>
+          Au programme des prochaines versions :
+        </p>
+
+        <ul>
+          <li>affinage des phrases de contexte en fonction des setups réellement tradés par la communauté ;</li>
+          <li>intégration d’autres signaux Torinvest (corrélations, macro, volatilité, liquidité profonde) ;</li>
+          <li>possibilité de suivre plusieurs actifs clés avec un suivi dédié ;</li>
+          <li>et, à terme, un <strong>score de confiance</strong> sur les opportunités détectées.</li>
+        </ul>
+
+        <p>
+          Le bot est déjà opérationnel sur le salon <strong>#macro</strong> du serveur Discord Torinvest.
+          Chaque nouvelle contribution dans TorMission (idées, retours, stats de trades) servira à
+          affiner son cerveau et à rapprocher le contexte “théorique” du marché réel que tu trades tous les jours.
+        </p>
+
+        <p>
+          <strong>Résumé :</strong> le Bot Context Intraday, c’est ton briefing rapide de la Forge —
+          un concentré de data Torinvest, servi directement dans ton flux Discord, pour t’aider à rester aligné
+          avec le contexte plutôt que de courir derrière le prix.
+        </p>
+      </div>
+    </article>
+
 
   </main>
+    <a href="/" class="back-home-btn">← Retour accueil</a>
+
+<style>
+.back-home-btn {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f5f5f7;
+  backdrop-filter: blur(4px);
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+
+.back-home-btn:hover {
+  background: rgba(255, 180, 0, 0.25);
+  border-color: rgba(255, 180, 0, 0.6);
+  transform: translateY(-2px);
+}
+</style>
 
 </body>
 </html>
