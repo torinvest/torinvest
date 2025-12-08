@@ -387,6 +387,59 @@
       color: #9ca3af;
     }
 
+    /* Bloc Code Forgeron originel */
+    .forge-card {
+      margin-top: 14px;
+      padding: 10px 10px 9px;
+      border-radius: 12px;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(250, 204, 21, 0.8);
+      font-size: 12px;
+    }
+    .forge-card h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #facc15;
+      margin-bottom: 4px;
+    }
+    .forge-code-box {
+      margin-top: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      padding: 6px 9px;
+      border-radius: 9px;
+      background: rgba(15, 23, 42, 1);
+      border: 1px dashed rgba(250, 204, 21, 0.9);
+      color: #fef9c3;
+      word-break: break-all;
+    }
+    .forge-actions {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .forge-copy-btn {
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: none;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      background: rgba(250, 204, 21, 0.12);
+      color: #fef9c3;
+      border: 1px solid rgba(250, 204, 21, 0.7);
+    }
+    .forge-copy-btn:hover {
+      background: rgba(250, 204, 21, 0.2);
+    }
+    .forge-hint {
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
     .back-home-btn {
       position: fixed;
       bottom: 22px;
@@ -531,6 +584,25 @@
               </p>
             </div>
           </div>
+
+          <!-- Code Forgeron originel -->
+          <div id="forgeCard" class="forge-card" style="display:none;">
+            <h3>Code Forgeron originel</h3>
+            <p>
+              Ton TorPass est validé. Voici ton code unique de Forgeron originel pour rejoindre le Discord
+              avec le rôle dédié.
+            </p>
+            <div id="forgeCodeValue" class="forge-code-box">—</div>
+            <div class="forge-actions">
+              <button type="button" class="forge-copy-btn" onclick="copyForgeCode()">
+                Copier le code
+              </button>
+              <span class="forge-hint">
+                Code utilisable une seule fois. Ne le partage pas publiquement.
+              </span>
+            </div>
+          </div>
+
         </section>
 
         <a href="/torpass" class="back-link">← Retour vers la page TorPass</a>
@@ -577,6 +649,8 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
     const walletBox    = document.getElementById("walletBox");
     const accessPill   = document.getElementById("accessPill");
     const premiumZone  = document.getElementById("premiumZone");
+    const forgeCard    = document.getElementById("forgeCard");
+    const forgeCodeValue = document.getElementById("forgeCodeValue");
 
     function getPhantomProvider() {
       if ("phantom" in window) {
@@ -599,6 +673,7 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
         accessPill.className = "access-pill ko";
         accessPill.textContent = "🔒 Accès verrouillé • Wallet Phantom non détecté.";
         premiumZone.style.display = "none";
+        if (forgeCard) forgeCard.style.display = "none";
         return;
       }
 
@@ -662,11 +737,35 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
           accessPill.className = "access-pill ok";
           accessPill.textContent = "✅ Accès autorisé • Espace premium déverrouillé.";
           premiumZone.style.display = "block";
+
+          // === Génération du code Forgeron originel via ton Worker ===
+          try {
+            const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/access-code", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ wallet: pubkey }),
+            });
+
+            const data = await resp.json();
+
+            if (data && data.ok && data.code) {
+              if (forgeCodeValue) forgeCodeValue.textContent = data.code;
+              if (forgeCard) forgeCard.style.display = "block";
+            } else {
+              console.warn("Réponse inattendue de /access-code :", data);
+              if (forgeCard) forgeCard.style.display = "none";
+            }
+          } catch (e) {
+            console.error("Erreur lors de la génération du code Forgeron :", e);
+            if (forgeCard) forgeCard.style.display = "none";
+          }
+
         } else {
           accessPill.className = "access-pill ko";
           accessPill.textContent =
-            "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
+            "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
           premiumZone.style.display = "none";
+          if (forgeCard) forgeCard.style.display = "none";
         }
       } catch (err) {
         if (err && err.code === 4001) {
@@ -682,10 +781,25 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
         accessPill.className = "access-pill ko";
         accessPill.textContent = "🔒 Accès verrouillé • Erreur de connexion/vérification.";
         premiumZone.style.display = "none";
+        if (forgeCard) forgeCard.style.display = "none";
       }
     }
 
-    // par sécurité : on garde aussi l'eventListener
+    function copyForgeCode() {
+      if (!forgeCodeValue) return;
+      const code = forgeCodeValue.textContent.trim();
+      if (!code || code === "—") return;
+
+      navigator.clipboard.writeText(code).then(
+        () => {
+          alert("Code copié dans le presse-papier. Garde-le secret, Forgeron originel.");
+        },
+        (err) => {
+          console.error("Impossible de copier le code :", err);
+        }
+      );
+    }
+
     if (connectBtn) {
       connectBtn.addEventListener("click", verifyTorPass);
     }
