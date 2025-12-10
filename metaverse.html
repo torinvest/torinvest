@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Metaverse Torinvest – ORAX World</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- 📌 Lien vers ta feuille de style principale -->
+  <!-- Remplace "css/style.css" par le chemin réel de ton fichier CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+
+  <style>
+    /* Styles spécifiques à la page Metaverse (en plus de ton CSS global) */
+    body {
+      background: #020308;
+      color: #f5f5f5;
+    }
+
+    .metaverse-hero {
+      text-align: center;
+      padding: 3rem 1.5rem 1.5rem;
+    }
+
+    .metaverse-hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .metaverse-hero p {
+      max-width: 700px;
+      margin: 0.5rem auto 0;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    .metaverse-badge {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid rgba(255, 215, 0, 0.6);
+      color: #ffd700;
+      margin-bottom: 0.75rem;
+    }
+
+    .metaverse-container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto 2rem;
+      padding: 0 1rem 2rem;
+    }
+
+    .metaverse-frame-wrapper {
+      position: relative;
+      width: 100%;
+      /* Ratio 16:9 */
+      padding-top: 56.25%;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(255, 215, 0, 0.08);
+      background: radial-gradient(circle at top, #111 0, #020308 50%, #000 100%);
+    }
+
+    .metaverse-frame-wrapper iframe,
+    .metaverse-frame-wrapper .metaverse-placeholder {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .metaverse-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .metaverse-placeholder h2 {
+      font-size: 1.25rem;
+      margin: 0;
+    }
+
+    .metaverse-placeholder p {
+      font-size: 0.9rem;
+      max-width: 480px;
+      opacity: 0.9;
+    }
+
+    .metaverse-placeholder-code {
+      font-family: monospace;
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      max-width: 90%;
+      overflow-x: auto;
+    }
+
+    .metaverse-footer-note {
+      text-align: center;
+      font-size: 0.8rem;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 📌 HEADER TORINVEST -->
+  <!-- Remplace ce bloc par TON header existant (logo, menu, etc.) -->
+  <header>
+    <div class="container">
+      <h2>Torinvest</h2>
+      <!-- Exemple de menu, à remplacer par le tien -->
+      <nav class="navbar">
+        <ul>
+          <li><a href="index.html">Accueil</a></li>
+          <li><a href="chronique.html">Chroniques</a></li>
+          <li><a href="metaverse.html" class="active">Metaverse</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 🪐 SECTION METAVERSE -->
+  <main>
+    <section class="metaverse-hero">
+      <div class="metaverse-badge">Mode immersif</div>
+      <h1>Metaverse Torinvest – ORAX World</h1>
+      <p>
+        Entre dans l’univers Torinvest : un espace immersif où se croisent 
+        macroéconomie, marchés, or, ORAX et tes chroniques. Cette page se connecte 
+        à ton monde 3D, tout en gardant ton identité Torinvest, ton site et ton écosystème.
+      </p>
+    </section>
+
+    <section class="metaverse-container">
+      <div class="metaverse-frame-wrapper">
+        <!-- 
+          ✅ OPTION 1 : Embed d’un monde 3D (Spatial, OnCyber, ou autre)
+          Quand tu auras créé ton espace, remplace l’URL ci-dessous par celle fournie.
+        -->
+        <iframe
+          src="https://TON-ESPACE-3D-ICI"
+          allow="microphone; camera; fullscreen; xr-spatial-tracking; vr"
+          loading="lazy"
+        ></iframe>
+
+        <!-- 
+          Si tu veux voir la page avant d’avoir l’URL, 
+          tu peux commenter l’iframe et décommenter le placeholder ci-dessous.
+        -->
+
+        <!--
+        <div class="metaverse-placeholder">
+          <h2>Ton monde 3D Torinvest arrive ici.</h2>
+          <p>
+            Dès que tu as l’URL de ton espace 3D (créé sur la plateforme de ton choix
+            ou avec ton propre moteur), colle-la dans l’attribut <code>src</code> de l’iframe.
+          </p>
+          <div class="metaverse-placeholder-code">
+            &lt;iframe src="https://ton-espace-3d-ici" ...&gt;&lt;/iframe&gt;
+          </div>
+          <p>
+            Pour l’utilisateur, tout restera dans l’univers Torinvest : même domaine, même design,
+            ton branding. Le moteur 3D n’est qu’un outil technique derrière.
+          </p>
+        </div>
+        -->
+      </div>
+
+      <p class="metaverse-footer-note">
+        Si le monde ne se charge pas, vérifie ta connexion, ton navigateur ou les autorisations 
+        (plein écran, micro, etc.) selon la plateforme utilisée.
+      </p>
+    </section>
+  </main>
+
+  <!-- 📌 FOOTER TORINVEST -->
+  <!-- Remplace ce bloc par TON footer existant -->
+  <footer>
+    <div class="container">
+      <p>&copy; <span id="year"></span> Torinvest – Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Mise à jour automatique de l’année dans le footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
