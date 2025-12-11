@@ -431,9 +431,23 @@
       background: rgba(0, 0, 0, 0.25);
     }
 
-    /* Styles signal bot */
+    /* === Bloc signal bot IntraDay dans le dashboard === */
+    .signal-card {
+      margin-top: 8px;
+      padding: 9px 10px 8px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .signal-extra {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
     .signal-buy    { color: #15d16b; }
-    .signal-sell   { color: #ff4b5c; }
+    .signal-sell   { color: var(--danger); }
     .signal-neutral{ color: #f5f5f7; }
 
     .section-title {
@@ -538,7 +552,9 @@
       outline: none;
     }
 
-    .small-input::placeholder { color: #5f5f73; }
+    .small-input::placeholder {
+      color: #5f5f73;
+    }
 
     footer {
       border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -553,13 +569,27 @@
     }
 
     @media (max-width: 880px) {
-      .hero { grid-template-columns: minmax(0, 1fr); }
-      .hero-card { order: -1; }
-      .grid-3 { grid-template-columns: minmax(0, 1fr); }
-      .two-col { grid-template-columns: minmax(0, 1fr); }
-      nav { justify-content: flex-start; }
-      .page { padding-top: 18px; }
-      .header-right { align-items: flex-start; }
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .hero-card {
+        order: -1;
+      }
+      .grid-3 {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .two-col {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      nav {
+        justify-content: flex-start;
+      }
+      .page {
+        padding-top: 18px;
+      }
+      .header-right {
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -688,7 +718,7 @@
         <div class="hero-metrics">
           <div class="metric">
             <div class="metric-label">Actif focus</div>
-            <div class="metric-value">Gold (XAU/USD) / EURUSD </div>
+            <div class="metric-value">Gold (XAU/USD) / EURUSD</div>
           </div>
           <div class="metric">
             <div class="metric-label">Style</div>
@@ -696,14 +726,14 @@
           </div>
           <div class="metric">
             <div class="metric-label">Horizon</div>
-            <div class="metric-value">Scalping, Intraday & Swing</div>
+            <div class="metric-value">Scalping, Intraday &amp; Swing</div>
           </div>
         </div>
 
         <div class="hero-metrics">
           <div class="metric">
             <div class="metric-label">Sessions ciblées</div>
-            <div class="metric-value">London & NY</div>
+            <div class="metric-value">London &amp; NY</div>
           </div>
           <div class="metric">
             <div class="metric-label">Focus macro</div>
@@ -711,27 +741,24 @@
           </div>
           <div class="metric">
             <div class="metric-label">Risque</div>
-            <div class="metric-value negative">Contrôle & discipline</div>
+            <div class="metric-value negative">Contrôle &amp; discipline</div>
           </div>
         </div>
 
-        <!-- Bloc signal bot -->
-        <div class="hero-mini" style="margin-top:6px; margin-bottom:4px;">
-          <div>
-            <div class="metric-label">Signal bot IntraDay v1</div>
-            <div id="signal-status" class="metric-value" style="font-size:13px;">
-              ⚠️ Signal indisponible
-            </div>
+        <!-- Bloc signal bot IntraDay v1 -->
+        <div class="signal-card">
+          <div class="metric-label">Signal bot IntraDay v1</div>
+          <div id="signal-status" class="metric-value signal-neutral" style="font-size:13px;">
+            ⚠️ Signal indisponible
           </div>
+          <p id="signal-text" class="signal-extra">
+            Impossible de joindre le bot pour le moment. Le contexte reste consultable sur Discord.
+          </p>
         </div>
-        <p id="signal-extra" class="hero-footnote" style="margin-bottom:8px;">
-          Impossible de joindre le bot pour le moment. Le contexte reste consultable sur Discord.
-        </p>
-        <!-- /Bloc signal -->
 
         <div class="hero-mini">
           <div class="chip-row">
-            <div class="chip">ICT & liquidités</div>
+            <div class="chip">ICT &amp; liquidités</div>
             <div class="chip">Corrélations macro</div>
             <div class="chip">Backtests structurés</div>
           </div>
@@ -753,14 +780,14 @@
             Méthodes claires, plans écrits, backtests, journaux de trades. On ne clique pas au hasard, on exécute un plan.
           </p>
           <div class="card-footer">
-            <span>Scalping & swing sur l'or</span>
+            <span>Scalping &amp; swing sur l'or</span>
             <span class="badge-soft">Price Action</span>
           </div>
         </article>
 
         <article class="card">
           <div class="card-label">Pilier 2</div>
-          <h3 class="card-title">Lecture macro & géopolitique</h3>
+          <h3 class="card-title">Lecture macro &amp; géopolitique</h3>
           <p class="card-text">
             Comprendre ce que regardent les banques centrales, les flux de capitaux, les tensions géopolitiques et leurs
             impacts sur les actifs clés.
@@ -773,13 +800,13 @@
 
         <article class="card">
           <div class="card-label">Pilier 3</div>
-          <h3 class="card-title">Psychologie & discipline</h3>
+          <h3 class="card-title">Psychologie &amp; discipline</h3>
           <p class="card-text">
             Lutter contre l'overtrading, la peur de manquer, la frustration des spreads, des stops chassés et des propfirms.
           </p>
           <div class="card-footer">
             <span>Plans, routines, checklists</span>
-            <span class="badge-soft">Mental & risque</span>
+            <span class="badge-soft">Mental &amp; risque</span>
           </div>
         </article>
       </div>
@@ -787,7 +814,7 @@
 
     <section id="trading" class="two-col">
       <div>
-        <h2 class="section-title">Zone Trading & Stratégie</h2>
+        <h2 class="section-title">Zone Trading &amp; Stratégie</h2>
         <p class="section-sub">
           TORINVEST se concentre d'abord sur l'or (XAU/USD), avec une approche Price Action, ICT, zones de liquidité,
           structures multi-timeframes et corrélations macro.
@@ -801,7 +828,7 @@
       </div>
       <aside class="card">
         <div class="card-label">Bientôt</div>
-        <h3 class="card-title">Mini-formation “Fondamentale & Pricing”</h3>
+        <h3 class="card-title">Mini-formation “Fondamentale &amp; Pricing”</h3>
         <p class="card-text">
           Un module d'introduction pour les débutants et intermédiaires : comprendre ce qui fait bouger un actif,
           comment suivre un calendrier économique et comment intégrer la macro dans ses décisions.
@@ -815,7 +842,7 @@
 
     <section id="macro" class="two-col">
       <div>
-        <h2 class="section-title">Macroéconomie & géopolitique</h2>
+        <h2 class="section-title">Macroéconomie &amp; géopolitique</h2>
         <p class="section-sub">
           L'objectif : devenir capable de lire les tensions commerciales, les politiques monétaires, la dette,
           les cycles et leurs impacts sur les marchés financiers.
@@ -829,7 +856,7 @@
       </div>
       <aside class="card">
         <div class="card-label">Projet</div>
-        <h3 class="card-title">Bot & veille macro TORINVEST</h3>
+        <h3 class="card-title">Bot &amp; veille macro TORINVEST</h3>
         <p class="card-text">
           Un bot Discord / application pour suivre les tensions géopolitiques, les matières premières,
           les annonces majeures et leurs impacts potentiels sur le marché.
@@ -849,7 +876,7 @@
       </p>
       <div class="grid-3">
         <article class="card">
-          <h3 class="card-title">Live & sessions de marché</h3>
+          <h3 class="card-title">Live &amp; sessions de marché</h3>
           <p class="card-text">
             Sessions de marché pour analyser ensemble le contexte, les zones, les liquidités et les pièges potentiels.
           </p>
@@ -880,7 +907,7 @@
           Laisse simplement ton email ci-dessous. Tu seras ajouté à la liste d'attente TORINVEST.
         </p>
 
-        <form id='waitlist-form' method='POST' name='liste-attente-torinvest'>
+        <form id="waitlist-form" method="POST" name="liste-attente-torinvest">
           <!-- Champ caché obligatoire pour Netlify -->
           <input type="hidden" name="form-name" value="liste-attente-torinvest" />
 
@@ -908,7 +935,7 @@
 
   <footer>
     <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
-    <a href='https://github.com/torinvest/TORINVEST-Ecosystem'>GitHub</a>
+    <a href="https://github.com/torinvest/TORINVEST-Ecosystem">GitHub</a>
     <span>Site en version bêta</span>
   </footer>
 </div>
@@ -918,25 +945,22 @@
   document.getElementById("year").textContent = new Date().getFullYear();
 
   // gestion Netlify + redirection custom
-  const form = document.getElementById('waitlist-form');
+  const form = document.getElementById("waitlist-form");
   if (form) {
-    form.addEventListener('submit', function (e) {
-      e.preventDefault(); // on empêche le submit "normal"
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
       const data = new FormData(form);
 
-      // envoi à Netlify (Netlify voit la requête et enregistre le lead)
-      fetch('/', {
-        method: 'POST',
-        body: data
+      fetch("/", {
+        method: "POST",
+        body: data,
       })
         .then(() => {
-          // si tout va bien : on redirige vers ta page Merci
-          window.location.href = 'merci.html';
+          window.location.href = "merci.html";
         })
         .catch(() => {
-          // même en cas d'erreur réseau, on envoie vers merci.html
-          window.location.href = 'merci.html';
+          window.location.href = "merci.html";
         });
     });
   }
@@ -944,7 +968,7 @@
   // === Chargement du signal bot IntraDay v1 sur la page d'accueil ===
   async function loadBotSignal() {
     const statusEl = document.getElementById("signal-status");
-    const extraEl  = document.getElementById("signal-extra");
+    const extraEl  = document.getElementById("signal-text"); // <- id corrigé
     if (!statusEl || !extraEl) return;
 
     try {
@@ -978,7 +1002,7 @@
       extraEl.textContent =
         txt && txt.length > 0
           ? txt
-          : `Actif : ${asset} • UT : ${tf} • MAJ auto via bot Discord`;
+          : "Actif : " + asset + " • UT : " + tf + " • MAJ auto via bot Discord";
 
     } catch (err) {
       console.error("Erreur chargement signal bot :", err);
@@ -989,9 +1013,11 @@
     }
   }
 
-  // on lance le chargement dès que la page est prête (script en bas de page)
   loadBotSignal();
 </script>
+</body>
+</html>
+
 </body>
 </html>
 
