@@ -150,22 +150,10 @@
       color: #ffffff;
     }
 
-    .social-discord {
-      background: #5865f2;
-    }
-
-    .social-telegram {
-      background: #2aabee;
-    }
-
-    .social-youtube {
-      background: #ff0000;
-    }
-
-    .social-tiktok {
-      background: #000000;
-      border: 1px solid #ffffff33;
-    }
+    .social-discord { background: #5865f2; }
+    .social-telegram { background: #2aabee; }
+    .social-youtube { background: #ff0000; }
+    .social-tiktok  { background: #000000; border: 1px solid #ffffff33; }
 
     .buy-links {
       display: flex;
@@ -254,12 +242,8 @@
     }
 
     @keyframes ticker-scroll {
-      from {
-        transform: translateX(0);
-      }
-      to {
-        transform: translateX(-50%);
-      }
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
     }
 
     .pill {
@@ -419,13 +403,8 @@
       font-weight: 600;
     }
 
-    .metric-value.positive {
-      color: #15d16b;
-    }
-
-    .metric-value.negative {
-      color: var(--danger);
-    }
+    .metric-value.positive { color: #15d16b; }
+    .metric-value.negative { color: var(--danger); }
 
     .hero-mini {
       display: flex;
@@ -449,18 +428,10 @@
       background: rgba(0, 0, 0, 0.25);
     }
 
-    /* Couleurs du signal */
-    .signal-buy {
-      color: #22c55e;
-    }
-
-    .signal-sell {
-      color: #f97373;
-    }
-
-    .signal-neutral {
-      color: #fbbf24;
-    }
+    /* Signal bot IntraDay */
+    .signal-buy { color: #15d16b; }
+    .signal-sell { color: var(--danger); }
+    .signal-neutral { color: #f5f5f7; }
 
     .section-title {
       font-size: 16px;
@@ -581,27 +552,13 @@
     }
 
     @media (max-width: 880px) {
-      .hero {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .hero-card {
-        order: -1;
-      }
-      .grid-3 {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      .two-col {
-        grid-template-columns: minmax(0, 1fr);
-      }
-      nav {
-        justify-content: flex-start;
-      }
-      .page {
-        padding-top: 18px;
-      }
-      .header-right {
-        align-items: flex-start;
-      }
+      .hero { grid-template-columns: minmax(0, 1fr); }
+      .hero-card { order: -1; }
+      .grid-3 { grid-template-columns: minmax(0, 1fr); }
+      .two-col { grid-template-columns: minmax(0, 1fr); }
+      nav { justify-content: flex-start; }
+      .page { padding-top: 18px; }
+      .header-right { align-items: flex-start; }
     }
   </style>
 </head>
@@ -727,7 +684,6 @@
           <span>v0.1 • Bientôt en ligne</span>
         </div>
 
-        <!-- 1er bloc : actifs / style / horizon -->
         <div class="hero-metrics">
           <div class="metric">
             <div class="metric-label">Actif focus</div>
@@ -743,7 +699,6 @@
           </div>
         </div>
 
-        <!-- 2e bloc : sessions / macro / risque -->
         <div class="hero-metrics">
           <div class="metric">
             <div class="metric-label">Sessions ciblées</div>
@@ -760,7 +715,7 @@
         </div>
 
         <!-- Bloc Signal bot IntraDay v1 -->
-        <div class="hero-mini" style="margin-top:6px; margin-bottom:4px;">
+        <div class="hero-mini" style="margin-top:4px; margin-bottom:4px;">
           <div>
             <div class="metric-label">Signal bot IntraDay v1</div>
             <div id="signal-status" class="metric-value signal-neutral" style="font-size:13px;">
@@ -768,11 +723,11 @@
             </div>
           </div>
         </div>
-        <p id="signal-text" class="hero-footnote" style="margin-bottom:8px;">
+        <p id="signal-extra" class="hero-footnote" style="margin-bottom:8px;">
           Impossible de joindre le bot pour le moment. Le contexte reste consultable sur Discord.
         </p>
+        <!-- /Bloc Signal -->
 
-        <!-- Tags du dashboard -->
         <div class="hero-mini">
           <div class="chip-row">
             <div class="chip">ICT & liquidités</div>
@@ -925,14 +880,10 @@
         </p>
 
         <form id='waitlist-form' method='POST' name='liste-attente-torinvest'>
-          <!-- Champ caché obligatoire pour Netlify -->
           <input type="hidden" name="form-name" value="liste-attente-torinvest" />
-
-          <!-- Honeypot anti-bot (invisible) -->
           <p style="display:none">
             <label>Ne pas remplir : <input name="bot-field" /></label>
           </p>
-
           <div class="small-input-row">
             <input
               class="small-input"
@@ -965,45 +916,35 @@
   const form = document.getElementById('waitlist-form');
   if (form) {
     form.addEventListener('submit', function (e) {
-      e.preventDefault(); // on empêche le submit "normal"
-
+      e.preventDefault();
       const data = new FormData(form);
 
-      // envoi à Netlify (Netlify voit la requête et enregistre le lead)
       fetch('/', {
         method: 'POST',
         body: data
       })
-        .then(() => {
-          // si tout va bien : on redirige vers ta page Merci
-          window.location.href = 'merci.html';
-        })
-        .catch(() => {
-          // même en cas d'erreur réseau, on envoie vers merci.html
-          window.location.href = 'merci.html';
-        });
+        .then(() => { window.location.href = 'merci.html'; })
+        .catch(() => { window.location.href = 'merci.html'; });
     });
   }
 
   // === Chargement du signal bot IntraDay v1 sur la page d'accueil ===
   async function loadBotSignal() {
     const statusEl = document.getElementById("signal-status");
-    const textEl   = document.getElementById("signal-text");
-    if (!statusEl || !textEl) return;
+    const extraEl  = document.getElementById("signal-extra");
+    if (!statusEl || !extraEl) return;
 
     try {
-      // URL actuelle de ton bot (ngrok) -> à modifier quand tu passes sur Cloudflare
       const resp = await fetch("https://58e23d26491b.ngrok-free.app/context-intraday", {
         headers: { "Accept": "application/json" },
       });
 
       if (!resp.ok) throw new Error("HTTP " + resp.status);
       const data = await resp.json();
-      console.log("Signal IntraDay reçu :", data);
 
+      let label = "⚪ Aucun signal clair";
       statusEl.classList.remove("signal-buy", "signal-sell", "signal-neutral");
 
-      let label;
       if (data.bias === "buy") {
         label = "🟢 Signal acheteur";
         statusEl.classList.add("signal-buy");
@@ -1014,30 +955,27 @@
         label = "⚪ Contexte neutre / en observation";
         statusEl.classList.add("signal-neutral");
       }
+
       statusEl.textContent = label;
 
       const asset = data.asset || "XAUUSD";
       const tf    = data.timeframe || "H1/M15";
       const txt   = data.text || "";
-      const risk  = data.riskNote || "";
 
-      const parts = [];
-      parts.push(`Actif : ${asset} • UT : ${tf}`);
-      if (txt)  parts.push(txt);
-      if (risk) parts.push(risk);
-
-      textEl.textContent = parts.join(" — ");
+      extraEl.textContent =
+        txt && txt.length > 0
+          ? txt
+          : `Actif : ${asset} • UT : ${tf} • MAJ auto via bot Discord`;
 
     } catch (err) {
       console.error("Erreur chargement signal bot :", err);
       statusEl.textContent = "⚠️ Signal indisponible";
       statusEl.classList.add("signal-neutral");
-      textEl.textContent =
+      extraEl.textContent =
         "Impossible de joindre le bot pour le moment. Le contexte reste consultable sur Discord.";
     }
   }
 
-  // on lance le chargement dès que la page est prête (script en bas de page)
   loadBotSignal();
 </script>
 </body>
