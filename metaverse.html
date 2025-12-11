@@ -12,7 +12,6 @@
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
   <style>
-    /* Styles spécifiques à la page Metaverse (en plus de ton CSS global) */
     body {
       background: #020308;
       color: #f5f5f5;
@@ -38,7 +37,7 @@
     }
 
     header .logo-img {
-      height: 56px; /* taille réduite du logo */
+      height: 56px; /* logo réduit */
       width: auto;
       object-fit: contain;
       display: block;
@@ -120,7 +119,7 @@
     .metaverse-frame-wrapper {
       position: relative;
       width: 100%;
-      height: 75vh; /* hauteur de la scène */
+      height: 75vh;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 0 25px rgba(255, 215, 0, 0.08);
@@ -141,7 +140,6 @@
       margin-top: 0.75rem;
     }
 
-    /* Footer basique au cas où ton CSS global ne le gère pas */
     footer .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -201,169 +199,166 @@
   <main>
     <section class="metaverse-hero">
       <div class="metaverse-badge">Mode immersif</div>
-      <h1>Metaverse Torinvest – ORAX World</h1>
+      <h1>METAVERSE TORINVEST – ORAX WORLD</h1>
       <p>
-        Bienvenue dans l’univers immersif TORINVEST. Au centre&nbsp;: le cœur de la Forge et d’ORAX.
-        Autour&nbsp;: les zones TRADING, MACRO / HISTOIRE / CHRONIQUES, FORMATION &amp; MINDSET.
-        Explore, clique sur les panneaux et navigue entre les dimensions de ton écosystème.
+        Bienvenue dans l’univers immersif TORINVEST. Devant toi&nbsp;: les portails FORGE, TRADING,
+        MACRO / HISTOIRE / CHRONIQUES, FORMATION &amp; MINDSET, et CRYPTO / ORAX / NFT.
+        Clique sur chaque carte pour ouvrir la dimension correspondante de l’écosystème TORINVEST.
       </p>
     </section>
 
     <section class="metaverse-container">
       <div class="metaverse-frame-wrapper">
-        <!-- 🌌 Scène A-FRAME TORINVEST COMPLEXE -->
-        <a-scene embedded background="color: #020308">
-          <!-- Lumières générales -->
-          <a-entity light="type: ambient; intensity: 0.5"></a-entity>
-          <a-entity light="type: directional; intensity: 0.7; color: #ffd700" position="2 4 1"></a-entity>
+        <!-- 🌌 SCÈNE A-FRAME REWORK TORINVEST -->
+        <a-scene embedded background="color: #020308" fog="type: linear; color: #020308; near: 8; far: 30">
+          <!-- Lumières -->
+          <a-entity light="type: ambient; intensity: 0.6"></a-entity>
+          <a-entity light="type: directional; intensity: 0.8; color: #ffd700" position="4 6 2"></a-entity>
 
-          <!-- Ciel + sol -->
-          <a-sky color="#020308"></a-sky>
-          <a-circle position="0 0 0" rotation="-90 0 0" radius="7" color="#050608"></a-circle>
-          <!-- Anneaux au sol pour le hub -->
-          <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="2" radius-outer="2.3" color="#333"></a-ring>
-          <a-ring position="0 0.01 0" rotation="-90 0 0" radius-inner="3.9" radius-outer="4.2" color="#222"></a-ring>
+          <!-- Sol / Hub -->
+          <a-circle position="0 0 0" rotation="-90 0 0" radius="10" color="#050608"></a-circle>
+          <a-ring position="0 0.01 -6" rotation="-90 0 0" radius-inner="2.5" radius-outer="3" color="#111"></a-ring>
 
-          <!-- Totem central ORAX / TORINVEST -->
-          <a-cylinder position="0 1.5 0" radius="0.5" height="3" color="#111"
+          <!-- Totem ORAX au fond -->
+          <a-cylinder position="0 1.3 -9" radius="0.5" height="2.6" color="#101010"
                       material="metalness:0.8; roughness:0.2"></a-cylinder>
-          <a-torus-knot position="0 3.3 0" radius="0.7" radius-tubular="0.15" color="#ffd700"
-                        material="metalness:0.9; roughness:0.1"
-                        animation="property: rotation; to: 0 360 0; loop: true; dur: 22000; easing: linear"></a-torus-knot>
-          <a-text value="TORINVEST • ORAX" position="0 2.7 0.6" rotation="0 180 0"
-                  color="#ffd700" align="center" width="6"></a-text>
+          <a-torus-knot position="0 2.8 -9" radius="0.9" radius-tubular="0.18" color="#ffd700"
+                        material="metalness:0.9; roughness:0.15"
+                        animation="property: rotation; to: 0 360 0; loop: true; dur: 24000; easing: linear"></a-torus-knot>
+          <a-text value="TORINVEST • ORAX" position="0 3.7 -9"
+                  color="#ffd700" align="center" width="7"></a-text>
 
-          <!-- ================== ZONE 1 : FORGE ================== -->
-          <!-- Plateforme FORGE devant -->
-          <a-circle position="0 0 -5" rotation="-90 0 0" radius="2.3" color="#120606"></a-circle>
-          <!-- Panneau Forge -->
-          <a-box id="panel-forge" class="clickable"
-                 position="0 1.6 -5"
-                 depth="0.1" height="1.4" width="2.8"
-                 color="#b22222"
-                 material="metalness:0.4; roughness:0.4">
-          </a-box>
-          <a-text value="LA FORGE" position="0 2.2 -4.85"
-                  color="#ffd700" align="center" width="4"></a-text>
-          <a-text value="Création • Projets • Tokens"
-                  position="0 1.25 -4.85" color="#ffcc88"
-                  align="center" width="4"></a-text>
+          <!-- ===================================== -->
+          <!--          LIGNE DE CARTES             -->
+          <!-- ===================================== -->
 
-          <!-- Ambiance Forge (enclume + braise stylisée) -->
-          <a-box position="-0.7 0.4 -5.2" depth="0.6" height="0.4" width="1.2" color="#222"></a-box>
-          <a-sphere position="-0.7 0.8 -5.2" radius="0.25" color="#ff4500"
-                    animation="property: scale; from: 0.9 0.9 0.9; to: 1.1 1.1 1.1; dir: alternate; loop: true; dur: 900"></a-sphere>
-          <a-entity light="type: point; intensity: 1; distance: 5; color: #ff4500" position="-0.7 1 -5.2"></a-entity>
+          <!-- Carte 1 : LA FORGE -->
+          <a-entity position="-4.5 1.6 -5">
+            <!-- halo -->
+            <a-plane width="2.7" height="1.7" color="#b22222" opacity="0.25" position="0 0 -0.02"></a-plane>
+            <!-- carte cliquable -->
+            <a-plane id="panel-forge" class="clickable link-panel"
+                     data-url="/forge-page"
+                     width="2.5" height="1.5"
+                     color="#140607"
+                     material="shader: flat; opacity: 0.96">
+            </a-plane>
+            <a-text value="LA FORGE"
+                    position="0 0.35 0.02"
+                    align="center"
+                    color="#ffd700"
+                    width="4"></a-text>
+            <a-text value="Création • Projets • Airdrop"
+                    position="0 -0.3 0.02"
+                    align="center"
+                    color="#ffb38a"
+                    width="4"></a-text>
+          </a-entity>
 
-          <!-- ================== ZONE 2 : TRADING / SALLE DES MARCHÉS ================== -->
-          <!-- Plateforme Trading à droite -->
-          <a-circle position="5 0 0" rotation="-90 -90 0" radius="2.3" color="#04130a"></a-circle>
+          <!-- Carte 2 : TRADING / SALLE DES MARCHÉS -->
+          <a-entity position="-1.5 1.6 -5">
+            <a-plane width="2.7" height="1.7" color="#007a3d" opacity="0.25" position="0 0 -0.02"></a-plane>
+            <a-plane id="panel-trading" class="clickable link-panel"
+                     data-url="/salle-des-marches"
+                     width="2.5" height="1.5"
+                     color="#02140b"
+                     material="shader: flat; opacity: 0.96">
+            </a-plane>
+            <a-text value="TRADING • SALLE DES MARCHÉS"
+                    position="0 0.35 0.02"
+                    align="center"
+                    color="#7CFC00"
+                    width="4.2"></a-text>
+            <a-text value="Or • Indices • Crypto"
+                    position="0 -0.3 0.02"
+                    align="center"
+                    color="#a6ffb7"
+                    width="4"></a-text>
+          </a-entity>
 
-          <!-- Panneau Trading -->
-          <a-box id="panel-trading" class="clickable"
-                 position="5 1.6 0"
-                 depth="0.1" height="1.4" width="2.8"
-                 color="#003b1f"
-                 material="metalness:0.3; roughness:0.5">
-          </a-box>
-          <a-text value="TRADING • SALLE DES MARCHÉS" position="5 2.2 0.15"
-                  rotation="0 -90 0"
-                  color="#7CFC00" align="center" width="5"></a-text>
-          <a-text value="Or • Indices • Crypto"
-                  position="5 1.25 0.15" rotation="0 -90 0"
-                  color="#9cffb7" align="center" width="4"></a-text>
+          <!-- Carte 3 : MACRO / HISTOIRE / CHRONIQUES -->
+          <a-entity position="1.5 1.6 -5">
+            <a-plane width="2.7" height="1.7" color="#1e3a8a" opacity="0.25" position="0 0 -0.02"></a-plane>
+            <a-plane id="panel-macro" class="clickable link-panel"
+                     data-url="/histoire"
+                     width="2.5" height="1.5"
+                     color="#06091a"
+                     material="shader: flat; opacity: 0.96">
+            </a-plane>
+            <a-text value="MACRO • HISTOIRE • CHRONIQUES"
+                    position="0 0.35 0.02"
+                    align="center"
+                    color="#93c5fd"
+                    width="4.4"></a-text>
+            <a-text value="Contexte • Cycles • Narratif"
+                    position="0 -0.3 0.02"
+                    align="center"
+                    color="#c4ddff"
+                    width="4"></a-text>
+          </a-entity>
 
-          <!-- "Écrans" de marché -->
-          <a-plane position="4.4 1.4 -0.8" rotation="0 20 0" width="1.6" height="0.9"
-                   color="#050a08"></a-plane>
-          <a-plane position="4.4 2.1 0.6" rotation="0 20 0" width="1.6" height="0.9"
-                   color="#050a08"></a-plane>
-          <!-- Graph style vert/rouge simple -->
-          <a-box position="4.35 1.4 -0.9" depth="0.01" height="0.5" width="0.1" color="#00ff6a"></a-box>
-          <a-box position="4.2 1.4 -0.9" depth="0.01" height="0.3" width="0.1" color="#ff3b3b"></a-box>
-          <a-box position="4.05 1.4 -0.9" depth="0.01" height="0.7" width="0.1" color="#00ff6a"></a-box>
+          <!-- Carte 4 : FORMATION / MINDSET -->
+          <a-entity position="4.5 1.6 -5">
+            <a-plane width="2.7" height="1.7" color="#6b21a8" opacity="0.25" position="0 0 -0.02"></a-plane>
+            <a-plane id="panel-formation" class="clickable link-panel"
+                     data-url="/formation"
+                     width="2.5" height="1.5"
+                     color="#130721"
+                     material="shader: flat; opacity: 0.96">
+            </a-plane>
+            <a-text value="FORMATION • MINDSET"
+                    position="0 0.35 0.02"
+                    align="center"
+                    color="#e9d5ff"
+                    width="4"></a-text>
+            <a-text value="Cours • Bootcamp • ORAX Mindset"
+                    position="0 -0.3 0.02"
+                    align="center"
+                    color="#f3e8ff"
+                    width="4.4"></a-text>
+          </a-entity>
 
-          <!-- ================== ZONE 3 : MACRO • HISTOIRE • CHRONIQUES ================== -->
-          <!-- Plateforme Macro à gauche -->
-          <a-circle position="-5 0 0" rotation="-90 90 0" radius="2.3" color="#080812"></a-circle>
+          <!-- Carte centrale : CRYPTO / ORAX / NFT -->
+          <a-entity position="0 1.1 -2.5">
+            <a-plane width="2.8" height="1.6" color="#0d2533" opacity="0.3" position="0 0 -0.02"></a-plane>
+            <a-plane id="panel-crypto" class="clickable link-panel"
+                     data-url="/crypto"
+                     width="2.6" height="1.4"
+                     color="#020b12"
+                     material="shader: flat; opacity: 0.96">
+            </a-plane>
+            <a-text value="CRYPTO • ORAX • NFT"
+                    position="0 0.25 0.02"
+                    align="center"
+                    color="#5ee7ff"
+                    width="4"></a-text>
+            <a-text value="Token • NFT • Minage"
+                    position="0 -0.25 0.02"
+                    align="center"
+                    color="#a5f3ff"
+                    width="4"></a-text>
+          </a-entity>
 
-          <!-- Panneau Macro / Histoire / Chroniques -->
-          <a-box id="panel-macro" class="clickable"
-                 position="-5 1.6 0"
-                 depth="0.1" height="1.4" width="2.8"
-                 color="#222244"
-                 material="metalness:0.3; roughness:0.5">
-          </a-box>
-          <a-text value="MACRO • HISTOIRE • CHRONIQUES"
-                  position="-5 2.2 0.15" rotation="0 90 0"
-                  color="#87CEFA" align="center" width="5"></a-text>
-          <a-text value="Contexte • Cycles • Narratif"
-                  position="-5 1.25 0.15" rotation="0 90 0"
-                  color="#b0d6ff" align="center" width="4"></a-text>
-
-          <!-- Colonnes / bibliothèques pour visuel d'histoire -->
-          <a-cylinder position="-4.2 1 0.8" radius="0.12" height="2" color="#333344"></a-cylinder>
-          <a-cylinder position="-4.2 1 -0.8" radius="0.12" height="2" color="#333344"></a-cylinder>
-          <a-box position="-4.2 1 -0.02" depth="1.6" height="0.1" width="0.6" color="#444"></a-box>
-
-          <!-- ================== ZONE 4 : FORMATION • MINDSET ================== -->
-          <!-- Plateforme Formation derrière -->
-          <a-circle position="0 0 5" rotation="-90 180 0" radius="2.3" color="#0b060f"></a-circle>
-
-          <!-- Panneau Formation / Mindset -->
-          <a-box id="panel-formation" class="clickable"
-                 position="0 1.6 5"
-                 depth="0.1" height="1.4" width="2.8"
-                 color="#4b0082"
-                 material="metalness:0.4; roughness:0.4">
-          </a-box>
-          <a-text value="FORMATION • MINDSET" position="0 2.2 4.85"
-                  rotation="0 180 0"
-                  color="#dda0ff" align="center" width="4"></a-text>
-          <a-text value="Cours • Bootcamp • ORAX Mindset"
-                  position="0 1.25 4.85" rotation="0 180 0"
-                  color="#f0cfff" align="center" width="4"></a-text>
-
-          <!-- "Livres" / blocs formation -->
-          <a-box position="-0.8 0.4 4.4" depth="0.4" height="0.2" width="0.8" color="#663399"></a-box>
-          <a-box position="0 0.5 4.2" depth="0.4" height="0.25" width="0.9" color="#7b68ee"></a-box>
-          <a-box position="0.8 0.45 4.6" depth="0.4" height="0.2" width="0.7" color="#8a2be2"></a-box>
-
-          <!-- ================== ZONE 5 : CRYPTO / ORAX / NFT (près du centre) ================== -->
-          <a-circle position="0 0 2.5" rotation="-90 0 0" radius="1.3" color="#05060a"></a-circle>
-          <a-box id="panel-crypto" class="clickable"
-                 position="0 1.2 2.5"
-                 depth="0.08" height="0.9" width="2.2"
-                 color="#113344"
-                 material="metalness:0.4; roughness:0.4">
-          </a-box>
-          <a-text value="CRYPTO • ORAX • NFT" position="0 1.7 2.35" rotation="0 180 0"
-                  color="#55dfff" align="center" width="4"></a-text>
-
-          <!-- Petit orbe ORAX flottant -->
-          <a-sphere position="0 2.3 2.5" radius="0.25" color="#ffd700"
+          <!-- Petit orbe ORAX flottant devant la carte crypto -->
+          <a-sphere position="0 2.2 -2.5" radius="0.25" color="#ffd700"
                     material="metalness:0.9; roughness:0.1"
                     animation="property: position; dir: alternate; loop: true; dur: 2000;
-                               to: 0 2.6 2.5"></a-sphere>
-          <a-entity light="type: point; intensity: 1; distance: 4; color: #ffd700" position="0 2.3 2.5"></a-entity>
+                               to: 0 2.5 -2.5"></a-sphere>
+          <a-entity light="type: point; intensity: 1.1; distance: 5; color: #ffd700" position="0 2.2 -2.5"></a-entity>
 
-          <!-- ================== CAMERA / CONTRÔLES ================== -->
-          <a-entity id="rig" position="0 1.6 7">
-            <a-camera wasd-controls-enabled="true" look-controls="true">
-              <a-cursor
-                id="cursor"
-                color="#ffd700"
-                fuse="false"
-                raycaster="objects: .clickable">
-              </a-cursor>
-            </a-camera>
+          <!-- CAMERA + CONTROLES (clic souris) -->
+          <a-entity id="rig" position="0 1.6 6" wasd-controls="acceleration: 10">
+            <a-entity camera look-controls
+                      cursor="rayOrigin: mouse"
+                      raycaster="objects: .clickable">
+            </a-entity>
           </a-entity>
         </a-scene>
       </div>
 
       <p class="metaverse-footer-note">
-        Bouge avec ZQSD / WASD et la souris (ou ton doigt sur mobile).
-        Clique sur les panneaux pour ouvrir les pages correspondantes de TORINVEST.
+        Tu peux cliquer directement sur les cartes avec la souris (ou le doigt sur mobile).
+        Les touches ZQSD / WASD permettent de te déplacer dans l’espace.
       </p>
     </section>
   </main>
@@ -376,51 +371,26 @@
   </footer>
 
   <script>
-    // Mise à jour automatique de l’année dans le footer
+    // Année dynamique
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // 🔗 Logique de redirection des panneaux
-    document.addEventListener('DOMContentLoaded', function () {
-      const panelForge = document.querySelector('#panel-forge');
-      const panelTrading = document.querySelector('#panel-trading');
-      const panelMacro = document.querySelector('#panel-macro');
-      const panelFormation = document.querySelector('#panel-formation');
-      const panelCrypto = document.querySelector('#panel-crypto');
-
-      if (panelForge) {
-        panelForge.addEventListener('click', function () {
-          window.location.href = '/forge-page';
+    // Gestion des clics sur les cartes
+    window.addEventListener('load', function () {
+      const panels = document.querySelectorAll('.link-panel');
+      panels.forEach(function (panel) {
+        const url = panel.getAttribute('data-url');
+        if (!url) return;
+        panel.addEventListener('click', function () {
+          window.location.href = url;
         });
-      }
-
-      if (panelTrading) {
-        panelTrading.addEventListener('click', function () {
-          window.location.href = '/salle-des-marches';
-        });
-      }
-
-      if (panelMacro) {
-        panelMacro.addEventListener('click', function () {
-          // Vers l'histoire + chroniques (à adapter)
-          window.location.href = '/histoire';
-        });
-      }
-
-      if (panelFormation) {
-        panelFormation.addEventListener('click', function () {
-          window.location.href = '/formation';
-        });
-      }
-
-      if (panelCrypto) {
-        panelCrypto.addEventListener('click', function () {
-          window.location.href = '/crypto';
-        });
-      }
+      });
     });
   </script>
-    <a href="index.html" class="btn-home">← Retour accueil</a>
+     <a href="index.html" class="btn-home">← Retour accueil</a>
 </body>
 </html>
+
+ 
+
 
   
