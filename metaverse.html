@@ -112,79 +112,102 @@
       font-size: 0.8rem;
       opacity: 0.7;
     }
+
+    /* --- HEADER TORINVEST SPÉCIFIQUE À CETTE PAGE --- */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      gap: 1.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    header .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    header .logo-img {
+      height: 56px; /* 🔽 taille réduite du logo */
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    header .logo-title {
+      font-size: 1.25rem;
+      letter-spacing: 0.12em;
+    }
+
+    header .logo-sub {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    .header-right nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      justify-content: flex-end;
+      font-size: 0.8rem;
+    }
+
+    .header-right nav a {
+      text-decoration: none;
+      opacity: 0.85;
+    }
+
+    .header-right nav a:hover {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
 
   <!-- 📌 HEADER TORINVEST -->
-  <!-- Remplace ce bloc par TON header existant (logo, menu, etc.) -->
-<header>
-<div class="logo">
-<img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
+  <header>
+    <a href="/" class="logo">
+      <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
+      <div class="logo-text">
+        <div class="logo-title">TORINVEST</div>
+        <div class="logo-sub">TRADING • CRYPTO • BOURSE • MACRO • PSYCHO</div>
+      </div>
+    </a>
 
-<div class="logo-text">
-<div class="logo-title">TORINVEST</div>
-<div class="logo-sub">TRADING • CRYPTO • BOURSE • MACRO • PSYCHO</div>
-</div>
-</div>
-
-<div class="header-right">
-<nav>
-<a href='/histoire'>Histoire des Marchés</a>
-
-<a href='/forge-page'>La Forge</a>
-
-<a href='/chroniques'>Chroniques</a>
-
-<a href='/equipe'>Équipe</a>
-
-<a href='/roadmap'>Roadmap</a>
-
-<a href='/projets'>Projets</a>
-
-<a href='/actualites'>Actu Torinvest</a>
-
-<a href='/crypto'>Crypto</a>
-
-<a href='/torpass'>Accès Premium</a>
-
-<a href='/video'>Vidéos</a>
-
-<a href='/bootcamp'>Bootcamp</a>
-
-<a href='/formation'>Formation</a>
-
-<a href='/exercices'>Exercices</a> 
-  
-<a href='/mindset'>Orax Mindset</a>
-
-<a href='/formationprice'>Tarifs</a>
-
-<a href='/salle-des-marches'>La salle des marchés</a>
-
-<a href='/airdrop'>Airdrop</a>
-
-<a href='/tormission'>TorMission</a>  
-
-<a href='/nft'>NFT</a>
-
-<a href='/minage'>Minage</a>
-
-<a href='/partenaires'>Partenaires</a>
-
-<a href='/copytrading'>Copy Trading</a>
-
-<a href='/liens'>Liens utiles</a>
-
-<a href="#contact">Contact</a>
-
-<a href='/whitepaper'>White Paper</a>
-
-<a href='/disclaimer'>Disclaimer</a>
-
-<a href='/faq'>FAQ</a>
-
-</nav>
+    <div class="header-right">
+      <nav>
+        <a href="/histoire">Histoire des Marchés</a>
+        <a href="/forge-page">La Forge</a>
+        <a href="/chroniques">Chroniques</a>
+        <a href="/equipe">Équipe</a>
+        <a href="/roadmap">Roadmap</a>
+        <a href="/projets">Projets</a>
+        <a href="/actualites">Actu Torinvest</a>
+        <a href="/crypto">Crypto</a>
+        <a href="/torpass">Accès Premium</a>
+        <a href="/video">Vidéos</a>
+        <a href="/bootcamp">Bootcamp</a>
+        <a href="/formation">Formation</a>
+        <a href="/exercices">Exercices</a> 
+        <a href="/mindset">Orax Mindset</a>
+        <a href="/formationprice">Tarifs</a>
+        <a href="/salle-des-marches">La salle des marchés</a>
+        <a href="/airdrop">Airdrop</a>
+        <a href="/tormission">TorMission</a>  
+        <a href="/nft">NFT</a>
+        <a href="/minage">Minage</a>
+        <a href="/partenaires">Partenaires</a>
+        <a href="/copytrading">Copy Trading</a>
+        <a href="/liens">Liens utiles</a>
+        <a href="#contact">Contact</a>
+        <a href="/whitepaper">White Paper</a>
+        <a href="/disclaimer">Disclaimer</a>
+        <a href="/faq">FAQ</a>
+      </nav>
     </div>
   </header>
 
@@ -243,7 +266,6 @@
   </main>
 
   <!-- 📌 FOOTER TORINVEST -->
-  <!-- Remplace ce bloc par TON footer existant -->
   <footer>
     <div class="container">
       <p>&copy; <span id="year"></span> Torinvest – Tous droits réservés.</p>
@@ -256,3 +278,5 @@
   </script>
 </body>
 </html>
+
+  
