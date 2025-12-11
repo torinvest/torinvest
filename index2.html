@@ -449,31 +449,17 @@
       background: rgba(0, 0, 0, 0.25);
     }
 
-    /* === Bloc signal bot IntraDay dans le dashboard === */
-    .signal-card {
-      margin-top: 8px;
-      padding: 9px 10px 8px;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .signal-extra {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
+    /* Couleurs du signal */
     .signal-buy {
-      color: #15d16b;
+      color: #22c55e;
     }
 
     .signal-sell {
-      color: var(--danger);
+      color: #f97373;
     }
 
     .signal-neutral {
-      color: #f5f5f7;
+      color: #fbbf24;
     }
 
     .section-title {
@@ -741,43 +727,58 @@
           <span>v0.1 • Bientôt en ligne</span>
         </div>
 
-    <div class="hero-metrics">
-  <div class="metric">
-    <div class="metric-label">Sessions ciblées</div>
-    <div class="metric-value">London & NY</div>
-  </div>
-  <div class="metric">
-    <div class="metric-label">Focus macro</div>
-    <div class="metric-value positive">US • EU • Japon • Chine</div>
-  </div>
-  <div class="metric">
-    <div class="metric-label">Risque</div>
-    <div class="metric-value negative">Contrôle & discipline</div>
-  </div>
-</div>
+        <!-- 1er bloc : actifs / style / horizon -->
+        <div class="hero-metrics">
+          <div class="metric">
+            <div class="metric-label">Actif focus</div>
+            <div class="metric-value">Gold (XAU/USD) / EURUSD</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Style</div>
+            <div class="metric-value">Price Action</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Horizon</div>
+            <div class="metric-value">Scalping, Intraday & Swing</div>
+          </div>
+        </div>
 
-<!-- === Bloc Signal bot IntraDay v1 (rempli par l'API) === -->
-<div class="hero-mini" style="margin-top:6px; margin-bottom:4px;">
-  <div>
-    <div class="metric-label">Signal bot IntraDay v1</div>
-    <div id="signal-status" class="metric-value" style="font-size:13px;">
-      ⚠️ Signal indisponible
-    </div>
-  </div>
-</div>
-<p id="signal-text" class="hero-footnote" style="margin-bottom:8px;">
-  Impossible de joindre le bot pour le moment. Le contexte reste consultable sur Discord.
-</p>
-<!-- ======================================================= -->
+        <!-- 2e bloc : sessions / macro / risque -->
+        <div class="hero-metrics">
+          <div class="metric">
+            <div class="metric-label">Sessions ciblées</div>
+            <div class="metric-value">London & NY</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Focus macro</div>
+            <div class="metric-value positive">US • EU • Japon • Chine</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Risque</div>
+            <div class="metric-value negative">Contrôle & discipline</div>
+          </div>
+        </div>
 
-<div class="hero-mini">
-  <div class="chip-row">
-    <div class="chip">ICT & liquidités</div>
-    <div class="chip">Corrélations macro</div>
-    <div class="chip">Backtests structurés</div>
-  </div>
-</div>
+        <!-- Bloc Signal bot IntraDay v1 -->
+        <div class="hero-mini" style="margin-top:6px; margin-bottom:4px;">
+          <div>
+            <div class="metric-label">Signal bot IntraDay v1</div>
+            <div id="signal-status" class="metric-value signal-neutral" style="font-size:13px;">
+              ⚠️ Signal indisponible
+            </div>
+          </div>
+        </div>
+        <p id="signal-text" class="hero-footnote" style="margin-bottom:8px;">
+          Impossible de joindre le bot pour le moment. Le contexte reste consultable sur Discord.
+        </p>
 
+        <!-- Tags du dashboard -->
+        <div class="hero-mini">
+          <div class="chip-row">
+            <div class="chip">ICT & liquidités</div>
+            <div class="chip">Corrélations macro</div>
+            <div class="chip">Backtests structurés</div>
+          </div>
         </div>
       </aside>
     </section>
@@ -987,21 +988,22 @@
   // === Chargement du signal bot IntraDay v1 sur la page d'accueil ===
   async function loadBotSignal() {
     const statusEl = document.getElementById("signal-status");
-    const extraEl  = document.getElementById("signal-extra");
-    if (!statusEl || !extraEl) return;
+    const textEl   = document.getElementById("signal-text");
+    if (!statusEl || !textEl) return;
 
     try {
-      // ⬇️ À REMPLACER plus tard par l'URL réelle de ton bot / Cloudflare
-      const resp = await fetch("https://TON-BOT-URL/context-intraday", {
+      // URL actuelle de ton bot (ngrok) -> à modifier quand tu passes sur Cloudflare
+      const resp = await fetch("https://58e23d26491b.ngrok-free.app/context-intraday", {
         headers: { "Accept": "application/json" },
       });
 
       if (!resp.ok) throw new Error("HTTP " + resp.status);
       const data = await resp.json();
+      console.log("Signal IntraDay reçu :", data);
 
-      let label = "⚪ Aucun signal clair";
       statusEl.classList.remove("signal-buy", "signal-sell", "signal-neutral");
 
+      let label;
       if (data.bias === "buy") {
         label = "🟢 Signal acheteur";
         statusEl.classList.add("signal-buy");
@@ -1012,23 +1014,25 @@
         label = "⚪ Contexte neutre / en observation";
         statusEl.classList.add("signal-neutral");
       }
-
       statusEl.textContent = label;
 
       const asset = data.asset || "XAUUSD";
       const tf    = data.timeframe || "H1/M15";
       const txt   = data.text || "";
+      const risk  = data.riskNote || "";
 
-      extraEl.textContent =
-        txt && txt.length > 0
-          ? txt
-          : `Actif : ${asset} • UT : ${tf} • MAJ auto via bot Discord`;
+      const parts = [];
+      parts.push(`Actif : ${asset} • UT : ${tf}`);
+      if (txt)  parts.push(txt);
+      if (risk) parts.push(risk);
+
+      textEl.textContent = parts.join(" — ");
 
     } catch (err) {
       console.error("Erreur chargement signal bot :", err);
       statusEl.textContent = "⚠️ Signal indisponible";
       statusEl.classList.add("signal-neutral");
-      extraEl.textContent =
+      textEl.textContent =
         "Impossible de joindre le bot pour le moment. Le contexte reste consultable sur Discord.";
     }
   }
