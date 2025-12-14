@@ -528,6 +528,17 @@
       margin-right: 6px;
     }
 
+    /* liens clickables dans les news */
+    #news-list li a {
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    #news-list li a:hover {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
     .small-input-row {
       margin-top: 10px;
       display: flex;
@@ -585,33 +596,33 @@
 
     <div class="header-right">
       <nav>
-        <a href='/histoire'>Histoire des Marchés</a>
-        <a href='/forge-page'>La Forge</a>
-        <a href='/chroniques'>Chroniques</a>
-        <a href='/equipe'>Équipe</a>
-        <a href='/roadmap'>Roadmap</a>
-        <a href='/projets'>Projets</a>
-        <a href='/actualites'>Actu Torinvest</a>
-        <a href='/crypto'>Crypto</a>
-        <a href='/torpass'>Accès Premium</a>
-        <a href='/video'>Vidéos</a>
-        <a href='/bootcamp'>Bootcamp</a>
-        <a href='/formation'>Formation</a>
-        <a href='/exercices'>Exercices</a>
-        <a href='/mindset'>Orax Mindset</a>
-        <a href='/formationprice'>Tarifs</a>
-        <a href='/salle-des-marches'>La salle des marchés</a>
-        <a href='/airdrop'>Airdrop</a>
-        <a href='/tormission'>TorMission</a>
-        <a href='/nft'>NFT</a>
-        <a href='/minage'>Minage</a>
-        <a href='/partenaires'>Partenaires</a>
-        <a href='/copytrading'>Copy Trading</a>
-        <a href='/liens'>Liens utiles</a>
+        <a href="/histoire">Histoire des Marchés</a>
+        <a href="/forge-page">La Forge</a>
+        <a href="/chroniques">Chroniques</a>
+        <a href="/equipe">Équipe</a>
+        <a href="/roadmap">Roadmap</a>
+        <a href="/projets">Projets</a>
+        <a href="/actualites">Actu Torinvest</a>
+        <a href="/crypto">Crypto</a>
+        <a href="/torpass">Accès Premium</a>
+        <a href="/video">Vidéos</a>
+        <a href="/bootcamp">Bootcamp</a>
+        <a href="/formation">Formation</a>
+        <a href="/exercices">Exercices</a>
+        <a href="/mindset">Orax Mindset</a>
+        <a href="/formationprice">Tarifs</a>
+        <a href="/salle-des-marches">La salle des marchés</a>
+        <a href="/airdrop">Airdrop</a>
+        <a href="/tormission">TorMission</a>
+        <a href="/nft">NFT</a>
+        <a href="/minage">Minage</a>
+        <a href="/partenaires">Partenaires</a>
+        <a href="/copytrading">Copy Trading</a>
+        <a href="/liens">Liens utiles</a>
         <a href="#contact">Contact</a>
-        <a href='/whitepaper'>White Paper</a>
-        <a href='/disclaimer'>Disclaimer</a>
-        <a href='/faq'>FAQ</a>
+        <a href="/whitepaper">White Paper</a>
+        <a href="/disclaimer">Disclaimer</a>
+        <a href="/faq">FAQ</a>
       </nav>
 
       <div class="ticker">
@@ -917,7 +928,7 @@
           Laisse simplement ton email ci-dessous. Tu seras ajouté à la liste d'attente TORINVEST.
         </p>
 
-        <form id='waitlist-form' method='POST' name='liste-attente-torinvest'>
+        <form id="waitlist-form" method="POST" name="liste-attente-torinvest">
           <input type="hidden" name="form-name" value="liste-attente-torinvest" />
           <p style="display:none">
             <label>Ne pas remplir : <input name="bot-field" /></label>
@@ -942,7 +953,7 @@
 
   <footer>
     <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
-    <a href='https://github.com/torinvest/TORINVEST-Ecosystem'>GitHub</a>
+    <a href="https://github.com/torinvest/TORINVEST-Ecosystem">GitHub</a>
     <span>Site en version bêta</span>
   </footer>
 </div>
@@ -952,14 +963,14 @@
   document.getElementById("year").textContent = new Date().getFullYear();
 
   // gestion Netlify + redirection custom
-  const form = document.getElementById('waitlist-form');
+  const form = document.getElementById("waitlist-form");
   if (form) {
-    form.addEventListener('submit', function (e) {
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
       const data = new FormData(form);
-      fetch('/', { method: 'POST', body: data })
-        .then(() => { window.location.href = 'merci.html'; })
-        .catch(() => { window.location.href = 'merci.html'; });
+      fetch("/", { method: "POST", body: data })
+        .then(() => { window.location.href = "merci.html"; })
+        .catch(() => { window.location.href = "merci.html"; });
     });
   }
 
@@ -970,7 +981,8 @@
     if (!statusEl || !textEl) return;
 
     try {
-      const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev", {
+      // on interroge le Worker sur /context-intraday
+      const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/context-intraday", {
         headers: { "Accept": "application/json" }
       });
 
@@ -1025,21 +1037,29 @@
 
       listEl.innerHTML = "";
 
-      if (!data.items || data.items.length === 0) {
+      const items = Array.isArray(data.items) ? data.items : [];
+
+      if (!items.length) {
         const li = document.createElement("li");
         li.textContent = "Aucune news disponible pour le moment.";
         listEl.appendChild(li);
         return;
       }
 
-      data.items.forEach((item) => {
+      items.forEach((item) => {
+        const href = item.url || item.link;
+        if (!href) return; // on ignore les news sans URL
+
         const li = document.createElement("li");
         const a = document.createElement("a");
-        a.href = item.link || "#";
+        a.href = href;
         a.target = "_blank";
-        a.rel = "noopener";
-        a.textContent =
-          (item.source ? "[" + item.source + "] " : "") + (item.title || "News");
+        a.rel = "noopener noreferrer";
+
+        const source = item.source || "News";
+        const title  = item.title  || "Sans titre";
+
+        a.textContent = `[${source}] ${title}`;
         li.appendChild(a);
         listEl.appendChild(li);
       });
@@ -1085,3 +1105,4 @@
 </style>
 </body>
 </html>
+
