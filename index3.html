@@ -150,22 +150,10 @@
       color: #ffffff;
     }
 
-    .social-discord {
-      background: #5865f2;
-    }
-
-    .social-telegram {
-      background: #2aabee;
-    }
-
-    .social-youtube {
-      background: #ff0000;
-    }
-
-    .social-tiktok {
-      background: #000000;
-      border: 1px solid #ffffff33;
-    }
+    .social-discord { background: #5865f2; }
+    .social-telegram { background: #2aabee; }
+    .social-youtube { background: #ff0000; }
+    .social-tiktok { background: #000000; border: 1px solid #ffffff33; }
 
     .buy-links {
       display: flex;
@@ -440,7 +428,6 @@
       background: rgba(0, 0, 0, 0.25);
     }
 
-    /* Couleurs signal */
     .signal-buy { color: #15d16b; }
     .signal-sell { color: var(--danger); }
     .signal-neutral { color: #f5f5f7; }
@@ -526,17 +513,6 @@
       content: "•";
       color: var(--accent);
       margin-right: 6px;
-    }
-
-    /* liens clickables dans les news */
-    #news-list li a {
-      color: var(--muted);
-      text-decoration: none;
-    }
-
-    #news-list li a:hover {
-      color: var(--accent);
-      text-decoration: underline;
     }
 
     .small-input-row {
@@ -735,7 +711,7 @@
           </div>
         </div>
 
-        <!-- 💬 Embed Discord dans le dashboard -->
+        <!-- 💬 Embed Discord -->
         <div style="margin-top:10px; margin-bottom:8px;">
           <div class="metric-label" style="margin-bottom:4px;">
             Salon Discord – La Forge TORINVEST
@@ -880,7 +856,7 @@
     <section id="news-marche">
       <h2 class="section-title">News marchés</h2>
       <p class="section-sub">
-        Derniers titres détectés par le flux externe (pré-version – à affiner ensuite avec Reuters / Baha).
+        Derniers titres détectés par le flux externe (pré-version – à affiner ensuite).
       </p>
       <div class="card">
         <ul id="news-list" class="list">
@@ -974,15 +950,14 @@
     });
   }
 
-  // === Chargement du signal bot IntraDay v1 sur la page d'accueil ===
+  // === Chargement du signal bot IntraDay v1 (via Worker) ===
   async function loadBotSignal() {
     const statusEl = document.getElementById("signal-status");
     const textEl   = document.getElementById("signal-text");
     if (!statusEl || !textEl) return;
 
     try {
-      // on interroge le Worker sur /context-intraday
-      const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/context-intraday", {
+      const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev", {
         headers: { "Accept": "application/json" }
       });
 
@@ -1037,29 +1012,21 @@
 
       listEl.innerHTML = "";
 
-      const items = Array.isArray(data.items) ? data.items : [];
-
-      if (!items.length) {
+      if (!data.items || data.items.length === 0) {
         const li = document.createElement("li");
         li.textContent = "Aucune news disponible pour le moment.";
         listEl.appendChild(li);
         return;
       }
 
-      items.forEach((item) => {
-        const href = item.url || item.link;
-        if (!href) return; // on ignore les news sans URL
-
+      data.items.forEach((item) => {
         const li = document.createElement("li");
         const a = document.createElement("a");
-        a.href = href;
+        a.href = item.link || "#";
         a.target = "_blank";
         a.rel = "noopener noreferrer";
-
-        const source = item.source || "News";
-        const title  = item.title  || "Sans titre";
-
-        a.textContent = `[${source}] ${title}`;
+        a.textContent =
+          (item.source ? "[" + item.source + "] " : "") + (item.title || "News");
         li.appendChild(a);
         listEl.appendChild(li);
       });
@@ -1105,4 +1072,3 @@
 </style>
 </body>
 </html>
-
