@@ -150,22 +150,10 @@
       color: #ffffff;
     }
 
-    .social-discord {
-      background: #5865f2;
-    }
-
-    .social-telegram {
-      background: #2aabee;
-    }
-
-    .social-youtube {
-      background: #ff0000;
-    }
-
-    .social-tiktok {
-      background: #000000;
-      border: 1px solid #ffffff33;
-    }
+    .social-discord { background: #5865f2; }
+    .social-telegram { background: #2aabee; }
+    .social-youtube { background: #ff0000; }
+    .social-tiktok { background: #000000; border: 1px solid #ffffff33; }
 
     .buy-links {
       display: flex;
@@ -440,7 +428,6 @@
       background: rgba(0, 0, 0, 0.25);
     }
 
-    /* Couleurs signal */
     .signal-buy { color: #15d16b; }
     .signal-sell { color: var(--danger); }
     .signal-neutral { color: #f5f5f7; }
@@ -585,33 +572,33 @@
 
     <div class="header-right">
       <nav>
-        <a href='/histoire'>Histoire des Marchés</a>
-        <a href='/forge-page'>La Forge</a>
-        <a href='/chroniques'>Chroniques</a>
-        <a href='/equipe'>Équipe</a>
-        <a href='/roadmap'>Roadmap</a>
-        <a href='/projets'>Projets</a>
-        <a href='/actualites'>Actu Torinvest</a>
-        <a href='/crypto'>Crypto</a>
-        <a href='/torpass'>Accès Premium</a>
-        <a href='/video'>Vidéos</a>
-        <a href='/bootcamp'>Bootcamp</a>
-        <a href='/formation'>Formation</a>
-        <a href='/exercices'>Exercices</a>
-        <a href='/mindset'>Orax Mindset</a>
-        <a href='/formationprice'>Tarifs</a>
-        <a href='/salle-des-marches'>La salle des marchés</a>
-        <a href='/airdrop'>Airdrop</a>
-        <a href='/tormission'>TorMission</a>
-        <a href='/nft'>NFT</a>
-        <a href='/minage'>Minage</a>
-        <a href='/partenaires'>Partenaires</a>
-        <a href='/copytrading'>Copy Trading</a>
-        <a href='/liens'>Liens utiles</a>
+        <a href="/histoire">Histoire des Marchés</a>
+        <a href="/forge-page">La Forge</a>
+        <a href="/chroniques">Chroniques</a>
+        <a href="/equipe">Équipe</a>
+        <a href="/roadmap">Roadmap</a>
+        <a href="/projets">Projets</a>
+        <a href="/actualites">Actu Torinvest</a>
+        <a href="/crypto">Crypto</a>
+        <a href="/torpass">Accès Premium</a>
+        <a href="/video">Vidéos</a>
+        <a href="/bootcamp">Bootcamp</a>
+        <a href="/formation">Formation</a>
+        <a href="/exercices">Exercices</a>
+        <a href="/mindset">Orax Mindset</a>
+        <a href="/formationprice">Tarifs</a>
+        <a href="/salle-des-marches">La salle des marchés</a>
+        <a href="/airdrop">Airdrop</a>
+        <a href="/tormission">TorMission</a>
+        <a href="/nft">NFT</a>
+        <a href="/minage">Minage</a>
+        <a href="/partenaires">Partenaires</a>
+        <a href="/copytrading">Copy Trading</a>
+        <a href="/liens">Liens utiles</a>
         <a href="#contact">Contact</a>
-        <a href='/whitepaper'>White Paper</a>
-        <a href='/disclaimer'>Disclaimer</a>
-        <a href='/faq'>FAQ</a>
+        <a href="/whitepaper">White Paper</a>
+        <a href="/disclaimer">Disclaimer</a>
+        <a href="/faq">FAQ</a>
       </nav>
 
       <div class="ticker">
@@ -724,7 +711,7 @@
           </div>
         </div>
 
-        <!-- 💬 Embed Discord dans le dashboard -->
+        <!-- 💬 Embed Discord -->
         <div style="margin-top:10px; margin-bottom:8px;">
           <div class="metric-label" style="margin-bottom:4px;">
             Salon Discord – La Forge TORINVEST
@@ -865,6 +852,19 @@
       </aside>
     </section>
 
+    <!-- 🔥 Bloc News marchés -->
+    <section id="news-marche">
+      <h2 class="section-title">News marchés</h2>
+      <p class="section-sub">
+        Derniers titres détectés par le flux externe (pré-version – à affiner ensuite).
+      </p>
+      <div class="card">
+        <ul id="news-list" class="list">
+          <li>Chargement des news…</li>
+        </ul>
+      </div>
+    </section>
+
     <section id="communaute">
       <h2 class="section-title">Communauté TORINVEST</h2>
       <p class="section-sub">
@@ -904,7 +904,7 @@
           Laisse simplement ton email ci-dessous. Tu seras ajouté à la liste d'attente TORINVEST.
         </p>
 
-        <form id='waitlist-form' method='POST' name='liste-attente-torinvest'>
+        <form id="waitlist-form" method="POST" name="liste-attente-torinvest">
           <input type="hidden" name="form-name" value="liste-attente-torinvest" />
           <p style="display:none">
             <label>Ne pas remplir : <input name="bot-field" /></label>
@@ -929,7 +929,7 @@
 
   <footer>
     <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
-    <a href='https://github.com/torinvest/TORINVEST-Ecosystem'>GitHub</a>
+    <a href="https://github.com/torinvest/TORINVEST-Ecosystem">GitHub</a>
     <span>Site en version bêta</span>
   </footer>
 </div>
@@ -939,18 +939,18 @@
   document.getElementById("year").textContent = new Date().getFullYear();
 
   // gestion Netlify + redirection custom
-  const form = document.getElementById('waitlist-form');
+  const form = document.getElementById("waitlist-form");
   if (form) {
-    form.addEventListener('submit', function (e) {
+    form.addEventListener("submit", function (e) {
       e.preventDefault();
       const data = new FormData(form);
-      fetch('/', { method: 'POST', body: data })
-        .then(() => { window.location.href = 'merci.html'; })
-        .catch(() => { window.location.href = 'merci.html'; });
+      fetch("/", { method: "POST", body: data })
+        .then(() => { window.location.href = "merci.html"; })
+        .catch(() => { window.location.href = "merci.html"; });
     });
   }
 
-  // === Chargement du signal bot IntraDay v1 sur la page d'accueil ===
+  // === Chargement du signal bot IntraDay v1 (via Worker) ===
   async function loadBotSignal() {
     const statusEl = document.getElementById("signal-status");
     const textEl   = document.getElementById("signal-text");
@@ -997,8 +997,51 @@
     }
   }
 
-  // lance le chargement dès que la page est prête
+  // === Chargement des news marchés depuis le Worker Cloudflare ===
+  async function loadMarketNews() {
+    const listEl = document.getElementById("news-list");
+    if (!listEl) return;
+
+    try {
+      const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/news", {
+        headers: { "Accept": "application/json" }
+      });
+
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      const data = await resp.json();
+
+      listEl.innerHTML = "";
+
+      if (!data.items || data.items.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "Aucune news disponible pour le moment.";
+        listEl.appendChild(li);
+        return;
+      }
+
+      data.items.forEach((item) => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = item.link || "#";
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent =
+          (item.source ? "[" + item.source + "] " : "") + (item.title || "News");
+        li.appendChild(a);
+        listEl.appendChild(li);
+      });
+    } catch (err) {
+      console.error("Erreur chargement news marchés :", err);
+      listEl.innerHTML = "";
+      const li = document.createElement("li");
+      li.textContent = "Erreur lors du chargement des news marchés.";
+      listEl.appendChild(li);
+    }
+  }
+
+  // lance les deux chargements
   loadBotSignal();
+  loadMarketNews();
 </script>
 
 <a href="/" class="back-home-btn">← Retour accueil</a>
