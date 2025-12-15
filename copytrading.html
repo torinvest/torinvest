@@ -124,6 +124,27 @@
       margin-top: 18px;
     }
 
+    /* Lien vers l'actu robot trading */
+    .btn-link {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,180,0,0.6);
+      background: rgba(255,180,0,0.12);
+      color: var(--text);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: 0.15s ease;
+    }
+
+    .btn-link:hover {
+      background: rgba(255,180,0,0.26);
+      transform: translateY(-1px);
+    }
+
     /* Bouton retour */
     .btn-home {
       position: fixed;
@@ -143,27 +164,6 @@
     .btn-home:hover {
       background: rgba(255,180,0,0.32);
       transform: translateY(-2px);
-    }
-
-    /* Bouton lien tuto */
-    .btn-tuto {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,180,0,0.5);
-      background: rgba(255,180,0,0.1);
-      color: var(--accent);
-      font-size: 13px;
-      text-decoration: none;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      transition: 0.2s ease;
-    }
-
-    .btn-tuto:hover {
-      background: rgba(255,180,0,0.22);
-      transform: translateY(-1px);
     }
   </style>
 </head>
@@ -228,24 +228,22 @@
     </ul>
   </div>
 
-  <!-- 🔥 Nouveau bloc Tuto MT5 -->
+  <!-- 🆕 Bloc qui renvoie vers l’actualité du robot TORINVEST -->
   <div class="card">
-    <h3>📚 Tuto : attacher son MT5 au robot TORINVEST</h3>
+    <h3>🤖 Actu : robot de trading TORINVEST</h3>
     <p>
-      Pour les forgerons qui veulent aller plus loin, un guide détaillé explique
-      comment relier ton compte MetaTrader 5 à notre robot de copy trading
-      TORINVEST : installation de l’Expert Advisor, réglages, gestion du risque
-      et bonnes pratiques dans l’univers de la Forge.
+      En parallèle du futur service de copy trading, la Forge travaille déjà sur un
+      <strong>robot de trading TORINVEST</strong> relié à TradingView et MT5 : une brique d’exécution
+      conçue pour respecter un cadre de risque et une logique de marché, pas pour vendre du rêve.
     </p>
     <p>
-      Ce tutoriel te montre étape par étape comment transformer ton compte MT5 en
-      <strong>poste de forge</strong> connecté au flux de décisions TORINVEST.
+      Si tu veux suivre l’avancée de ce robot, son architecture et sa place dans l’univers de la Forge,
+      tu peux consulter la page dédiée :
     </p>
-    <a href="/tuto-mt5-robot-torinvest" class="btn-tuto">
-      Tuto &nbsp;–&nbsp; Attacher son MT5 au robot TORINVEST →
+    <a class="btn-link" href="/robot-trading-torinvest.html">
+      Voir l’actualité du robot TORINVEST →
     </a>
   </div>
-  <!-- /bloc tuto -->
 
   <div class="coming">
     🚀 Le service est en construction.  
@@ -259,4 +257,5 @@
 
 </body>
 </html>
+
 
