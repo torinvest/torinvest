@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Robot de Trading TORINVEST – Actualité de la Forge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Actualité du robot de trading TORINVEST : architecture, objectifs, limites et intégration dans l’univers de la Forge.">
+
+  <style>
+    :root {
+      --bg: #050509;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.12);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .page {
+      max-width: 940px;
+      margin: 0 auto;
+      padding: 32px 18px 60px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,180,0,0.45);
+      background: rgba(255,180,0,0.08);
+      color: var(--accent);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      margin-top: 14px;
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #15d16b;
+      box-shadow: 0 0 6px #15d16b;
+    }
+
+    h1 {
+      font-size: 30px;
+      font-weight: 800;
+      background: linear-gradient(120deg, #ffb400, #ff4b5c);
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 640px;
+      margin-bottom: 22px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+      margin-top: 26px;
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px 16px 14px;
+      border: 1px solid rgba(255,255,255,0.05);
+      margin-bottom: 18px;
+    }
+
+    .card h3 {
+      font-size: 16px;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+
+    .list {
+      padding-left: 18px;
+      margin: 8px 0 10px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .list li {
+      margin-bottom: 6px;
+    }
+
+    .highlight {
+      background: var(--accent-soft);
+      border: 1px solid rgba(255,180,0,0.4);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--accent);
+      margin: 14px 0 6px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0.9;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, #ffb400, #ff4b5c);
+      color: #1a1305;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      transition: 0.15s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.85);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 0.15s ease;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+
+    /* Bouton retour global */
+    .btn-home {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 180, 0, 0.16);
+      border: 1px solid rgba(255, 180, 0, 0.4);
+      color: var(--accent);
+      font-size: 12px;
+      text-decoration: none;
+      backdrop-filter: blur(6px);
+      transition: 0.2s ease;
+      z-index: 999;
+    }
+
+    .btn-home:hover {
+      background: rgba(255,180,0,0.32);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 640px) {
+      h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="page">
+
+  <div class="pill">
+    <span class="pill-dot"></span>
+    ACTU FORGE · ROBOT DE TRADING TORINVEST
+  </div>
+
+  <h1>Robot de trading TORINVEST – Vers un copier discipliné</h1>
+  <p class="subtitle">
+    Dans la Forge TORINVEST, le robot de trading n’est pas une machine à “signaux magiques”, 
+    mais une <strong>brique d’exécution</strong> reliée à une logique de marché : Price Action, macro, liquidités, 
+    et gestion du risque. Cette page présente l’actualité du projet et sa philosophie.
+  </p>
+
+  <div class="card">
+    <h3>🎯 L’idée derrière le robot TORINVEST</h3>
+    <p>
+      Le robot TORINVEST (connecté à MetaTrader / MT5 et conçu pour recevoir des ordres structurés depuis TradingView)
+      a un objectif simple :
+    </p>
+    <ul class="list">
+      <li>exécuter des plans définis à l’avance, pas des impulsions émotionnelles ;</li>
+      <li>respecter un cadre de risque décidé en amont (SL / TP / taille) ;</li>
+      <li>permettre aux membres de la Forge de <strong>visualiser une logique de trading cohérente</strong> ;</li>
+      <li>offrir un support pour le futur service de copy trading TORINVEST.</li>
+    </ul>
+    <p>
+      On reste dans l’ADN de la Forge : <strong>structure, discipline, transparence</strong>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>⚙️ Architecture actuelle du projet</h3>
+    <p>
+      Le projet de robot / copy trading TORINVEST repose sur une chaîne technique claire :
+    </p>
+    <ul class="list">
+      <li><strong>TradingView</strong> : indicateurs + outils Torinvest (price action, macro, liquidités) génèrent des signaux structurés ;</li>
+      <li><strong>Serveur TORINVEST</strong> : réception des webhooks, filtrage, enregistrement des signaux (JSON) ;</li>
+      <li><strong>Robot MT5</strong> : un Expert Advisor (EA) lit ces signaux et peut exécuter des ordres sur compte démo / réel ;</li>
+      <li>à terme, un <strong>copieur</strong> permettra à d’autres comptes de suivre ces signaux dans une optique éducative.</li>
+    </ul>
+
+    <div class="highlight">
+      Le cœur du robot n’est pas le “bot” lui-même, mais la <strong>logique de marché</strong> 
+      qui le nourrit : c’est cette logique que la Forge est en train de construire, tester et documenter.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🔨 Intégration avec l’univers de la Forge</h3>
+    <p>
+      Le robot de trading TORINVEST est pensé comme un outil au service :
+    </p>
+    <ul class="list">
+      <li>du <strong>challenge TorMission</strong> (mettre à l’épreuve une méthode dans le temps) ;</li>
+      <li>de la <strong>formation</strong> (montrer noir sur blanc ce qui est exécuté, pourquoi, et avec quel risque) ;</li>
+      <li>du <strong>copy trading</strong> (future brique, sans promesses de gains, avec un cadre strict de transparence).</li>
+    </ul>
+    <p>
+      L’enjeu n’est pas de “faire un robot qui gagne tout le temps”, mais de proposer une
+      <strong>structure stable</strong> pour :
+    </p>
+    <ul class="list">
+      <li>observer des séries de trades cohérents ;</li>
+      <li>analyser les drawdowns et les périodes difficiles ;</li>
+      <li>réfléchir au risque comme un artisan, pas comme un joueur.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3>🚧 Statut actuel & prochaines étapes</h3>
+    <p>
+      Actuellement, le robot TORINVEST est en phase de :
+    </p>
+    <ul class="list">
+      <li>tests techniques sur comptes démo (MT5) ;</li>
+      <li>stabilisation du lien TradingView → serveur → robot MT5 ;</li>
+      <li>expérimentations sur différents styles d’exécution (limit, market, partials, etc.).</li>
+    </ul>
+    <p>
+      Les prochaines étapes envisagées :
+    </p>
+    <ul class="list">
+      <li>ouverture à un petit groupe de membres test dans la Forge ;</li>
+      <li>publication de journaux de performance <strong>non marketés</strong>, sans embellir les chiffres ;</li>
+      <li>intégration progressive avec le futur service de copy trading TORINVEST.</li>
+    </ul>
+
+    <p class="small">
+      ❗ Rien de tout cela ne constitue une incitation à investir, ni une promesse de résultats.
+      Le projet restera présenté comme <strong>expérimental, éducatif et à haut risque</strong>.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3>🧭 Comment suivre l’actualité du robot ?</h3>
+    <p>
+      Si tu veux suivre l’avancement du robot de trading TORINVEST dans la Forge :
+    </p>
+    <ul class="list">
+      <li>surveille la section <strong>Actualités</strong> du site ;</li>
+      <li>rejoins le <strong>Discord TORINVEST</strong> pour voir les annonces techniques et journaux ;</li>
+      <li>reste attentif aux futures pages “Copy Trading” et “TorMission”.</li>
+    </ul>
+
+    <div class="cta-row">
+      <a class="btn-primary" href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
+        Rejoindre la Forge sur Discord
+      </a>
+      <a class="btn-ghost" href="/actualites.html">
+        ← Retour aux actualités Torinvest
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<a class="btn-home" href="/">← Retour accueil</a>
+
+</body>
+</html>
