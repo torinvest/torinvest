@@ -738,71 +738,35 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
           accessPill.textContent = "✅ Accès autorisé • Espace premium déverrouillé.";
           premiumZone.style.display = "block";
 
-          // === Génération du code Forgeron originel via ton Worker ===
-          try {
-            const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/access-code", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ wallet: pubkey }),
-            });
+      // === Génération du code Forgeron originel via ton Worker ===
+try {
+  const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/access-code", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ wallet: pubkey }),
+  });
 
-            const data = await resp.json();
+  const text = await resp.text();
+  let data = null;
+  try { data = JSON.parse(text); } catch(e) {}
 
-            if (data && data.ok && data.code) {
-              if (forgeCodeValue) forgeCodeValue.textContent = data.code;
-              if (forgeCard) forgeCard.style.display = "block";
-            } else {
-              console.warn("Réponse inattendue de /access-code :", data);
-              if (forgeCard) forgeCard.style.display = "none";
-            }
-          } catch (e) {
-            console.error("Erreur lors de la génération du code Forgeron :", e);
-            if (forgeCard) forgeCard.style.display = "none";
-          }
+  // Toujours afficher le bloc, même en erreur, pour voir le problème
+  if (forgeCard) forgeCard.style.display = "block";
 
-        } else {
-          accessPill.className = "access-pill ko";
-          accessPill.textContent =
-            "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
-          premiumZone.style.display = "none";
-          if (forgeCard) forgeCard.style.display = "none";
-        }
-      } catch (err) {
-        if (err && err.code === 4001) {
-          walletStatus.textContent = "Connexion refusée.";
-          walletBox.textContent =
-            "Tu as refusé la connexion de Phantom. Tu pourras réessayer plus tard en cliquant sur le bouton ci-dessus.";
-        } else {
-          walletStatus.textContent = "Erreur lors de la connexion ou de la vérification.";
-          walletBox.textContent =
-            "Un problème est survenu lors de la connexion ou de la récupération des soldes. Détails : " +
-            (err && err.message ? err.message : String(err));
-        }
-        accessPill.className = "access-pill ko";
-        accessPill.textContent = "🔒 Accès verrouillé • Erreur de connexion/vérification.";
-        premiumZone.style.display = "none";
-        if (forgeCard) forgeCard.style.display = "none";
-      }
-    }
+  if (!resp.ok) {
+    if (forgeCodeValue) forgeCodeValue.textContent = `ERREUR ${resp.status} : ${text}`;
+  } else if (data && data.ok && data.code) {
+    if (forgeCodeValue) forgeCodeValue.textContent = data.code;
+  } else {
+    if (forgeCodeValue) forgeCodeValue.textContent = `Réponse inattendue : ${text}`;
+  }
 
-    function copyForgeCode() {
-      if (!forgeCodeValue) return;
-      const code = forgeCodeValue.textContent.trim();
-      if (!code || code === "—") return;
+} catch (e) {
+  if (forgeCard) forgeCard.style.display = "block";
+  if (forgeCodeValue) forgeCodeValue.textContent =
+    `Erreur fetch : ${e.message || String(e)}`;
+}
 
-      navigator.clipboard.writeText(code).then(
-        () => {
-          alert("Code copié dans le presse-papier. Garde-le secret, Forgeron originel.");
-        },
-        (err) => {
-          console.error("Impossible de copier le code :", err);
-        }
-      );
-    }
-
-    if (connectBtn) {
-      connectBtn.addEventListener("click", verifyTorPass);
-    }
   </script>
 
   <a href="/" class="back-home-btn">← Retour accueil</a>
