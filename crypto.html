@@ -35,9 +35,9 @@
       top: 0;
       z-index: 20;
       backdrop-filter: blur(18px);
-      background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.12), transparent 55%)
-                  ,
-                  rgba(5, 5, 9, 0.9);
+      background:
+        radial-gradient(circle at top left, rgba(255, 180, 0, 0.12), transparent 55%),
+        rgba(5, 5, 9, 0.9);
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       padding: 14px 32px;
       display: flex;
@@ -172,9 +172,10 @@
       position: relative;
       border-radius: 18px;
       padding: 20px 18px;
-      background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.2), transparent 55%),
-                  radial-gradient(circle at bottom, rgba(255, 75, 92, 0.12), transparent 55%),
-                  #0b0b13;
+      background:
+        radial-gradient(circle at top left, rgba(255, 180, 0, 0.2), transparent 55%),
+        radial-gradient(circle at bottom, rgba(255, 75, 92, 0.12), transparent 55%),
+        #0b0b13;
       border: 1px solid rgba(255, 255, 255, 0.08);
       box-shadow: 0 22px 45px rgba(0, 0, 0, 0.8);
     }
@@ -193,6 +194,7 @@
       align-items: center;
       margin-bottom: 6px;
       font-size: 12px;
+      gap: 10px;
     }
 
     .hero-panel-label {
@@ -210,6 +212,7 @@
       font-size: 11px;
       border: 1px solid rgba(255, 255, 255, 0.16);
       color: #fefefe;
+      white-space: nowrap;
     }
 
     .pill-krm {
@@ -222,6 +225,111 @@
       color: #c7b6ff;
     }
 
+    /* ===== MENU PAGES CRYPTO (dropdown + scrollable) ===== */
+    .crypto-pages {
+      margin-top: 18px;
+      border-radius: 16px;
+      padding: 14px 14px;
+      background:
+        radial-gradient(circle at top left, rgba(255, 180, 0, 0.12), transparent 60%),
+        rgba(17, 17, 27, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 16px 35px rgba(0,0,0,0.65);
+      backdrop-filter: blur(10px);
+    }
+
+    .crypto-pages-top {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .crypto-pages-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .crypto-pages-controls {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .crypto-select {
+      background: rgba(5,5,9,0.65);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: var(--text-main);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      outline: none;
+      min-width: 290px;
+      cursor: pointer;
+    }
+
+    .crypto-select:focus {
+      border-color: rgba(255, 180, 0, 0.55);
+      box-shadow: 0 0 0 3px rgba(255, 180, 0, 0.16);
+    }
+
+    .crypto-go {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: linear-gradient(135deg, var(--accent), #ff4b5c);
+      color: #1b1305;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition: .2s ease;
+    }
+
+    .crypto-go:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+    .crypto-pages-grid {
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .crypto-page-card {
+      text-decoration:none;
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 12px 12px;
+      background: rgba(5,5,9,0.55);
+      border: 1px solid rgba(255,255,255,0.10);
+      transition: .2s ease;
+    }
+
+    .crypto-page-card:hover {
+      border-color: rgba(255,180,0,0.45);
+      background: rgba(255,255,255,0.03);
+      transform: translateY(-2px);
+    }
+
+    .crypto-page-title {
+      font-weight: 650;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .crypto-page-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
     .tokens-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -230,8 +338,9 @@
     }
 
     .token-card {
-      background: radial-gradient(circle at top, rgba(255, 180, 0, 0.05), transparent 55%),
-                  var(--bg-card);
+      background:
+        radial-gradient(circle at top, rgba(255, 180, 0, 0.05), transparent 55%),
+        var(--bg-card);
       border-radius: 16px;
       padding: 22px 20px 20px;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -311,9 +420,10 @@
       margin-top: 40px;
       padding: 22px 20px 20px;
       border-radius: 18px;
-      background: radial-gradient(circle at top left, rgba(255, 180, 0, 0.12), transparent 55%),
-                  radial-gradient(circle at bottom right, rgba(140, 90, 255, 0.14), transparent 55%),
-                  #050509;
+      background:
+        radial-gradient(circle at top left, rgba(255, 180, 0, 0.12), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(140, 90, 255, 0.14), transparent 55%),
+        #050509;
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
@@ -377,6 +487,30 @@
       margin-top: 20px;
     }
 
+    /* ===== BOUTON RETOUR ACCUEIL (corrigé : CSS dans le head) ===== */
+    .back-home-btn {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+
+    .back-home-btn:hover {
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
+    }
+
     @media (max-width: 860px) {
       header {
         padding: 12px 18px;
@@ -395,6 +529,15 @@
 
       .tokens-grid {
         grid-template-columns: minmax(0, 1fr);
+      }
+
+      .crypto-pages-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .crypto-select {
+        min-width: 100%;
+        width: 100%;
       }
     }
   </style>
@@ -431,15 +574,55 @@
         L’économie TORINVEST vient de s’éveiller. Deux piliers structurent désormais l’univers :
         <strong>KRM</strong>, la monnaie vivante, et <strong>ORAX</strong>, le symbole de la connaissance dorée.
       </p>
+
       <div class="chips">
         <div class="chip chip-gold">KRM – Monnaie utilitaire &amp; humaine</div>
         <div class="chip">ORAX – Savoir, clarté &amp; discipline</div>
         <div class="chip">Écosystème long terme</div>
       </div>
+
+      <!-- ===== MENU PAGES CRYPTO (AJOUTÉ) ===== -->
+      <div class="crypto-pages">
+        <div class="crypto-pages-top">
+          <div class="crypto-pages-label">Rubrique Crypto — pages</div>
+
+          <div class="crypto-pages-controls">
+            <select id="cryptoPageSelect" class="crypto-select" aria-label="Choisir une page crypto">
+              <option value="crypto.html" selected>Accueil Crypto (KRM / ORAX)</option>
+              <option value="crypto-blockchain.html">Blockchain — de Bitcoin à aujourd’hui</option>
+              <!-- Ajoute tes futures pages ici :
+              <option value="crypto-mining.html">Mining — économie, halving, difficulté</option>
+              <option value="crypto-defi.html">DeFi — utilité, risques, cycles</option>
+              -->
+            </select>
+
+            <button class="crypto-go" id="cryptoGoBtn">Ouvrir <span>↗</span></button>
+          </div>
+        </div>
+
+        <div class="crypto-pages-grid">
+          <a class="crypto-page-card" href="crypto.html">
+            <div class="crypto-page-title">Accueil Crypto</div>
+            <div class="crypto-page-meta">KRM, ORAX, vision &amp; structure de l’économie.</div>
+          </a>
+
+          <a class="crypto-page-card" href="crypto-blockchain.html">
+            <div class="crypto-page-title">Blockchain</div>
+            <div class="crypto-page-meta">Origines, utilité, mineurs/validateurs, nuances.</div>
+          </a>
+
+          <a class="crypto-page-card" href="index.html">
+            <div class="crypto-page-title">Retour TORINVEST</div>
+            <div class="crypto-page-meta">Accueil site &amp; autres rubriques.</div>
+          </a>
+        </div>
+      </div>
+      <!-- ===== FIN MENU PAGES CRYPTO ===== -->
     </div>
 
     <div class="hero-panel">
       <div class="hero-panel-title">Dashboard FORGE</div>
+
       <div class="hero-panel-line">
         <span class="hero-panel-label">Piliers de l’économie</span>
         <span class="hero-panel-value">
@@ -447,10 +630,12 @@
           <span class="pill pill-orax">ORAX – Savoir</span>
         </span>
       </div>
+
       <div class="hero-panel-line">
         <span class="hero-panel-label">Objectif</span>
         <span class="hero-panel-value">Construire une économie de communauté, pas un casino.</span>
       </div>
+
       <div class="hero-panel-line">
         <span class="hero-panel-label">Vision</span>
         <span class="hero-panel-value">Séparer la valeur (KRM) et la connaissance (ORAX).</span>
@@ -467,7 +652,7 @@
         Le jeton de valeur, l’énergie brute de l’univers TORINVEST.
       </div>
       <div class="token-body">
-        KRM est la <strong>monnaie vivante</strong> du projet TORINVEST.  
+        KRM est la <strong>monnaie vivante</strong> du projet TORINVEST.
         Il représente l’effort, la contribution et la valeur créée par la communauté elle-même,
         pas par les institutions.
       </div>
@@ -478,7 +663,7 @@
         <li>Flux de valeur au cœur de l’écosystème, au service des bâtisseurs, pas des spéculateurs de passage.</li>
       </ul>
       <div class="token-body">
-        KRM est pensé comme un <strong>outil</strong>, pas comme un ticket de loterie.  
+        KRM est pensé comme un <strong>outil</strong>, pas comme un ticket de loterie.
         Il accompagne la construction lente et lucide de l’univers TORINVEST.
       </div>
       <div class="token-footer">
@@ -509,7 +694,7 @@
         <li>Token de reconnaissance plus que de spéculation : la clarté avant le profit.</li>
       </ul>
       <div class="token-body">
-        ORAX n’est pas seulement un actif numérique.  
+        ORAX n’est pas seulement un actif numérique.
         C’est un <strong>marqueur de posture mentale</strong> : choisir la compréhension plutôt que la réaction.
       </div>
       <div class="token-footer">
@@ -528,58 +713,47 @@
       L’objectif n’est pas d’alimenter un casino de plus, mais de structurer
       une <strong>économie de communauté</strong> cohérente, lisible, assumée.
     </p>
-    <p>
-      La séparation entre KRM et ORAX est volontaire :
-    </p>
+    <p>La séparation entre KRM et ORAX est volontaire :</p>
     <ul class="vision-list">
       <li><strong>KRM</strong> porte la valeur, le mouvement, l’utilité concrète.</li>
       <li><strong>ORAX</strong> porte le savoir, la lucidité et la discipline mentale.</li>
       <li>Ensemble, ils créent un binôme : <em>énergie + vision</em>.</li>
     </ul>
     <p>
-      La tokenisation TORINVEST est pensée long terme :  
+      La tokenisation TORINVEST est pensée long terme :
       construire un espace où les membres ne sont pas des consommateurs,
       mais des bâtisseurs lucidement armés face aux marchés et à la guerre économique globale.
     </p>
   </section>
 
   <div class="cta-bottom">
-    La Forge continue de se construire, bloc après bloc.  
+    La Forge continue de se construire, bloc après bloc.
     <br />
     <a href="index.html">← Retourner à la page principale TORINVEST</a>
   </div>
 </main>
 
 <footer>
-  © 2025 TORINVEST — Trading • Macro • Crypto • Psychologie.  
+  © 2025 TORINVEST — Trading • Macro • Crypto • Psychologie.
   Aucun conseil en investissement. Univers éducatif &amp; expérimental.
 </footer>
-  <a href="/" class="back-home-btn">← Retour accueil</a>
 
-<style>
-.back-home-btn {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #f5f5f7;
-  backdrop-filter: blur(4px);
-  transition: 0.2s ease;
-  z-index: 9999;
-}
+<a href="/" class="back-home-btn">← Retour accueil</a>
 
-.back-home-btn:hover {
-  background: rgba(255, 180, 0, 0.25);
-  border-color: rgba(255, 180, 0, 0.6);
-  transform: translateY(-2px);
-}
-</style>
+<script>
+  (function(){
+    const select = document.getElementById("cryptoPageSelect");
+    const btn = document.getElementById("cryptoGoBtn");
+
+    function go(){
+      const target = select.value;
+      if(target) window.location.href = target;
+    }
+
+    btn.addEventListener("click", go);
+    select.addEventListener("change", go); // switch direct
+  })();
+</script>
 
 </body>
 </html>
