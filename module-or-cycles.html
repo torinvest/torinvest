@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TORINVEST — Module Gratuit : Cycles de l’Or</title>
+
+  <style>
+    :root{
+      --bg:#070709;
+      --bg-soft:#0c0d10;
+      --bg-card:#111218;
+      --gold:#e3c16f;
+      --orange:#ff9a3c;
+      --text:#e9eaee;
+      --muted:#a7adba;
+      --line: rgba(255,255,255,0.08);
+      --radius:18px;
+      --shadow: 0 18px 60px rgba(0,0,0,.6);
+      --maxw:1100px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      background: radial-gradient(1200px 800px at 70% -10%, #141625 0%, var(--bg) 55%);
+      color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      letter-spacing:0.2px; line-height:1.7;
+    }
+    .container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+
+    header{
+      padding:64px 0 26px;
+      border-bottom:1px solid var(--line);
+    }
+    .badge{
+      display:inline-flex; gap:8px; align-items:center;
+      padding:7px 11px;
+      background:rgba(255,255,255,0.04);
+      border:1px solid var(--line);
+      border-radius:999px; font-size:12px; color:var(--muted);
+    }
+    .dot{
+      width:7px; height:7px; border-radius:50%;
+      background:linear-gradient(180deg,var(--gold),var(--orange));
+      box-shadow:0 0 10px rgba(255,154,60,.8);
+    }
+    h1{
+      font-size: clamp(26px, 3.6vw, 44px);
+      margin:14px 0 8px;
+    }
+    .lead{ margin:0; color:var(--muted); max-width: 900px; }
+
+    .layout{
+      display:grid;
+      grid-template-columns: 320px 1fr;
+      gap:18px;
+      padding:26px 0 60px;
+    }
+    .panel, .card{
+      background:var(--bg-card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .panel{ padding:16px; position: sticky; top: 14px; height: fit-content; }
+    .panel h3{
+      margin:0 0 10px; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);
+    }
+    .toc a{
+      display:block;
+      padding:10px 10px;
+      border-radius:12px;
+      color:var(--text);
+      text-decoration:none;
+      border:1px solid transparent;
+      transition:.2s ease;
+      font-size: 14px;
+    }
+    .toc a:hover{
+      border-color: rgba(255,180,0,0.35);
+      background: rgba(255,255,255,0.03);
+      transform: translateY(-1px);
+    }
+
+    .content .card{ padding:18px; margin-bottom: 12px; }
+    .kicker{ color: var(--gold); font-size:12px; letter-spacing:.14em; text-transform:uppercase; }
+    h2{ margin:8px 0 8px; font-size: 22px; }
+    p{ margin: 10px 0; color: var(--muted); }
+    ul{ margin:10px 0 0; padding-left:18px; color: var(--muted); }
+    li{ margin: 6px 0; }
+
+    .callout{
+      margin-top: 12px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,180,0,0.25);
+      background: linear-gradient(180deg, rgba(255,180,0,0.10), rgba(0,0,0,0));
+      color: #f6e7bd;
+    }
+    .callout strong{ color:#fff; }
+
+    .rule{
+      font-size: 18px;
+      font-weight: 800;
+      color: #f6e7bd;
+      margin-top: 8px;
+    }
+
+    footer{
+      padding:26px 0;
+      border-top:1px solid var(--line);
+      text-align:center;
+      font-size:13px;
+      color:#8a8f9b;
+      background:#060607;
+    }
+
+    .back-home-btn{
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+    .back-home-btn:hover{
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 980px){
+      .layout{ grid-template-columns: 1fr; }
+      .panel{ position: relative; top: auto; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="container">
+    <div class="badge"><span class="dot"></span> MODULE GRATUIT — MACRO / OR / RÉGIMES MONÉTAIRES</div>
+    <h1>Comprendre les grands cycles de l’or (1968 → aujourd’hui)</h1>
+    <p class="lead">
+      Objectif : comprendre pourquoi l’or entre en cycle haussier (et quand il ne monte pas),
+      sans récit — uniquement via les variables macro.
+    </p>
+    <div class="callout">
+      <div class="rule">L’or ne monte pas parce que l’économie va mal. Il monte quand la monnaie se dégrade.</div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <div class="layout">
+
+    <!-- SOMMAIRE -->
+    <aside class="panel">
+      <h3>Sommaire</h3>
+      <nav class="toc">
+        <a href="#obj">Objectif & règle</a>
+        <a href="#pre71">Avant 1971</a>
+        <a href="#6871">1968–1971</a>
+        <a href="#7174">1971–1974</a>
+        <a href="#7476">1974–1976</a>
+        <a href="#7680">1976–1980</a>
+        <a href="#8000">1980–2000</a>
+        <a href="#0111">2001–2011</a>
+        <a href="#1115">2011–2015</a>
+        <a href="#1620">2016–2020</a>
+        <a href="#2024">2020–Aujourd’hui</a>
+        <a href="#synth">Synthèse</a>
+      </nav>
+    </aside>
+
+    <!-- CONTENU -->
+    <section class="content">
+
+      <article class="card" id="obj">
+        <div class="kicker">Cadre</div>
+        <h2>Objectif & règle fondamentale</h2>
+        <p>
+          Ce module ne sert pas à “acheter de l’or”. Il sert à comprendre le système monétaire.
+          L’or est un thermomètre : il réagit à la confiance, aux taux réels et à la discipline.
+        </p>
+        <div class="callout">
+          <strong>Règle :</strong> quand le système choisit la dette plutôt que la discipline,
+          l’or redevient unité de mesure.
+        </div>
+      </article>
+
+      <article class="card" id="pre71">
+        <div class="kicker">Chapitre 1</div>
+        <h2>Avant 1971 : l’or avant d’être un actif</h2>
+        <ul>
+          <li>Bretton Woods : l’or est l’ancre du système.</li>
+          <li>Prix administré, marché non libre.</li>
+          <li>Contradiction : dollar émis plus vite que l’or ne couvre.</li>
+        </ul>
+      </article>
+
+      <article class="card" id="6871">
+        <div class="kicker">Cycle</div>
+        <h2>1968–1971 : pré-rupture</h2>
+        <ul>
+          <li>Déficits US massifs (guerre + État social).</li>
+          <li>Sur-émission du dollar vs réserves d’or.</li>
+          <li>Pression des banques centrales étrangères pour convertir en or.</li>
+          <li>Bretton Woods sous stress.</li>
+        </ul>
+        <p><strong style="color:#f6e7bd;">Ce que le marché anticipe :</strong> « Le dollar est mathématiquement intenable. »</p>
+      </article>
+
+      <article class="card" id="7174">
+        <div class="kicker">Cycle</div>
+        <h2>1971–1974 : rupture officielle</h2>
+        <ul>
+          <li>Fin de la convertibilité dollar/or → l’or devient libre.</li>
+          <li>Choc de confiance mondial + inflation importée.</li>
+          <li>Re-pricing de l’unité de mesure.</li>
+        </ul>
+      </article>
+
+      <article class="card" id="7476">
+        <div class="kicker">Cycle</div>
+        <h2>1974–1976 : correction / digestion</h2>
+        <ul>
+          <li>Tentatives de contrôle monétaire + discours rassurants.</li>
+          <li>Interventions + illusion de stabilisation.</li>
+        </ul>
+        <p>Correction narrative/technique, pas réparation structurelle.</p>
+      </article>
+
+      <article class="card" id="7680">
+        <div class="kicker">Cycle</div>
+        <h2>1976–1980 : accélération terminale</h2>
+        <ul>
+          <li>Inflation hors de contrôle + taux réels négatifs.</li>
+          <li>Chocs pétroliers + crédibilité monétaire détruite.</li>
+        </ul>
+        <p>L’or redevient <strong style="color:#f6e7bd;">l’unité de mesure fiable</strong>.</p>
+      </article>
+
+      <article class="card" id="8000">
+        <div class="kicker">Régime</div>
+        <h2>1980–2000 : range long</h2>
+        <ul>
+          <li>Volcker : taux réels positifs → inflation détruite.</li>
+          <li>Dollar fort, crédibilité renforcée.</li>
+        </ul>
+        <div class="callout"><strong>Loi :</strong> quand le rendement réel existe, l’or devient inutile.</div>
+      </article>
+
+      <article class="card" id="0111">
+        <div class="kicker">Cycle</div>
+        <h2>2001–2011 : retour du risque systémique</h2>
+        <ul>
+          <li>Dette mondiale + financiarisation + levier.</li>
+          <li>2008 : crise bancaire + QE (création monétaire assumée).</li>
+        </ul>
+        <p>L’or redevient assurance systémique.</p>
+      </article>
+
+      <article class="card" id="1115">
+        <div class="kicker">Cycle</div>
+        <h2>2011–2015 : correction / illusion de sortie</h2>
+        <ul>
+          <li>Discours de normalisation + dollar fort.</li>
+          <li>Reprise artificielle (narratif).</li>
+        </ul>
+        <p>La dette ne baisse pas : perfusion, pas guérison.</p>
+      </article>
+
+      <article class="card" id="1620">
+        <div class="kicker">Cycle</div>
+        <h2>2016–2020 : reprise silencieuse</h2>
+        <ul>
+          <li>Taux 0 / négatifs + tensions géopolitiques.</li>
+          <li>Banques centrales redeviennent acheteuses.</li>
+        </ul>
+        <p>L’or redevient actif stratégique.</p>
+      </article>
+
+      <article class="card" id="2024">
+        <div class="kicker">Cycle</div>
+        <h2>2020–Aujourd’hui : choc monétaire historique</h2>
+        <ul>
+          <li>Création monétaire massive + inflation globale.</li>
+          <li>Dette structurelle + fragmentation géopolitique.</li>
+          <li>Contrainte : remontée durable des taux difficile.</li>
+        </ul>
+        <p>L’or monte sans panique : avec lucidité.</p>
+      </article>
+
+      <article class="card" id="synth">
+        <div class="kicker">Synthèse</div>
+        <h2>Quand l’or monte, quand il ne monte pas</h2>
+        <div class="callout">
+          <strong>L’or monte quand :</strong> taux réels négatifs, dette structurelle, confiance monétaire en baisse, banques centrales acheteuses.
+        </div>
+        <div class="callout" style="border-color: rgba(255,255,255,0.12);">
+          <strong>L’or stagne/baisse quand :</strong> discipline monétaire réelle, taux réels positifs, dollar fort, crédibilité renforcée.
+        </div>
+        <p style="margin-top:12px; color:#f6e7bd; font-weight:800;">
+          L’or n’est pas un trade. L’or est un thermomètre du système monétaire.
+        </p>
+      </article>
+
+    </section>
+  </div>
+</main>
+
+<footer>
+  © TORINVEST TRADING — Module gratuit. Aucun conseil en investissement. Éducation macro.
+</footer>
+
+<a href="/" class="back-home-btn">← Retour accueil</a>
+</body>
+</html>
