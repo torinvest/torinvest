@@ -26,7 +26,8 @@
       background: radial-gradient(1200px 800px at 70% -10%, #141625 0%, var(--bg) 55%);
       color:var(--text);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      letter-spacing:0.2px; line-height:1.65;
+      letter-spacing:0.2px;
+      line-height:1.65;
     }
 
     .container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
@@ -61,7 +62,7 @@
 
     h2{
       font-size:26px;
-      margin-bottom:14px;
+      margin:0 0 14px;
     }
 
     .card{
@@ -73,7 +74,7 @@
       margin-top:16px;
     }
 
-    ul{ padding-left:18px; }
+    ul{ padding-left:18px; margin:12px 0 0; }
     li{ margin-bottom:10px; color:var(--muted); }
 
     footer{
@@ -84,32 +85,154 @@
       color:#8a8f9b;
       background:#060607;
     }
-    /* ===== TIMELINE 3D ===== */
-.timeline-3d { perspective: 1200px; padding: 80px 0; overflow-x: auto; }
-.timeline-track { display:flex; gap:60px; padding:40px 60px; transform: rotateX(18deg); position:relative; }
-.timeline-track::before { content:""; position:absolute; top:50%; left:0; right:0; height:6px;
-  background: linear-gradient(90deg, transparent, rgba(227,193,111,0.4), transparent);
-  transform: translateY(-50%);
-}
-.time-node { position:relative; transform-style: preserve-3d; flex: 0 0 auto; }
-.year { position:absolute; top:-40px; left:50%; transform: translateX(-50%); font-size:12px; color: var(--gold); letter-spacing:1px; }
 
-.plate {
-  width:240px;
-  background: linear-gradient(180deg, #141625, #0b0c12);
-  border:1px solid rgba(255,255,255,0.1);
-  border-radius:18px;
-  padding:18px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
-  transform: translateZ(0);
-  transition: transform .4s ease, box-shadow .4s ease, border-color .4s ease;
-}
-.plate h3 { margin:0 0 6px; font-size:16px; color:#f6e7bd; }
-.plate p { margin:0; font-size:13px; color: var(--muted); }
+    /* ===== TIMELINE 3D (PROPRE + MODERNE) ===== */
+    .timeline-3d{
+      padding:60px 0 70px;
+    }
 
-.time-node:hover .plate { transform: translateZ(60px); box-shadow: 0 40px 90px rgba(0,0,0,0.9); border-color: rgba(255,154,60,0.35); }
-.time-node.highlight .plate { border-color: rgba(255,180,0,0.6); box-shadow: 0 0 40px rgba(255,180,0,0.35); }
+    /* wrapper pour gérer le scroll + fade */
+    .timeline-wrap{
+      position:relative;
+      margin-top:16px;
+      border-radius: 22px;
+      overflow:hidden;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,0.03);
+      box-shadow: var(--shadow);
+    }
 
+    /* fade gauche/droite */
+    .timeline-wrap::before,
+    .timeline-wrap::after{
+      content:"";
+      position:absolute;
+      top:0; bottom:0;
+      width:70px;
+      pointer-events:none;
+      z-index:5;
+    }
+    .timeline-wrap::before{
+      left:0;
+      background: linear-gradient(90deg, rgba(7,7,9,0.95), rgba(7,7,9,0));
+    }
+    .timeline-wrap::after{
+      right:0;
+      background: linear-gradient(270deg, rgba(7,7,9,0.95), rgba(7,7,9,0));
+    }
+
+    .timeline-scroll{
+      overflow-x:auto;
+      overflow-y:hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 18px 10px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(227,193,111,0.35) rgba(255,255,255,0.06);
+    }
+    .timeline-scroll::-webkit-scrollbar{ height:10px; }
+    .timeline-scroll::-webkit-scrollbar-track{ background: rgba(255,255,255,0.06); border-radius: 999px; }
+    .timeline-scroll::-webkit-scrollbar-thumb{
+      background: rgba(227,193,111,0.28);
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,0.06);
+    }
+
+    .timeline-track{
+      display:flex;
+      gap:60px;
+      padding: 46px 70px 46px;
+      position:relative;
+      min-width: max-content;
+      transform: perspective(1200px) rotateX(16deg);
+      transform-origin: center;
+    }
+
+    .timeline-track::before{
+      content:"";
+      position:absolute;
+      top:50%;
+      left:0; right:0;
+      height:6px;
+      background: linear-gradient(90deg, transparent, rgba(227,193,111,0.35), transparent);
+      transform: translateY(-50%);
+    }
+
+    .time-node{
+      position:relative;
+      transform-style: preserve-3d;
+      flex: 0 0 auto;
+    }
+
+    .year{
+      position:absolute;
+      top:-42px;
+      left:50%;
+      transform: translateX(-50%);
+      font-size:12px;
+      color: var(--gold);
+      letter-spacing:1px;
+      opacity:.95;
+      white-space: nowrap;
+    }
+
+    .plate{
+      width: 250px;
+      background: linear-gradient(180deg, #141625, #0b0c12);
+      border:1px solid rgba(255,255,255,0.10);
+      border-radius:18px;
+      padding:18px;
+      box-shadow: 0 18px 44px rgba(0,0,0,0.65);
+      transform: translateZ(0);
+      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease, filter .35s ease;
+      will-change: transform;
+    }
+
+    .plate h3{
+      margin:0 0 6px;
+      font-size:16px;
+      color:#f6e7bd;
+      letter-spacing: .2px;
+    }
+
+    .plate p{
+      margin:0;
+      font-size:13px;
+      color: var(--muted);
+    }
+
+    .time-node:hover .plate{
+      transform: translateZ(70px);
+      box-shadow: 0 40px 95px rgba(0,0,0,0.92);
+      border-color: rgba(255,154,60,0.35);
+      filter: brightness(1.06);
+    }
+
+    .time-node.highlight .plate{
+      border-color: rgba(255,180,0,0.6);
+      box-shadow: 0 0 44px rgba(255,180,0,0.22), 0 22px 60px rgba(0,0,0,0.75);
+    }
+
+    /* ===== BOUTON RETOUR ACCUEIL ===== */
+    .back-home-btn{
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+    .back-home-btn:hover{
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 
@@ -139,7 +262,7 @@
         <li>Objets rares → symboles de valeur</li>
         <li>Métaux → portables, divisibles, durables</li>
       </ul>
-      <p>
+      <p style="margin-top:12px;">
         La monnaie apparaît quand la confiance dépasse le cercle tribal.
       </p>
     </div>
@@ -160,77 +283,84 @@
         <li>Neutralité politique</li>
         <li>Acceptation trans-civilisationnelle</li>
       </ul>
-      <p>
+      <p style="margin-top:12px;">
         Pendant des millénaires, l’or a servi de <strong>référence silencieuse</strong> :
         non pas parce qu’il rapporte, mais parce qu’il mesure.
       </p>
     </div>
   </div>
 </section>
-  <section class="timeline-3d">
+
+<section class="timeline-3d">
   <div class="container">
     <h2>Chronologie — La confiance monétaire en strates</h2>
 
-    <div class="timeline-track">
-      <div class="time-node">
-        <span class="year">-3000</span>
-        <div class="plate">
-          <h3>Or primordial</h3>
-          <p>La valeur se mesure par la rareté et la durée. Confiance trans-civilisationnelle.</p>
-        </div>
-      </div>
+    <div class="timeline-wrap">
+      <div class="timeline-scroll" id="timelineScroll">
+        <div class="timeline-track">
 
-      <div class="time-node">
-        <span class="year">600 av. J.-C.</span>
-        <div class="plate">
-          <h3>Pièce frappée</h3>
-          <p>Standardisation : poids, titre, sceau. L’État devient garant de la mesure.</p>
-        </div>
-      </div>
+          <div class="time-node">
+            <span class="year">-3000</span>
+            <div class="plate">
+              <h3>Or primordial</h3>
+              <p>La valeur se mesure par la rareté et la durée. Confiance trans-civilisationnelle.</p>
+            </div>
+          </div>
 
-      <div class="time-node">
-        <span class="year">1694</span>
-        <div class="plate">
-          <h3>Banque centrale</h3>
-          <p>La confiance se centralise : dette, monnaie papier, crédibilité institutionnelle.</p>
-        </div>
-      </div>
+          <div class="time-node">
+            <span class="year">600 av. J.-C.</span>
+            <div class="plate">
+              <h3>Pièce frappée</h3>
+              <p>Standardisation : poids, titre, sceau. L’État devient garant de la mesure.</p>
+            </div>
+          </div>
 
-      <div class="time-node">
-        <span class="year">1870</span>
-        <div class="plate">
-          <h3>Étalon-or</h3>
-          <p>Monnaie disciplinée : convertibilité, mesure stable, commerce mondial.</p>
-        </div>
-      </div>
+          <div class="time-node">
+            <span class="year">1694</span>
+            <div class="plate">
+              <h3>Banque centrale</h3>
+              <p>La confiance se centralise : dette, monnaie papier, crédibilité institutionnelle.</p>
+            </div>
+          </div>
 
-      <div class="time-node">
-        <span class="year">1971</span>
-        <div class="plate">
-          <h3>Fiat</h3>
-          <p>Décorrélation de l’or : la monnaie devient promesse politique.</p>
-        </div>
-      </div>
+          <div class="time-node">
+            <span class="year">1870</span>
+            <div class="plate">
+              <h3>Étalon-or</h3>
+              <p>Monnaie disciplinée : convertibilité, mesure stable, commerce mondial.</p>
+            </div>
+          </div>
 
-      <div class="time-node">
-        <span class="year">2008</span>
-        <div class="plate">
-          <h3>QE</h3>
-          <p>La monnaie devient outil de stabilisation. La mesure s’efface au profit du pilotage.</p>
-        </div>
-      </div>
+          <div class="time-node">
+            <span class="year">1971</span>
+            <div class="plate">
+              <h3>Fiat</h3>
+              <p>Décorrélation de l’or : la monnaie devient promesse politique.</p>
+            </div>
+          </div>
 
-      <div class="time-node highlight">
-        <span class="year">2020 → 2025</span>
-        <div class="plate">
-          <h3>Crise de confiance</h3>
-          <p>Inflation, fragmentation, retour du réel : l’or redevient repère, pas rendement.</p>
+          <div class="time-node">
+            <span class="year">2008</span>
+            <div class="plate">
+              <h3>QE</h3>
+              <p>La monnaie devient outil de stabilisation. La mesure s’efface au profit du pilotage.</p>
+            </div>
+          </div>
+
+          <div class="time-node highlight">
+            <span class="year">2020 → 2025</span>
+            <div class="plate">
+              <h3>Crise de confiance</h3>
+              <p>Inflation, fragmentation, retour du réel : l’or redevient repère, pas rendement.</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
+
   </div>
 </section>
-
 
 <section>
   <div class="container">
@@ -246,7 +376,7 @@
         <li>Parité fixe</li>
         <li>Ratio dette / réserve</li>
       </ul>
-      <p>
+      <p style="margin-top:12px;">
         Quand la mesure disparaît, la monnaie devient narrative.
       </p>
     </div>
@@ -257,15 +387,13 @@
   <div class="container">
     <h2>4. Le basculement : monnaie de confiance → monnaie de promesse</h2>
     <div class="card">
-      <p>
-        Le XXe siècle marque une rupture :
-      </p>
+      <p>Le XXe siècle marque une rupture :</p>
       <ul>
         <li>Décorrélation de l’or</li>
         <li>Monnaie adossée à l’État</li>
         <li>Confiance remplacée par la crédibilité politique</li>
       </ul>
-      <p>
+      <p style="margin-top:12px;">
         La monnaie devient un outil de pilotage, non plus de mesure.
       </p>
     </div>
@@ -280,7 +408,7 @@
         Inflation, dette, fragmentation géopolitique :
         le problème n’est pas technique.
       </p>
-      <p>
+      <p style="margin-top:10px;">
         Il est <strong>symbolique</strong> :
         la monnaie ne dit plus la vérité du réel.
       </p>
@@ -297,10 +425,8 @@
   <div class="container">
     <h2>6. Conclusion — La monnaie est un miroir</h2>
     <div class="card">
-      <p>
-        Une civilisation se lit dans sa monnaie.
-      </p>
-      <p>
+      <p>Une civilisation se lit dans sa monnaie.</p>
+      <p style="margin-top:10px;">
         Quand la confiance disparaît, on ne détruit pas la monnaie :
         on change d’unité de mesure.
       </p>
@@ -314,28 +440,22 @@
 
 <a href="/" class="back-home-btn">← Retour accueil</a>
 
-<style>
-.back-home-btn {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-  padding: 8px 14px;
-  font-size: 12px;
-  text-decoration: none;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #f5f5f7;
-  backdrop-filter: blur(4px);
-  transition: 0.2s ease;
-  z-index: 9999;
-}
-.back-home-btn:hover {
-  background: rgba(255,180,0,0.25);
-  border-color: rgba(255,180,0,0.6);
-  transform: translateY(-2px);
-}
-</style>
+<!-- Optionnel : molette = scroll horizontal sur la timeline (ultra agréable sur PC) -->
+<script>
+  (function(){
+    const el = document.getElementById("timelineScroll");
+    if(!el) return;
+
+    el.addEventListener("wheel", (e) => {
+      // si l'utilisateur scroll vertical, on convertit en horizontal
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        el.scrollLeft += e.deltaY;
+      }
+    }, { passive:false });
+  })();
+</script>
 
 </body>
 </html>
+
