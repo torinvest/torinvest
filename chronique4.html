@@ -84,6 +84,32 @@
       color:#8a8f9b;
       background:#060607;
     }
+    /* ===== TIMELINE 3D ===== */
+.timeline-3d { perspective: 1200px; padding: 80px 0; overflow-x: auto; }
+.timeline-track { display:flex; gap:60px; padding:40px 60px; transform: rotateX(18deg); position:relative; }
+.timeline-track::before { content:""; position:absolute; top:50%; left:0; right:0; height:6px;
+  background: linear-gradient(90deg, transparent, rgba(227,193,111,0.4), transparent);
+  transform: translateY(-50%);
+}
+.time-node { position:relative; transform-style: preserve-3d; flex: 0 0 auto; }
+.year { position:absolute; top:-40px; left:50%; transform: translateX(-50%); font-size:12px; color: var(--gold); letter-spacing:1px; }
+
+.plate {
+  width:240px;
+  background: linear-gradient(180deg, #141625, #0b0c12);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
+  padding:18px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+  transform: translateZ(0);
+  transition: transform .4s ease, box-shadow .4s ease, border-color .4s ease;
+}
+.plate h3 { margin:0 0 6px; font-size:16px; color:#f6e7bd; }
+.plate p { margin:0; font-size:13px; color: var(--muted); }
+
+.time-node:hover .plate { transform: translateZ(60px); box-shadow: 0 40px 90px rgba(0,0,0,0.9); border-color: rgba(255,154,60,0.35); }
+.time-node.highlight .plate { border-color: rgba(255,180,0,0.6); box-shadow: 0 0 40px rgba(255,180,0,0.35); }
+
   </style>
 </head>
 
@@ -141,6 +167,70 @@
     </div>
   </div>
 </section>
+  <section class="timeline-3d">
+  <div class="container">
+    <h2>Chronologie — La confiance monétaire en strates</h2>
+
+    <div class="timeline-track">
+      <div class="time-node">
+        <span class="year">-3000</span>
+        <div class="plate">
+          <h3>Or primordial</h3>
+          <p>La valeur se mesure par la rareté et la durée. Confiance trans-civilisationnelle.</p>
+        </div>
+      </div>
+
+      <div class="time-node">
+        <span class="year">600 av. J.-C.</span>
+        <div class="plate">
+          <h3>Pièce frappée</h3>
+          <p>Standardisation : poids, titre, sceau. L’État devient garant de la mesure.</p>
+        </div>
+      </div>
+
+      <div class="time-node">
+        <span class="year">1694</span>
+        <div class="plate">
+          <h3>Banque centrale</h3>
+          <p>La confiance se centralise : dette, monnaie papier, crédibilité institutionnelle.</p>
+        </div>
+      </div>
+
+      <div class="time-node">
+        <span class="year">1870</span>
+        <div class="plate">
+          <h3>Étalon-or</h3>
+          <p>Monnaie disciplinée : convertibilité, mesure stable, commerce mondial.</p>
+        </div>
+      </div>
+
+      <div class="time-node">
+        <span class="year">1971</span>
+        <div class="plate">
+          <h3>Fiat</h3>
+          <p>Décorrélation de l’or : la monnaie devient promesse politique.</p>
+        </div>
+      </div>
+
+      <div class="time-node">
+        <span class="year">2008</span>
+        <div class="plate">
+          <h3>QE</h3>
+          <p>La monnaie devient outil de stabilisation. La mesure s’efface au profit du pilotage.</p>
+        </div>
+      </div>
+
+      <div class="time-node highlight">
+        <span class="year">2020 → 2025</span>
+        <div class="plate">
+          <h3>Crise de confiance</h3>
+          <p>Inflation, fragmentation, retour du réel : l’or redevient repère, pas rendement.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 
 <section>
   <div class="container">
