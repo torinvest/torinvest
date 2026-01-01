@@ -2,15 +2,11 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>La Forge – TORINVEST</title>
+  <title>Formation – TORINVEST</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       min-height: 100vh;
@@ -46,7 +42,7 @@
     .box {
       position: relative;
       width: 100%;
-      max-width: 520px;
+      max-width: 560px;
       background: #11111c;
       border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -76,10 +72,7 @@
       display: block;
     }
 
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-    }
+    .logo-text { display: flex; flex-direction: column; }
 
     .logo-title {
       font-weight: 700;
@@ -103,6 +96,7 @@
       color: #ffb400;
       text-transform: uppercase;
       letter-spacing: 0.14em;
+      white-space: nowrap;
     }
 
     h1 {
@@ -147,7 +141,7 @@
         rgba(255,180,0,0.9),
         rgba(255,75,92,0)
       );
-      margin: 10px 0 14px;
+      margin: 12px 0 14px;
       opacity: 0.7;
     }
 
@@ -170,9 +164,7 @@
       outline: none;
     }
 
-    .small-input::placeholder {
-      color: #6b6b80;
-    }
+    .small-input::placeholder { color: #6b6b80; }
 
     .btn {
       border-radius: 999px;
@@ -185,7 +177,7 @@
       justify-content: center;
       gap: 8px;
       font-weight: 500;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
       background: linear-gradient(135deg, #ffb400, #ff4b5c);
       color: #1b1305;
       box-shadow: 0 10px 26px rgba(0,0,0,0.8);
@@ -195,6 +187,7 @@
     .btn:hover {
       transform: translateY(-1px);
       box-shadow: 0 14px 32px rgba(0,0,0,0.9);
+      filter: brightness(1.05);
     }
 
     .note {
@@ -219,18 +212,130 @@
       opacity: 0.85;
     }
 
-    .footer-links a:hover {
-      opacity: 1;
+    .footer-links a:hover { opacity: 1; }
+
+    /* ===== MODULES GRATUITS ===== */
+    .modules {
+      margin-top: 14px;
+      padding: 14px 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background:
+        radial-gradient(circle at top left, rgba(255,180,0,0.10), transparent 60%),
+        rgba(0,0,0,0.18);
+      box-shadow: 0 14px 34px rgba(0,0,0,0.65);
+    }
+
+    .modules-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .modules-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #9a9aad;
+    }
+
+    .modules-badge {
+      font-size: 10px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 180, 0, 0.45);
+      background: rgba(255, 180, 0, 0.08);
+      color: #ffb400;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      white-space: nowrap;
+    }
+
+    .modules-controls {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .module-select {
+      flex: 1 1 260px;
+      min-width: 0;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.50);
+      color: #f5f5f7;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .module-select:focus {
+      border-color: rgba(255, 180, 0, 0.55);
+      box-shadow: 0 0 0 3px rgba(255, 180, 0, 0.16);
+    }
+
+    .module-card {
+      display: block;
+      margin-top: 10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.38);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+
+    .module-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,180,0,0.40);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .module-card-title {
+      font-size: 13px;
+      font-weight: 650;
+      color: #f5f5f7;
+      margin-bottom: 4px;
+    }
+
+    .module-card-meta {
+      font-size: 12px;
+      color: #a7a7b8;
+      line-height: 1.5;
+    }
+
+    /* ===== BOUTON RETOUR ACCUEIL ===== */
+    .back-home-btn {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+
+    .back-home-btn:hover {
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
     }
 
     @media (max-width: 520px) {
-      .box {
-        padding: 22px 18px 20px;
-      }
-      .top-bar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      .box { padding: 22px 18px 20px; }
+      .top-bar { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
@@ -250,18 +355,64 @@
       <div class="badge">Formation à venir</div>
     </div>
 
-    <h1>La Forge TORINVEST s’allume 🔥</h1><span>
-</span> 
+    <h1>La <span>Forge des Formations</span> s’allume 🔥</h1>
 
-   <p>
-  La Forge TORINVEST, c’est le cœur de l’univers : l’endroit où se construisent les idées,
-  les méthodes, les outils et les projets (tokens, bots, indicateurs, formation…).
-  Pas de promesse magique, juste du travail, de la lucidité et de la discipline.
-</p>
+    <p>
+      La première formation TORINVEST sera bientôt disponible.
+      L’objectif : une approche <strong>structurée, pédagogique et honnête</strong> sur le trading,
+      la macroéconomie et la psychologie des marchés – sans promesse de gains.
+    </p>
 
+    <p>
+      En attendant, tu peux déjà accéder à des <strong>modules gratuits</strong> publiés sur le site,
+      conçus pour être macro-lisibles, factuels, et directement exploitables.
+    </p>
 
-</p>
+    <!-- ===== MODULES GRATUITS (AJOUTÉ) ===== -->
+    <div class="modules">
+      <div class="modules-top">
+        <div class="modules-title">Modules de formation gratuits</div>
+        <div class="modules-badge">Accès immédiat</div>
+      </div>
 
+      <p style="font-size:13px; margin-bottom:10px;">
+        Choisis un module dans la liste, puis ouvre-le. (Tu pourras en ajouter d’autres ici.)
+      </p>
+
+      <div class="modules-controls">
+        <select id="moduleSelect" class="module-select" aria-label="Choisir un module gratuit">
+          <option value="https://www.torinvest-trading.com/module-or-cycles.html" selected>
+            Module Gratuit — Cycles de l’or (1968 → aujourd’hui)
+          </option>
+
+          <!-- Ajoute ici tes futurs modules :
+          <option value="https://www.torinvest-trading.com/module-taux-reels.html">Taux réels & or — guide</option>
+          <option value="https://www.torinvest-trading.com/module-dxy-liquidite.html">DXY & liquidité — recoupements</option>
+          -->
+        </select>
+
+        <button class="btn" type="button" id="openModuleBtn">
+          Ouvrir le module ↗
+        </button>
+      </div>
+
+      <!-- Carte cliquable (propre + pédagogique) -->
+      <a class="module-card" href="https://www.torinvest-trading.com/module-or-cycles.html">
+        <div class="module-card-title">Cycles de l’or (1968 → aujourd’hui)</div>
+        <div class="module-card-meta">
+          Lecture macro cycle par cycle : ruptures monétaires, taux réels, crédibilité, dette.
+          Objectif : comprendre quand l’or monte… et quand il ne monte pas.
+        </div>
+      </a>
+    </div>
+    <!-- ===== FIN MODULES GRATUITS ===== -->
+
+    <div class="divider"></div>
+
+    <p>
+      Si tu veux être parmi les premiers informés à l’ouverture des modules complets,
+      tu peux rejoindre dès maintenant la liste d’attente dédiée à la formation.
+    </p>
 
     <ul class="list">
       <li>Accès prioritaire à l’ouverture de la formation</li>
@@ -275,14 +426,8 @@
       Laisse ton email ci-dessous pour être prévenu dès que la Forge des Formations ouvre ses portes :
     </p>
 
-    <form
-      name="liste-attente-torinvest"
-      method="POST"
-      data-netlify="true"
-      data-netlify-honeypot="bot-field"
-    >
+    <form method="POST" name="liste-attente-torinvest">
       <input type="hidden" name="form-name" value="liste-attente-torinvest" />
-
       <p style="display:none">
         <label>Ne pas remplir : <input name="bot-field" /></label>
       </p>
@@ -295,9 +440,7 @@
           placeholder="Ton email (liste d’attente formation)"
           required
         />
-        <button class="btn" type="submit">
-          Rejoindre la liste
-        </button>
+        <button class="btn" type="submit">Rejoindre la liste</button>
       </div>
     </form>
 
@@ -335,33 +478,23 @@
         });
       });
     }
+
+    // Ouverture module via menu déroulant
+    (function(){
+      const select = document.getElementById("moduleSelect");
+      const btn = document.getElementById("openModuleBtn");
+
+      function go(){
+        const url = select.value;
+        if(url) window.location.href = url;
+      }
+
+      btn.addEventListener("click", go);
+      select.addEventListener("change", go); // ouverture directe au changement (comme Chroniques)
+    })();
   </script>
+
   <a href="/" class="back-home-btn">← Retour accueil</a>
-
-<style>
-.back-home-btn {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #f5f5f7;
-  backdrop-filter: blur(4px);
-  transition: 0.2s ease;
-  z-index: 9999;
-}
-
-.back-home-btn:hover {
-  background: rgba(255, 180, 0, 0.25);
-  border-color: rgba(255, 180, 0, 0.6);
-  transform: translateY(-2px);
-}
-</style>
-
 </body>
 </html>
+
