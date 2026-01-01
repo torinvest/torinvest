@@ -201,3 +201,269 @@
     .crypto-select:focus {
       border-color: rgba(255, 180, 0, 0.55);
       box-shadow: 0 0 0 3px rgba(255, 180, 0, 0.16);
+    }
+
+    .crypto-go {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: linear-gradient(135deg, var(--accent), #ff4b5c);
+      color: #1b1305;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .crypto-pages-grid {
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .crypto-page-card {
+      text-decoration:none;
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 12px 12px;
+      background: rgba(5,5,9,0.55);
+      border: 1px solid rgba(255,255,255,0.10);
+      transition: .2s ease;
+    }
+
+    .crypto-page-card:hover {
+      border-color: rgba(255,180,0,0.45);
+      background: rgba(255,255,255,0.03);
+      transform: translateY(-2px);
+    }
+
+    .crypto-page-title { font-weight: 650; font-size: 13px; margin-bottom: 4px; }
+    .crypto-page-meta { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+
+    footer {
+      text-align: center;
+      padding: 26px 18px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 20px;
+    }
+
+    .back-home-btn{
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+    .back-home-btn:hover{
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 860px) {
+      header { padding: 12px 18px; flex-direction: column; align-items: flex-start; gap: 8px; }
+      .grid { grid-template-columns: 1fr; }
+      .crypto-pages-grid { grid-template-columns: 1fr; }
+      .crypto-select { min-width: 100%; width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="logo-wrap">
+    <img src="forge-logo.png" alt="TORINVEST" />
+    <div>
+      <div class="logo-text-main">TORINVEST</div>
+      <div class="logo-text-sub">TRADING • MACRO • PSYCHO • CRYPTO</div>
+    </div>
+  </div>
+
+  <nav>
+    <a href="index.html">Accueil</a>
+    <a href="index.html#trading">Trading</a>
+    <a href="index.html#macro">Macro</a>
+    <a href="index.html#communaute">Communauté</a>
+    <a href="crypto.html" class="active">Crypto</a>
+    <a href="index.html#contact">Contact</a>
+  </nav>
+</header>
+
+<main>
+  <div class="eyebrow">Technologie &amp; souveraineté</div>
+  <h1>Blockchain — de Bitcoin à aujourd’hui</h1>
+  <p class="lead">
+    La blockchain n’est pas “un truc crypto”. C’est une invention de <strong>confiance distribuée</strong> :
+    elle remplace une autorité centrale par un mécanisme de preuve, d’incitation et de vérification.
+    Ici : origine, utilité réelle, nuances, et rôle concret des mineurs / validateurs.
+  </p>
+
+  <!-- MENU PAGES CRYPTO -->
+  <div class="crypto-pages">
+    <div class="crypto-pages-top">
+      <div class="crypto-pages-label">Rubrique Crypto — pages</div>
+
+      <div class="crypto-pages-controls">
+        <select id="cryptoPageSelect" class="crypto-select" aria-label="Choisir une page crypto">
+          <option value="crypto.html">Accueil Crypto (KRM / ORAX)</option>
+          <option value="crypto-blockchain.html" selected>Blockchain — de Bitcoin à aujourd’hui</option>
+          <!-- futures pages -->
+          <!-- <option value="crypto-defi.html">DeFi — utilité, risques, cycles</option> -->
+        </select>
+
+        <button class="crypto-go" id="cryptoGoBtn">Ouvrir <span>↗</span></button>
+      </div>
+    </div>
+
+    <div class="crypto-pages-grid">
+      <a class="crypto-page-card" href="crypto.html">
+        <div class="crypto-page-title">Accueil Crypto</div>
+        <div class="crypto-page-meta">KRM, ORAX, vision &amp; structure de l’économie.</div>
+      </a>
+
+      <a class="crypto-page-card" href="crypto-blockchain.html">
+        <div class="crypto-page-title">Blockchain</div>
+        <div class="crypto-page-meta">Origines, utilité, mineurs/validateurs, nuances.</div>
+      </a>
+
+      <a class="crypto-page-card" href="index.html">
+        <div class="crypto-page-title">Retour TORINVEST</div>
+        <div class="crypto-page-meta">Accueil site &amp; autres rubriques.</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="band-title">Mots-clés</div>
+    <div class="chips">
+      <div class="chip chip-gold">Bitcoin / PoW</div>
+      <div class="chip">PoS / validateurs</div>
+      <div class="chip">Sécurité / finalité</div>
+      <div class="chip">Souveraineté</div>
+      <div class="chip">Cas d’usage</div>
+    </div>
+  </div>
+
+  <section class="grid">
+    <div class="card">
+      <div class="card-title">1) Pourquoi Bitcoin a “réussi”</div>
+      <p>
+        Bitcoin combine trois briques simples : un registre public, une règle de consensus, et des incitations.
+        Le génie : <strong>rendre la triche plus chère que l’honnêteté</strong>.
+      </p>
+      <ul class="list">
+        <li>Un historique public : tout le monde peut vérifier.</li>
+        <li>Un consensus PoW : sécuriser par le coût énergétique.</li>
+        <li>Une monnaie native : inciter mineurs et réseau.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2) Blockchain : ce que c’est vraiment</div>
+      <p>
+        Une blockchain est une base de données “enchaînée” où chaque bloc dépend du précédent.
+        Mais la partie importante n’est pas le chain : c’est le <strong>consensus</strong>.
+      </p>
+      <ul class="list">
+        <li>Sans consensus : c’est juste une base de données.</li>
+        <li>Avec consensus : c’est une vérité partagée sans chef.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3) Mineur (PoW) : rôle et réalité</div>
+      <p>
+        Le mineur ne “crée” pas la valeur : il <strong>sécurise</strong>.
+        Il regroupe les transactions, propose un bloc, et prouve un travail coûteux.
+      </p>
+      <ul class="list">
+        <li>Assure l’ordre des transactions.</li>
+        <li>Rend l’attaque coûteuse (51% et autres).</li>
+        <li>Est payé par récompense + frais (incentives).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">4) Validateur (PoS) : autre logique</div>
+      <p>
+        En Proof of Stake, la sécurité vient du capital immobilisé :
+        tu mises (“stake”) et tu risques une pénalité (slashing) si tu triches.
+      </p>
+      <ul class="list">
+        <li>Moins d’énergie, mais dépend de la distribution du stake.</li>
+        <li>Finalité souvent plus rapide.</li>
+        <li>Risques : centralisation / capture / gouvernance.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">5) Cas d’usage : où c’est utile (et où non)</div>
+      <p>
+        La blockchain n’est pertinente que quand tu as besoin de : transparence, auditabilité,
+        résistance à la censure, ou coordination sans confiance.
+      </p>
+      <ul class="list">
+        <li>Transferts value / settlement / réserves vérifiables.</li>
+        <li>Tokenisation (attention : ce n’est pas magique).</li>
+        <li>Preuves (certificats, ownership) dans certains contextes.</li>
+        <li>Inutile si un acteur unique suffit (base SQL classique).</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">6) Nuances : sécurité, finalité, couches</div>
+      <p>
+        “Rapide” ne veut pas dire “sûr”. “Décentralisé” ne veut pas dire “incensurable”.
+        Il faut distinguer : couche 1, couches 2, bridges, et gouvernance.
+      </p>
+      <ul class="list">
+        <li>Finalité : probabiliste (PoW) vs plus déterministe (PoS).</li>
+        <li>Couches 2 : scalabilité, mais nouveaux risques.</li>
+        <li>Bridges : souvent le point faible.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="band" style="margin-top:18px;">
+    <div class="band-title">Conclusion TORINVEST</div>
+    <p class="lead" style="margin:0;">
+      La blockchain est une technologie de confiance : elle peut être un outil de souveraineté,
+      ou une usine à hype. Tout dépend du consensus, de la distribution du pouvoir, et des incitations.
+      Bitcoin a imposé un standard : <strong>sécurité par le coût</strong>. Les autres chains explorent
+      d’autres compromis : vitesse, finalité, gouvernance, composabilité.
+    </p>
+  </div>
+</main>
+
+<footer>
+  © 2025 TORINVEST — Crypto • Technologie • Éducation. Aucun conseil en investissement.
+</footer>
+
+<a href="crypto.html" class="back-home-btn">← Retour Crypto</a>
+
+<script>
+  (function(){
+    const select = document.getElementById("cryptoPageSelect");
+    const btn = document.getElementById("cryptoGoBtn");
+    function go(){ const t = select.value; if(t) window.location.href = t; }
+    btn.addEventListener("click", go);
+    select.addEventListener("change", go);
+  })();
+</script>
+
+</body>
+</html>
