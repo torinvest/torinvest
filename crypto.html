@@ -330,6 +330,111 @@
       line-height: 1.4;
     }
 
+    /* ===== MENU PORTFOLIO (dropdown + scrollable) ===== */
+    .portfolio-pages {
+      margin-top: 12px;
+      border-radius: 16px;
+      padding: 14px 14px;
+      background:
+        radial-gradient(circle at top left, rgba(255, 180, 0, 0.10), transparent 60%),
+        rgba(17, 17, 27, 0.68);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      box-shadow: 0 16px 35px rgba(0,0,0,0.65);
+      backdrop-filter: blur(10px);
+    }
+
+    .portfolio-pages-top {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .portfolio-pages-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+    }
+
+    .portfolio-pages-controls {
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .portfolio-select {
+      background: rgba(5,5,9,0.65);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: var(--text-main);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      outline: none;
+      min-width: 290px;
+      cursor: pointer;
+    }
+
+    .portfolio-select:focus {
+      border-color: rgba(255, 180, 0, 0.55);
+      box-shadow: 0 0 0 3px rgba(255, 180, 0, 0.16);
+    }
+
+    .portfolio-go {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: linear-gradient(135deg, var(--accent), #ff4b5c);
+      color: #1b1305;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      transition: .2s ease;
+    }
+
+    .portfolio-go:hover { filter: brightness(1.05); transform: translateY(-1px); }
+
+    .portfolio-pages-grid {
+      margin-top: 12px;
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .portfolio-page-card {
+      text-decoration:none;
+      color: var(--text-main);
+      border-radius: 14px;
+      padding: 12px 12px;
+      background: rgba(5,5,9,0.55);
+      border: 1px solid rgba(255,255,255,0.10);
+      transition: .2s ease;
+    }
+
+    .portfolio-page-card:hover {
+      border-color: rgba(255,180,0,0.45);
+      background: rgba(255,255,255,0.03);
+      transform: translateY(-2px);
+    }
+
+    .portfolio-page-title {
+      font-weight: 650;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .portfolio-page-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
     .tokens-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -487,7 +592,7 @@
       margin-top: 20px;
     }
 
-    /* ===== BOUTON RETOUR ACCUEIL (corrigé : CSS dans le head) ===== */
+    /* ===== BOUTON RETOUR ACCUEIL ===== */
     .back-home-btn {
       position: fixed;
       bottom: 22px;
@@ -531,11 +636,13 @@
         grid-template-columns: minmax(0, 1fr);
       }
 
-      .crypto-pages-grid {
+      .crypto-pages-grid,
+      .portfolio-pages-grid {
         grid-template-columns: 1fr;
       }
 
-      .crypto-select {
+      .crypto-select,
+      .portfolio-select {
         min-width: 100%;
         width: 100%;
       }
@@ -554,12 +661,12 @@
   </div>
 
   <nav>
-    <a href="index.html">Accueil</a>
-    <a href="index.html#trading">Trading</a>
-    <a href="index.html#macro">Macro</a>
-    <a href="index.html#communaute">Communauté</a>
-    <a href="crypto.html" class="active">Crypto</a>
-    <a href="index.html#contact">Contact</a>
+    <a href='/'>Accueil</a>
+    <a href='/#trading'>Trading</a>
+    <a href='/#macro'>Macro</a>
+    <a href='/#communaute'>Communauté</a>
+    <a class='active' href='/crypto'>Crypto</a>
+    <a href='/#contact'>Contact</a>
   </nav>
 </header>
 
@@ -567,9 +674,7 @@
   <section class="hero">
     <div>
       <div class="eyebrow">Économie interne TORINVEST</div>
-      <h1>
-        L’univers <span>crypto</span> de la Forge
-      </h1>
+      <h1>L’univers <span>crypto</span> de la Forge</h1>
       <p>
         L’économie TORINVEST vient de s’éveiller. Deux piliers structurent désormais l’univers :
         <strong>KRM</strong>, la monnaie vivante, et <strong>ORAX</strong>, le symbole de la connaissance dorée.
@@ -581,19 +686,16 @@
         <div class="chip">Écosystème long terme</div>
       </div>
 
-      <!-- ===== MENU PAGES CRYPTO (AJOUTÉ) ===== -->
+      <!-- ===== MENU PAGES CRYPTO ===== -->
       <div class="crypto-pages">
         <div class="crypto-pages-top">
           <div class="crypto-pages-label">Rubrique Crypto — pages</div>
 
           <div class="crypto-pages-controls">
             <select id="cryptoPageSelect" class="crypto-select" aria-label="Choisir une page crypto">
-              <option value="crypto.html" selected>Accueil Crypto (KRM / ORAX)</option>
-              <option value="crypto-blockchain.html">Blockchain — de Bitcoin à aujourd’hui</option>
-              <!-- Ajoute tes futures pages ici :
-              <option value="crypto-mining.html">Mining — économie, halving, difficulté</option>
-              <option value="crypto-defi.html">DeFi — utilité, risques, cycles</option>
-              -->
+              <option value="/crypto" selected>Accueil Crypto (KRM / ORAX)</option>
+              <option value="/crypto-blockchain">Blockchain — de Bitcoin à aujourd’hui</option>
+              <!-- Ajoute tes futures pages ici -->
             </select>
 
             <button class="crypto-go" id="cryptoGoBtn">Ouvrir <span>↗</span></button>
@@ -601,23 +703,61 @@
         </div>
 
         <div class="crypto-pages-grid">
-          <a class="crypto-page-card" href="crypto.html">
+          <a class='crypto-page-card' href='/crypto'>
             <div class="crypto-page-title">Accueil Crypto</div>
             <div class="crypto-page-meta">KRM, ORAX, vision &amp; structure de l’économie.</div>
           </a>
 
-          <a class="crypto-page-card" href="crypto-blockchain.html">
+          <a class='crypto-page-card' href='/crypto-blockchain'>
             <div class="crypto-page-title">Blockchain</div>
             <div class="crypto-page-meta">Origines, utilité, mineurs/validateurs, nuances.</div>
           </a>
 
-          <a class="crypto-page-card" href="index.html">
+          <a class='crypto-page-card' href='/'>
             <div class="crypto-page-title">Retour TORINVEST</div>
             <div class="crypto-page-meta">Accueil site &amp; autres rubriques.</div>
           </a>
         </div>
       </div>
-      <!-- ===== FIN MENU PAGES CRYPTO ===== -->
+
+      <!-- ===== MENU PAGES PORTFOLIO (AJOUTÉ) ===== -->
+      <div class="portfolio-pages">
+        <div class="portfolio-pages-top">
+          <div class="portfolio-pages-label">Rubrique Portfolio — pages</div>
+
+          <div class="portfolio-pages-controls">
+            <select id="portfolioPageSelect" class="portfolio-select" aria-label="Choisir un portfolio">
+              <option value="/portfolio" selected>Portfolio #1 — Bitcoin • Énergie • Infrastructures</option>
+
+              <!-- Ajoute tes futurs portfolios ici :
+              <option value="/portfolio-or">Portfolio — Or • Taux réels • Liquidité</option>
+              <option value="/portfolio-commodities">Portfolio — Commodities • Cycle industriel</option>
+              -->
+            </select>
+
+            <button class="portfolio-go" id="portfolioGoBtn">Ouvrir <span>↗</span></button>
+          </div>
+        </div>
+
+        <div class="portfolio-pages-grid">
+          <a class="portfolio-page-card" href="/portfolio">
+            <div class="portfolio-page-title">Portfolio #1 — Bitcoin</div>
+            <div class="portfolio-page-meta">BTC + énergie + infrastructures (lecture éducative).</div>
+          </a>
+
+          <a class="portfolio-page-card" href="/crypto-blockchain">
+            <div class="portfolio-page-title">Rappel : Blockchain</div>
+            <div class="portfolio-page-meta">Origines, utilité, mineurs/validateurs, nuances.</div>
+          </a>
+
+          <a class="portfolio-page-card" href="/">
+            <div class="portfolio-page-title">Retour TORINVEST</div>
+            <div class="portfolio-page-meta">Accueil site &amp; autres rubriques.</div>
+          </a>
+        </div>
+      </div>
+      <!-- ===== FIN MENU PAGES PORTFOLIO ===== -->
+
     </div>
 
     <div class="hero-panel">
@@ -648,24 +788,26 @@
     <article class="token-card">
       <div class="token-label">Token utilitaire &amp; humain</div>
       <div class="token-title">KRM — La Monnaie de la Forge</div>
-      <div class="token-sub">
-        Le jeton de valeur, l’énergie brute de l’univers TORINVEST.
-      </div>
+      <div class="token-sub">Le jeton de valeur, l’énergie brute de l’univers TORINVEST.</div>
+
       <div class="token-body">
         KRM est la <strong>monnaie vivante</strong> du projet TORINVEST.
         Il représente l’effort, la contribution et la valeur créée par la communauté elle-même,
         pas par les institutions.
       </div>
+
       <ul class="token-list">
         <li>Monnaie interne pour les futurs outils, modules et accès TORINVEST.</li>
-        <li>Récompense potentielle des contributions de la communauté (engagement, défis, projets).</li>
+        <li>Récompense potentielle des contributions de la communauté.</li>
         <li>Symbole de l’énergie humaine canalisée : discipline, travail, progression.</li>
-        <li>Flux de valeur au cœur de l’écosystème, au service des bâtisseurs, pas des spéculateurs de passage.</li>
+        <li>Flux de valeur au service des bâtisseurs, pas des spéculateurs de passage.</li>
       </ul>
+
       <div class="token-body">
         KRM est pensé comme un <strong>outil</strong>, pas comme un ticket de loterie.
         Il accompagne la construction lente et lucide de l’univers TORINVEST.
       </div>
+
       <div class="token-footer">
         <span>Token Solana – orienté utilité &amp; communauté.</span>
         <a class="btn-solscan" href="https://solscan.io/token/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA#transactions" target="_blank" rel="noopener">
@@ -678,25 +820,27 @@
     <article class="token-card">
       <div class="token-label">Token symbolique du savoir</div>
       <div class="token-title">ORAX — La Connaissance Dorée</div>
-      <div class="token-sub">
-        La lumière dans l’obscurité des marchés.
-      </div>
+      <div class="token-sub">La lumière dans l’obscurité des marchés.</div>
+
       <div class="token-body">
         ORAX est un jeton symbolique incarnant la sagesse, la clarté et la maîtrise
         dans un monde saturé de bruit, de hype et de désinformation.
         Il unit ceux qui veulent comprendre les dynamiques réelles des marchés
         et dominer leur propre psychologie.
       </div>
+
       <ul class="token-list">
         <li>Signe d’appartenance à la “garde éclairée” de TORINVEST.</li>
-        <li>Potentiel accès futur à du contenu avancé, des analyses macro et des rooms privées.</li>
+        <li>Potentiel accès futur à du contenu avancé et des rooms privées.</li>
         <li>Symbole d’intelligence, de discipline et d’indépendance face au système.</li>
-        <li>Token de reconnaissance plus que de spéculation : la clarté avant le profit.</li>
+        <li>Token de reconnaissance : la clarté avant le profit.</li>
       </ul>
+
       <div class="token-body">
         ORAX n’est pas seulement un actif numérique.
         C’est un <strong>marqueur de posture mentale</strong> : choisir la compréhension plutôt que la réaction.
       </div>
+
       <div class="token-footer">
         <span>Token Solana – orienté savoir &amp; identité de la Forge.</span>
         <a class="btn-solscan" href="https://solscan.io/token/Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump" target="_blank" rel="noopener">
@@ -713,12 +857,14 @@
       L’objectif n’est pas d’alimenter un casino de plus, mais de structurer
       une <strong>économie de communauté</strong> cohérente, lisible, assumée.
     </p>
+
     <p>La séparation entre KRM et ORAX est volontaire :</p>
     <ul class="vision-list">
       <li><strong>KRM</strong> porte la valeur, le mouvement, l’utilité concrète.</li>
       <li><strong>ORAX</strong> porte le savoir, la lucidité et la discipline mentale.</li>
       <li>Ensemble, ils créent un binôme : <em>énergie + vision</em>.</li>
     </ul>
+
     <p>
       La tokenisation TORINVEST est pensée long terme :
       construire un espace où les membres ne sont pas des consommateurs,
@@ -729,7 +875,7 @@
   <div class="cta-bottom">
     La Forge continue de se construire, bloc après bloc.
     <br />
-    <a href="index.html">← Retourner à la page principale TORINVEST</a>
+    <a href='/'>← Retourner à la page principale TORINVEST</a>
   </div>
 </main>
 
@@ -741,9 +887,12 @@
 <a href="/" class="back-home-btn">← Retour accueil</a>
 
 <script>
+  // MENU CRYPTO
   (function(){
     const select = document.getElementById("cryptoPageSelect");
     const btn = document.getElementById("cryptoGoBtn");
+
+    if(!select || !btn) return;
 
     function go(){
       const target = select.value;
@@ -751,7 +900,23 @@
     }
 
     btn.addEventListener("click", go);
-    select.addEventListener("change", go); // switch direct
+    select.addEventListener("change", go);
+  })();
+
+  // MENU PORTFOLIO
+  (function(){
+    const select = document.getElementById("portfolioPageSelect");
+    const btn = document.getElementById("portfolioGoBtn");
+
+    if(!select || !btn) return;
+
+    function go(){
+      const target = select.value;
+      if(target) window.location.href = target;
+    }
+
+    btn.addEventListener("click", go);
+    select.addEventListener("change", go);
   })();
 </script>
 
