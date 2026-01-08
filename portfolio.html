@@ -7,47 +7,537 @@
 
   <style>
     :root{
-      --bg:#070709;
-      --bg-soft:#0c0d10;
-      --card:#111218;
-      --line: rgba(255,255,255,0.08);
-      --text:#e9eaee;
-      --muted:#a7adba;
+      --bg:#050509;
+      --bg2:#0b0b13;
+      --card:#11111c;
+      --line: rgba(255,255,255,0.10);
+      --text:#f5f5f7;
+      --muted:#a4a4bb;
+
       --gold:#ffb400;
-      --hot:#ff4b5c;
-      --shadow: 0 18px 60px rgba(0,0,0,.6);
+      --red:#ff4b5c;
+      --blue:#2f7cff;
+
+      --shadow: 0 20px 50px rgba(0,0,0,.75);
       --radius:18px;
-      --maxw:1100px;
+      --maxw:1120px;
     }
-    *{ box-sizing:border-box; }
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
     body{
-      margin:0;
+      min-height:100vh;
+      background:
+        radial-gradient(circle at top, #202040 0, transparent 55%),
+        radial-gradient(circle at bottom, #120808 0, #050509 60%);
       color:var(--text);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 800px at 70% -10%, #141625 0%, var(--bg) 55%);
-      line-height:1.65;
       letter-spacing:.2px;
+      line-height:1.65;
     }
-    .container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
 
-    /* Topbar simple */
-    .topbar{
+    .container{ max-width:var(--maxw); margin:0 auto; padding:0 18px; }
+
+    /* ===== TOPBAR ===== */
+    header{
       position: sticky;
       top:0;
       z-index: 20;
-      backdrop-filter: blur(16px);
-      background: rgba(7,7,9,.72);
-      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(18px);
+      background:
+        radial-gradient(circle at top left, rgba(255,180,0,0.12), transparent 55%),
+        rgba(5, 5, 9, 0.88);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
     }
-    .topbar-inner{
+    .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding: 12px 0;
-      gap: 12px;
+      gap:12px;
+      padding: 14px 18px;
     }
     .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width: 220px;
+    }
+    .brand img{
+      height:40px; width:auto; border-radius:10px; display:block;
+    }
+    .brand-title{ font-weight:700; font-size:13px; letter-spacing:.12em; }
+    .brand-sub{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); }
+
+    nav{
+      display:flex; gap:16px; flex-wrap:wrap;
+      font-size: 14px;
+      justify-content: flex-end;
+    }
+    nav a{
+      position:relative;
+      text-decoration:none;
+      color: var(--muted);
+      padding-bottom: 2px;
+    }
+    nav a::after{
+      content:"";
+      position:absolute; left:0; bottom:0;
+      width:0; height:2px;
+      background: linear-gradient(90deg, var(--gold), var(--red));
+      transition: width .2s ease;
+    }
+    nav a:hover::after{ width:100%; }
+    nav a.active{ color: var(--gold); }
+    nav a.active::after{ width:100%; }
+
+    /* ===== HERO ===== */
+    .hero{
+      padding: 44px 0 18px;
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.18em;
+      color: var(--gold);
+      margin-bottom:10px;
+    }
+    .dot{
+      width:7px; height:7px; border-radius:50%;
+      background: linear-gradient(180deg, var(--gold), var(--red));
+      box-shadow: 0 0 10px rgba(255,180,0,.55);
+    }
+    h1{
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.12;
+      margin-bottom: 10px;
+    }
+    .lead{
+      color: var(--muted);
+      max-width: 920px;
+      font-size: 14px;
+    }
+
+    /* ===== DISCLAIMER ===== */
+    .disclaimer{
+      margin-top: 16px;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,180,0,0.25);
+      border-radius: 18px;
+      padding: 14px 14px;
+      box-shadow: var(--shadow);
+    }
+    .disclaimer strong{
+      color: var(--text);
+    }
+    .disclaimer p{
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    /* ===== MODULE SELECT ===== */
+    .modulebar{
+      margin-top: 16px;
+      background: rgba(17,17,28,0.60);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      padding: 12px 12px;
+      box-shadow: var(--shadow);
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
+    .modulebar label{
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .modulebar-controls{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+      width: min(720px, 100%);
+      justify-content: flex-end;
+    }
+    select{
+      flex: 1 1 320px;
+      min-width: 260px;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.50);
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+    }
+    select:focus{
+      border-color: rgba(255, 180, 0, 0.55);
+      box-shadow: 0 0 0 3px rgba(255, 180, 0, 0.16);
+    }
+    .btn{
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      font-weight: 650;
+      background: linear-gradient(135deg, var(--gold), var(--red));
+      color: #1b1305;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.75);
+      transition: transform .12s ease, filter .12s ease;
+      white-space: nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+
+    /* ===== GRID ===== */
+    .grid{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      align-items: start;
+      padding-bottom: 40px;
+    }
+
+    .card{
+      background: rgba(17,17,28,0.72);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    /* ===== IMAGE CARD ===== */
+    .img-wrap{
+      position: relative;
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.30);
+    }
+    .img-wrap img{
+      width:100%;
+      display:block;
+      height:auto;
+    }
+    .img-caption{
+      display:flex;
+      justify-content: space-between;
+      gap:10px;
+      flex-wrap: wrap;
+      align-items:center;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .pill b{ color: var(--gold); letter-spacing: .08em; }
+
+    /* ===== RIGHT PANEL ===== */
+    .side h2{
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .side p{
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 10px;
+    }
+    .mini{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.35);
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .mini h3{
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .mini ul{
+      list-style: none;
+      padding-left: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .mini li{
+      margin: 6px 0;
+    }
+    .mini li::before{
+      content: "• ";
+      color: var(--gold);
+    }
+
+    /* ===== RISK CARDS ===== */
+    .profiles{
+      margin-top: 14px;
+      display:grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .profile{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.35);
+      padding: 12px;
+      transition: transform .15s ease, border-color .15s ease;
+    }
+    .profile:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,180,0,0.35);
+    }
+    .profile-top{
       display:flex;
       align-items:center;
-      gap
+      justify-content: space-between;
+      gap:10px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .tag{
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.35);
+      white-space: nowrap;
+    }
+    .tag.def{ border-color: rgba(47,124,255,0.45); color:#bcd4ff; }
+    .tag.neu{ border-color: rgba(255,180,0,0.45); color:#ffe0a3; }
+    .tag.agr{ border-color: rgba(255,75,92,0.45); color:#ffb3bd; }
+
+    .profile h4{ font-size: 15px; margin-bottom: 4px; }
+    .profile p{ margin:0; color: var(--muted); font-size: 13px; }
+
+    /* ===== FOOTER + BACK BTN ===== */
+    footer{
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 24px 18px;
+      text-align:center;
+      color: var(--muted);
+      font-size: 12px;
+      background: rgba(0,0,0,0.25);
+    }
+
+    .back-home-btn{
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+    .back-home-btn:hover{
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .brand{ min-width: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="topbar container">
+      <div class="brand">
+        <img src="forge-logo.png" alt="TORINVEST" />
+        <div>
+          <div class="brand-title">TORINVEST</div>
+          <div class="brand-sub">TRADING • MACRO • PSYCHO • CRYPTO</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="index.html">Accueil</a>
+        <a href="index.html#macro">Macro</a>
+        <a href="chroniques.html">Chroniques</a>
+        <a href="formation.html">Formation</a>
+        <a href="portfolio.html" class="active">Portfolio</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow"><span class="dot"></span> Portfolio Invest — version éducative</div>
+      <h1>Portefeuilles stratégiques autour de <span style="color:var(--gold);">Bitcoin</span></h1>
+      <p class="lead">
+        Cette page est un support pédagogique : elle explique une logique de construction de portefeuille
+        (Bitcoin + énergie + infrastructures), et non une recommandation personnalisée.
+      </p>
+
+      <div class="disclaimer">
+        <strong>Important :</strong> contenu éducatif, pas un conseil en investissement.
+        <p>
+          TORINVEST ne connaît ni ton profil, ni tes objectifs, ni ta situation. Toute décision financière relève de ta responsabilité.
+          Les exemples ci-dessous illustrent des idées de structure, de risques et de corrélations.
+        </p>
+      </div>
+
+      <div class="modulebar">
+        <label for="portfolioSelect">Portfolios éducatifs</label>
+        <div class="modulebar-controls">
+          <select id="portfolioSelect">
+            <option value="portfolio.html" selected>Portfolio #1 — Bitcoin • Énergie • Infrastructures</option>
+            <!-- Ajoute tes futurs portfolios ici :
+            <option value="portfolio-or-macro.html">Portfolio — Or • Taux réels • Liquidité</option>
+            <option value="portfolio-commodities.html">Portfolio — Commodities • Cycle industriel</option>
+            -->
+          </select>
+          <button class="btn" id="openPortfolioBtn">Ouvrir ↗</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <!-- GAUCHE : IMAGE + EXPLICATION -->
+      <div class="card">
+        <div class="img-wrap">
+          <!-- Remplace "portfolio-bitcoin.png" par le nom exact de ton fichier image -->
+          <img src="portfolio-bitcoin.png" alt="Portefeuilles stratégiques autour de Bitcoin" />
+        </div>
+
+        <div class="img-caption">
+          <span class="pill"><b>Focus</b> BTC • Énergie • Infrastructures</span>
+          <span style="opacity:.9;">Clique l’image si tu veux la remplacer par une version plus HD (même ratio conseillé).</span>
+        </div>
+
+        <div class="mini" style="margin-top:12px;">
+          <h3>Lecture pédagogique</h3>
+          <ul>
+            <li><strong>Bitcoin</strong> : actif monétaire numérique + volatilité élevée.</li>
+            <li><strong>Énergie</strong> : moteur économique du minage (coût de production / marges / cycles).</li>
+            <li><strong>Infrastructures</strong> : data centers, réseaux, compute (capacité / capex / résilience).</li>
+          </ul>
+        </div>
+
+        <div class="mini">
+          <h3>Ce que cette page enseigne</h3>
+          <ul>
+            <li>Construire un portefeuille par <strong>exposition</strong> (moteurs) plutôt que par “hype”.</li>
+            <li>Comprendre les <strong>risques</strong> : volatilité, réglementation, cycle énergie.</li>
+            <li>Différencier <strong>structure défensive</strong> vs <strong>exposition agressive</strong>.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- DROITE : CADRE + PROFILS -->
+      <aside class="card side">
+        <h2>Cadre “Portfolio Educatif”</h2>
+        <p>
+          Un portefeuille n’est pas une liste de noms : c’est une logique.
+          Ici, on illustre trois profils de risque autour d’un même axe stratégique.
+        </p>
+
+        <div class="mini">
+          <h3>Règles de lecture</h3>
+          <ul>
+            <li>Plus le profil est agressif, plus le portefeuille est sensible à la volatilité BTC.</li>
+            <li>Les actions liées au minage peuvent amplifier BTC (hausse comme baisse).</li>
+            <li>Les infrastructures peuvent jouer un rôle “stabilité relative” (selon le cycle).</li>
+          </ul>
+        </div>
+
+        <div class="profiles">
+          <div class="profile">
+            <div class="profile-top">
+              <h4>Profil Défensif</h4>
+              <span class="tag def">DÉFENSIF</span>
+            </div>
+            <p>
+              Objectif : exposition modérée à BTC + piliers “réels” (énergie / infrastructures) pour réduire la dépendance au seul prix.
+            </p>
+          </div>
+
+          <div class="profile">
+            <div class="profile-top">
+              <h4>Profil Neutre</h4>
+              <span class="tag neu">NEUTRE</span>
+            </div>
+            <p>
+              Objectif : équilibre — BTC comme cœur, avec deux moteurs satellites pour diversifier les sources de performance.
+            </p>
+          </div>
+
+          <div class="profile">
+            <div class="profile-top">
+              <h4>Profil Agressif</h4>
+              <span class="tag agr">AGRESSIF</span>
+            </div>
+            <p>
+              Objectif : maximiser l’exposition au thème Bitcoin, via BTC + mineurs / acteurs plus volatils (risque supérieur).
+            </p>
+          </div>
+        </div>
+
+        <div class="mini">
+          <h3>À faire (pédagogie)</h3>
+          <ul>
+            <li>Identifier ton horizon (court / moyen / long terme).</li>
+            <li>Comprendre la volatilité maximale supportable.</li>
+            <li>Éviter les tailles trop grandes par rapport au capital.</li>
+          </ul>
+        </div>
+
+        <p style="margin-top:12px; color:#ffe0a3;">
+          Si tu veux, je te fais la version “module formation” : critères, pondérations types, risques, et checklist.
+        </p>
+      </aside>
+    </section>
+  </main>
+
+  <footer>
+    © TORINVEST — Portfolio éducatif. Aucun conseil en investissement. Contenu à visée pédagogique.
+  </footer>
+
+  <a href="/" class="back-home-btn">← Retour accueil</a>
+
+  <script>
+    (function(){
+      const select = document.getElementById("portfolioSelect");
+      const btn = document.getElementById("openPortfolioBtn");
+
+      function go(){
+        const target = select.value;
+        if(target) window.location.href = target;
+      }
+
+      btn.addEventListener("click", go);
+      select.addEventListener("change", go);
+    })();
+  </script>
+</body>
+</html>
+
