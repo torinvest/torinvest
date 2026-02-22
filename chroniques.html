@@ -23,11 +23,11 @@
     *{ box-sizing:border-box; }
     body{
       margin:0;
-      background:
-        radial-gradient(1200px 800px at 70% -10%, #141625 0%, var(--bg) 55%);
+      background: radial-gradient(1200px 800px at 70% -10%, #141625 0%, var(--bg) 55%);
       color:var(--text);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      letter-spacing:0.2px; line-height:1.6;
+      letter-spacing:0.2px;
+      line-height:1.6;
     }
     .container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
 
@@ -40,7 +40,9 @@
       padding:7px 11px;
       background:rgba(255,255,255,0.04);
       border:1px solid var(--line);
-      border-radius:999px; font-size:12px; color:var(--muted);
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
     }
     .dot{
       width:7px; height:7px; border-radius:50%;
@@ -49,7 +51,9 @@
     }
     h1{
       font-size: clamp(26px, 3.5vw, 42px);
-      margin:14px 0 6px; text-transform:uppercase; letter-spacing:1px;
+      margin:14px 0 6px;
+      text-transform:uppercase;
+      letter-spacing:1px;
     }
     p{ margin:0; color:var(--muted); }
 
@@ -84,62 +88,86 @@
     }
 
     .btn{
-      padding:10px 14px; border-radius:12px; font-weight:800; font-size:14px;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:800;
+      font-size:14px;
       border:1px solid var(--line);
       background:linear-gradient(180deg,#2a2212,#15110a);
-      color:#f6e7bd; cursor:pointer;
-      transition:.2s ease; box-shadow:var(--shadow);
+      color:#f6e7bd;
+      cursor:pointer;
+      transition:.2s ease;
+      box-shadow:var(--shadow);
     }
     .btn:hover{ transform:translateY(-2px); }
 
     .list{
       margin-top:16px;
-      display:grid; gap:12px;
+      display:grid;
+      gap:12px;
     }
+
     .card{
       background:var(--bg-card);
       border:1px solid var(--line);
-      border-radius:16px; padding:16px;
-      display:flex; flex-direction:column; gap:6px;
+      border-radius:16px;
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
       transition:.25s ease;
+      text-decoration:none;
     }
     .card:hover{
       border-color:rgba(255,154,60,0.35);
       transform:translateY(-2px);
     }
     .card .title{
-      font-weight:800; letter-spacing:.3px;
+      font-weight:800;
+      letter-spacing:.3px;
+      color:var(--text);
     }
     .card .meta{
-      color:var(--muted); font-size:13px;
+      color:var(--muted);
+      font-size:13px;
     }
 
     footer{
-      padding:26px 0; margin-top:40px;
+      padding:26px 0;
+      margin-top:40px;
       border-top:1px solid var(--line);
-      color:#8a8f9b; font-size:13px; text-align:center;
+      color:#8a8f9b;
+      font-size:13px;
+      text-align:center;
       background:#060607;
+    }
+
+    /* Bouton retour accueil */
+    .back-home-btn{
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+    .back-home-btn:hover{
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
     }
   </style>
 </head>
 
 <body>
-  <!-- ====== MINI TOPBAR ====== -->
-  <div class="topbar">
-    <div class="container topbar-inner">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <div>TORINVEST</div>
-      </div>
-      <div class="crumbs">
-        <a href="index.html">Accueil</a>
-        <span class="sep">•</span>
-        <a href="chroniques.html">Chroniques</a>
-        <span class="sep">•</span>
-       
-      </div>
-    </div>
-  </div>
 
   <header>
     <div class="container">
@@ -155,20 +183,19 @@
         <label for="chronoSelect">Choisir une chronique :</label>
 
         <select id="chronoSelect">
-          <!-- value = chemin réel du fichier (ne change pas)
-               texte = nom affiché (tu peux changer quand tu veux) -->
           <option value="/chronique1.html">Changement de régime & réallocation des élites (2008–2025)</option>
           <option value="/chronique2.html">Perte de légitimité de la Fed vs Trump</option>
           <option value="/chronique3.html">La Grande Tokenisation 2024 → 2035</option>
           <option value="/chronique4.html">La monnaie, la confiance et la mesure du monde</option>
-          <!-- AJOUTE ICI LES FUTURES CHRONIQUES -->
-          <!-- <option value="/chronique3.html">Titre affiché de la chronique 3</option> -->
+
+          <!-- ✅ AJOUT : CHRONIQUE 5 (POLITIQUE MONÉTAIRE) -->
+          <option value="/chronique5.html">Politique monétaire — l’outil simple (court / moyen / long terme)</option>
         </select>
 
         <button class="btn" id="goBtn">Ouvrir</button>
       </div>
 
-      <!-- LISTE (optionnelle mais cool) -->
+      <!-- LISTE (optionnelle) -->
       <div class="list">
         <a class="card" href="/chronique1.html">
           <div class="title">Changement de régime & réallocation des élites (2008–2025)</div>
@@ -179,15 +206,22 @@
           <div class="title">Perte de légitimité de la Fed vs Trump</div>
           <div class="meta">Chronique #2 — institutions / régime monétaire</div>
         </a>
-            <a class="card" href="/chronique3.html">
-          <div class="title">La Grande Tokenisation 2024 → 2035</div>
-          <div class="meta">Chronique #3 —Le nouveau monde VS ancien monde</div>
-        </a>
-        <a class='card' href='/chronique4'>
-  <div class="title">La monnaie, la confiance et la mesure du monde</div>
-  <div class="meta">Chronique #4 — monnaie / confiance / civilisation</div>
-</a>
 
+        <a class="card" href="/chronique3.html">
+          <div class="title">La Grande Tokenisation 2024 → 2035</div>
+          <div class="meta">Chronique #3 — nouveau monde vs ancien monde</div>
+        </a>
+
+        <a class="card" href="/chronique4.html">
+          <div class="title">La monnaie, la confiance et la mesure du monde</div>
+          <div class="meta">Chronique #4 — monnaie / confiance / civilisation</div>
+        </a>
+
+        <!-- ✅ AJOUT : CARTE CHRONIQUE 5 -->
+        <a class="card" href="/chronique5.html">
+          <div class="title">Politique monétaire — l’outil simple (court / moyen / long terme)</div>
+          <div class="meta">Chronique #5 — guide novice / cycles de taux / liquidité / marchés</div>
+        </a>
       </div>
 
     </div>
@@ -196,6 +230,8 @@
   <footer>
     © TORINVEST TRADING — Chroniques long cycles. Aucun conseil en investissement.
   </footer>
+
+  <a href="/" class="back-home-btn">← Retour accueil</a>
 
   <script>
     const select = document.getElementById("chronoSelect");
@@ -207,37 +243,8 @@
     }
 
     btn.addEventListener("click", goChronique);
-    select.addEventListener("change", goChronique); // switch direct quand tu choisis
+    select.addEventListener("change", goChronique); // switch direct
   </script>
-
-</body>
-</html>
-
- <style>
-   <a href="/" class="back-home-btn">← Retour accueil</a>
-.back-home-btn {
-  position: fixed;
-  bottom: 22px;
-  right: 22px;
-  padding: 8px 14px;
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #f5f5f7;
-  backdrop-filter: blur(4px);
-  transition: 0.2s ease;
-  z-index: 9999;
-}
-
-.back-home-btn:hover {
-  background: rgba(255, 180, 0, 0.25);
-  border-color: rgba(255, 180, 0, 0.6);
-  transform: translateY(-2px);
-}
-</style>
 
 </body>
 </html>
