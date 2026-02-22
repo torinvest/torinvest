@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TORINVEST-TRADING — Politique Monétaire (Outil)</title>
+
+<style>
+:root{
+  --bg:#070709;
+  --bg-soft:#0c0d10;
+  --bg-card:#111218;
+  --gold:#e3c16f;
+  --orange:#ff9a3c;
+  --text:#e9eaee;
+  --muted:#a7adba;
+  --line: rgba(255,255,255,0.08);
+  --radius:18px;
+  --shadow: 0 18px 60px rgba(0,0,0,.6);
+  --maxw:1100px;
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  background: radial-gradient(1200px 800px at 70% -10%, #141625 0%, var(--bg) 55%);
+  color:var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  letter-spacing:.2px;
+  line-height:1.7;
+}
+
+.container{ max-width:var(--maxw); margin:0 auto; padding:0 20px; }
+
+header{
+  padding:70px 0 40px;
+  border-bottom:1px solid var(--line);
+}
+
+.badge{
+  display:inline-flex;
+  gap:8px;
+  align-items:center;
+  padding:7px 11px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--line);
+  border-radius:999px;
+  font-size:12px;
+  color:var(--muted);
+}
+
+.dot{
+  width:7px; height:7px; border-radius:50%;
+  background:linear-gradient(180deg,var(--gold),var(--orange));
+  box-shadow:0 0 10px rgba(255,154,60,.8);
+}
+
+h1{
+  font-size: clamp(28px, 4vw, 44px);
+  margin:14px 0 10px;
+}
+
+p{ margin:0; color:var(--muted); }
+
+section{ padding:55px 0; }
+
+h2{
+  font-size:26px;
+  margin:0 0 14px;
+}
+
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:22px;
+  box-shadow:var(--shadow);
+  margin-top:18px;
+}
+
+.small{
+  font-size:13px;
+  color:#8f96a6;
+}
+
+ul{ padding-left:18px; margin:14px 0 0; }
+li{ margin-bottom:10px; color:var(--muted); }
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap:16px;
+  margin-top:18px;
+}
+
+.col-6{ grid-column: span 6; }
+.col-12{ grid-column: span 12; }
+@media (max-width: 900px){
+  .col-6{ grid-column: span 12; }
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,0.04);
+  color:var(--muted);
+  font-size:12px;
+}
+
+.pill strong{ color:#f1f2f6; font-weight:600; }
+
+hr.sep{
+  border:none;
+  border-top:1px solid var(--line);
+  margin:16px 0;
+}
+
+/* ====== Timeline (compact + scroll) ====== */
+.timeline-wrap{
+  position:relative;
+  margin-top:16px;
+  border-radius: 22px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background: rgba(255,255,255,0.03);
+  box-shadow: var(--shadow);
+}
+.timeline-wrap::before,
+.timeline-wrap::after{
+  content:"";
+  position:absolute;
+  top:0; bottom:0;
+  width:70px;
+  pointer-events:none;
+  z-index:5;
+}
+.timeline-wrap::before{
+  left:0;
+  background: linear-gradient(90deg, rgba(7,7,9,0.95), rgba(7,7,9,0));
+}
+.timeline-wrap::after{
+  right:0;
+  background: linear-gradient(270deg, rgba(7,7,9,0.95), rgba(7,7,9,0));
+}
+.timeline-scroll{
+  overflow-x:auto;
+  overflow-y:hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(227,193,111,0.35) rgba(255,255,255,0.06);
+}
+.timeline-scroll::-webkit-scrollbar{ height:10px; }
+.timeline-scroll::-webkit-scrollbar-track{ background: rgba(255,255,255,0.06); border-radius: 999px; }
+.timeline-scroll::-webkit-scrollbar-thumb{
+  background: rgba(227,193,111,0.28);
+  border-radius: 999px;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.timeline-track{
+  display:flex;
+  gap:18px;
+  padding: 22px 70px 22px;
+  position:relative;
+  min-width: max-content;
+}
+.timeline-track::before{
+  content:"";
+  position:absolute;
+  top:50%;
+  left:0; right:0;
+  height:4px;
+  background: linear-gradient(90deg, transparent, rgba(227,193,111,0.35), transparent);
+  transform: translateY(-50%);
+}
+.tnode{
+  position:relative;
+  flex:0 0 auto;
+}
+.tlabel{
+  position:absolute;
+  top:-22px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:11px;
+  color:var(--gold);
+  letter-spacing: .8px;
+  opacity:.95;
+  white-space: nowrap;
+}
+.tcard{
+  width: 260px;
+  background: linear-gradient(180deg, #141625, #0b0c12);
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:18px;
+  padding:16px;
+  box-shadow: 0 18px 44px rgba(0,0,0,0.65);
+  transition: transform .25s ease, border-color .25s ease, filter .25s ease;
+}
+.tcard h3{
+  margin:0 0 6px;
+  font-size:15px;
+  color:#f6e7bd;
+}
+.tcard p{
+  margin:0;
+  font-size:13px;
+  color:var(--muted);
+}
+.tnode:hover .tcard{
+  transform: translateY(-4px);
+  border-color: rgba(255,154,60,0.35);
+  filter: brightness(1.06);
+}
+.tnode.highlight .tcard{
+  border-color: rgba(255,180,0,0.6);
+  box-shadow: 0 0 44px rgba(255,180,0,0.18), 0 22px 60px rgba(0,0,0,0.75);
+}
+
+/* ====== Translator ====== */
+.translator{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:16px;
+  margin-top:16px;
+}
+@media (max-width: 900px){
+  .translator{ grid-template-columns: 1fr; }
+}
+
+.term{
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.03);
+  padding:16px;
+}
+.term h4{
+  margin:0 0 10px;
+  font-size:15px;
+  color:#f6e7bd;
+}
+.kv{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:10px 12px;
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:14px;
+  background: rgba(255,255,255,0.02);
+  margin-bottom:10px;
+}
+.k{
+  flex:0 0 auto;
+  font-size:12px;
+  color:#cfd3dc;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  padding:4px 8px;
+  border-radius:999px;
+}
+.v{
+  font-size:13px;
+  color:var(--muted);
+}
+.v strong{ color:#f0f1f5; font-weight:600; }
+
+/* ====== Checklist ====== */
+.checklist{
+  display:grid;
+  gap:12px;
+  margin-top:14px;
+}
+.ck{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  border-radius:16px;
+}
+.box{
+  width:18px; height:18px;
+  border-radius:5px;
+  border:1px solid rgba(255,255,255,0.20);
+  background: rgba(255,255,255,0.02);
+  margin-top:2px;
+  flex:0 0 auto;
+}
+.ck p{ margin:0; font-size:13px; color:var(--muted); }
+.ck p strong{ color:#f0f1f5; font-weight:600; }
+
+/* ====== Action Map ====== */
+.map{
+  display:grid;
+  gap:12px;
+  margin-top:14px;
+}
+.maprow{
+  display:grid;
+  grid-template-columns: 190px 1fr;
+  gap:12px;
+  padding:12px 14px;
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  border-radius:16px;
+}
+@media (max-width: 700px){
+  .maprow{ grid-template-columns: 1fr; }
+}
+.tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  color:#e8e9ee;
+  font-size:12px;
+}
+.maprow p{ margin:0; font-size:13px; color:var(--muted); }
+.maprow p strong{ color:#f0f1f5; font-weight:600; }
+
+.footer{
+  padding:26px 0;
+  border-top:1px solid var(--line);
+  text-align:center;
+  font-size:13px;
+  color:#8a8f9b;
+  background:#060607;
+}
+
+.back-home-btn{
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  padding: 8px 14px;
+  font-size: 12px;
+  text-decoration: none;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f5f5f7;
+  backdrop-filter: blur(4px);
+  transition: 0.2s ease;
+  z-index: 9999;
+}
+.back-home-btn:hover{
+  background: rgba(255, 180, 0, 0.25);
+  border-color: rgba(255, 180, 0, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Print (checklist) */
+@media print{
+  header, .timeline-wrap, .back-home-btn { display:none !important; }
+  body{ background:#fff; color:#000; }
+  .card, .term, .ck, .maprow { box-shadow:none; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <div class="badge"><span class="dot"></span> TORINVEST-TRADING — OUTIL POLITIQUE MONÉTAIRE</div>
+    <h1>Politique monétaire : l’outil simple pour lire le cycle et trader dans le bon sens</h1>
+    <p>
+      Objectif : aider un novice à comprendre <strong>la tendance monétaire</strong>,
+      ses effets sur les marchés, et comment l’appliquer sans se noyer dans l’information.
+    </p>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <h2>0) Les 3 questions qui résument tout</h2>
+    <div class="card">
+      <div class="grid">
+        <div class="col-6">
+          <div class="pill"><strong>Q1</strong> — Sommes-nous en <strong>resserrement</strong>, <strong>pause</strong> ou <strong>assouplissement</strong> ?</div>
+          <p class="small" style="margin-top:10px;">Ce n’est pas le “niveau” des taux qui compte : c’est la direction.</p>
+        </div>
+        <div class="col-6">
+          <div class="pill"><strong>Q2</strong> — Le marché anticipe-t-il la prochaine étape <strong>avant</strong> la banque centrale ?</div>
+          <p class="small" style="margin-top:10px;">Les marchés pricent la future décision, pas la décision passée.</p>
+        </div>
+        <div class="col-12">
+          <div class="pill"><strong>Q3</strong> — Qui confirme le régime : <strong>rendements</strong> (2y/10y), <strong>dollar</strong>, <strong>crédit</strong>, <strong>or</strong> ?</div>
+          <p class="small" style="margin-top:10px;">Quand ces “thermomètres” racontent la même histoire, tu as un biais robuste.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+<div class="container">
+  <h2>1) Timeline — la mécanique du cycle (à garder en tête)</h2>
+  <p class="small">La timeline ci-dessous est volontairement “générale”. Elle sert de boussole. Le prix, lui, fait les détails.</p>
+
+  <div class="timeline-wrap">
+    <div class="timeline-scroll" id="cycleScroll">
+      <div class="timeline-track">
+
+        <div class="tnode">
+          <span class="tlabel">Phase 1</span>
+          <div class="tcard">
+            <h3>Resserrement</h3>
+            <p>Taux montent / liquidité se contracte. Le risque devient plus cher.</p>
+          </div>
+        </div>
+
+        <div class="tnode">
+          <span class="tlabel">Phase 2</span>
+          <div class="tcard">
+            <h3>Durcissement du ton</h3>
+            <p>La banque centrale “parle fort” pour ancrer les anticipations.</p>
+          </div>
+        </div>
+
+        <div class="tnode">
+          <span class="tlabel">Phase 3</span>
+          <div class="tcard">
+            <h3>Stress / ralentissement</h3>
+            <p>Le crédit se tend, la croissance faiblit, la volatilité revient.</p>
+          </div>
+        </div>
+
+        <div class="tnode highlight">
+          <span class="tlabel">Phase 4</span>
+          <div class="tcard">
+            <h3>Pause</h3>
+            <p>Moment clé : le marché bascule souvent sur l’étape suivante avant l’annonce.</p>
+          </div>
+        </div>
+
+        <div class="tnode">
+          <span class="tlabel">Phase 5</span>
+          <div class="tcard">
+            <h3>Pivot (attentes)</h3>
+            <p>Les anticipations de baisse apparaissent. Le prix front-run le futur.</p>
+          </div>
+        </div>
+
+        <div class="tnode">
+          <span class="tlabel">Phase 6</span>
+          <div class="tcard">
+            <h3>Assouplissement</h3>
+            <p>Taux baissent / liquidité revient. Le risque “respire”, mais tout dépend du contexte.</p>
+          </div>
+        </div>
+
+        <div class="tnode">
+          <span class="tlabel">Phase 7</span>
+          <div class="tcard">
+            <h3>Nouveau régime</h3>
+            <p>Le marché installe une tendance de fond. L’information devient secondaire.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<section>
+<div class="container">
+  <h2>2) Hawkish / Dovish Translator — traduire un discours en biais trading</h2>
+  <div class="card">
+    <p>
+      Un novice se perd souvent dans les mots. Ici on traduit “langage banque centrale” → “effet probable”.
+      Ce n’est pas une certitude, c’est une grille de lecture.
+    </p>
+
+    <div class="translator">
+
+      <div class="term">
+        <h4>HAWKISH (restrictif) — “on serre la vis”</h4>
+
+        <div class="kv">
+          <div class="k">Mots</div>
+          <div class="v">“inflation trop élevée”, “vigilance”, “plus longtemps”, “risque de seconde vague”, “surveillance salariale”.</div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Traduction</div>
+          <div class="v"><strong>Le marché doit payer plus cher le risque.</strong> Taux attendus ↑, liquidité perçue ↓.</div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Reflexe</div>
+          <div class="v">Observer <strong>USD</strong> et <strong>2 ans</strong>. Si les deux montent, le discours “pèse”.</div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Zones</div>
+          <div class="v">Indices : correction / compression. Or : pression si rendements réels ↑. Devises : flux vers la devise la plus “rémunératrice”.</div>
+        </div>
+      </div>
+
+      <div class="term">
+        <h4>DOVISH (accommodant) — “on relâche la pression”</h4>
+
+        <div class="kv">
+          <div class="k">Mots</div>
+          <div class="v">“désinflation en cours”, “prudence”, “dépendant des données”, “risques de croissance”, “conditions financières”.</div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Traduction</div>
+          <div class="v"><strong>Le marché respire.</strong> Taux attendus ↓, liquidité perçue ↑.</div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Reflexe</div>
+          <div class="v">Surveiller <strong>2 ans</strong> et <strong>crédit</strong>. Si les rendements baissent et les spreads se détendent, le marché “valide”.</div>
+        </div>
+
+        <div class="kv">
+          <div class="k">Zones</div>
+          <div class="v">Indices : soutien. Or : mieux si USD ↓ / rendements réels ↓. Devises : pression sur la devise qui assouplit.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="sep">
+
+    <p class="small">
+      Astuce : un discours “hawkish” peut faire monter un marché si le marché était encore plus inquiet.
+      Le prix réagit à l’écart entre <strong>ce qui était attendu</strong> et <strong>ce qui est dit</strong>.
+    </p>
+  </div>
+</div>
+</section>
+
+<section>
+<div class="container">
+  <h2>3) Checklist — Court terme / Moyen terme / Long terme</h2>
+  <div class="card">
+    <p>Tu peux l’utiliser comme routine. Tu coches, tu clarifies, tu trades plus propre.</p>
+
+    <div class="grid">
+      <div class="col-6">
+        <div class="pill"><strong>Court terme</strong> — jours à semaines</div>
+        <div class="checklist">
+          <div class="ck"><div class="box"></div><p><strong>Événement</strong> : décision de taux / discours / CPI / emploi ?</p></div>
+          <div class="ck"><div class="box"></div><p><strong>Surprise</strong> : plus hawkish ou plus dovish que prévu ?</p></div>
+          <div class="ck"><div class="box"></div><p><strong>Confirmation</strong> : USD + 2 ans vont dans le même sens ?</p></div>
+          <div class="ck"><div class="box"></div><p><strong>Volatilité</strong> : réduire taille / attendre le vrai mouvement après la chasse ?</p></div>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <div class="pill"><strong>Moyen terme</strong> — mois à 2 ans</div>
+        <div class="checklist">
+          <div class="ck"><div class="box"></div><p><strong>Cycle</strong> : hausse / pause / baisse ?</p></div>
+          <div class="ck"><div class="box"></div><p><strong>Anticipations</strong> : le marché pricé-t-il déjà un pivot ?</p></div>
+          <div class="ck"><div class="box"></div><p><strong>Rendements</strong> : tendance du 2 ans et du 10 ans cohérente ?</p></div>
+          <div class="ck"><div class="box"></div><p><strong>Crédit</strong> : spreads se tendent (risque OFF) ou se détendent (risque ON) ?</p></div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="pill"><strong>Long terme</strong> — années</div>
+        <div class="checklist">
+          <div class="ck"><div class="box"></div><p><strong>Régime</strong> : inflation structurelle, dette, fragmentation, crédibilité ?</p></div>
+          <div class="ck"><div class="box"></div><p><strong>Mesure</strong> : la monnaie est-elle perçue comme stable ou narrative ?</p></div>
+          <div class="ck"><div class="box"></div><p><strong>Actifs repères</strong> : or / énergie / devises refuge confirment-ils le régime ?</p></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="sep">
+    <p class="small">Impression : tu peux imprimer cette section (Ctrl+P). J’ai mis un style print propre.</p>
+  </div>
+</div>
+</section>
+
+<section>
+<div class="container">
+  <h2>4) Action Map — “si X, alors je surveille Y”</h2>
+  <div class="card">
+    <p class="small">Ce bloc ne donne pas des ordres. Il donne des priorités de lecture.</p>
+
+    <div class="map">
+      <div class="maprow">
+        <div><span class="tag">Taux attendus ↑</span></div>
+        <p><strong>Surveiller :</strong> USD + rendements courts (2 ans). <strong>Risque :</strong> compression des valorisations, pression sur actifs sensibles au coût du capital.</p>
+      </div>
+
+      <div class="maprow">
+        <div><span class="tag">Taux attendus ↓</span></div>
+        <p><strong>Surveiller :</strong> détente du 2 ans, respiration des indices. <strong>Nuance :</strong> si la baisse est due à la récession, le “risk-on” peut être piégeux.</p>
+      </div>
+
+      <div class="maprow">
+        <div><span class="tag">USD ↑</span></div>
+        <p><strong>Surveiller :</strong> matières premières / émergents / or. <strong>Logique :</strong> durcissement des conditions financières globales.</p>
+      </div>
+
+      <div class="maprow">
+        <div><span class="tag">USD ↓</span></div>
+        <p><strong>Surveiller :</strong> rebond potentiel de l’or et des matières premières, respiration internationale. <strong>Logique :</strong> conditions financières plus souples.</p>
+      </div>
+
+      <div class="maprow">
+        <div><span class="tag">Spreads crédit ↑</span></div>
+        <p><strong>Surveiller :</strong> stress système, risk-off, volatilité. <strong>Réflexe :</strong> prudence sur les poursuites de tendance “euphorique”.</p>
+      </div>
+
+      <div class="maprow">
+        <div><span class="tag">Spreads crédit ↓</span></div>
+        <p><strong>Surveiller :</strong> retour d’appétit au risque. <strong>Réflexe :</strong> les supports tiennent mieux, les pullbacks deviennent plus tradables.</p>
+      </div>
+    </div>
+
+    <hr class="sep">
+    <p class="small">
+      La clé : tu n’as pas besoin de 40 indicateurs macro.
+      Tu as besoin d’un <strong>petit tableau de bord</strong> et d’une lecture cohérente.
+    </p>
+  </div>
+</div>
+</section>
+
+<section>
+<div class="container">
+  <h2>Conclusion — Trader sans se noyer</h2>
+  <div class="card">
+    <p>
+      Un novice veut un signal.  
+      Un trader construit un biais.  
+      La politique monétaire sert à ça : <strong>donner un cadre</strong> avant d’exécuter.
+    </p>
+    <p style="margin-top:12px;">
+      Quand tu connais le vent (cycle), tu comprends pourquoi certaines vagues (setups) marchent…
+      et pourquoi d’autres sont des pièges, même si “le pattern est beau”.
+    </p>
+  </div>
+</div>
+</section>
+
+<div class="footer">
+  © TORINVEST-TRADING — Outil d’apprentissage des cycles monétaires. Aucun conseil en investissement.
+</div>
+
+<a href="/" class="back-home-btn">← Retour accueil</a>
+
+<script>
+/* molette = scroll horizontal sur la timeline (PC) */
+(function(){
+  const el = document.getElementById("cycleScroll");
+  if(!el) return;
+
+  el.addEventListener("wheel", (e) => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      el.scrollLeft += e.deltaY;
+    }
+  }, { passive:false });
+})();
+</script>
+
+</body>
+</html>
