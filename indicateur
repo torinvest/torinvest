@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>TORINVEST - Indicateur Macro Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="TORINVEST - Présentation de l’indicateur Macro Dashboard et guide d’utilisation." />
+  <style>
+    :root {
+      --bg: #050509;
+      --bg-alt: #0a0a12;
+      --card: #11111c;
+      --accent: #ffb400;
+      --accent-soft: rgba(255, 180, 0, 0.12);
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+      --danger: #ff4b5c;
+      --success: #15d16b;
+      --neutral: #ffcc66;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #151528 0, #050509 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 64px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 40px;
+      width: auto;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-title {
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      font-size: 14px;
+    }
+
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    nav {
+      display: flex;
+      gap: 18px;
+      font-size: 13px;
+      color: var(--muted);
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    nav a {
+      position: relative;
+      padding-bottom: 3px;
+    }
+
+    nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffb400, #ff4b5c);
+      transition: width 0.2s ease;
+    }
+
+    nav a:hover::after,
+    nav a.active::after {
+      width: 100%;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(255, 180, 0, 0.08);
+      border: 1px solid rgba(255, 180, 0, 0.4);
+      color: var(--accent);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
+      gap: 24px;
+      margin-bottom: 32px;
+      align-items: stretch;
+    }
+
+    .hero-main,
+    .hero-side,
+    .card {
+      background:
+        radial-gradient(circle at top left, rgba(255, 180, 0, 0.11), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(255, 75, 92, 0.11), transparent 55%),
+        var(--bg-alt);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero-main,
+    .hero-side,
+    .card {
+      padding: 20px;
+    }
+
+    .hero-title {
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      margin: 0 0 10px;
+      line-height: 1.1;
+    }
+
+    .hero-title span,
+    .section-title span {
+      background: linear-gradient(120deg, #ffb400, #ff4b5c);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      max-width: 620px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--muted);
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-size: 13px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb400, #ff4b5c);
+      color: #1a1305;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.9);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--muted);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.03);
+      transform: translateY(-1px);
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .mini-card {
+      background: rgba(0,0,0,0.28);
+      border-radius: 12px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .mini-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .mini-value {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .side-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .list {
+      list-style: none;
+      font-size: 13px;
+      color: var(--muted);
+      display: grid;
+      gap: 8px;
+    }
+
+    .list li::before {
+      content: "•";
+      color: var(--accent);
+      margin-right: 6px;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card-label {
+      font-size: 11px;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card-text {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .thresholds {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .threshold {
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .t-green { color: var(--success); }
+    .t-red { color: var(--danger); }
+    .t-orange { color: var(--neutral); }
+
+    .cta-center {
+      display: flex;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .info-box {
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      padding-top: 16px;
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .back-home-btn {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #f5f5f7;
+      backdrop-filter: blur(4px);
+      transition: 0.2s ease;
+      z-index: 9999;
+    }
+
+    .back-home-btn:hover {
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .grid-3,
+      .grid-2,
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <div class="logo">
+      <img src="forge-logo.png" alt="Torinvest Logo" class="logo-img">
+      <div class="logo-text">
+        <div class="logo-title">TORINVEST</div>
+        <div class="logo-sub">LA FORGE • La force d’un esprit libre</div>
+      </div>
+    </div>
+
+    <nav>
+      <a href="/">Accueil</a>
+      <a href="/forge-page">La Forge</a>
+      <a href="/chroniques">Chroniques</a>
+      <a href="/actualites">Actu Torinvest</a>
+      <a href="/crypto">Crypto</a>
+      <a href="/formation">Formation</a>
+      <a href="/bootcamp">Bootcamp</a>
+      <a href="/video">Vidéos</a>
+      <a href="/indicateur" class="active">Indicateur</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <article class="hero-main">
+        <div class="pill">Indicateur TORINVEST disponible</div>
+        <h1 class="hero-title">
+          Lis le marché avec plus de <span>clarté</span> avant d’entrer
+        </h1>
+        <p class="hero-sub">
+          Le Macro Dashboard TORINVEST a été pensé comme un filtre de contexte. Il sert à lire le régime du marché, comprendre les rapports de force et repérer les contradictions avant l’exécution.
+        </p>
+
+        <div class="hero-tags">
+          <span class="tag">Risk On / Risk Off</span>
+          <span class="tag">Macro US</span>
+          <span class="tag">Taux & Spreads</span>
+          <span class="tag">Crédit</span>
+          <span class="tag">Technique</span>
+        </div>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://fr.tradingview.com/script/kVGSxRE0/" target="_blank" rel="noopener">
+            🔥 Ouvrir l’indicateur sur TradingView
+          </a>
+          <a class="btn btn-ghost" href="#guide">
+            Voir le mode d’emploi
+          </a>
+        </div>
+
+        <div class="mini-grid">
+          <div class="mini-card">
+            <div class="mini-label">Fonction</div>
+            <div class="mini-value">Filtrer le contexte</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Usage</div>
+            <div class="mini-value">Avant l’entrée</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">Objectif</div>
+            <div class="mini-value">Chercher l’alignement</div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="hero-side">
+        <div class="side-title">Ce que l’indicateur t’aide à voir</div>
+        <ul class="list">
+          <li>Si le marché est en mode Risk On, Neutre ou Risk Off</li>
+          <li>Quel bloc domine réellement le contexte</li>
+          <li>Si les actifs risqués et les refuges se contredisent</li>
+          <li>Si les taux et les spreads confirment ou non ton scénario</li>
+          <li>Si le timing technique de ton actif d’ancrage reste cohérent</li>
+        </ul>
+
+        <div class="info-box">
+          Cet outil ne remplace pas ton Price Action.  
+          Il t’aide à éviter de trader contre le contexte.
+        </div>
+      </aside>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Accéder à <span>l’indicateur</span></h2>
+      <p class="section-sub">
+        L’indicateur est hébergé sur TradingView. Clique sur le bouton ci-dessous pour l’ajouter à ton graphique et le tester dans ton environnement.
+      </p>
+
+      <div class="card">
+        <div class="card-label">Lien officiel</div>
+        <h3 class="card-title">Macro Dashboard TORINVEST</h3>
+        <p class="card-text">
+          L’indicateur combine plusieurs blocs de lecture pour t’aider à mieux interpréter le climat du marché avant tes décisions.
+        </p>
+
+        <div class="cta-center">
+          <a class="btn btn-primary" href="https://fr.tradingview.com/script/kVGSxRE0/" target="_blank" rel="noopener">
+            🔥 Rejoindre l’indicateur sur TradingView
+          </a>
+        </div>
+
+        <p class="card-text" style="text-align:center; margin-top:12px;">
+          Ajoute-le à ton graphique puis teste-le sur tes actifs et tes timeframes habituels.
+        </p>
+      </div>
+    </section>
+
+    <section id="guide" class="section">
+      <h2 class="section-title">Mode d’emploi <span>simple</span></h2>
+      <p class="section-sub">
+        Pour bien l’utiliser, lis toujours l’outil dans le même ordre. Tu cherches d’abord le climat, puis le moteur du marché, puis les nuances.
+      </p>
+
+      <div class="grid-3">
+        <article class="card">
+          <div class="card-label">Étape 1</div>
+          <h3 class="card-title">Commencer par le régime</h3>
+          <p class="card-text">
+            Regarde d’abord le Regime score. C’est lui qui te dit si le marché pousse plutôt vers le Risk On, le Risk Off ou une zone neutre.
+          </p>
+          <div class="thresholds">
+            <span class="threshold t-green">&gt; +0.25 = Risk On</span>
+            <span class="threshold t-orange">entre les deux = Neutre</span>
+            <span class="threshold t-red">&lt; -0.25 = Risk Off</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-label">Étape 2</div>
+          <h3 class="card-title">Comparer Risk On et Risk Off</h3>
+          <p class="card-text">
+            Ce n’est pas juste la couleur qui compte. Tu dois voir quel bloc domine réellement l’autre.
+          </p>
+          <ul class="list">
+            <li>Risk On &gt; Risk Off = terrain plus offensif</li>
+            <li>Risk Off &gt; Risk On = terrain plus défensif</li>
+            <li>Les deux forts = marché nerveux / contradictoire</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="card-label">Étape 3</div>
+          <h3 class="card-title">Valider avec le contexte</h3>
+          <p class="card-text">
+            Ensuite seulement, tu regardes Macro US, Rates et Technique pour savoir si le régime est solide ou fragile.
+          </p>
+          <ul class="list">
+            <li>Macro US = fond économique</li>
+            <li>Rates = pression monétaire</li>
+            <li>Technique = timing de l’actif</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Comprendre les <span>nuances</span></h2>
+      <p class="section-sub">
+        Les meilleures informations viennent souvent des désaccords entre blocs, pas seulement d’un score isolé.
+      </p>
+
+      <div class="grid-2">
+        <article class="card">
+          <div class="card-label">Cas propre</div>
+          <h3 class="card-title">Alignement clair</h3>
+          <p class="card-text">
+            Si Risk On monte, que Risk Off baisse et que la Technique confirme, le contexte est généralement plus lisible.
+          </p>
+          <ul class="list">
+            <li>Tu peux être plus agressif si ton setup graphique confirme</li>
+            <li>Le marché te donne un vent dans le dos</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="card-label">Cas piégeux</div>
+          <h3 class="card-title">Contradiction</h3>
+          <p class="card-text">
+            Si Risk On et Risk Off montent ensemble, le marché est souvent instable, contradictoire et plus dangereux.
+          </p>
+          <ul class="list">
+            <li>Réduis l’agressivité</li>
+            <li>Attends plus de confirmation</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="card-label">Cas neutre</div>
+          <h3 class="card-title">Pas d’avantage clair</h3>
+          <p class="card-text">
+            Quand les scores restent proches de zéro, le marché ne donne pas de dominance nette.
+          </p>
+          <ul class="list">
+            <li>Contexte plus flou</li>
+            <li>Mieux vaut attendre que forcer</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="card-label">Bloc sensible</div>
+          <h3 class="card-title">Rates & spreads</h3>
+          <p class="card-text">
+            Les taux et spreads aident beaucoup pour lire le dollar, les devises et certaines divergences macro.
+          </p>
+          <ul class="list">
+            <li>US10Y-DE10Y = rapport USA / Europe</li>
+            <li>US10Y-JP10Y = très utile pour USDJPY</li>
+            <li>À recroiser avec le reste du contexte</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">Fais évoluer <span>la Forge</span></h2>
+      <p class="section-sub">
+        L’objectif n’est pas de sortir un outil figé. L’idée est de le faire progresser avec des retours utiles, cohérents et testés.
+      </p>
+
+      <div class="card">
+        <div class="card-label">Communauté</div>
+        <h3 class="card-title">Teste l’indicateur et laisse un retour</h3>
+        <p class="card-text">
+          Si tu l’utilises, regarde ce qui t’aide vraiment : le régime, les spreads, la lisibilité du dashboard, le bloc technique, les contradictions.
+        </p>
+
+        <ul class="list">
+          <li>Retour sur la lisibilité générale</li>
+          <li>Idées pertinentes d’amélioration</li>
+          <li>Suggestions sur les blocs ou les seuils</li>
+          <li>Observations sur les actifs les plus cohérents</li>
+        </ul>
+
+        <div class="hero-actions" style="margin-top:16px;">
+          <a class="btn btn-primary" href="https://fr.tradingview.com/script/kVGSxRE0/" target="_blank" rel="noopener">
+            Voir sur TradingView
+          </a>
+          <a class="btn btn-ghost" href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
+            Rejoindre Discord
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
+    <a href="/disclaimer">Disclaimer</a>
+    <span>La Forge — La force d’un esprit libre</span>
+  </footer>
+</div>
+
+<a href="/" class="back-home-btn">← Retour accueil</a>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
