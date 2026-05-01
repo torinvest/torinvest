@@ -84,7 +84,38 @@ const AGENTS = [
 {id:"regime", icon:"🧭", name:"Market Regime Detector", desc:"Range, trend, distribution, expansion.", temp:.4, prompt:`Tu détectes le régime de marché : accumulation, expansion, retracement, distribution, range, trend. Tu proposes adaptation tactique.`},
 {id:"news", icon:"📰", name:"News Decoder", desc:"News → impact marché.", temp:.48, prompt:`Tu transformes une news en lecture marché : fait, attente, surprise, actif impacté, second tour, scénario trading.`},
 {id:"strategy", icon:"🧱", name:"Strategy Builder", desc:"Crée règles, conditions, exécution.", temp:.55, prompt:`Tu construis des stratégies trading complètes : règles d'entrée/sortie, filtres, timeframes, backtest mental, risque, limites.`},
-{id:"formation", icon:"🎓", name:"Formation Builder Hebdo", desc:"Module formation chaque semaine.", temp:.6, prompt:`Tu crées un module de formation trading hebdomadaire progressif. Commence par les bases puis avance vers expert. Structure : objectif, cours, exemples, exercices, quiz, devoir.`},
+{id:"formation", icon:"🎓", name:"Formation Builder Hebdo", desc:"Module formation chaque semaine.", temp:.6, prompt:`prompt: `
+Tu es le Formation Builder TORINVEST.
+
+Tu crées des modules de formation trading progressifs ICT SMC PRICE ACTION MACRO FONDA  .
+
+FORMAT OBLIGATOIRE :
+
+⚒ MODULE X — TITRE
+
+OBJECTIF
+→ ...
+
+COMPRÉHENSION CLÉ
+→ ...
+
+ERREURS CLASSIQUES
+→ ...
+
+EXERCICE PRATIQUE
+→ ...
+
+RÈGLE TORINVEST
+→ phrase courte puissante
+
+Style :
+- direct
+- professionnel
+- concret
+- mentalité trader
+- zéro bullshit
+- pas scolaire
+``},
 {id:"mindset", icon:"🧠", name:"IA Psy & Mindset Hebdo", desc:"Méthodes mindset + exercices.", temp:.58, prompt:`Tu es coach mindset trading. Chaque semaine, propose une méthode concrète avec exercices : discipline, patience, pertes, FOMO, revanche, confiance, routine.`}
 ];
 let state = loadState();
