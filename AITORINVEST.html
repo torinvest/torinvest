@@ -101,7 +101,24 @@ function setAgent(id){state.agentId=id;save();render();closeModal('agentsModal')
 function renderChat(){const c=document.getElementById('chat');if(!state.messages.length){state.messages=[{role:'assistant',content:'Bienvenue dans La Forge AI by TORINVEST. Sélectionne un agent, pose ta question, et construisons une analyse propre.',ts:Date.now()}]}c.innerHTML=state.messages.map(m=>`<div class="msg ${m.role}"><div class="label">${m.role==='user'?'VOUS':agent().name}</div>${escapeHtml(m.content)}<div class="time">${new Date(m.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></div>`).join('');c.scrollTop=c.scrollHeight}
 function renderMemory(){const preview=state.memory.slice(-3).reverse().map(m=>`<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleDateString('fr-FR')}</small></div>`).join('')||'<div class="mem">Aucune mémoire.</div>';document.getElementById('memoryPreview').innerHTML=preview;document.getElementById('memoryFull').innerHTML=state.memory.slice().reverse().map((m,i)=>`<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleString('fr-FR')}</small></div>`).join('')||'<div class="mem">Aucune mémoire.</div>'}
 function renderStats(){document.getElementById('statChats').textContent=state.chats.length;document.getElementById('statMem').textContent=state.memory.length;document.getElementById('statSize').textContent=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1)+' KB'}
-function buildMessages(){const mem=state.memory.slice(-8).map(m=>'- '+m.text).join('\n');const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}\n\nRègles globales : réponds en français, avec structure claire. Ne promets jamais de gains. Distingue analyse, scénario et risque.\n\nMémoire locale utile :\n${mem||'Aucune.'}`;return[{role:'system',content:sys},...state.messages.slice(-16).map(m=>({role:m.role,content:m.content}))]}
+function buildMessages(){
+  const mem = state.memory.slice(-8).map(m => '- ' + m.text).join('\n');
+
+  const sys = `Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
+
+Règles globales : réponds en français, avec structure claire. Ne promets jamais de gains. Distingue analyse, scénario et risque.
+
+Mémoire locale utile :
+${mem || 'Aucune.'}`;
+
+  return [
+    { role: 'system', content: sys },
+    ...state.messages
+      .filter(m => !m.loading) // 🔥 FIX ICI
+      .slice(-16)
+      .map(m => ({ role: m.role, content: m.content }))
+  ];
+}
 async function sendMessage(){const input=document.getElementById('userInput');const text=input.value.trim();if(!text)return;state.messages.push({role:'user',content:text,ts:Date.now()});input.value='';renderChat();save();state.messages.push({role:'assistant',content:'Forge en cours…',ts:Date.now(),loading:true});renderChat();try{const res=await fetch(WORKER_AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:state.model,messages:buildMessages(),temperature:agent().temp,max_tokens:4096,top_p:.95})});const data=await res.json();if(!res.ok)throw new Error(data.error||data.message||'Erreur Worker');const reply=data.choices?.[0]?.message?.content||data.reply||'Aucune réponse.';state.messages=state.messages.filter(m=>!m.loading);state.messages.push({role:'assistant',content:reply,ts:Date.now()});save();renderChat()}catch(e){state.messages=state.messages.filter(m=>!m.loading);state.messages.push({role:'assistant',content:'⚠ Erreur : '+e.message+'\n\nVérifie que le Worker possède bien le secret MISTRAL_API_KEY et la route /ai/chat.',ts:Date.now()});save();renderChat()}}
 document.getElementById('userInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
 function newChat(){if(state.messages.length){state.chats.unshift({id:crypto.randomUUID(),title:(state.messages.find(m=>m.role==='user')?.content||'Conversation').slice(0,60),messages:state.messages,ts:Date.now()})}state.messages=[];save();render()}
