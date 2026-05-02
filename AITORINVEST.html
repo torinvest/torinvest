@@ -1,14 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Forge AI by TORINVEST</title>
+  <style>
+    :root{
+      --bg:#050403;--panel:#11100d;--gold:#d9a441;--gold2:#ffce62;--text:#f4efe3;--muted:#9c9383;--line:rgba(217,164,65,.27);--danger:#ff5a5f;--ok:#63e66d;--shadow:0 0 28px rgba(217,164,65,.18);--r:18px;
+    }
+    *{box-sizing:border-box}html,body{height:100%;margin:0}
+    body{font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 15% 0%,rgba(217,164,65,.18),transparent 28%),radial-gradient(circle at 90% 20%,rgba(255,206,98,.10),transparent 30%),linear-gradient(135deg,#020201,#0a0805 55%,#020201);color:var(--text);overflow:hidden}
+    body:before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(217,164,65,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(217,164,65,.05) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(circle at center,black,transparent 75%);pointer-events:none}
+    .app{height:100%;display:grid;grid-template-columns:270px minmax(420px,1fr) 320px;gap:14px;padding:14px;position:relative;z-index:1}
+    .sidebar,.main,.right{border:1px solid var(--line);background:linear-gradient(180deg,rgba(17,16,13,.92),rgba(4,4,3,.94));border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
+    .sidebar,.right{display:flex;flex-direction:column}
+    .brand{padding:18px;text-align:center;border-bottom:1px solid var(--line)}
+    .logo{font-weight:900;font-size:30px;letter-spacing:2px;color:var(--gold2);text-shadow:0 0 18px rgba(255,206,98,.45)}
+    .forge{font-size:13px;letter-spacing:7px;color:#fff;margin-top:2px}
+    .slogan{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:12px;text-transform:uppercase}
+    .nav{padding:14px;display:flex;flex-direction:column;gap:9px}
+    .nav button,.quick button,.primary,.ghost,.tool-btn{border:1px solid var(--line);background:linear-gradient(180deg,rgba(217,164,65,.10),rgba(0,0,0,.25));color:var(--text);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;transition:.2s;font-weight:650}
+    .nav button:hover,.quick button:hover,.primary:hover,.ghost:hover,.tool-btn:hover{border-color:var(--gold2);box-shadow:0 0 18px rgba(217,164,65,.22);transform:translateY(-1px)}
+    .nav button.active{background:linear-gradient(90deg,rgba(217,164,65,.28),rgba(0,0,0,.2));color:var(--gold2)}
+    .side-card{margin:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.22)}
+    .small-title{font-size:12px;color:var(--gold2);font-weight:800;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:10px}
+    .agent-active{font-size:14px;line-height:1.45;color:var(--muted)}
+    .status{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);margin-bottom:10px}
+    .status:last-child{margin-bottom:0}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok);flex-shrink:0}
+    .dot.off{background:var(--muted);box-shadow:none}
+    .dot.recording{background:var(--danger);box-shadow:0 0 14px var(--danger)}
+    .main{display:grid;grid-template-rows:auto 1fr auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)}
+    .title h1{font-size:24px;margin:0;color:var(--gold2);letter-spacing:1px}.title p{margin:5px 0 0;color:var(--muted);font-size:13px}
+    .select{background:#080706;color:var(--text);border:1px solid var(--line);padding:11px 12px;border-radius:12px;min-width:220px}
+    .hero{margin:14px 18px 0;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(217,164,65,.14),rgba(0,0,0,.18)),radial-gradient(circle at 50% 0,rgba(255,206,98,.22),transparent 30%);padding:26px;text-align:center}
+    .hero .mark{font-size:58px;color:var(--gold2);filter:drop-shadow(0 0 18px rgba(255,206,98,.45))}
+    .hero h2{margin:6px 0 2px;font-size:34px;letter-spacing:3px;color:var(--gold2)}.hero p{margin:0;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-size:12px}
+    .chat{overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+    .msg{max-width:86%;border:1px solid var(--line);border-radius:16px;padding:14px 16px;line-height:1.58;white-space:pre-wrap}
+    .msg.user{align-self:flex-end;background:linear-gradient(135deg,rgba(217,164,65,.20),rgba(0,0,0,.25));border-bottom-right-radius:4px}
+    .msg.assistant{align-self:flex-start;background:rgba(9,8,6,.82);border-bottom-left-radius:4px}
+    .msg .label{font-size:11px;color:var(--gold2);font-weight:900;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase}
+    .msg .time{font-size:11px;color:var(--muted);margin-top:9px}
+    .msg img{max-width:260px;border-radius:12px;border:1px solid var(--line);margin-bottom:10px;display:block}
+    .input-zone{border-top:1px solid var(--line);padding:12px 18px}
+    .voice-debug{display:none;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(0,0,0,.22);color:var(--muted);font-size:12px;line-height:1.45}
+    .voice-debug.open{display:block}
+    .voice-debug b{color:var(--gold2)}
+    .voice-debug.err{border-color:rgba(255,90,95,.55);color:#ffc0c2}
+    .preview{display:none;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(0,0,0,.22);align-items:center;gap:10px}
+    .preview.open{display:flex}
+    .preview img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+    .preview .meta{font-size:12px;color:var(--muted);flex:1}
+    .input{display:flex;gap:10px;align-items:flex-end}
+    textarea{flex:1;resize:none;max-height:160px;min-height:48px;border:1px solid var(--line);border-radius:14px;background:#070605;color:var(--text);padding:13px 14px;font-size:14px;outline:none}
+    textarea:focus{border-color:var(--gold2);box-shadow:0 0 18px rgba(217,164,65,.18)}
+    .primary{text-align:center;color:var(--gold2);font-weight:900}
+    .tool-btn{width:48px;height:48px;text-align:center;padding:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+    .tool-btn.active{border-color:var(--danger);color:#fff;background:rgba(255,90,95,.2)}
+    .right{padding:14px;gap:14px;overflow-y:auto}
+    .panel{border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.22);padding:13px}
+    .agents{display:flex;flex-direction:column;gap:8px}.agent{border:1px solid var(--line);border-radius:13px;padding:11px;display:flex;gap:10px;cursor:pointer;background:rgba(255,255,255,.02)}
+    .agent:hover,.agent.active{border-color:var(--gold2);background:rgba(217,164,65,.12)}
+    .agent .ico{font-size:22px}.agent b{font-size:13px}.agent span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+    .mem-list{display:flex;flex-direction:column;gap:8px}.mem{border:1px solid rgba(217,164,65,.18);border-radius:10px;padding:10px;color:var(--muted);font-size:12px}
+    .quick{display:flex;flex-direction:column;gap:9px}.quick button{text-align:center}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.stat b{font-size:22px;color:var(--gold2);display:block}.stat span{font-size:11px;color:var(--muted)}
+    .mobile-toggle{display:none}.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}.modal.open{display:flex}
+    .box{width:min(900px,100%);max-height:88vh;overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 0 60px rgba(0,0,0,.8);padding:18px}.box h3{color:var(--gold2);margin-top:0}
+    .field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.field input,.field select{background:#070605;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:11px}
+    .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.warn{font-size:12px;color:var(--muted);line-height:1.5}.hidden{display:none!important}
+    @media(max-width:1050px){body{overflow:auto}.app{height:auto;min-height:100%;grid-template-columns:1fr}.sidebar,.right{display:none}.sidebar.open,.right.open{display:flex}.mobile-toggle{display:flex;gap:8px;padding:10px}.main{min-height:100vh}.msg{max-width:96%}.hero h2{font-size:25px}.hero{padding:18px}.hero .mark{font-size:42px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="leftPanel">
+    <div class="brand"><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">Trader. Investir. Forger ton avenir.</div></div>
+    <div class="nav">
+      <button class="active" onclick="newChat()">＋ Nouveau chat</button>
+      <button onclick="openArchives()">▣ Archives</button>
+      <button onclick="openAgentsModal()">⚙ Agents</button>
+      <button onclick="openMemoryModal()">⬢ Mémoire</button>
+      <button onclick="exportData()">⬇ Exporter</button>
+      <button onclick="importDataPrompt()">⬆ Importer</button>
+      <input id="importFile" type="file" accept="application/json" class="hidden" />
+    </div>
+    <div class="side-card"><div class="small-title">Agent actif</div><div class="agent-active" id="activeAgentBox"></div></div>
+    <div class="side-card">
+      <div class="small-title">Statut</div>
+      <div class="status"><span class="dot" id="workerDot"></span><span>Worker connecté<br><small id="workerShort"></small></span></div>
+      <div class="status"><span class="dot off" id="micDot"></span><span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span></div>
+    </div>
+    <div style="margin-top:auto" class="side-card"><div class="small-title">Mantra</div><div class="agent-active">La discipline aujourd’hui, la liberté demain.</div></div>
+  </aside>
+
+  <main class="main">
+    <div class="mobile-toggle"><button class="ghost" onclick="toggleLeft()">☰ Menu</button><button class="ghost" onclick="toggleRight()">Agents</button></div>
+    <div class="topbar">
+      <div class="title"><h1>LA FORGE AI <span style="font-size:14px;color:var(--muted)">by TORINVEST</span></h1><p>Machine de guerre IA — trading, formation, mindset, contenu et stratégie.</p></div>
+      <select class="select" id="modelSelect"></select>
+    </div>
+
+    <section class="hero"><div class="mark">⚒</div><h2>TORINVEST — LA FORGE</h2><p>Trader • Investir • Forger ton avenir</p></section>
+    <section class="chat" id="chat"></section>
+
+    <div class="input-zone">
+      <div class="voice-debug" id="voiceDebug"></div>
+
+      <div class="preview" id="imagePreviewBox">
+        <img id="imagePreview" />
+        <div class="meta"><b style="color:var(--gold2)">Image prête</b><br><span id="imageMeta">Envoyée avec le prochain message.</span></div>
+        <button class="ghost" onclick="clearPendingImage()">Retirer</button>
+      </div>
+
+      <div class="input">
+        <button class="tool-btn" title="Ajouter une image" onclick="document.getElementById('imageInput').click()">📎</button>
+        <button class="tool-btn" id="micBtn" title="Dicter vocalement" onclick="toggleVoice()">🎙️</button>
+        <textarea id="userInput" placeholder="Écris ton message… Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne"></textarea>
+        <button class="primary" onclick="sendMessage()">ENVOYER ⚡</button>
+        <input id="imageInput" class="hidden" type="file" accept="image/*" onchange="handleImagePick(event)" />
+      </div>
+    </div>
+  </main>
+
+  <aside class="right" id="rightPanel">
+    <div class="panel"><div class="small-title">Agents spécialisés</div><div class="agents" id="agentsList"></div></div>
+    <div class="panel"><div class="small-title">Mémoire globale</div><div class="mem-list" id="memoryPreview"></div><button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button></div>
+    <div class="panel"><div class="small-title">Statistiques</div><div class="stats"><div class="stat"><b id="statChats">0</b><span>Conversations</span></div><div class="stat"><b>22</b><span>Agents</span></div><div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div><div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div></div></div>
+    <div class="panel quick"><div class="small-title">Outils rapides</div><button onclick="quick('Fais une analyse complète GOLD/XAUUSD : macro, technique, liquidité, scénarios, invalidation.')">Analyse GOLD</button><button onclick="quick('Crée un plan de trading pour la session London/NY avec scénarios et gestion du risque.')">Plan session</button><button onclick="quick('Crée un post Telegram premium TORINVEST à partir de cette idée : ')">Post Telegram</button><button onclick="quick('Crée le module de formation de cette semaine, progressif, clair et structuré.')">Module formation</button><button onclick="quick('Donne-moi la méthode mindset de la semaine avec exercices pratiques.')">Mindset semaine</button></div>
+  </aside>
+</div>
+
+<div class="modal" id="agentsModal"><div class="box"><h3>Agents TORINVEST</h3><div class="agents" id="agentsModalList"></div><div class="actions"><button class="ghost" onclick="closeModal('agentsModal')">Fermer</button></div></div></div>
+<div class="modal" id="memoryModal"><div class="box"><h3>Mémoire globale locale</h3><p class="warn">Cette mémoire reste dans le navigateur. Elle est envoyée au Worker seulement comme contexte utile dans tes requêtes.</p><div class="field"><label>Ajouter une mémoire</label><input id="memoryInput" placeholder="Ex : Risque max par trade : 1%" /></div><button class="primary" onclick="addMemory()">Ajouter</button><hr style="border-color:var(--line)"><div class="mem-list" id="memoryFull"></div><div class="actions"><button class="ghost" onclick="clearMemory()">Effacer mémoire</button><button class="ghost" onclick="closeModal('memoryModal')">Fermer</button></div></div></div>
+<div class="modal" id="archivesModal"><div class="box"><h3>Archives conversations</h3><div id="archivesList"></div><div class="actions"><button class="ghost" onclick="closeModal('archivesModal')">Fermer</button></div></div></div>
+
 <script>
 const WORKER_AI_URL = "https://morning-hall-d8f6.onzerimes.workers.dev/ai/chat";
 const STORAGE_KEY = "torinvest_forge_ai_v1";
 const VISION_MODEL = "pixtral-large-latest";
-
-let state = loadState();
-let pendingImage = null;
-let recognition = null;
-let isRecording = false;
-let voiceBaseText = "";
-let voiceFinalText = "";
 
 const MODELS = [
   {id:"mistral-large-latest", name:"Mistral Large — analyse profonde"},
@@ -43,146 +175,67 @@ const AGENTS = [
 {id:"mindset", icon:"🧠", name:"IA Psy & Mindset Hebdo", desc:"Méthodes mindset + exercices.", temp:.52, prompt:`Tu es IA Psy & Mindset TORINVEST. Entraîne discipline, patience, FOMO, revenge trading, peur de perdre, surconfiance, routine.`}
 ];
 
+let state = loadState();
+let pendingImage = null;
+let recognition = null;
+let isRecording = false;
+let voiceBaseText = "";
+let voiceFinalText = "";
+let voiceLock = false;
+
 function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||defaultState()}catch{return defaultState()}}
 function defaultState(){return{agentId:"macro",model:"mistral-large-latest",messages:[],chats:[],memory:[]}}
 function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderStats()}
 function agent(){return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0]}
 function escapeHtml(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 
-function setVoiceDebug(message,isError=false){
+function setVoiceDebug(message, isError=false){
   const box=document.getElementById('voiceDebug');
   box.innerHTML=message;
   box.classList.add('open');
-  box.classList.toggle('err',!!isError);
+  box.classList.toggle('err', !!isError);
 }
+
 function clearVoiceDebug(){
   const box=document.getElementById('voiceDebug');
   box.classList.remove('open','err');
   box.innerHTML='';
 }
-function setMicroStatus(active,text){
+
+function setMicroStatus(active, text){
   const micDot=document.getElementById('micDot');
   const micText=document.getElementById('micStatusText');
   const micBtn=document.getElementById('micBtn');
+
   if(active){
     micDot.classList.remove('off');
     micDot.classList.add('recording');
     micBtn.classList.add('active');
-    micText.innerHTML=text||'Micro actif<br><small>Écoute en cours...</small>';
+    micText.innerHTML=text || 'Micro actif<br><small>Écoute en cours...</small>';
   }else{
     micDot.classList.add('off');
     micDot.classList.remove('recording');
     micBtn.classList.remove('active');
-    micText.innerHTML=text||'Micro inactif<br><small>Dictée navigateur</small>';
+    micText.innerHTML=text || 'Micro inactif<br><small>Dictée navigateur</small>';
   }
 }
 
-function getSpeechRecognitionConstructor(){
-  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
-}
-
-function explainSpeechError(code){
-  const map={
-    "no-speech":"Aucune voix détectée. Clique à nouveau et parle directement.",
-    "audio-capture":"Micro indisponible ou déjà utilisé par une autre application.",
-    "not-allowed":"Micro refusé. Autorise le micro dans le cadenas à gauche de l’URL.",
-    "service-not-allowed":"Service de dictée bloqué par le navigateur.",
-    "network":"Erreur réseau du service vocal Chrome.",
-    "aborted":"Dictée arrêtée.",
-    "language-not-supported":"Langue non supportée.",
-    "bad-grammar":"Erreur dictée."
-  };
-  return map[code] || `Erreur dictée : ${code || "inconnue"}`;
-}
-
-function toggleVoice(){
-  const SpeechRecognition=getSpeechRecognitionConstructor();
-  const input=document.getElementById('userInput');
-
-  if(!SpeechRecognition){
-    setVoiceDebug("<b>Dictée indisponible :</b> navigateur non compatible.",true);
-    return;
-  }
-
-  if(isRecording && recognition){
-    try{recognition.stop()}catch(e){}
-    return;
-  }
-
+function resetRecognition(){
   try{
     if(recognition){
-      try{recognition.abort()}catch(e){}
-      recognition=null;
+      recognition.onstart=null;
+      recognition.onaudiostart=null;
+      recognition.onspeechstart=null;
+      recognition.onresult=null;
+      recognition.onerror=null;
+      recognition.onend=null;
+      recognition.abort();
     }
-
-    clearVoiceDebug();
-
-    recognition=new SpeechRecognition();
-    recognition.lang="fr-FR";
-    recognition.continuous=false;
-    recognition.interimResults=true;
-    recognition.maxAlternatives=1;
-
-    isRecording=true;
-    voiceBaseText=input.value.trim();
-    voiceFinalText="";
-
-    setMicroStatus(true,'Micro actif<br><small>Parle maintenant...</small>');
-    setVoiceDebug("<b>Dictée active :</b> parle maintenant.");
-
-    const safetyTimer=setTimeout(()=>{
-      if(isRecording && recognition){
-        try{recognition.stop()}catch(e){}
-      }
-    },9000);
-
-    recognition.onresult=(event)=>{
-      let interim="";
-      for(let i=event.resultIndex;i<event.results.length;i++){
-        const txt=event.results[i][0].transcript;
-        if(event.results[i].isFinal){
-          voiceFinalText+=" "+txt;
-        }else{
-          interim+=" "+txt;
-        }
-      }
-
-      const full=(voiceBaseText+" "+voiceFinalText+" "+interim).replace(/\s+/g," ").trim();
-      input.value=full;
-      setVoiceDebug("<b>Texte capté :</b> "+escapeHtml(full||"en attente..."));
-    };
-
-    recognition.onerror=(event)=>{
-      clearTimeout(safetyTimer);
-      isRecording=false;
-      setMicroStatus(false,'Micro erreur<br><small>Voir diagnostic</small>');
-      setVoiceDebug("<b>Erreur dictée :</b> "+escapeHtml(explainSpeechError(event.error)),true);
-      recognition=null;
-    };
-
-    recognition.onend=()=>{
-      clearTimeout(safetyTimer);
-      isRecording=false;
-      setMicroStatus(false);
-
-      if(input.value.trim()){
-        setVoiceDebug("<b>Dictée terminée :</b> texte prêt dans la barre.");
-      }else{
-        setVoiceDebug("<b>Dictée terminée :</b> aucun texte capté. Réessaie en parlant juste après le clic.",true);
-      }
-
-      recognition=null;
-      input.focus();
-    };
-
-    recognition.start();
-
-  }catch(e){
-    isRecording=false;
-    recognition=null;
-    setMicroStatus(false,'Micro bloqué<br><small>Voir diagnostic</small>');
-    setVoiceDebug("<b>Blocage vocal :</b> "+escapeHtml(e.message||String(e)),true);
-  }
+  }catch(e){}
+  recognition=null;
+  isRecording=false;
+  voiceLock=false;
+  setMicroStatus(false);
 }
 
 function render(){
@@ -191,29 +244,33 @@ function render(){
   document.getElementById('activeAgentBox').innerHTML=`<b style="color:var(--gold2)">${agent().icon} ${agent().name}</b><br>${agent().desc}`;
   setMicroStatus(false);
 }
+
 function renderModels(){const s=document.getElementById('modelSelect');s.innerHTML=MODELS.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');s.value=state.model;s.onchange=()=>{state.model=s.value;save()}}
 function renderAgents(){const html=AGENTS.map(a=>`<div class="agent ${a.id===state.agentId?'active':''}" onclick="setAgent('${a.id}')"><div class="ico">${a.icon}</div><div><b>${a.name}</b><span>${a.desc}</span></div></div>`).join('');document.getElementById('agentsList').innerHTML=html;document.getElementById('agentsModalList').innerHTML=html}
 function setAgent(id){state.agentId=id;save();render();closeModal('agentsModal')}
 
 function renderChat(){
   const c=document.getElementById('chat');
-  if(!state.messages.length){state.messages=[{role:'assistant',content:'Bienvenue dans La Forge AI by TORINVEST. Tu peux écrire, dicter au micro ou envoyer une image.',ts:Date.now()}]}
+  if(!state.messages.length){state.messages=[{role:'assistant',content:'Bienvenue dans La Forge AI by TORINVEST. Tu peux maintenant écrire, dicter au micro ou envoyer une image.',ts:Date.now()}]}
   c.innerHTML=state.messages.map(m=>{
     const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="image envoyée">`:'';
     return `<div class="msg ${m.role}"><div class="label">${m.role==='user'?'VOUS':agent().name}</div>${img}${escapeHtml(m.content)}<div class="time">${new Date(m.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
   }).join('');
   c.scrollTop=c.scrollHeight;
 }
+
 function renderMemory(){
   const preview=state.memory.slice(-3).reverse().map(m=>`<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleDateString('fr-FR')}</small></div>`).join('')||'<div class="mem">Aucune mémoire.</div>';
   document.getElementById('memoryPreview').innerHTML=preview;
   document.getElementById('memoryFull').innerHTML=state.memory.slice().reverse().map(m=>`<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleString('fr-FR')}</small></div>`).join('')||'<div class="mem">Aucune mémoire.</div>';
 }
+
 function renderStats(){
   document.getElementById('statChats').textContent=state.chats.length;
   document.getElementById('statMem').textContent=state.memory.length;
   document.getElementById('statSize').textContent=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1)+' KB';
 }
+
 function renderImagePreview(){
   const box=document.getElementById('imagePreviewBox');
   if(!pendingImage){box.classList.remove('open');return}
@@ -221,6 +278,7 @@ function renderImagePreview(){
   document.getElementById('imageMeta').textContent=`${pendingImage.name} • ${Math.round(pendingImage.size/1024)} KB`;
   box.classList.add('open');
 }
+
 async function handleImagePick(e){
   const file=e.target.files[0];
   if(!file)return;
@@ -229,6 +287,7 @@ async function handleImagePick(e){
   renderImagePreview();
   e.target.value='';
 }
+
 function compressImage(file){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
@@ -254,11 +313,182 @@ function compressImage(file){
     reader.readAsDataURL(file);
   });
 }
+
 function clearPendingImage(){pendingImage=null;renderImagePreview()}
+
+async function ensureMicroPermission(){
+  if(!window.isSecureContext){
+    throw new Error("Page non sécurisée. Le micro exige HTTPS ou localhost.");
+  }
+
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    throw new Error("navigator.mediaDevices.getUserMedia indisponible sur ce navigateur.");
+  }
+
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  stream.getTracks().forEach(t=>t.stop());
+  return true;
+}
+
+function getSpeechRecognitionConstructor(){
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
+
+function explainSpeechError(code){
+  const map={
+    "no-speech":"Aucune voix détectée. Clique à nouveau et parle juste après le voyant rouge.",
+    "audio-capture":"Aucun micro détecté ou micro indisponible.",
+    "not-allowed":"Micro refusé. Autorise le micro dans le cadenas à gauche de l’URL.",
+    "service-not-allowed":"Service de dictée bloqué par le navigateur ou les paramètres.",
+    "network":"Erreur réseau du service de reconnaissance vocale.",
+    "aborted":"Dictée arrêtée.",
+    "language-not-supported":"Langue non supportée.",
+    "bad-grammar":"Erreur grammaire reconnaissance vocale."
+  };
+  return map[code] || `Erreur dictée : ${code || "inconnue"}`;
+}
+
+async function toggleVoice(){
+  const SpeechRecognition=getSpeechRecognitionConstructor();
+  const input=document.getElementById('userInput');
+
+  if(!SpeechRecognition){
+    setVoiceDebug("<b>Dictée indisponible :</b> SpeechRecognition / webkitSpeechRecognition n’existe pas sur ce navigateur.", true);
+    alert("La dictée vocale navigateur n'est pas supportée ici. Essaie Chrome ou Edge à jour.");
+    return;
+  }
+
+  if(isRecording && recognition){
+    try{recognition.stop()}catch(e){}
+    return;
+  }
+
+  if(voiceLock){
+    setVoiceDebug("<b>Patiente :</b> le micro se réinitialise. Réessaie dans une seconde.");
+    return;
+  }
+
+  try{
+    voiceLock=true;
+    clearVoiceDebug();
+    resetRecognition();
+
+    setMicroStatus(true, 'Micro demandé<br><small>Autorisation...</small>');
+    setVoiceDebug("<b>Micro :</b> demande d’autorisation navigateur...");
+
+    await ensureMicroPermission();
+
+    voiceBaseText=input.value.trim();
+    voiceFinalText="";
+
+    recognition=new SpeechRecognition();
+    recognition.lang='fr-FR';
+    recognition.continuous=false;
+    recognition.interimResults=true;
+    recognition.maxAlternatives=1;
+
+    let gotResult=false;
+    let gotAudio=false;
+
+    recognition.onstart=()=>{
+      isRecording=true;
+      voiceLock=false;
+      setMicroStatus(true, 'Micro actif<br><small>Parle maintenant...</small>');
+      setVoiceDebug("<b>Dictée active :</b> parle maintenant. Mode stable : écoute courte, puis arrêt automatique.");
+      input.focus();
+    };
+
+    recognition.onaudiostart=()=>{
+      gotAudio=true;
+      setVoiceDebug("<b>Audio détecté :</b> le navigateur reçoit le micro. Parle clairement.");
+    };
+
+    recognition.onspeechstart=()=>{
+      setVoiceDebug("<b>Voix détectée :</b> transcription en cours...");
+    };
+
+    recognition.onresult=(event)=>{
+      gotResult=true;
+      let interimTranscript="";
+
+      for(let i=event.resultIndex;i<event.results.length;i++){
+        const txt=event.results[i][0].transcript;
+        if(event.results[i].isFinal){
+          voiceFinalText += " " + txt;
+        }else{
+          interimTranscript += " " + txt;
+        }
+      }
+
+      const full=(voiceBaseText + " " + voiceFinalText + " " + interimTranscript).replace(/\s+/g," ").trim();
+      input.value=full;
+      setVoiceDebug("<b>Texte capté :</b> " + escapeHtml(full || "en attente..."));
+    };
+
+    recognition.onerror=(event)=>{
+      isRecording=false;
+      voiceLock=false;
+      const errorText=explainSpeechError(event.error);
+      setMicroStatus(false, 'Micro erreur<br><small>Voir diagnostic</small>');
+      setVoiceDebug("<b>Erreur dictée :</b> " + escapeHtml(errorText), true);
+      try{recognition.abort()}catch(e){}
+    };
+
+    recognition.onend=()=>{
+      isRecording=false;
+      voiceLock=false;
+      setMicroStatus(false);
+
+      const hasText=input.value.trim().length>0;
+
+      if(hasText){
+        setVoiceDebug("<b>Dictée terminée :</b> texte prêt dans la barre. Appuie sur Entrée ou ENVOYER.");
+      }else if(gotAudio && !gotResult){
+        setVoiceDebug("<b>Audio reçu mais pas transcrit :</b> réessaie en parlant plus fort ou en faisant une phrase courte.", true);
+      }else{
+        setVoiceDebug("<b>Dictée terminée :</b> aucun texte capté. Clique à nouveau et parle directement après le voyant rouge.", true);
+      }
+
+      input.focus();
+
+      setTimeout(()=>{
+        try{
+          if(recognition){
+            recognition.onstart=null;
+            recognition.onaudiostart=null;
+            recognition.onspeechstart=null;
+            recognition.onresult=null;
+            recognition.onerror=null;
+            recognition.onend=null;
+          }
+        }catch(e){}
+        recognition=null;
+      },250);
+    };
+
+    setTimeout(()=>{
+      try{
+        recognition.start();
+      }catch(e){
+        voiceLock=false;
+        isRecording=false;
+        setMicroStatus(false, 'Micro erreur<br><small>Voir diagnostic</small>');
+        setVoiceDebug("<b>Impossible de lancer la dictée :</b> " + escapeHtml(e.message || String(e)), true);
+      }
+    },150);
+
+  }catch(e){
+    voiceLock=false;
+    isRecording=false;
+    setMicroStatus(false, 'Micro bloqué<br><small>Voir diagnostic</small>');
+    setVoiceDebug("<b>Micro bloqué :</b> " + escapeHtml(e.message || String(e)), true);
+  }
+}
 
 function buildMessages(){
   const mem=state.memory.slice(-8).map(m=>'- '+m.text).join('\n');
   const today=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
   const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
 
 DATE ACTUELLE :
@@ -281,7 +511,13 @@ ${mem||'Aucune.'}`;
     {role:'system',content:sys},
     ...state.messages.filter(m=>!m.loading).slice(-16).map(m=>{
       if(m.role==='user'&&m.imageDataUrl){
-        return {role:'user',content:[{type:'text',text:m.content||'Analyse cette image.'},{type:'image_url',image_url:m.imageDataUrl}]};
+        return {
+          role:'user',
+          content:[
+            {type:'text',text:m.content||'Analyse cette image.'},
+            {type:'image_url',image_url:m.imageDataUrl}
+          ]
+        };
       }
       return {role:m.role,content:m.content};
     })
@@ -313,22 +549,31 @@ async function sendMessage(){
     const res=await fetch(WORKER_AI_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:modelToUse,messages:buildMessages(),temperature:agent().temp,max_tokens:4096,top_p:.95})
+      body:JSON.stringify({
+        model:modelToUse,
+        messages:buildMessages(),
+        temperature:agent().temp,
+        max_tokens:4096,
+        top_p:.95
+      })
     });
+
     const data=await res.json();
     if(!res.ok)throw new Error(data.error||data.message||'Erreur Worker');
+
     const reply=data.choices?.[0]?.message?.content||data.reply||'Aucune réponse.';
     state.messages=state.messages.filter(m=>!m.loading);
     state.messages.push({role:'assistant',content:reply,ts:Date.now()});
     save();renderChat();
   }catch(e){
     state.messages=state.messages.filter(m=>!m.loading);
-    state.messages.push({role:'assistant',content:'⚠ Erreur : '+e.message,ts:Date.now()});
+    state.messages.push({role:'assistant',content:'⚠ Erreur : '+e.message+'\n\nSi tu as envoyé une image, vérifie que ton compte Mistral accepte le modèle vision : pixtral-large-latest.',ts:Date.now()});
     save();renderChat();
   }
 }
 
 document.getElementById('userInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
+
 function newChat(){if(state.messages.length){state.chats.unshift({id:crypto.randomUUID(),title:(state.messages.find(m=>m.role==='user')?.content||'Conversation').slice(0,60),messages:state.messages,ts:Date.now()})}state.messages=[];save();render()}
 function openArchives(){const l=document.getElementById('archivesList');l.innerHTML=state.chats.map(c=>`<div class="mem" style="cursor:pointer" onclick="loadChat('${c.id}')"><b>${escapeHtml(c.title)}</b><br><small>${new Date(c.ts).toLocaleString('fr-FR')}</small></div>`).join('')||'<div class="mem">Aucune archive.</div>';openModal('archivesModal')}
 function loadChat(id){const c=state.chats.find(x=>x.id===id);if(c){state.messages=c.messages;save();render();closeModal('archivesModal')}}
@@ -347,3 +592,5 @@ document.getElementById('importFile').onchange=async e=>{const f=e.target.files[
 
 render();
 </script>
+</body>
+</html>
