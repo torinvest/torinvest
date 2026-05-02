@@ -25,8 +25,10 @@
     .side-card{margin:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.22)}
     .small-title{font-size:12px;color:var(--gold2);font-weight:800;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:10px}
     .agent-active{font-size:14px;line-height:1.45;color:var(--muted)}
-    .status{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted)}
-    .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok)}
+    .status{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);margin-bottom:10px}
+    .status:last-child{margin-bottom:0}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok);flex-shrink:0}
+    .dot.off{background:var(--muted);box-shadow:none}
     .dot.recording{background:var(--danger);box-shadow:0 0 14px var(--danger)}
     .main{display:grid;grid-template-rows:auto 1fr auto}
     .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)}
@@ -82,7 +84,11 @@
       <input id="importFile" type="file" accept="application/json" class="hidden" />
     </div>
     <div class="side-card"><div class="small-title">Agent actif</div><div class="agent-active" id="activeAgentBox"></div></div>
-    <div class="side-card"><div class="small-title">Statut</div><div class="status"><span class="dot" id="statusDot"></span><span>Worker connecté<br><small id="workerShort"></small></span></div></div>
+    <div class="side-card">
+      <div class="small-title">Statut</div>
+      <div class="status"><span class="dot" id="workerDot"></span><span>Worker connecté<br><small id="workerShort"></small></span></div>
+      <div class="status"><span class="dot off" id="micDot"></span><span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span></div>
+    </div>
     <div style="margin-top:auto" class="side-card"><div class="small-title">Mantra</div><div class="agent-active">La discipline aujourd’hui, la liberté demain.</div></div>
   </aside>
 
@@ -174,10 +180,29 @@ function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderSt
 function agent(){return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0]}
 function escapeHtml(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 
+function setMicroStatus(active){
+  const micDot=document.getElementById('micDot');
+  const micText=document.getElementById('micStatusText');
+  const micBtn=document.getElementById('micBtn');
+
+  if(active){
+    micDot.classList.remove('off');
+    micDot.classList.add('recording');
+    micBtn.classList.add('active');
+    micText.innerHTML='Micro actif<br><small>Écoute en cours...</small>';
+  }else{
+    micDot.classList.add('off');
+    micDot.classList.remove('recording');
+    micBtn.classList.remove('active');
+    micText.innerHTML='Micro inactif<br><small>Dictée navigateur</small>';
+  }
+}
+
 function render(){
   renderModels();renderAgents();renderChat();renderMemory();renderStats();renderImagePreview();
   document.getElementById('workerShort').textContent=WORKER_AI_URL.replace('https://','').slice(0,34)+'…';
   document.getElementById('activeAgentBox').innerHTML=`<b style="color:var(--gold2)">${agent().icon} ${agent().name}</b><br>${agent().desc}`;
+  setMicroStatus(false);
 }
 
 function renderModels(){const s=document.getElementById('modelSelect');s.innerHTML=MODELS.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');s.value=state.model;s.onchange=()=>{state.model=s.value;save()}}
@@ -264,9 +289,9 @@ function toggleVoice(){
 
   const input=document.getElementById('userInput');
   let base=input.value.trim();
+
   isRecording=true;
-  document.getElementById('micBtn').classList.add('active');
-  document.getElementById('statusDot').classList.add('recording');
+  setMicroStatus(true);
 
   recognition.onresult=(event)=>{
     let finalText='';
@@ -279,8 +304,17 @@ function toggleVoice(){
     input.value=(base+' '+finalText+' '+interim).trim();
   };
 
-  recognition.onerror=()=>{isRecording=false;document.getElementById('micBtn').classList.remove('active');document.getElementById('statusDot').classList.remove('recording')}
-  recognition.onend=()=>{isRecording=false;document.getElementById('micBtn').classList.remove('active');document.getElementById('statusDot').classList.remove('recording');input.focus()}
+  recognition.onerror=()=>{
+    isRecording=false;
+    setMicroStatus(false);
+  };
+
+  recognition.onend=()=>{
+    isRecording=false;
+    setMicroStatus(false);
+    input.focus();
+  };
+
   recognition.start();
 }
 
