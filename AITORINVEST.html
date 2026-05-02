@@ -180,6 +180,8 @@ let pendingImage = null;
 let recognition = null;
 let isRecording = false;
 let voiceBaseText = "";
+let voiceFinalText = "";
+let voiceLock = false;
 
 function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||defaultState()}catch{return defaultState()}}
 function defaultState(){return{agentId:"macro",model:"mistral-large-latest",messages:[],chats:[],memory:[]}}
@@ -216,6 +218,24 @@ function setMicroStatus(active, text){
     micBtn.classList.remove('active');
     micText.innerHTML=text || 'Micro inactif<br><small>Dictée navigateur</small>';
   }
+}
+
+function resetRecognition(){
+  try{
+    if(recognition){
+      recognition.onstart=null;
+      recognition.onaudiostart=null;
+      recognition.onspeechstart=null;
+      recognition.onresult=null;
+      recognition.onerror=null;
+      recognition.onend=null;
+      recognition.abort();
+    }
+  }catch(e){}
+  recognition=null;
+  isRecording=false;
+  voiceLock=false;
+  setMicroStatus(false);
 }
 
 function render(){
@@ -316,7 +336,7 @@ function getSpeechRecognitionConstructor(){
 
 function explainSpeechError(code){
   const map={
-    "no-speech":"Aucune voix détectée. Parle plus fort ou rapproche le micro.",
+    "no-speech":"Aucune voix détectée. Clique à nouveau et parle juste après le voyant rouge.",
     "audio-capture":"Aucun micro détecté ou micro indisponible.",
     "not-allowed":"Micro refusé. Autorise le micro dans le cadenas à gauche de l’URL.",
     "service-not-allowed":"Service de dictée bloqué par le navigateur ou les paramètres.",
@@ -330,6 +350,7 @@ function explainSpeechError(code){
 
 async function toggleVoice(){
   const SpeechRecognition=getSpeechRecognitionConstructor();
+  const input=document.getElementById('userInput');
 
   if(!SpeechRecognition){
     setVoiceDebug("<b>Dictée indisponible :</b> SpeechRecognition / webkitSpeechRecognition n’existe pas sur ce navigateur.", true);
@@ -338,36 +359,47 @@ async function toggleVoice(){
   }
 
   if(isRecording && recognition){
-    recognition.stop();
+    try{recognition.stop()}catch(e){}
+    return;
+  }
+
+  if(voiceLock){
+    setVoiceDebug("<b>Patiente :</b> le micro se réinitialise. Réessaie dans une seconde.");
     return;
   }
 
   try{
+    voiceLock=true;
     clearVoiceDebug();
+    resetRecognition();
+
     setMicroStatus(true, 'Micro demandé<br><small>Autorisation...</small>');
     setVoiceDebug("<b>Micro :</b> demande d’autorisation navigateur...");
 
     await ensureMicroPermission();
 
-    const input=document.getElementById('userInput');
     voiceBaseText=input.value.trim();
+    voiceFinalText="";
 
     recognition=new SpeechRecognition();
     recognition.lang='fr-FR';
-    recognition.continuous=true;
+    recognition.continuous=false;
     recognition.interimResults=true;
     recognition.maxAlternatives=1;
 
-    let finalTranscript="";
+    let gotResult=false;
+    let gotAudio=false;
 
     recognition.onstart=()=>{
       isRecording=true;
+      voiceLock=false;
       setMicroStatus(true, 'Micro actif<br><small>Parle maintenant...</small>');
-      setVoiceDebug("<b>Dictée active :</b> parle maintenant. Le texte doit apparaître dans la barre.");
+      setVoiceDebug("<b>Dictée active :</b> parle maintenant. Mode stable : écoute courte, puis arrêt automatique.");
       input.focus();
     };
 
     recognition.onaudiostart=()=>{
+      gotAudio=true;
       setVoiceDebug("<b>Audio détecté :</b> le navigateur reçoit le micro. Parle clairement.");
     };
 
@@ -376,41 +408,77 @@ async function toggleVoice(){
     };
 
     recognition.onresult=(event)=>{
+      gotResult=true;
       let interimTranscript="";
+
       for(let i=event.resultIndex;i<event.results.length;i++){
         const txt=event.results[i][0].transcript;
         if(event.results[i].isFinal){
-          finalTranscript += " " + txt;
+          voiceFinalText += " " + txt;
         }else{
           interimTranscript += " " + txt;
         }
       }
 
-      const full=(voiceBaseText + " " + finalTranscript + " " + interimTranscript).replace(/\s+/g," ").trim();
+      const full=(voiceBaseText + " " + voiceFinalText + " " + interimTranscript).replace(/\s+/g," ").trim();
       input.value=full;
       setVoiceDebug("<b>Texte capté :</b> " + escapeHtml(full || "en attente..."));
     };
 
     recognition.onerror=(event)=>{
       isRecording=false;
+      voiceLock=false;
+      const errorText=explainSpeechError(event.error);
       setMicroStatus(false, 'Micro erreur<br><small>Voir diagnostic</small>');
-      setVoiceDebug("<b>Erreur dictée :</b> " + escapeHtml(explainSpeechError(event.error)), true);
+      setVoiceDebug("<b>Erreur dictée :</b> " + escapeHtml(errorText), true);
+      try{recognition.abort()}catch(e){}
     };
 
     recognition.onend=()=>{
       isRecording=false;
+      voiceLock=false;
       setMicroStatus(false);
-      if(!input.value.trim()){
-        setVoiceDebug("<b>Dictée terminée :</b> aucun texte capté. Vérifie le micro Windows, l’autorisation du site et parle après le voyant rouge.", true);
-      }else{
+
+      const hasText=input.value.trim().length>0;
+
+      if(hasText){
         setVoiceDebug("<b>Dictée terminée :</b> texte prêt dans la barre. Appuie sur Entrée ou ENVOYER.");
+      }else if(gotAudio && !gotResult){
+        setVoiceDebug("<b>Audio reçu mais pas transcrit :</b> réessaie en parlant plus fort ou en faisant une phrase courte.", true);
+      }else{
+        setVoiceDebug("<b>Dictée terminée :</b> aucun texte capté. Clique à nouveau et parle directement après le voyant rouge.", true);
       }
+
       input.focus();
+
+      setTimeout(()=>{
+        try{
+          if(recognition){
+            recognition.onstart=null;
+            recognition.onaudiostart=null;
+            recognition.onspeechstart=null;
+            recognition.onresult=null;
+            recognition.onerror=null;
+            recognition.onend=null;
+          }
+        }catch(e){}
+        recognition=null;
+      },250);
     };
 
-    recognition.start();
+    setTimeout(()=>{
+      try{
+        recognition.start();
+      }catch(e){
+        voiceLock=false;
+        isRecording=false;
+        setMicroStatus(false, 'Micro erreur<br><small>Voir diagnostic</small>');
+        setVoiceDebug("<b>Impossible de lancer la dictée :</b> " + escapeHtml(e.message || String(e)), true);
+      }
+    },150);
 
   }catch(e){
+    voiceLock=false;
     isRecording=false;
     setMicroStatus(false, 'Micro bloqué<br><small>Voir diagnostic</small>');
     setVoiceDebug("<b>Micro bloqué :</b> " + escapeHtml(e.message || String(e)), true);
@@ -462,7 +530,7 @@ async function sendMessage(){
   if(!text&&!pendingImage)return;
 
   if(isRecording && recognition){
-    recognition.stop();
+    try{recognition.stop()}catch(e){}
   }
 
   const imageToSend=pendingImage;
