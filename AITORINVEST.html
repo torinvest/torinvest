@@ -45,6 +45,10 @@
     .msg .time{font-size:11px;color:var(--muted);margin-top:9px}
     .msg img{max-width:260px;border-radius:12px;border:1px solid var(--line);margin-bottom:10px;display:block}
     .input-zone{border-top:1px solid var(--line);padding:12px 18px}
+    .voice-debug{display:none;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(0,0,0,.22);color:var(--muted);font-size:12px;line-height:1.45}
+    .voice-debug.open{display:block}
+    .voice-debug b{color:var(--gold2)}
+    .voice-debug.err{border-color:rgba(255,90,95,.55);color:#ffc0c2}
     .preview{display:none;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(0,0,0,.22);align-items:center;gap:10px}
     .preview.open{display:flex}
     .preview img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
@@ -103,6 +107,8 @@
     <section class="chat" id="chat"></section>
 
     <div class="input-zone">
+      <div class="voice-debug" id="voiceDebug"></div>
+
       <div class="preview" id="imagePreviewBox">
         <img id="imagePreview" />
         <div class="meta"><b style="color:var(--gold2)">Image prête</b><br><span id="imageMeta">Envoyée avec le prochain message.</span></div>
@@ -173,6 +179,7 @@ let state = loadState();
 let pendingImage = null;
 let recognition = null;
 let isRecording = false;
+let voiceBaseText = "";
 
 function loadState(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||defaultState()}catch{return defaultState()}}
 function defaultState(){return{agentId:"macro",model:"mistral-large-latest",messages:[],chats:[],memory:[]}}
@@ -180,7 +187,20 @@ function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderSt
 function agent(){return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0]}
 function escapeHtml(s){return String(s||'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
 
-function setMicroStatus(active){
+function setVoiceDebug(message, isError=false){
+  const box=document.getElementById('voiceDebug');
+  box.innerHTML=message;
+  box.classList.add('open');
+  box.classList.toggle('err', !!isError);
+}
+
+function clearVoiceDebug(){
+  const box=document.getElementById('voiceDebug');
+  box.classList.remove('open','err');
+  box.innerHTML='';
+}
+
+function setMicroStatus(active, text){
   const micDot=document.getElementById('micDot');
   const micText=document.getElementById('micStatusText');
   const micBtn=document.getElementById('micBtn');
@@ -189,12 +209,12 @@ function setMicroStatus(active){
     micDot.classList.remove('off');
     micDot.classList.add('recording');
     micBtn.classList.add('active');
-    micText.innerHTML='Micro actif<br><small>Écoute en cours...</small>';
+    micText.innerHTML=text || 'Micro actif<br><small>Écoute en cours...</small>';
   }else{
     micDot.classList.add('off');
     micDot.classList.remove('recording');
     micBtn.classList.remove('active');
-    micText.innerHTML='Micro inactif<br><small>Dictée navigateur</small>';
+    micText.innerHTML=text || 'Micro inactif<br><small>Dictée navigateur</small>';
   }
 }
 
@@ -276,46 +296,125 @@ function compressImage(file){
 
 function clearPendingImage(){pendingImage=null;renderImagePreview()}
 
-function toggleVoice(){
-  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SpeechRecognition){alert("La dictée vocale n'est pas supportée sur ce navigateur. Essaie Chrome ou Edge.");return}
+async function ensureMicroPermission(){
+  if(!window.isSecureContext){
+    throw new Error("Page non sécurisée. Le micro exige HTTPS ou localhost.");
+  }
 
-  if(isRecording&&recognition){recognition.stop();return}
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    throw new Error("navigator.mediaDevices.getUserMedia indisponible sur ce navigateur.");
+  }
 
-  recognition=new SpeechRecognition();
-  recognition.lang='fr-FR';
-  recognition.continuous=false;
-  recognition.interimResults=true;
+  const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+  stream.getTracks().forEach(t=>t.stop());
+  return true;
+}
 
-  const input=document.getElementById('userInput');
-  let base=input.value.trim();
+function getSpeechRecognitionConstructor(){
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+}
 
-  isRecording=true;
-  setMicroStatus(true);
-
-  recognition.onresult=(event)=>{
-    let finalText='';
-    let interim='';
-    for(let i=event.resultIndex;i<event.results.length;i++){
-      const txt=event.results[i][0].transcript;
-      if(event.results[i].isFinal)finalText+=txt;
-      else interim+=txt;
-    }
-    input.value=(base+' '+finalText+' '+interim).trim();
+function explainSpeechError(code){
+  const map={
+    "no-speech":"Aucune voix détectée. Parle plus fort ou rapproche le micro.",
+    "audio-capture":"Aucun micro détecté ou micro indisponible.",
+    "not-allowed":"Micro refusé. Autorise le micro dans le cadenas à gauche de l’URL.",
+    "service-not-allowed":"Service de dictée bloqué par le navigateur ou les paramètres.",
+    "network":"Erreur réseau du service de reconnaissance vocale.",
+    "aborted":"Dictée arrêtée.",
+    "language-not-supported":"Langue non supportée.",
+    "bad-grammar":"Erreur grammaire reconnaissance vocale."
   };
+  return map[code] || `Erreur dictée : ${code || "inconnue"}`;
+}
 
-  recognition.onerror=()=>{
+async function toggleVoice(){
+  const SpeechRecognition=getSpeechRecognitionConstructor();
+
+  if(!SpeechRecognition){
+    setVoiceDebug("<b>Dictée indisponible :</b> SpeechRecognition / webkitSpeechRecognition n’existe pas sur ce navigateur.", true);
+    alert("La dictée vocale navigateur n'est pas supportée ici. Essaie Chrome ou Edge à jour.");
+    return;
+  }
+
+  if(isRecording && recognition){
+    recognition.stop();
+    return;
+  }
+
+  try{
+    clearVoiceDebug();
+    setMicroStatus(true, 'Micro demandé<br><small>Autorisation...</small>');
+    setVoiceDebug("<b>Micro :</b> demande d’autorisation navigateur...");
+
+    await ensureMicroPermission();
+
+    const input=document.getElementById('userInput');
+    voiceBaseText=input.value.trim();
+
+    recognition=new SpeechRecognition();
+    recognition.lang='fr-FR';
+    recognition.continuous=true;
+    recognition.interimResults=true;
+    recognition.maxAlternatives=1;
+
+    let finalTranscript="";
+
+    recognition.onstart=()=>{
+      isRecording=true;
+      setMicroStatus(true, 'Micro actif<br><small>Parle maintenant...</small>');
+      setVoiceDebug("<b>Dictée active :</b> parle maintenant. Le texte doit apparaître dans la barre.");
+      input.focus();
+    };
+
+    recognition.onaudiostart=()=>{
+      setVoiceDebug("<b>Audio détecté :</b> le navigateur reçoit le micro. Parle clairement.");
+    };
+
+    recognition.onspeechstart=()=>{
+      setVoiceDebug("<b>Voix détectée :</b> transcription en cours...");
+    };
+
+    recognition.onresult=(event)=>{
+      let interimTranscript="";
+      for(let i=event.resultIndex;i<event.results.length;i++){
+        const txt=event.results[i][0].transcript;
+        if(event.results[i].isFinal){
+          finalTranscript += " " + txt;
+        }else{
+          interimTranscript += " " + txt;
+        }
+      }
+
+      const full=(voiceBaseText + " " + finalTranscript + " " + interimTranscript).replace(/\s+/g," ").trim();
+      input.value=full;
+      setVoiceDebug("<b>Texte capté :</b> " + escapeHtml(full || "en attente..."));
+    };
+
+    recognition.onerror=(event)=>{
+      isRecording=false;
+      setMicroStatus(false, 'Micro erreur<br><small>Voir diagnostic</small>');
+      setVoiceDebug("<b>Erreur dictée :</b> " + escapeHtml(explainSpeechError(event.error)), true);
+    };
+
+    recognition.onend=()=>{
+      isRecording=false;
+      setMicroStatus(false);
+      if(!input.value.trim()){
+        setVoiceDebug("<b>Dictée terminée :</b> aucun texte capté. Vérifie le micro Windows, l’autorisation du site et parle après le voyant rouge.", true);
+      }else{
+        setVoiceDebug("<b>Dictée terminée :</b> texte prêt dans la barre. Appuie sur Entrée ou ENVOYER.");
+      }
+      input.focus();
+    };
+
+    recognition.start();
+
+  }catch(e){
     isRecording=false;
-    setMicroStatus(false);
-  };
-
-  recognition.onend=()=>{
-    isRecording=false;
-    setMicroStatus(false);
-    input.focus();
-  };
-
-  recognition.start();
+    setMicroStatus(false, 'Micro bloqué<br><small>Voir diagnostic</small>');
+    setVoiceDebug("<b>Micro bloqué :</b> " + escapeHtml(e.message || String(e)), true);
+  }
 }
 
 function buildMessages(){
@@ -362,11 +461,16 @@ async function sendMessage(){
   const text=input.value.trim();
   if(!text&&!pendingImage)return;
 
+  if(isRecording && recognition){
+    recognition.stop();
+  }
+
   const imageToSend=pendingImage;
   const userContent=text || "Analyse cette image.";
   state.messages.push({role:'user',content:userContent,imageDataUrl:imageToSend?.dataUrl||null,ts:Date.now()});
   input.value='';
   clearPendingImage();
+  clearVoiceDebug();
   renderChat();save();
 
   state.messages.push({role:'assistant',content:'Forge en cours…',ts:Date.now(),loading:true});
