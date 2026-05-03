@@ -30,6 +30,8 @@
     .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok);flex-shrink:0}
     .dot.off{background:var(--muted);box-shadow:none}
     .dot.recording{background:var(--danger);box-shadow:0 0 14px var(--danger)}
+    .dot.warn{background:#ffb84d;box-shadow:0 0 12px #ffb84d}
+    .dot.critical{background:var(--danger);box-shadow:0 0 12px var(--danger)}
     .main{display:grid;grid-template-rows:auto 1fr auto}
     .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)}
     .title h1{font-size:24px;margin:0;color:var(--gold2);letter-spacing:1px}.title p{margin:5px 0 0;color:var(--muted);font-size:13px}
@@ -67,6 +69,9 @@
     .mem-list{display:flex;flex-direction:column;gap:8px}.mem{border:1px solid rgba(217,164,65,.18);border-radius:10px;padding:10px;color:var(--muted);font-size:12px}
     .quick{display:flex;flex-direction:column;gap:9px}.quick button{text-align:center}
     .stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.stat b{font-size:22px;color:var(--gold2);display:block}.stat span{font-size:11px;color:var(--muted)}
+    .health-line{border:1px solid rgba(217,164,65,.18);border-radius:10px;padding:9px;margin-top:8px;background:rgba(0,0,0,.20);font-size:12px;color:var(--muted);line-height:1.5}
+    .health-line b{color:var(--gold2)}
+    .health-ok{color:var(--ok)!important}.health-warning{color:#ffb84d!important}.health-critical{color:var(--danger)!important}
     .mobile-toggle{display:none}.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}.modal.open{display:flex}
     .box{width:min(900px,100%);max-height:88vh;overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 0 60px rgba(0,0,0,.8);padding:18px}.box h3{color:var(--gold2);margin-top:0}
     .field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.field input,.field select{background:#070605;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:11px}
@@ -80,6 +85,7 @@
     <div class="brand"><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">Trader. Investir. Forger ton avenir.</div></div>
     <div class="nav">
       <button class="active" onclick="newChat()">＋ Nouveau chat</button>
+      <button onclick="checkSystemHealth()">🧠 System Health</button>
       <button onclick="openArchives()">▣ Archives</button>
       <button onclick="openAgentsModal()">⚙ Agents</button>
       <button onclick="openMemoryModal()">⬢ Mémoire</button>
@@ -91,6 +97,7 @@
     <div class="side-card">
       <div class="small-title">Statut</div>
       <div class="status"><span class="dot" id="workerDot"></span><span>Worker connecté<br><small id="workerShort"></small></span></div>
+      <div class="status"><span class="dot off" id="healthDot"></span><span id="healthStatusText">Health non testé<br><small>/system/health</small></span></div>
       <div class="status"><span class="dot off" id="micDot"></span><span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span></div>
     </div>
     <div style="margin-top:auto" class="side-card"><div class="small-title">Mantra</div><div class="agent-active">La discipline aujourd’hui, la liberté demain.</div></div>
@@ -128,7 +135,12 @@
   <aside class="right" id="rightPanel">
     <div class="panel"><div class="small-title">Agents spécialisés</div><div class="agents" id="agentsList"></div></div>
     <div class="panel"><div class="small-title">Mémoire globale</div><div class="mem-list" id="memoryPreview"></div><button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button></div>
-    <div class="panel"><div class="small-title">Statistiques</div><div class="stats"><div class="stat"><b id="statChats">0</b><span>Conversations</span></div><div class="stat"><b>22</b><span>Agents</span></div><div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div><div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div></div></div>
+    <div class="panel"><div class="small-title">Statistiques</div><div class="stats"><div class="stat"><b id="statChats">0</b><span>Conversations</span></div><div class="stat"><b>23</b><span>Agents</span></div><div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div><div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div></div></div>
+    <div class="panel">
+      <div class="small-title">System Health</div>
+      <div id="healthBox" style="font-size:12px;color:var(--muted);line-height:1.5">Aucun diagnostic.</div>
+      <button class="primary" style="width:100%;margin-top:10px" onclick="checkSystemHealth()">Analyser</button>
+    </div>
     <div class="panel quick"><div class="small-title">Outils rapides</div><button onclick="quick('Fais une analyse complète GOLD/XAUUSD : macro, technique, liquidité, scénarios, invalidation.')">Analyse GOLD</button><button onclick="quick('Crée un plan de trading pour la session London/NY avec scénarios et gestion du risque.')">Plan session</button><button onclick="quick('Crée un post Telegram premium TORINVEST à partir de cette idée : ')">Post Telegram</button><button onclick="quick('Crée le module de formation de cette semaine, progressif, clair et structuré.')">Module formation</button><button onclick="quick('Donne-moi la méthode mindset de la semaine avec exercices pratiques.')">Mindset semaine</button></div>
   </aside>
 </div>
@@ -138,7 +150,9 @@
 <div class="modal" id="archivesModal"><div class="box"><h3>Archives conversations</h3><div id="archivesList"></div><div class="actions"><button class="ghost" onclick="closeModal('archivesModal')">Fermer</button></div></div></div>
 
 <script>
-const WORKER_AI_URL = "https://morning-hall-d8f6.onzerimes.workers.dev/ai/chat";
+const WORKER_BASE_URL = "https://morning-hall-d8f6.onzerimes.workers.dev";
+const WORKER_AI_URL = WORKER_BASE_URL + "/ai/chat";
+const WORKER_HEALTH_URL = WORKER_BASE_URL + "/system/health?token=default";
 const STORAGE_KEY = "torinvest_forge_ai_v1";
 const VISION_MODEL = "pixtral-large-latest";
 
@@ -303,6 +317,19 @@ id:"mindset", icon:"🧠", name:"IA Psy & Mindset Hebdo", desc:"Méthodes mindse
 prompt:`Tu es IA Psy & Mindset TORINVEST. Travaille la psychologie du trader.
 Sujets : discipline, patience, FOMO, revenge trading, peur de perdre, peur de gagner, surconfiance, routine.
 Format : problème / cause mentale / conséquence trading / correction / exercice pratique / règle de la semaine.`
+},
+
+{
+id:"health", icon:"🧠", name:"System Health Monitor", desc:"Worker, KV, IA, signal, MT5, prix live.", temp:.2,
+prompt:`Tu es le System Health Monitor TORINVEST.
+Ta mission est d’analyser l’état du système de trading automatique : Worker, KV, IA, signaux, prix live, MT5, exécution et risque technique.
+Quand je te donne le JSON de /system/health, tu dois répondre en français avec :
+1. Statut global : OK / WARNING / CRITICAL
+2. Ce qui fonctionne
+3. Ce qui bloque
+4. Risque pour le trading live
+5. Action immédiate à faire
+Sois direct, technique, précis et sans blabla.`
 }
 ];
 
@@ -347,6 +374,27 @@ function setMicroStatus(active, text){
     micDot.classList.remove('recording');
     micBtn.classList.remove('active');
     micText.innerHTML=text || 'Micro inactif<br><small>Dictée navigateur</small>';
+  }
+}
+
+function setHealthSidebarStatus(status, label){
+  const dot=document.getElementById('healthDot');
+  const text=document.getElementById('healthStatusText');
+  if(!dot || !text)return;
+
+  dot.classList.remove('off','warn','critical');
+
+  if(status === 'OK'){
+    text.innerHTML = `${label || 'Health OK'}<br><small>/system/health</small>`;
+  }else if(status === 'WARNING'){
+    dot.classList.add('warn');
+    text.innerHTML = `${label || 'Health WARNING'}<br><small>/system/health</small>`;
+  }else if(status === 'CRITICAL'){
+    dot.classList.add('critical');
+    text.innerHTML = `${label || 'Health CRITICAL'}<br><small>/system/health</small>`;
+  }else{
+    dot.classList.add('off');
+    text.innerHTML = `${label || 'Health non testé'}<br><small>/system/health</small>`;
   }
 }
 
@@ -477,7 +525,7 @@ function setAgent(id){state.agentId=id;save();render();closeModal('agentsModal')
 
 function renderChat(){
   const c=document.getElementById('chat');
-  if(!state.messages.length){state.messages=[{role:'assistant',content:'Bienvenue dans La Forge AI by TORINVEST. Tu peux maintenant écrire, dicter au micro ou envoyer une image.',ts:Date.now()}]}
+  if(!state.messages.length){state.messages=[{role:'assistant',content:'Bienvenue dans La Forge AI by TORINVEST. Tu peux maintenant écrire, dicter au micro, envoyer une image ou contrôler la santé du système avec System Health.',ts:Date.now()}]}
   c.innerHTML=state.messages.map(m=>{
     const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="image envoyée">`:'';
     return `<div class="msg ${m.role}"><div class="label">${m.role==='user'?'VOUS':agent().name}</div>${img}${escapeHtml(m.content)}<div class="time">${new Date(m.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
@@ -626,6 +674,103 @@ async function sendMessage(){
     state.messages=state.messages.filter(m=>!m.loading);
     state.messages.push({role:'assistant',content:'⚠ Erreur : '+e.message+'\n\nSi tu as envoyé une image, vérifie que ton compte Mistral accepte le modèle vision : pixtral-large-latest.',ts:Date.now()});
     save();renderChat();
+  }
+}
+
+async function checkSystemHealth(){
+  const box = document.getElementById('healthBox');
+  if(box) box.innerHTML = "Analyse en cours...";
+  setHealthSidebarStatus('LOADING','Health en analyse');
+
+  try{
+    const res = await fetch(WORKER_HEALTH_URL, { method:'GET' });
+    const data = await res.json();
+
+    if(!res.ok){
+      throw new Error(data.error || data.message || 'Erreur /system/health');
+    }
+
+    const status = String(data.status || 'UNKNOWN').toUpperCase();
+    const statusClass = status === 'OK' ? 'health-ok' : status === 'WARNING' ? 'health-warning' : 'health-critical';
+    const statusLabel = status === 'OK' ? 'Health OK' : status === 'WARNING' ? 'Health WARNING' : 'Health CRITICAL';
+    setHealthSidebarStatus(status, statusLabel);
+
+    const summary = Array.isArray(data.summary) && data.summary.length
+      ? data.summary.map(s => `• ${escapeHtml(s)}`).join('<br>')
+      : 'Tous les contrôles principaux sont OK.';
+
+    let html = `
+      <div class="health-line">
+        <b class="${statusClass}">● ${escapeHtml(status)}</b><br>
+        <small>${escapeHtml(data.generatedAt || '')}</small>
+      </div>
+      <div class="health-line">
+        <b>Résumé</b><br>${summary}
+      </div>
+    `;
+
+    if(data.checks?.executionReadiness){
+      const ex = data.checks.executionReadiness;
+      const gap = typeof ex.priceGap === 'number' ? Number(ex.priceGap).toFixed(2) : 'N/A';
+      html += `
+        <div class="health-line">
+          <b>Trading / MT5</b><br>
+          Action : ${escapeHtml(ex.action ?? 'N/A')}<br>
+          Symbole : ${escapeHtml(ex.symbol ?? 'N/A')}<br>
+          Prix signal : ${escapeHtml(ex.signalPrice ?? 'N/A')}<br>
+          Prix live : ${escapeHtml(ex.livePrice ?? 'N/A')}<br>
+          Écart : ${escapeHtml(gap)}<br>
+          Âge : ${escapeHtml(ex.ageSeconds ?? 'N/A')} sec<br>
+          Exécutable : ${ex.executable ? '<span class="health-ok">OUI</span>' : '<span class="health-warning">NON</span>'}
+        </div>
+      `;
+    }
+
+    if(data.checks?.market){
+      const mk = data.checks.market;
+      html += `
+        <div class="health-line">
+          <b>Market Data</b><br>
+          Données : ${escapeHtml(mk.count ?? 0)} actifs<br>
+          Sentiment : ${escapeHtml(mk.sentiment?.regime ?? 'N/A')} ${escapeHtml(mk.sentiment?.score ?? '')}
+        </div>
+      `;
+    }
+
+    if(data.checks?.news){
+      const nw = data.checks.news;
+      html += `
+        <div class="health-line">
+          <b>News Risk</b><br>
+          News : ${escapeHtml(nw.count ?? 0)}<br>
+          Risque : ${escapeHtml(nw.risk?.regime ?? 'N/A')} ${escapeHtml(nw.risk?.score ?? '')}
+        </div>
+      `;
+    }
+
+    if(Array.isArray(data.recommendations) && data.recommendations.length){
+      html += `
+        <div class="health-line">
+          <b>Actions recommandées</b><br>
+          ${data.recommendations.map(r => `• ${escapeHtml(r)}`).join('<br>')}
+        </div>
+      `;
+    }
+
+    if(box) box.innerHTML = html;
+
+    state.messages.push({
+      role:'assistant',
+      content:`SYSTEM HEALTH — ${status}\n\n${(data.summary||[]).map(s=>'• '+s).join('\n') || 'Tous les contrôles principaux sont OK.'}`,
+      ts:Date.now()
+    });
+    save();
+    renderChat();
+  }catch(e){
+    setHealthSidebarStatus('CRITICAL','Health erreur');
+    if(box){
+      box.innerHTML = `<div class="health-line"><b class="health-critical">Erreur health monitor</b><br>${escapeHtml(e.message || String(e))}</div>`;
+    }
   }
 }
 
