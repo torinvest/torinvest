@@ -792,6 +792,24 @@ function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'
 function importDataPrompt(){document.getElementById('importFile').click()}
 document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{state=JSON.parse(await f.text());save();render()}catch{alert('Fichier invalide')}};
 
+
+async function runSystemHealth() {
+  try {
+    const res = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/system/health");
+    const data = await res.json();
+
+    console.log("SYSTEM HEALTH:", data);
+
+    // 👉 ICI tu peux afficher dans ton UI plus tard
+  } catch (e) {
+    console.error("Erreur system health:", e);
+  }
+}
+
+// appel auto
+runSystemHealth();
+  
+  
 render();
 </script>
 </body>
