@@ -1865,12 +1865,12 @@ async function preloadStatus(){
     const data=await res.json();
 
     if(res.ok){
-      setVolumeSidebarStatus(
-        (data.volumeAssets??data.marketCount??0)>0,
-        data.volumeAssets??data.marketCount??0
-      );
+      const count = data.marketCount ?? 0;
+      setVolumeSidebarStatus(count > 0, count);
     }
-  }catch(e){}
+  }catch(e){
+    setVolumeSidebarStatus(false,0);
+  }
 
   try{
     const res=await fetch(
@@ -1878,9 +1878,13 @@ async function preloadStatus(){
       {method:'GET'}
     );
 
-    const data=await res.json();
+    const data=await res.json().catch(()=>({ok:false}));
 
-    setAgentContextSidebarStatus(res.ok && data.ok!==false, "XAUUSD / scalping");
+    if(res.ok && data.ok!==false){
+      setAgentContextSidebarStatus(true, "XAUUSD / scalping");
+    }else{
+      setAgentContextSidebarStatus(false);
+    }
   }catch(e){
     setAgentContextSidebarStatus(false);
   }
