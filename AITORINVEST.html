@@ -6,72 +6,589 @@
   <title>La Forge AI by TORINVEST</title>
   <style>
     :root{
-      --bg:#050403;--panel:#11100d;--gold:#d9a441;--gold2:#ffce62;--text:#f4efe3;--muted:#9c9383;--line:rgba(217,164,65,.27);--danger:#ff5a5f;--ok:#63e66d;--shadow:0 0 28px rgba(217,164,65,.18);--r:18px;
+      --bg:#050403;
+      --panel:#11100d;
+      --gold:#d9a441;
+      --gold2:#ffce62;
+      --text:#f4efe3;
+      --muted:#9c9383;
+      --line:rgba(217,164,65,.27);
+      --danger:#ff5a5f;
+      --ok:#63e66d;
+      --shadow:0 0 28px rgba(217,164,65,.18);
+      --r:18px;
     }
-    *{box-sizing:border-box}html,body{height:100%;margin:0}
-    body{font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 15% 0%,rgba(217,164,65,.18),transparent 28%),radial-gradient(circle at 90% 20%,rgba(255,206,98,.10),transparent 30%),linear-gradient(135deg,#020201,#0a0805 55%,#020201);color:var(--text);overflow:hidden}
-    body:before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(217,164,65,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(217,164,65,.05) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(circle at center,black,transparent 75%);pointer-events:none}
-    .app{height:100%;display:grid;grid-template-columns:270px minmax(420px,1fr) 320px;gap:14px;padding:14px;position:relative;z-index:1}
-    .sidebar,.main,.right{border:1px solid var(--line);background:linear-gradient(180deg,rgba(17,16,13,.92),rgba(4,4,3,.94));border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden}
-    .sidebar,.right{display:flex;flex-direction:column}
-    .brand{padding:18px;text-align:center;border-bottom:1px solid var(--line)}
-    .logo{font-weight:900;font-size:30px;letter-spacing:2px;color:var(--gold2);text-shadow:0 0 18px rgba(255,206,98,.45)}
-    .forge{font-size:13px;letter-spacing:7px;color:#fff;margin-top:2px}
-    .slogan{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:12px;text-transform:uppercase}
-    .nav{padding:14px;display:flex;flex-direction:column;gap:9px}
-    .nav button,.quick button,.primary,.ghost,.tool-btn{border:1px solid var(--line);background:linear-gradient(180deg,rgba(217,164,65,.10),rgba(0,0,0,.25));color:var(--text);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;transition:.2s;font-weight:650}
-    .nav button:hover,.quick button:hover,.primary:hover,.ghost:hover,.tool-btn:hover{border-color:var(--gold2);box-shadow:0 0 18px rgba(217,164,65,.22);transform:translateY(-1px)}
-    .nav button.active{background:linear-gradient(90deg,rgba(217,164,65,.28),rgba(0,0,0,.2));color:var(--gold2)}
-    .side-card{margin:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.22)}
-    .small-title{font-size:12px;color:var(--gold2);font-weight:800;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:10px}
-    .agent-active{font-size:14px;line-height:1.45;color:var(--muted)}
-    .status{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);margin-bottom:10px}
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+
+    body{
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      background:
+        radial-gradient(circle at 15% 0%,rgba(217,164,65,.18),transparent 28%),
+        radial-gradient(circle at 90% 20%,rgba(255,206,98,.10),transparent 30%),
+        linear-gradient(135deg,#020201,#0a0805 55%,#020201);
+      color:var(--text);
+      overflow:hidden;
+    }
+
+    body:before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        linear-gradient(rgba(217,164,65,.05) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(217,164,65,.05) 1px,transparent 1px);
+      background-size:42px 42px;
+      mask-image:radial-gradient(circle at center,black,transparent 75%);
+      pointer-events:none;
+    }
+
+    .app{
+      height:100%;
+      display:grid;
+      grid-template-columns:270px minmax(420px,1fr) 320px;
+      gap:14px;
+      padding:14px;
+      position:relative;
+      z-index:1;
+    }
+
+    .sidebar,.main,.right{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(17,16,13,.92),rgba(4,4,3,.94));
+      border-radius:var(--r);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .sidebar,.right{
+      display:flex;
+      flex-direction:column;
+    }
+
+    .brand{
+      padding:18px;
+      text-align:center;
+      border-bottom:1px solid var(--line);
+    }
+
+    .logo{
+      font-weight:900;
+      font-size:30px;
+      letter-spacing:2px;
+      color:var(--gold2);
+      text-shadow:0 0 18px rgba(255,206,98,.45);
+    }
+
+    .forge{
+      font-size:13px;
+      letter-spacing:7px;
+      color:#fff;
+      margin-top:2px;
+    }
+
+    .slogan{
+      font-size:11px;
+      color:var(--gold);
+      letter-spacing:2px;
+      margin-top:12px;
+      text-transform:uppercase;
+    }
+
+    .nav{
+      padding:14px;
+      display:flex;
+      flex-direction:column;
+      gap:9px;
+    }
+
+    .nav button,.quick button,.primary,.ghost,.tool-btn{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,rgba(217,164,65,.10),rgba(0,0,0,.25));
+      color:var(--text);
+      border-radius:12px;
+      padding:12px 14px;
+      cursor:pointer;
+      text-align:left;
+      transition:.2s;
+      font-weight:650;
+    }
+
+    .nav button:hover,.quick button:hover,.primary:hover,.ghost:hover,.tool-btn:hover{
+      border-color:var(--gold2);
+      box-shadow:0 0 18px rgba(217,164,65,.22);
+      transform:translateY(-1px);
+    }
+
+    .nav button.active{
+      background:linear-gradient(90deg,rgba(217,164,65,.28),rgba(0,0,0,.2));
+      color:var(--gold2);
+    }
+
+    .side-card{
+      margin:14px;
+      padding:14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(0,0,0,.22);
+    }
+
+    .small-title{
+      font-size:12px;
+      color:var(--gold2);
+      font-weight:800;
+      letter-spacing:1.3px;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+
+    .agent-active{
+      font-size:14px;
+      line-height:1.45;
+      color:var(--muted);
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:10px;
+    }
+
     .status:last-child{margin-bottom:0}
-    .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok);flex-shrink:0}
+
+    .dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      background:var(--ok);
+      box-shadow:0 0 12px var(--ok);
+      flex-shrink:0;
+    }
+
     .dot.off{background:var(--muted);box-shadow:none}
     .dot.recording{background:var(--danger);box-shadow:0 0 14px var(--danger)}
     .dot.warn{background:#ffb84d;box-shadow:0 0 12px #ffb84d}
     .dot.critical{background:var(--danger);box-shadow:0 0 12px var(--danger)}
-    .main{display:grid;grid-template-rows:auto 1fr auto}
-    .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line)}
-    .title h1{font-size:24px;margin:0;color:var(--gold2);letter-spacing:1px}.title p{margin:5px 0 0;color:var(--muted);font-size:13px}
-    .select{background:#080706;color:var(--text);border:1px solid var(--line);padding:11px 12px;border-radius:12px;min-width:220px}
-    .hero{margin:14px 18px 0;border:1px solid var(--line);border-radius:18px;background:linear-gradient(135deg,rgba(217,164,65,.14),rgba(0,0,0,.18)),radial-gradient(circle at 50% 0,rgba(255,206,98,.22),transparent 30%);padding:26px;text-align:center}
-    .hero .mark{font-size:58px;color:var(--gold2);filter:drop-shadow(0 0 18px rgba(255,206,98,.45))}
-    .hero h2{margin:6px 0 2px;font-size:34px;letter-spacing:3px;color:var(--gold2)}.hero p{margin:0;color:var(--gold);letter-spacing:3px;text-transform:uppercase;font-size:12px}
-    .chat{overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
-    .msg{max-width:86%;border:1px solid var(--line);border-radius:16px;padding:14px 16px;line-height:1.58;white-space:pre-wrap}
-    .msg.user{align-self:flex-end;background:linear-gradient(135deg,rgba(217,164,65,.20),rgba(0,0,0,.25));border-bottom-right-radius:4px}
-    .msg.assistant{align-self:flex-start;background:rgba(9,8,6,.82);border-bottom-left-radius:4px}
-    .msg .label{font-size:11px;color:var(--gold2);font-weight:900;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase}
-    .msg .time{font-size:11px;color:var(--muted);margin-top:9px}
-    .msg img{max-width:260px;border-radius:12px;border:1px solid var(--line);margin-bottom:10px;display:block}
-    .input-zone{border-top:1px solid var(--line);padding:12px 18px}
-    .voice-debug{display:none;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(0,0,0,.22);color:var(--muted);font-size:12px;line-height:1.45}
-    .voice-debug.open{display:block}.voice-debug b{color:var(--gold2)}.voice-debug.err{border-color:rgba(255,90,95,.55);color:#ffc0c2}
-    .preview{display:none;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(0,0,0,.22);align-items:center;gap:10px}
-    .preview.open{display:flex}.preview img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}.preview .meta{font-size:12px;color:var(--muted);flex:1}
-    .input{display:flex;gap:10px;align-items:flex-end}
-    textarea{flex:1;resize:none;max-height:160px;min-height:48px;border:1px solid var(--line);border-radius:14px;background:#070605;color:var(--text);padding:13px 14px;font-size:14px;outline:none}
-    textarea:focus{border-color:var(--gold2);box-shadow:0 0 18px rgba(217,164,65,.18)}
-    .primary{text-align:center;color:var(--gold2);font-weight:900}.tool-btn{width:48px;height:48px;text-align:center;padding:0;display:flex;align-items:center;justify-content:center;font-size:18px}.tool-btn.active{border-color:var(--danger);color:#fff;background:rgba(255,90,95,.2)}
-    .right{padding:14px;gap:14px;overflow-y:auto}.panel{border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.22);padding:13px}
-    .agents{display:flex;flex-direction:column;gap:8px}.agent{border:1px solid var(--line);border-radius:13px;padding:11px;display:flex;gap:10px;cursor:pointer;background:rgba(255,255,255,.02)}
-    .agent:hover,.agent.active{border-color:var(--gold2);background:rgba(217,164,65,.12)}.agent .ico{font-size:22px}.agent b{font-size:13px}.agent span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-    .mem-list{display:flex;flex-direction:column;gap:8px}.mem{border:1px solid rgba(217,164,65,.18);border-radius:10px;padding:10px;color:var(--muted);font-size:12px}
-    .quick{display:flex;flex-direction:column;gap:9px}.quick button{text-align:center}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}.stat b{font-size:22px;color:var(--gold2);display:block}.stat span{font-size:11px;color:var(--muted)}
-    .health-line{border:1px solid rgba(217,164,65,.18);border-radius:10px;padding:9px;margin-top:8px;background:rgba(0,0,0,.20);font-size:12px;color:var(--muted);line-height:1.5}.health-line b{color:var(--gold2)}
-    .health-ok{color:var(--ok)!important}.health-warning{color:#ffb84d!important}.health-critical{color:var(--danger)!important}.health-pill{display:inline-block;border:1px solid rgba(217,164,65,.28);border-radius:999px;padding:2px 7px;margin:2px 2px 0 0;color:var(--gold2);font-size:11px}
-    .mobile-toggle{display:none}.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}.modal.open{display:flex}
-    .box{width:min(900px,100%);max-height:88vh;overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 0 60px rgba(0,0,0,.8);padding:18px}.box h3{color:var(--gold2);margin-top:0}
-    .field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.field input,.field select{background:#070605;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:11px}.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.warn{font-size:12px;color:var(--muted);line-height:1.5}.hidden{display:none!important}
-    @media(max-width:1050px){body{overflow:auto}.app{height:auto;min-height:100%;grid-template-columns:1fr}.sidebar,.right{display:none}.sidebar.open,.right.open{display:flex}.mobile-toggle{display:flex;gap:8px;padding:10px}.main{min-height:100vh}.msg{max-width:96%}.hero h2{font-size:25px}.hero{padding:18px}.hero .mark{font-size:42px}}
+
+    .main{
+      display:grid;
+      grid-template-rows:auto auto 1fr auto;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 18px;
+      border-bottom:1px solid var(--line);
+    }
+
+    .title h1{
+      font-size:24px;
+      margin:0;
+      color:var(--gold2);
+      letter-spacing:1px;
+    }
+
+    .title p{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .select{
+      background:#080706;
+      color:var(--text);
+      border:1px solid var(--line);
+      padding:11px 12px;
+      border-radius:12px;
+      min-width:220px;
+    }
+
+    .hero{
+      margin:14px 18px 0;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:
+        linear-gradient(135deg,rgba(217,164,65,.14),rgba(0,0,0,.18)),
+        radial-gradient(circle at 50% 0,rgba(255,206,98,.22),transparent 30%);
+      padding:26px;
+      text-align:center;
+    }
+
+    .hero .mark{
+      font-size:58px;
+      color:var(--gold2);
+      filter:drop-shadow(0 0 18px rgba(255,206,98,.45));
+    }
+
+    .hero h2{
+      margin:6px 0 2px;
+      font-size:34px;
+      letter-spacing:3px;
+      color:var(--gold2);
+    }
+
+    .hero p{
+      margin:0;
+      color:var(--gold);
+      letter-spacing:3px;
+      text-transform:uppercase;
+      font-size:12px;
+    }
+
+    .chat{
+      overflow-y:auto;
+      padding:16px 18px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .msg{
+      max-width:86%;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px 16px;
+      line-height:1.58;
+      white-space:pre-wrap;
+    }
+
+    .msg.user{
+      align-self:flex-end;
+      background:linear-gradient(135deg,rgba(217,164,65,.20),rgba(0,0,0,.25));
+      border-bottom-right-radius:4px;
+    }
+
+    .msg.assistant{
+      align-self:flex-start;
+      background:rgba(9,8,6,.82);
+      border-bottom-left-radius:4px;
+    }
+
+    .msg .label{
+      font-size:11px;
+      color:var(--gold2);
+      font-weight:900;
+      letter-spacing:1px;
+      margin-bottom:8px;
+      text-transform:uppercase;
+    }
+
+    .msg .time{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:9px;
+    }
+
+    .msg img{
+      max-width:260px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      margin-bottom:10px;
+      display:block;
+    }
+
+    .input-zone{
+      border-top:1px solid var(--line);
+      padding:12px 18px;
+    }
+
+    .voice-debug{
+      display:none;
+      margin-bottom:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(0,0,0,.22);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .voice-debug.open{display:block}
+    .voice-debug b{color:var(--gold2)}
+    .voice-debug.err{border-color:rgba(255,90,95,.55);color:#ffc0c2}
+
+    .preview{
+      display:none;
+      margin-bottom:10px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px;
+      background:rgba(0,0,0,.22);
+      align-items:center;
+      gap:10px;
+    }
+
+    .preview.open{display:flex}
+
+    .preview img{
+      width:72px;
+      height:72px;
+      object-fit:cover;
+      border-radius:10px;
+      border:1px solid var(--line);
+    }
+
+    .preview .meta{
+      font-size:12px;
+      color:var(--muted);
+      flex:1;
+    }
+
+    .input{
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+    }
+
+    textarea{
+      flex:1;
+      resize:none;
+      max-height:160px;
+      min-height:48px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:#070605;
+      color:var(--text);
+      padding:13px 14px;
+      font-size:14px;
+      outline:none;
+    }
+
+    textarea:focus{
+      border-color:var(--gold2);
+      box-shadow:0 0 18px rgba(217,164,65,.18);
+    }
+
+    .primary{
+      text-align:center;
+      color:var(--gold2);
+      font-weight:900;
+    }
+
+    .tool-btn{
+      width:48px;
+      height:48px;
+      text-align:center;
+      padding:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+    }
+
+    .tool-btn.active{
+      border-color:var(--danger);
+      color:#fff;
+      background:rgba(255,90,95,.2);
+    }
+
+    .right{
+      padding:14px;
+      gap:14px;
+      overflow-y:auto;
+    }
+
+    .panel{
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:rgba(0,0,0,.22);
+      padding:13px;
+    }
+
+    .agents{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .agent{
+      border:1px solid var(--line);
+      border-radius:13px;
+      padding:11px;
+      display:flex;
+      gap:10px;
+      cursor:pointer;
+      background:rgba(255,255,255,.02);
+    }
+
+    .agent:hover,.agent.active{
+      border-color:var(--gold2);
+      background:rgba(217,164,65,.12);
+    }
+
+    .agent .ico{font-size:22px}
+    .agent b{font-size:13px}
+    .agent span{
+      display:block;
+      color:var(--muted);
+      font-size:11px;
+      margin-top:3px;
+    }
+
+    .mem-list{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+
+    .mem{
+      border:1px solid rgba(217,164,65,.18);
+      border-radius:10px;
+      padding:10px;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .quick{
+      display:flex;
+      flex-direction:column;
+      gap:9px;
+    }
+
+    .quick button{text-align:center}
+
+    .stats{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+
+    .stat{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      text-align:center;
+    }
+
+    .stat b{
+      font-size:22px;
+      color:var(--gold2);
+      display:block;
+    }
+
+    .stat span{
+      font-size:11px;
+      color:var(--muted);
+    }
+
+    .health-line{
+      border:1px solid rgba(217,164,65,.18);
+      border-radius:10px;
+      padding:9px;
+      margin-top:8px;
+      background:rgba(0,0,0,.20);
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .health-line b{color:var(--gold2)}
+    .health-ok{color:var(--ok)!important}
+    .health-warning{color:#ffb84d!important}
+    .health-critical{color:var(--danger)!important}
+
+    .health-pill{
+      display:inline-block;
+      border:1px solid rgba(217,164,65,.28);
+      border-radius:999px;
+      padding:2px 7px;
+      margin:2px 2px 0 0;
+      color:var(--gold2);
+      font-size:11px;
+    }
+
+    .mobile-toggle{display:none}
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.75);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:20;
+      padding:16px;
+    }
+
+    .modal.open{display:flex}
+
+    .box{
+      width:min(900px,100%);
+      max-height:88vh;
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel);
+      box-shadow:0 0 60px rgba(0,0,0,.8);
+      padding:18px;
+    }
+
+    .box h3{
+      color:var(--gold2);
+      margin-top:0;
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+      margin-bottom:12px;
+    }
+
+    .field input,.field select{
+      background:#070605;
+      border:1px solid var(--line);
+      border-radius:12px;
+      color:var(--text);
+      padding:11px;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      margin-top:14px;
+    }
+
+    .warn{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.5;
+    }
+
+    .hidden{display:none!important}
+
+    @media(max-width:1050px){
+      body{overflow:auto}
+      .app{height:auto;min-height:100%;grid-template-columns:1fr}
+      .sidebar,.right{display:none}
+      .sidebar.open,.right.open{display:flex}
+      .mobile-toggle{display:flex;gap:8px;padding:10px}
+      .main{min-height:100vh}
+      .msg{max-width:96%}
+      .hero h2{font-size:25px}
+      .hero{padding:18px}
+      .hero .mark{font-size:42px}
+    }
   </style>
 </head>
+
 <body>
 <div class="app">
   <aside class="sidebar" id="leftPanel">
-    <div class="brand"><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">Trader. Investir. Forger ton avenir.</div></div>
+    <div class="brand">
+      <div class="logo">TORINVEST</div>
+      <div class="forge">LA FORGE</div>
+      <div class="slogan">Trader. Investir. Forger ton avenir.</div>
+    </div>
+
     <div class="nav">
       <button class="active" onclick="newChat()">＋ Nouveau chat</button>
       <button onclick="checkSystemHealth()">🧠 System Health</button>
@@ -82,46 +599,180 @@
       <button onclick="importDataPrompt()">⬆ Importer</button>
       <input id="importFile" type="file" accept="application/json" class="hidden" />
     </div>
-    <div class="side-card"><div class="small-title">Agent actif</div><div class="agent-active" id="activeAgentBox"></div></div>
+
+    <div class="side-card">
+      <div class="small-title">Agent actif</div>
+      <div class="agent-active" id="activeAgentBox"></div>
+    </div>
+
     <div class="side-card">
       <div class="small-title">Statut</div>
-      <div class="status"><span class="dot" id="workerDot"></span><span>Worker connecté<br><small id="workerShort"></small></span></div>
-      <div class="status"><span class="dot off" id="healthDot"></span><span id="healthStatusText">Health non testé<br><small>/system/health</small></span></div>
-      <div class="status"><span class="dot off" id="volumeDot"></span><span id="volumeStatusText">Volume en attente<br><small>volumeContext</small></span></div>
-      <div class="status"><span class="dot off" id="micDot"></span><span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span></div>
+
+      <div class="status">
+        <span class="dot" id="workerDot"></span>
+        <span>Worker connecté<br><small id="workerShort"></small></span>
+      </div>
+
+      <div class="status">
+        <span class="dot off" id="healthDot"></span>
+        <span id="healthStatusText">Health non testé<br><small>/system/health</small></span>
+      </div>
+
+      <div class="status">
+        <span class="dot off" id="volumeDot"></span>
+        <span id="volumeStatusText">Volume en attente<br><small>volumeContext</small></span>
+      </div>
+
+      <div class="status">
+        <span class="dot off" id="agentContextDot"></span>
+        <span id="agentContextStatusText">Agent context non testé<br><small>/agent/context</small></span>
+      </div>
+
+      <div class="status">
+        <span class="dot off" id="micDot"></span>
+        <span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span>
+      </div>
     </div>
-    <div style="margin-top:auto" class="side-card"><div class="small-title">Mantra</div><div class="agent-active">La discipline aujourd’hui, la liberté demain.</div></div>
+
+    <div style="margin-top:auto" class="side-card">
+      <div class="small-title">Mantra</div>
+      <div class="agent-active">La discipline aujourd’hui, la liberté demain.</div>
+    </div>
   </aside>
 
   <main class="main">
-    <div class="mobile-toggle"><button class="ghost" onclick="toggleLeft()">☰ Menu</button><button class="ghost" onclick="toggleRight()">Agents</button></div>
-    <div class="topbar"><div class="title"><h1>LA FORGE AI <span style="font-size:14px;color:var(--muted)">by TORINVEST</span></h1><p>Machine de guerre IA — trading, formation, mindset, contenu et stratégie.</p></div><select class="select" id="modelSelect"></select></div>
-    <section class="hero"><div class="mark">⚒</div><h2>TORINVEST — LA FORGE</h2><p>Trader • Investir • Forger ton avenir</p></section>
+    <div class="mobile-toggle">
+      <button class="ghost" onclick="toggleLeft()">☰ Menu</button>
+      <button class="ghost" onclick="toggleRight()">Agents</button>
+    </div>
+
+    <div class="topbar">
+      <div class="title">
+        <h1>LA FORGE AI <span style="font-size:14px;color:var(--muted)">by TORINVEST</span></h1>
+        <p>Machine de guerre IA — trading, formation, mindset, contenu et stratégie.</p>
+      </div>
+      <select class="select" id="modelSelect"></select>
+    </div>
+
+    <section class="hero">
+      <div class="mark">⚒</div>
+      <h2>TORINVEST — LA FORGE</h2>
+      <p>Trader • Investir • Forger ton avenir</p>
+    </section>
+
     <section class="chat" id="chat"></section>
-    <div class="input-zone"><div class="voice-debug" id="voiceDebug"></div><div class="preview" id="imagePreviewBox"><img id="imagePreview" /><div class="meta"><b style="color:var(--gold2)">Image prête</b><br><span id="imageMeta">Envoyée avec le prochain message.</span></div><button class="ghost" onclick="clearPendingImage()">Retirer</button></div><div class="input"><button class="tool-btn" title="Ajouter une image" onclick="document.getElementById('imageInput').click()">📎</button><button class="tool-btn" id="micBtn" title="Dicter vocalement" onclick="toggleVoice()">🎙️</button><textarea id="userInput" placeholder="Écris ton message… Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne"></textarea><button class="primary" onclick="sendMessage()">ENVOYER ⚡</button><input id="imageInput" class="hidden" type="file" accept="image/*" onchange="handleImagePick(event)" /></div></div>
+
+    <div class="input-zone">
+      <div class="voice-debug" id="voiceDebug"></div>
+
+      <div class="preview" id="imagePreviewBox">
+        <img id="imagePreview" />
+        <div class="meta">
+          <b style="color:var(--gold2)">Image prête</b><br>
+          <span id="imageMeta">Envoyée avec le prochain message.</span>
+        </div>
+        <button class="ghost" onclick="clearPendingImage()">Retirer</button>
+      </div>
+
+      <div class="input">
+        <button class="tool-btn" title="Ajouter une image" onclick="document.getElementById('imageInput').click()">📎</button>
+        <button class="tool-btn" id="micBtn" title="Dicter vocalement" onclick="toggleVoice()">🎙️</button>
+        <textarea id="userInput" placeholder="Écris ton message… Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne"></textarea>
+        <button class="primary" onclick="sendMessage()">ENVOYER ⚡</button>
+        <input id="imageInput" class="hidden" type="file" accept="image/*" onchange="handleImagePick(event)" />
+      </div>
+    </div>
   </main>
 
   <aside class="right" id="rightPanel">
-    <div class="panel"><div class="small-title">Agents spécialisés</div><div class="agents" id="agentsList"></div></div>
-    <div class="panel"><div class="small-title">Mémoire globale</div><div class="mem-list" id="memoryPreview"></div><button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button></div>
-    <div class="panel"><div class="small-title">Statistiques</div><div class="stats"><div class="stat"><b id="statChats">0</b><span>Conversations</span></div><div class="stat"><b id="statAgents">23</b><span>Agents</span></div><div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div><div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div></div></div>
-    <div class="panel"><div class="small-title">System Health</div><div id="healthBox" style="font-size:12px;color:var(--muted);line-height:1.5">Aucun diagnostic.</div><button class="primary" style="width:100%;margin-top:10px" onclick="checkSystemHealth()">Analyser</button></div>
-    <div class="panel quick"><div class="small-title">Outils rapides</div><button onclick="quick('Fais une analyse complète GOLD/XAUUSD : macro, technique, liquidité, volumeContext, scénarios, invalidation.')">Analyse GOLD</button><button onclick="quick('Crée un plan de trading pour la session London/NY avec scénarios, volumeContext et gestion du risque.')">Plan session</button><button onclick="quick('Crée un post Telegram premium TORINVEST à partir de cette idée : ')">Post Telegram</button><button onclick="quick('Crée le module de formation de cette semaine, progressif, clair et structuré.')">Module formation</button><button onclick="quick('Donne-moi la méthode mindset de la semaine avec exercices pratiques.')">Mindset semaine</button></div>
+    <div class="panel">
+      <div class="small-title">Agents spécialisés</div>
+      <div class="agents" id="agentsList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="small-title">Mémoire globale</div>
+      <div class="mem-list" id="memoryPreview"></div>
+      <button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button>
+    </div>
+
+    <div class="panel">
+      <div class="small-title">Statistiques</div>
+      <div class="stats">
+        <div class="stat"><b id="statChats">0</b><span>Conversations</span></div>
+        <div class="stat"><b id="statAgents">23</b><span>Agents</span></div>
+        <div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div>
+        <div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="small-title">System Health</div>
+      <div id="healthBox" style="font-size:12px;color:var(--muted);line-height:1.5">Aucun diagnostic.</div>
+      <button class="primary" style="width:100%;margin-top:10px" onclick="checkSystemHealth()">Analyser</button>
+    </div>
+
+    <div class="panel quick">
+      <div class="small-title">Outils rapides</div>
+      <button onclick="quick('Trouve-moi un setup GOLD/XAUUSD ce matin avec données Worker, volumeContext, MTF, news, scénario principal et invalidation.')">Setup GOLD</button>
+      <button onclick="quick('Fais une analyse complète GOLD/XAUUSD : macro, technique, liquidité, volumeContext, scénarios, invalidation.')">Analyse GOLD</button>
+      <button onclick="quick('Crée un plan de trading pour la session London/NY avec scénarios, volumeContext et gestion du risque.')">Plan session</button>
+      <button onclick="quick('Crée un post Telegram premium TORINVEST à partir de cette idée : ')">Post Telegram</button>
+      <button onclick="quick('Crée le module de formation de cette semaine, progressif, clair et structuré.')">Module formation</button>
+      <button onclick="quick('Donne-moi la méthode mindset de la semaine avec exercices pratiques.')">Mindset semaine</button>
+    </div>
   </aside>
 </div>
 
-<div class="modal" id="agentsModal"><div class="box"><h3>Agents TORINVEST</h3><div class="agents" id="agentsModalList"></div><div class="actions"><button class="ghost" onclick="closeModal('agentsModal')">Fermer</button></div></div></div>
-<div class="modal" id="memoryModal"><div class="box"><h3>Mémoire globale locale</h3><p class="warn">Cette mémoire reste dans le navigateur. Elle est envoyée au Worker seulement comme contexte utile dans tes requêtes.</p><div class="field"><label>Ajouter une mémoire</label><input id="memoryInput" placeholder="Ex : Risque max par trade : 1%" /></div><button class="primary" onclick="addMemory()">Ajouter</button><hr style="border-color:var(--line)"><div class="mem-list" id="memoryFull"></div><div class="actions"><button class="ghost" onclick="clearMemory()">Effacer mémoire</button><button class="ghost" onclick="closeModal('memoryModal')">Fermer</button></div></div></div>
-<div class="modal" id="archivesModal"><div class="box"><h3>Archives conversations</h3><div id="archivesList"></div><div class="actions"><button class="ghost" onclick="closeModal('archivesModal')">Fermer</button></div></div></div>
+<div class="modal" id="agentsModal">
+  <div class="box">
+    <h3>Agents TORINVEST</h3>
+    <div class="agents" id="agentsModalList"></div>
+    <div class="actions">
+      <button class="ghost" onclick="closeModal('agentsModal')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="memoryModal">
+  <div class="box">
+    <h3>Mémoire globale locale</h3>
+    <p class="warn">Cette mémoire reste dans le navigateur. Elle est envoyée au Worker seulement comme contexte utile dans tes requêtes.</p>
+    <div class="field">
+      <label>Ajouter une mémoire</label>
+      <input id="memoryInput" placeholder="Ex : Risque max par trade : 1%" />
+    </div>
+    <button class="primary" onclick="addMemory()">Ajouter</button>
+    <hr style="border-color:var(--line)">
+    <div class="mem-list" id="memoryFull"></div>
+    <div class="actions">
+      <button class="ghost" onclick="clearMemory()">Effacer mémoire</button>
+      <button class="ghost" onclick="closeModal('memoryModal')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="archivesModal">
+  <div class="box">
+    <h3>Archives conversations</h3>
+    <div id="archivesList"></div>
+    <div class="actions">
+      <button class="ghost" onclick="closeModal('archivesModal')">Fermer</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const WORKER_BASE_URL = "https://morning-hall-d8f6.onzerimes.workers.dev";
 const COPY_TOKEN = "default";
+
 const WORKER_AI_URL = WORKER_BASE_URL + "/ai/chat";
 const WORKER_STATUS_URL = WORKER_BASE_URL + "/ai/status";
 const WORKER_HEALTH_URL = WORKER_BASE_URL + "/system/health?token=" + encodeURIComponent(COPY_TOKEN);
-const STORAGE_KEY = "torinvest_forge_ai_v2_volume";
-const LEGACY_STORAGE_KEY = "torinvest_forge_ai_v1";
+const WORKER_AGENT_CONTEXT_URL = WORKER_BASE_URL + "/agent/context";
+
+const STORAGE_KEY = "torinvest_forge_ai_v3_agent_ready";
+const LEGACY_STORAGE_KEYS = ["torinvest_forge_ai_v2_volume", "torinvest_forge_ai_v1"];
 const VISION_MODEL = "pixtral-large-latest";
 
 const MODELS = [
@@ -133,89 +784,234 @@ const MODELS = [
 ];
 
 const AGENTS = [
-{id:"macro",icon:"🏦",name:"Maître Macro",desc:"Banques centrales, inflation, taux, liquidité.",temp:.35,prompt:`Tu es Maître Macro TORINVEST. Analyse comme un desk macro institutionnel.
+  {
+    id:"macro",
+    icon:"🏦",
+    name:"Maître Macro",
+    desc:"Banques centrales, inflation, taux, liquidité.",
+    temp:.35,
+    prompt:`Tu es Maître Macro TORINVEST. Analyse comme un desk macro institutionnel.
 Méthode obligatoire : banques centrales, inflation, croissance, emploi, taux 2Y/5Y/10Y/30Y, courbe des taux, DXY, liquidité, crédit, risk-on/risk-off.
-Si volumeContext est disponible, tu dois intégrer la confirmation ou divergence volume dans la lecture.
-Format : 1) Données disponibles 2) Lecture macro 3) Impact marchés 4) Volume/liquidité 5) Risques cachés 6) Scénario principal 7) Scénario alternatif 8) Conclusion TORINVEST.
-Règles : ne jamais inventer, distinguer fait/analyse/scénario, expliquer pourquoi le marché bouge.`},
-{id:"geo",icon:"🌍",name:"Analyste Géopolitique",desc:"Conflits, sanctions, pétrole, devises.",temp:.42,prompt:`Tu es l’Analyste Géopolitique TORINVEST. Transforme une actualité géopolitique en impact marché.
+Si contexte Worker disponible, utilise market, news, sentiment, signal, aiDecision et volumeContext.
+Format : 1) Données disponibles 2) Lecture macro 3) Impact marchés 4) Volume/liquidité 5) Risques cachés 6) Scénario principal 7) Scénario alternatif 8) Conclusion TORINVEST.`
+  },
+  {
+    id:"geo",
+    icon:"🌍",
+    name:"Analyste Géopolitique",
+    desc:"Conflits, sanctions, pétrole, devises.",
+    temp:.42,
+    prompt:`Tu es l’Analyste Géopolitique TORINVEST. Transforme une actualité géopolitique en impact marché.
 Analyse : conflit, sanctions, routes maritimes, énergie, inflation, devises, or, pétrole, indices, risque systémique.
-Format : fait confirmé / acteurs / enjeu / transmission économique / actifs impactés / scénario calme / scénario tension / piège possible / conclusion.`},
-{id:"sentiment",icon:"📡",name:"Sentiment Engine",desc:"Risk ON/OFF cross-asset.",temp:.3,prompt:`Tu es le Sentiment Engine TORINVEST. Détermine le régime : RISK ON, RISK OFF, MIXTE, TRANSITION ou FAKE MOVE.
-Croise : DXY, US yields, SPX, Nasdaq, VIX, gold, BTC, JPY, CHF, HYG/LQD si disponible, et volumeContext si disponible.
-Format : lecture actifs / cohérence / divergence / volumeContext / régime / piège / décision tactique.`},
-{id:"pa",icon:"📊",name:"Analyste Price Action",desc:"Structure HTF→LTF, niveaux, cassures.",temp:.35,prompt:`Tu es l’Analyste Price Action TORINVEST. Lis le prix sans bruit.
+Format : fait confirmé / acteurs / enjeu / transmission économique / actifs impactés / scénario calme / scénario tension / piège possible / conclusion.`
+  },
+  {
+    id:"sentiment",
+    icon:"📡",
+    name:"Sentiment Engine",
+    desc:"Risk ON/OFF cross-asset.",
+    temp:.3,
+    prompt:`Tu es le Sentiment Engine TORINVEST. Détermine le régime : RISK ON, RISK OFF, MIXTE, TRANSITION ou FAKE MOVE.
+Croise : DXY, US yields, SPX, Nasdaq, VIX, gold, BTC, JPY, CHF, HYG/LQD, volumeContext et signal actif.
+Format : lecture actifs / cohérence / divergence / volumeContext / régime / piège / décision tactique.`
+  },
+  {
+    id:"pa",
+    icon:"📊",
+    name:"Analyste Price Action",
+    desc:"Structure HTF→LTF, niveaux, cassures.",
+    temp:.35,
+    prompt:`Tu es l’Analyste Price Action TORINVEST. Lis le prix sans bruit.
 Analyse : tendance HTF/LTF, range, expansion, retracement, cassure, retest, momentum, zones clés, invalidation.
 Si volumeContext est disponible, vérifie volumeRatio, deltaProxy, VWAP, POC, VAH, VAL.
-Format : structure HTF / structure LTF / zones clés / volumeContext / scénario haussier / scénario baissier / invalidation / plan d’attente.`},
-{id:"ict",icon:"⚔",name:"Expert ICT / SMC",desc:"Liquidité, inducement, MSS, FVG, OB.",temp:.35,prompt:`Tu es Expert ICT / SMC TORINVEST. Lis le marché comme une chasse à la liquidité.
+Format : structure HTF / structure LTF / zones clés / volumeContext / scénario haussier / scénario baissier / invalidation / plan d’attente.`
+  },
+  {
+    id:"ict",
+    icon:"⚔",
+    name:"Expert ICT / SMC",
+    desc:"Liquidité, inducement, MSS, FVG, OB.",
+    temp:.35,
+    prompt:`Tu es Expert ICT / SMC TORINVEST. Lis le marché comme une chasse à la liquidité.
 Analyse : structure, premium/discount, internal/external liquidity, sweep, inducement, MSS/BOS, FVG, OB, breaker, session.
-Si volumeContext est disponible, exploite-le pour juger sweep confirmé, absorption, effort/résultat, piège ou continuation.
-Format : structure / liquidité ciblée / volumeContext / piège probable / confirmation attendue / setup possible / invalidation / erreur du débutant.`},
-{id:"liq",icon:"💧",name:"Sniper Liquidité",desc:"Pièges, sweeps et zones de chasse.",temp:.34,prompt:`Tu es Sniper Liquidité TORINVEST. Ton rôle est d’identifier où les stops dorment.
+Format : structure / liquidité ciblée / volumeContext / piège probable / confirmation attendue / setup possible / invalidation / erreur du débutant.`
+  },
+  {
+    id:"liq",
+    icon:"💧",
+    name:"Sniper Liquidité",
+    desc:"Pièges, sweeps et zones de chasse.",
+    temp:.34,
+    prompt:`Tu es Sniper Liquidité TORINVEST. Ton rôle est d’identifier où les stops dorment.
 Analyse : equal highs/lows, anciens hauts/bas, liquidité interne/externe, faux breakout, sweep, réintégration, absorption.
-Si volumeContext existe, distingue sweep confirmé, absorption probable et breakout fragile.
-Format : liquidité au-dessus / liquidité au-dessous / volumeContext / zone dangereuse / piège probable / confirmation / no-trade zone.`},
-{id:"scalp",icon:"⚡",name:"Scalper M1/M5",desc:"Entrées courtes précises.",temp:.32,prompt:`Tu es Scalper M1/M5 TORINVEST. Tu transformes le contexte en exécution courte.
+Format : liquidité au-dessus / liquidité au-dessous / volumeContext / zone dangereuse / piège probable / confirmation / no-trade zone.`
+  },
+  {
+    id:"scalp",
+    icon:"⚡",
+    name:"Scalper M1/M5",
+    desc:"Entrées courtes précises.",
+    temp:.32,
+    prompt:`Tu es Scalper M1/M5 TORINVEST. Tu transformes le contexte en exécution courte.
+Tu dois utiliser /agent/context quand il est fourni : market.targetAsset, MTF, volumeContext, signal et aiDecision.
 Règles : pas de trade au milieu, pas sans invalidation, pas sans contexte HTF.
-Si volumeContext existe, utilise volumeRatio, deltaProxy, VWAP/POC pour éviter les entrées faibles.
-Format : biais session / zone d’attente / volumeContext / trigger / stop logique / TP / conditions pour ne PAS trader / discipline.`},
-{id:"risk",icon:"🛡",name:"Risk Manager",desc:"Risque, drawdown, prop firm.",temp:.25,prompt:`Tu es Risk Manager TORINVEST. Ta mission est de protéger le capital.
+Format : biais session / zone d’attente / volumeContext / trigger / stop logique / TP / conditions pour ne PAS trader / discipline.`
+  },
+  {
+    id:"risk",
+    icon:"🛡",
+    name:"Risk Manager",
+    desc:"Risque, drawdown, prop firm.",
+    temp:.25,
+    prompt:`Tu es Risk Manager TORINVEST. Ta mission est de protéger le capital.
 Analyse : taille de position, perte max, drawdown, prop firm, surtrading, revenge trading, régularité, exposition.
-Format : risque actuel / erreur potentielle / taille recommandée / limite de perte / règle de sécurité / décision : trade ou abstention.`},
-{id:"position",icon:"🎯",name:"Position Builder",desc:"Sizing, scaling, R/R.",temp:.34,prompt:`Tu es Position Builder TORINVEST. Tu construis des plans de position propres.
-Format : actif / direction conditionnelle / entrée / stop / TP1 TP2 TP3 / break-even / partiels / R:R / invalidation / raison de ne pas entrer.`},
-{id:"journal",icon:"📓",name:"Journal Analyst",desc:"Analyse erreurs et progression.",temp:.4,prompt:`Tu es Journal Analyst TORINVEST. Tu transformes les erreurs en progression.
-Analyse : respect du plan, timing, émotion, FOMO, revenge trading, taille, exécution, sortie.
-Format : bien fait / erreur / cause réelle / correction / exercice / règle à appliquer au prochain trade.`},
-{id:"gold",icon:"🥇",name:"Gold Specialist",desc:"XAUUSD, real yields, DXY, risk-off.",temp:.34,prompt:`Tu es Gold Specialist TORINVEST. Ton actif central est XAUUSD.
-Croise toujours : XAUUSD, DXY, US10Y/US2Y/US5Y, taux réels si disponibles, VIX, SPX/Nasdaq, géopolitique, pétrole, structure technique, liquidité, volumeContext.
-Si volumeContext est disponible, analyse volumeRatio, volumeSignal, deltaProxy, cvdProxy, VWAP, POC, VAH et VAL.
+Format : risque actuel / erreur potentielle / taille recommandée / limite de perte / règle de sécurité / décision : trade ou abstention.`
+  },
+  {
+    id:"position",
+    icon:"🎯",
+    name:"Position Builder",
+    desc:"Sizing, scaling, R/R.",
+    temp:.34,
+    prompt:`Tu es Position Builder TORINVEST. Tu construis des plans de position propres.
+Format : actif / direction conditionnelle / entrée / stop / TP1 TP2 TP3 / break-even / partiels / R:R / invalidation / raison de ne pas entrer.`
+  },
+  {
+    id:"journal",
+    icon:"📓",
+    name:"Journal Analyst",
+    desc:"Analyse erreurs et progression.",
+    temp:.4,
+    prompt:`Tu es Journal Analyst TORINVEST. Tu transformes les erreurs en progression.
+Format : bien fait / erreur / cause réelle / correction / exercice / règle à appliquer au prochain trade.`
+  },
+  {
+    id:"gold",
+    icon:"🥇",
+    name:"Gold Specialist",
+    desc:"XAUUSD, real yields, DXY, risk-off.",
+    temp:.34,
+    prompt:`Tu es Gold Specialist TORINVEST. Ton actif central est XAUUSD.
+Croise toujours : XAUUSD, DXY, US10Y/US2Y/US5Y, VIX, SPX/Nasdaq, géopolitique, pétrole, structure technique, liquidité, volumeContext.
+Utilise le contexte Worker complet si présent : market, news, signal, aiDecision.
 Classification : GOLD BULLISH MACRO / BEARISH MACRO / MIXTE / REFUGE BID / PIÈGE.
-Format : données disponibles / macro / technique / volumeContext / liquidité / scénario principal / scénario alternatif / invalidation / conclusion TORINVEST.`},
-{id:"forex",icon:"💱",name:"Forex Master",desc:"EURUSD, GBP, JPY, triptyque.",temp:.38,prompt:`Tu es Forex Master TORINVEST. Analyse les devises par différentiels macro.
+Format : données disponibles / macro / technique / volumeContext / liquidité / scénario principal / scénario alternatif / invalidation / conclusion TORINVEST.`
+  },
+  {
+    id:"forex",
+    icon:"💱",
+    name:"Forex Master",
+    desc:"EURUSD, GBP, JPY, triptyque.",
+    temp:.38,
+    prompt:`Tu es Forex Master TORINVEST. Analyse les devises par différentiels macro.
 Croise : banques centrales, taux, inflation, croissance, DXY, rendements, risk sentiment, flux refuge.
-Format : devise forte/faible / paire à privilégier / justification macro / structure technique / piège / scénario / invalidation.`},
-{id:"crypto",icon:"₿",name:"Crypto Analyst",desc:"BTC/ETH, cycles, risk appetite.",temp:.42,prompt:`Tu es Crypto Analyst TORINVEST. Analyse crypto sans hype.
+Format : devise forte/faible / paire à privilégier / justification macro / structure technique / piège / scénario / invalidation.`
+  },
+  {
+    id:"crypto",
+    icon:"₿",
+    name:"Crypto Analyst",
+    desc:"BTC/ETH, cycles, risk appetite.",
+    temp:.42,
+    prompt:`Tu es Crypto Analyst TORINVEST. Analyse crypto sans hype.
 Croise : BTC, ETH, dominance BTC, TOTAL/TOTAL2/TOTAL3, Nasdaq, DXY, taux US, liquidité, risk-on/off, volumeContext.
-Format : régime crypto / dominance / BTC / ETH / altcoins / volumeContext / risques / scénario principal / invalidation.`},
-{id:"telegram",icon:"✍",name:"Générateur Telegram",desc:"Posts premium Torinvest.",temp:.55,prompt:`Tu es Générateur Telegram TORINVEST. Transforme une analyse en post clair, premium et court.
+Format : régime crypto / dominance / BTC / ETH / altcoins / volumeContext / risques / scénario principal / invalidation.`
+  },
+  {
+    id:"telegram",
+    icon:"✍",
+    name:"Générateur Telegram",
+    desc:"Posts premium Torinvest.",
+    temp:.55,
+    prompt:`Tu es Générateur Telegram TORINVEST. Transforme une analyse en post clair, premium et court.
 Format : 🔥 titre / contexte / ce qu’il faut comprendre / scénario / risque / conclusion.
-Style : pro, direct, impactant, sans faute, sans promesse de gains.`},
-{id:"vip",icon:"💎",name:"Générateur Analyse VIP",desc:"Scénarios premium vendables.",temp:.45,prompt:`Tu es Générateur Analyse VIP TORINVEST. Produit une analyse vendable.
-Format strict : titre impactant / contexte / biais / zones clés / volumeContext si disponible / scénario principal / scénario alternatif / invalidation / risque / conclusion TORINVEST.
-Style : premium, clair, exploitable, pas de blabla.`},
-{id:"copy",icon:"👥",name:"Copy Trading Assistant",desc:"Messages copy et signaux structurés.",temp:.32,prompt:`Tu es Copy Trading Assistant TORINVEST. Structure les signaux proprement.
+Style : pro, direct, impactant, sans faute, sans promesse de gains.`
+  },
+  {
+    id:"vip",
+    icon:"💎",
+    name:"Générateur Analyse VIP",
+    desc:"Scénarios premium vendables.",
+    temp:.45,
+    prompt:`Tu es Générateur Analyse VIP TORINVEST. Produit une analyse vendable.
+Format strict : titre impactant / contexte / biais / zones clés / volumeContext si disponible / scénario principal / scénario alternatif / invalidation / risque / conclusion TORINVEST.`
+  },
+  {
+    id:"copy",
+    icon:"👥",
+    name:"Copy Trading Assistant",
+    desc:"Messages copy et signaux structurés.",
+    temp:.32,
+    prompt:`Tu es Copy Trading Assistant TORINVEST. Structure les signaux proprement.
 Format : ACTIF / SENS / ENTRÉE / SL / TP1 / TP2 / RISQUE / JUSTIFICATION / INVALIDATION / NOTE DISCIPLINE.
-Règle : jamais de signal sans risque ni invalidation.`},
-{id:"corr",icon:"🔗",name:"Correlation Engine",desc:"HYG/LQD, yields, cross-assets.",temp:.34,prompt:`Tu es Correlation Engine TORINVEST. Tu détectes confirmations et divergences.
+Règle : jamais de signal sans risque ni invalidation. Si signal Worker action=NONE, explique pourquoi aucun copy trade.`
+  },
+  {
+    id:"corr",
+    icon:"🔗",
+    name:"Correlation Engine",
+    desc:"HYG/LQD, yields, cross-assets.",
+    temp:.34,
+    prompt:`Tu es Correlation Engine TORINVEST. Tu détectes confirmations et divergences.
 Croise : DXY, yields, gold, SPX, Nasdaq, VIX, HYG/LQD, pétrole, cuivre, JPY/CHF, BTC, volumeContext.
-Format : corrélations normales / divergences / volumeContext / message caché / risque de retournement / actif à surveiller / conclusion.`},
-{id:"regime",icon:"🧭",name:"Market Regime Detector",desc:"Range, trend, distribution, expansion.",temp:.33,prompt:`Tu es Market Regime Detector TORINVEST. Tu identifies la phase de marché.
+Format : corrélations normales / divergences / volumeContext / message caché / risque de retournement / actif à surveiller / conclusion.`
+  },
+  {
+    id:"regime",
+    icon:"🧭",
+    name:"Market Regime Detector",
+    desc:"Range, trend, distribution, expansion.",
+    temp:.33,
+    prompt:`Tu es Market Regime Detector TORINVEST. Tu identifies la phase de marché.
 Phases : accumulation, expansion, retracement, distribution, range, manipulation, compression.
-Si volumeContext existe, utilise-le pour distinguer accumulation, distribution, absorption ou expansion.
-Format : régime actuel / preuves / volumeContext / ce qu’il ne faut pas faire / stratégie adaptée / déclencheur de changement.`},
-{id:"news",icon:"📰",name:"News Decoder",desc:"News → impact marché.",temp:.4,prompt:`Tu es News Decoder TORINVEST. Transforme une news en lecture de marché.
-Format : fait / attente du marché / surprise / impact immédiat / impact secondaire / actifs touchés / piège possible / conclusion.
-Règle : ne jamais surinterpréter, séparer fait et hypothèse.`},
-{id:"strategy",icon:"🧱",name:"Strategy Builder",desc:"Crée règles, conditions, exécution.",temp:.45,prompt:`Tu es Strategy Builder TORINVEST. Crée des stratégies testables.
-Format : nom / marché / timeframes / conditions d’entrée / filtres volumeContext / sorties / invalidation / risque / conditions de backtest / limites.`},
-{id:"formation",icon:"🎓",name:"Formation Builder Hebdo",desc:"Module formation chaque semaine.",temp:.5,prompt:`Tu es Formation Builder TORINVEST. Crée des modules pédagogiques progressifs.
-Format : module / objectif / compréhension clé / cours / exemple / erreurs fréquentes / exercice / quiz / devoir / règle TORINVEST.
-Style : clair, structuré, niveau formation professionnelle.`},
-{id:"mindset",icon:"🧠",name:"IA Psy & Mindset Hebdo",desc:"Méthodes mindset + exercices.",temp:.45,prompt:`Tu es IA Psy & Mindset TORINVEST. Travaille la psychologie du trader.
-Sujets : discipline, patience, FOMO, revenge trading, peur de perdre, peur de gagner, surconfiance, routine.
-Format : problème / cause mentale / conséquence trading / correction / exercice pratique / règle de la semaine.`},
-{id:"health",icon:"🧠",name:"System Health Monitor",desc:"Worker, KV, IA, signal, MT5, prix live, volumeContext.",temp:.2,prompt:`Tu es le System Health Monitor TORINVEST.
-Ta mission est d’analyser l’état du système de trading automatique : Worker, KV, IA, signaux, prix live, volumeContext, MT5, exécution et risque technique.
-Quand je te donne le JSON de /system/health, tu dois répondre en français avec :
-1. Statut global : OK / WARNING / CRITICAL
-2. Ce qui fonctionne
-3. Ce qui bloque
-4. État du volumeContext
-5. Risque pour le trading live
-6. Action immédiate à faire
-Sois direct, technique, précis et sans blabla.`}
+Format : régime actuel / preuves / volumeContext / ce qu’il ne faut pas faire / stratégie adaptée / déclencheur de changement.`
+  },
+  {
+    id:"news",
+    icon:"📰",
+    name:"News Decoder",
+    desc:"News → impact marché.",
+    temp:.4,
+    prompt:`Tu es News Decoder TORINVEST. Transforme une news en lecture de marché.
+Format : fait / attente du marché / surprise / impact immédiat / impact secondaire / actifs touchés / piège possible / conclusion.`
+  },
+  {
+    id:"strategy",
+    icon:"🧱",
+    name:"Strategy Builder",
+    desc:"Crée règles, conditions, exécution.",
+    temp:.45,
+    prompt:`Tu es Strategy Builder TORINVEST. Crée des stratégies testables.
+Format : nom / marché / timeframes / conditions d’entrée / filtres volumeContext / sorties / invalidation / risque / conditions de backtest / limites.`
+  },
+  {
+    id:"formation",
+    icon:"🎓",
+    name:"Formation Builder Hebdo",
+    desc:"Module formation chaque semaine.",
+    temp:.5,
+    prompt:`Tu es Formation Builder TORINVEST. Crée des modules pédagogiques progressifs.
+Format : module / objectif / compréhension clé / cours / exemple / erreurs fréquentes / exercice / quiz / devoir / règle TORINVEST.`
+  },
+  {
+    id:"mindset",
+    icon:"🧠",
+    name:"IA Psy & Mindset Hebdo",
+    desc:"Méthodes mindset + exercices.",
+    temp:.45,
+    prompt:`Tu es IA Psy & Mindset TORINVEST. Travaille la psychologie du trader.
+Format : problème / cause mentale / conséquence trading / correction / exercice pratique / règle de la semaine.`
+  },
+  {
+    id:"health",
+    icon:"🧠",
+    name:"System Health Monitor",
+    desc:"Worker, KV, IA, signal, MT5, prix live, volumeContext.",
+    temp:.2,
+    prompt:`Tu es le System Health Monitor TORINVEST.
+Analyse l’état du système automatique : Worker, KV, IA, signaux, prix live, volumeContext, MT5, exécution et risque technique.
+Format : 1. Statut global 2. Ce qui fonctionne 3. Ce qui bloque 4. VolumeContext 5. Risque live 6. Action immédiate.`
+  }
 ];
 
 let state = loadState();
@@ -228,49 +1024,555 @@ let voiceFinalText = "";
 function loadState(){
   try{
     const current = localStorage.getItem(STORAGE_KEY);
-    if(current) return JSON.parse(current) || defaultState();
-    const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
-    if(legacy){
-      const parsed = JSON.parse(legacy);
-      return parsed || defaultState();
+    if(current) return normalizeState(JSON.parse(current));
+
+    for(const key of LEGACY_STORAGE_KEYS){
+      const legacy = localStorage.getItem(key);
+      if(legacy) return normalizeState(JSON.parse(legacy));
     }
+
     return defaultState();
-  }catch{return defaultState()}
+  }catch{
+    return defaultState();
+  }
 }
-function defaultState(){return{agentId:"macro",model:"mistral-large-latest",messages:[],chats:[],memory:[]}}
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state));renderStats()}
-function agent(){return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0]}
-function escapeHtml(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]))}
-function fmtNum(v,d=2){const n=Number(v);return Number.isFinite(n)?n.toFixed(d):'N/A'}
-function fmtRaw(v){return v===null||v===undefined||v===''?'N/A':String(v)}
 
-function setVoiceDebug(message,isError=false){const box=document.getElementById('voiceDebug');box.innerHTML=message;box.classList.add('open');box.classList.toggle('err',!!isError)}
-function clearVoiceDebug(){const box=document.getElementById('voiceDebug');box.classList.remove('open','err');box.innerHTML=''}
+function normalizeState(s){
+  const d = defaultState();
 
-function setMicroStatus(active,text){const micDot=document.getElementById('micDot');const micText=document.getElementById('micStatusText');const micBtn=document.getElementById('micBtn');if(active){micDot.classList.remove('off');micDot.classList.add('recording');micBtn.classList.add('active');micText.innerHTML=text||'Micro actif<br><small>Écoute en cours...</small>'}else{micDot.classList.add('off');micDot.classList.remove('recording');micBtn.classList.remove('active');micText.innerHTML=text||'Micro inactif<br><small>Dictée navigateur</small>'}}
-function setHealthSidebarStatus(status,label){const dot=document.getElementById('healthDot');const text=document.getElementById('healthStatusText');if(!dot||!text)return;dot.classList.remove('off','warn','critical');if(status==='OK'){text.innerHTML=`${label||'Health OK'}<br><small>/system/health</small>`}else if(status==='WARNING'){dot.classList.add('warn');text.innerHTML=`${label||'Health WARNING'}<br><small>/system/health</small>`}else if(status==='CRITICAL'){dot.classList.add('critical');text.innerHTML=`${label||'Health CRITICAL'}<br><small>/system/health</small>`}else if(status==='LOADING'){dot.classList.add('warn');text.innerHTML=`${label||'Health en analyse'}<br><small>/system/health</small>`}else{dot.classList.add('off');text.innerHTML=`${label||'Health non testé'}<br><small>/system/health</small>`}}
-function setVolumeSidebarStatus(ok,count){const dot=document.getElementById('volumeDot');const text=document.getElementById('volumeStatusText');if(!dot||!text)return;dot.classList.remove('off','warn','critical');if(ok){text.innerHTML=`Volume actif<br><small>${count} actif(s) nourri(s)</small>`}else{dot.classList.add('warn');text.innerHTML=`Volume en attente<br><small>volumeContext absent</small>`}}
+  return {
+    agentId: s?.agentId || d.agentId,
+    model: s?.model || d.model,
+    messages: Array.isArray(s?.messages) ? s.messages : [],
+    chats: Array.isArray(s?.chats) ? s.chats : [],
+    memory: Array.isArray(s?.memory) ? s.memory : []
+  };
+}
 
-function getSpeechRecognitionConstructor(){return window.SpeechRecognition||window.webkitSpeechRecognition||null}
-function explainSpeechError(code){const map={"no-speech":"Aucune voix détectée. Clique à nouveau et parle directement après le clic.","audio-capture":"Micro indisponible ou déjà utilisé par une autre application.","not-allowed":"Micro refusé. Autorise le micro dans le cadenas à gauche de l’URL.","service-not-allowed":"Service de dictée bloqué par le navigateur.","network":"Erreur réseau du service vocal Chrome.","aborted":"Dictée arrêtée.","language-not-supported":"Langue non supportée.","bad-grammar":"Erreur dictée."};return map[code]||`Erreur dictée : ${code||"inconnue"}`}
-function toggleVoice(){const SpeechRecognition=getSpeechRecognitionConstructor();const input=document.getElementById('userInput');if(!SpeechRecognition){setVoiceDebug("<b>Dictée indisponible :</b> navigateur non compatible.",true);alert("La dictée vocale navigateur n'est pas supportée ici. Essaie Chrome ou Edge à jour.");return}if(isRecording&&recognition){try{recognition.stop()}catch(e){}return}try{if(recognition){try{recognition.abort()}catch(e){}recognition=null}clearVoiceDebug();recognition=new SpeechRecognition();recognition.lang="fr-FR";recognition.continuous=false;recognition.interimResults=true;recognition.maxAlternatives=1;isRecording=true;voiceBaseText=input.value.trim();voiceFinalText="";setMicroStatus(true,'Micro actif<br><small>Parle maintenant...</small>');setVoiceDebug("<b>Dictée active :</b> parle maintenant.");const safetyTimer=setTimeout(()=>{if(isRecording&&recognition){try{recognition.stop()}catch(e){}}},10000);recognition.onresult=(event)=>{let interim="";for(let i=event.resultIndex;i<event.results.length;i++){const txt=event.results[i][0].transcript;if(event.results[i].isFinal){voiceFinalText+=" "+txt}else{interim+=" "+txt}}const full=(voiceBaseText+" "+voiceFinalText+" "+interim).replace(/\s+/g," ").trim();input.value=full;setVoiceDebug("<b>Texte capté :</b> "+escapeHtml(full||"en attente..."))};recognition.onerror=(event)=>{clearTimeout(safetyTimer);isRecording=false;setMicroStatus(false,'Micro erreur<br><small>Voir diagnostic</small>');setVoiceDebug("<b>Erreur dictée :</b> "+escapeHtml(explainSpeechError(event.error)),true);recognition=null};recognition.onend=()=>{clearTimeout(safetyTimer);isRecording=false;setMicroStatus(false);if(input.value.trim()){setVoiceDebug("<b>Dictée terminée :</b> texte prêt dans la barre.")}else{setVoiceDebug("<b>Dictée terminée :</b> aucun texte capté. Réessaie en parlant juste après le clic.",true)}recognition=null;input.focus()};recognition.start()}catch(e){isRecording=false;recognition=null;setMicroStatus(false,'Micro bloqué<br><small>Voir diagnostic</small>');setVoiceDebug("<b>Blocage vocal :</b> "+escapeHtml(e.message||String(e)),true)}}
+function defaultState(){
+  return{
+    agentId:"macro",
+    model:"mistral-large-latest",
+    messages:[],
+    chats:[],
+    memory:[]
+  };
+}
 
-function render(){renderModels();renderAgents();renderChat();renderMemory();renderStats();renderImagePreview();document.getElementById('workerShort').textContent=WORKER_AI_URL.replace('https://','').slice(0,34)+'…';document.getElementById('activeAgentBox').innerHTML=`<b style="color:var(--gold2)">${agent().icon} ${agent().name}</b><br>${agent().desc}`;setMicroStatus(false)}
-function renderModels(){const s=document.getElementById('modelSelect');s.innerHTML=MODELS.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');s.value=state.model;s.onchange=()=>{state.model=s.value;save()}}
-function renderAgents(){const html=AGENTS.map(a=>`<div class="agent ${a.id===state.agentId?'active':''}" onclick="setAgent('${a.id}')"><div class="ico">${a.icon}</div><div><b>${a.name}</b><span>${a.desc}</span></div></div>`).join('');document.getElementById('agentsList').innerHTML=html;document.getElementById('agentsModalList').innerHTML=html;const statAgents=document.getElementById('statAgents');if(statAgents)statAgents.textContent=AGENTS.length}
-function setAgent(id){state.agentId=id;save();render();closeModal('agentsModal')}
-function renderChat(){const c=document.getElementById('chat');if(!state.messages.length){state.messages=[{role:'assistant',content:'Bienvenue dans La Forge AI by TORINVEST. Le cerveau IA peut maintenant lire le contexte marché, les news et le volumeContext quand TradingView l’envoie au Worker.',ts:Date.now()}]}c.innerHTML=state.messages.map(m=>{const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="image envoyée">`:'';return `<div class="msg ${m.role}"><div class="label">${m.role==='user'?'VOUS':agent().name}</div>${img}${escapeHtml(m.content)}<div class="time">${new Date(m.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div></div>`}).join('');c.scrollTop=c.scrollHeight}
-function renderMemory(){const preview=state.memory.slice(-3).reverse().map(m=>`<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleDateString('fr-FR')}</small></div>`).join('')||'<div class="mem">Aucune mémoire.</div>';document.getElementById('memoryPreview').innerHTML=preview;document.getElementById('memoryFull').innerHTML=state.memory.slice().reverse().map(m=>`<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleString('fr-FR')}</small></div>`).join('')||'<div class="mem">Aucune mémoire.</div>'}
-function renderStats(){document.getElementById('statChats').textContent=state.chats.length;document.getElementById('statMem').textContent=state.memory.length;document.getElementById('statSize').textContent=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1)+' KB'}
-function renderImagePreview(){const box=document.getElementById('imagePreviewBox');if(!pendingImage){box.classList.remove('open');return}document.getElementById('imagePreview').src=pendingImage.dataUrl;document.getElementById('imageMeta').textContent=`${pendingImage.name} • ${Math.round(pendingImage.size/1024)} KB`;box.classList.add('open')}
-async function handleImagePick(e){const file=e.target.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('Fichier image uniquement.');return}pendingImage=await compressImage(file);renderImagePreview();e.target.value=''}
-function compressImage(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=reject;reader.onload=()=>{const img=new Image();img.onload=()=>{const max=1200;let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>w&&h>max){w=Math.round(w*max/h);h=max}else if(w>max){w=max;h=max}const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,w,h);const dataUrl=canvas.toDataURL('image/jpeg',0.82);resolve({name:file.name,size:Math.round(dataUrl.length*0.75),dataUrl})};img.onerror=reject;img.src=reader.result};reader.readAsDataURL(file)})}
-function clearPendingImage(){pendingImage=null;renderImagePreview()}
+function save(){
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  renderStats();
+}
 
-function buildMessages(){const mem=state.memory.slice(-8).map(m=>'- '+m.text).join('\n');const today=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
+function agent(){
+  return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0];
+}
+
+function escapeHtml(s){
+  return String(s??'').replace(/[&<>"]/g,m=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;'
+  }[m]));
+}
+
+function fmtNum(v,d=2){
+  const n=Number(v);
+  return Number.isFinite(n)?n.toFixed(d):'N/A';
+}
+
+function fmtRaw(v){
+  return v===null||v===undefined||v===''?'N/A':String(v);
+}
+
+function setVoiceDebug(message,isError=false){
+  const box=document.getElementById('voiceDebug');
+  box.innerHTML=message;
+  box.classList.add('open');
+  box.classList.toggle('err',!!isError);
+}
+
+function clearVoiceDebug(){
+  const box=document.getElementById('voiceDebug');
+  box.classList.remove('open','err');
+  box.innerHTML='';
+}
+
+function setMicroStatus(active,text){
+  const micDot=document.getElementById('micDot');
+  const micText=document.getElementById('micStatusText');
+  const micBtn=document.getElementById('micBtn');
+
+  if(active){
+    micDot.classList.remove('off');
+    micDot.classList.add('recording');
+    micBtn.classList.add('active');
+    micText.innerHTML=text||'Micro actif<br><small>Écoute en cours...</small>';
+  }else{
+    micDot.classList.add('off');
+    micDot.classList.remove('recording');
+    micBtn.classList.remove('active');
+    micText.innerHTML=text||'Micro inactif<br><small>Dictée navigateur</small>';
+  }
+}
+
+function setHealthSidebarStatus(status,label){
+  const dot=document.getElementById('healthDot');
+  const text=document.getElementById('healthStatusText');
+  if(!dot||!text)return;
+
+  dot.classList.remove('off','warn','critical');
+
+  if(status==='OK'){
+    text.innerHTML=`${label||'Health OK'}<br><small>/system/health</small>`;
+  }else if(status==='WARNING'){
+    dot.classList.add('warn');
+    text.innerHTML=`${label||'Health WARNING'}<br><small>/system/health</small>`;
+  }else if(status==='CRITICAL'){
+    dot.classList.add('critical');
+    text.innerHTML=`${label||'Health CRITICAL'}<br><small>/system/health</small>`;
+  }else if(status==='LOADING'){
+    dot.classList.add('warn');
+    text.innerHTML=`${label||'Health en analyse'}<br><small>/system/health</small>`;
+  }else{
+    dot.classList.add('off');
+    text.innerHTML=`${label||'Health non testé'}<br><small>/system/health</small>`;
+  }
+}
+
+function setVolumeSidebarStatus(ok,count){
+  const dot=document.getElementById('volumeDot');
+  const text=document.getElementById('volumeStatusText');
+  if(!dot||!text)return;
+
+  dot.classList.remove('off','warn','critical');
+
+  if(ok){
+    text.innerHTML=`Volume actif<br><small>${count} actif(s) nourri(s)</small>`;
+  }else{
+    dot.classList.add('warn');
+    text.innerHTML=`Volume en attente<br><small>volumeContext absent</small>`;
+  }
+}
+
+function setAgentContextSidebarStatus(ok,label){
+  const dot=document.getElementById('agentContextDot');
+  const text=document.getElementById('agentContextStatusText');
+  if(!dot||!text)return;
+
+  dot.classList.remove('off','warn','critical');
+
+  if(ok){
+    text.innerHTML=`Agent context actif<br><small>${escapeHtml(label||'/agent/context')}</small>`;
+  }else{
+    dot.classList.add('warn');
+    text.innerHTML=`Agent context en attente<br><small>/agent/context</small>`;
+  }
+}
+
+function getSpeechRecognitionConstructor(){
+  return window.SpeechRecognition||window.webkitSpeechRecognition||null;
+}
+
+function explainSpeechError(code){
+  const map={
+    "no-speech":"Aucune voix détectée. Clique à nouveau et parle directement après le clic.",
+    "audio-capture":"Micro indisponible ou déjà utilisé par une autre application.",
+    "not-allowed":"Micro refusé. Autorise le micro dans le cadenas à gauche de l’URL.",
+    "service-not-allowed":"Service de dictée bloqué par le navigateur.",
+    "network":"Erreur réseau du service vocal Chrome.",
+    "aborted":"Dictée arrêtée.",
+    "language-not-supported":"Langue non supportée.",
+    "bad-grammar":"Erreur dictée."
+  };
+
+  return map[code]||`Erreur dictée : ${code||"inconnue"}`;
+}
+
+function toggleVoice(){
+  const SpeechRecognition=getSpeechRecognitionConstructor();
+  const input=document.getElementById('userInput');
+
+  if(!SpeechRecognition){
+    setVoiceDebug("<b>Dictée indisponible :</b> navigateur non compatible.",true);
+    alert("La dictée vocale navigateur n'est pas supportée ici. Essaie Chrome ou Edge à jour.");
+    return;
+  }
+
+  if(isRecording&&recognition){
+    try{recognition.stop()}catch(e){}
+    return;
+  }
+
+  try{
+    if(recognition){
+      try{recognition.abort()}catch(e){}
+      recognition=null;
+    }
+
+    clearVoiceDebug();
+
+    recognition=new SpeechRecognition();
+    recognition.lang="fr-FR";
+    recognition.continuous=false;
+    recognition.interimResults=true;
+    recognition.maxAlternatives=1;
+
+    isRecording=true;
+    voiceBaseText=input.value.trim();
+    voiceFinalText="";
+
+    setMicroStatus(true,'Micro actif<br><small>Parle maintenant...</small>');
+    setVoiceDebug("<b>Dictée active :</b> parle maintenant.");
+
+    const safetyTimer=setTimeout(()=>{
+      if(isRecording&&recognition){
+        try{recognition.stop()}catch(e){}
+      }
+    },10000);
+
+    recognition.onresult=(event)=>{
+      let interim="";
+
+      for(let i=event.resultIndex;i<event.results.length;i++){
+        const txt=event.results[i][0].transcript;
+
+        if(event.results[i].isFinal){
+          voiceFinalText+=" "+txt;
+        }else{
+          interim+=" "+txt;
+        }
+      }
+
+      const full=(voiceBaseText+" "+voiceFinalText+" "+interim).replace(/\s+/g," ").trim();
+      input.value=full;
+      setVoiceDebug("<b>Texte capté :</b> "+escapeHtml(full||"en attente..."));
+    };
+
+    recognition.onerror=(event)=>{
+      clearTimeout(safetyTimer);
+      isRecording=false;
+      setMicroStatus(false,'Micro erreur<br><small>Voir diagnostic</small>');
+      setVoiceDebug("<b>Erreur dictée :</b> "+escapeHtml(explainSpeechError(event.error)),true);
+      recognition=null;
+    };
+
+    recognition.onend=()=>{
+      clearTimeout(safetyTimer);
+      isRecording=false;
+      setMicroStatus(false);
+
+      if(input.value.trim()){
+        setVoiceDebug("<b>Dictée terminée :</b> texte prêt dans la barre.");
+      }else{
+        setVoiceDebug("<b>Dictée terminée :</b> aucun texte capté. Réessaie en parlant juste après le clic.",true);
+      }
+
+      recognition=null;
+      input.focus();
+    };
+
+    recognition.start();
+  }catch(e){
+    isRecording=false;
+    recognition=null;
+    setMicroStatus(false,'Micro bloqué<br><small>Voir diagnostic</small>');
+    setVoiceDebug("<b>Blocage vocal :</b> "+escapeHtml(e.message||String(e)),true);
+  }
+}
+
+function render(){
+  renderModels();
+  renderAgents();
+  renderChat();
+  renderMemory();
+  renderStats();
+  renderImagePreview();
+
+  document.getElementById('workerShort').textContent=WORKER_AI_URL.replace('https://','').slice(0,34)+'…';
+
+  document.getElementById('activeAgentBox').innerHTML=
+    `<b style="color:var(--gold2)">${agent().icon} ${agent().name}</b><br>${agent().desc}`;
+
+  setMicroStatus(false);
+}
+
+function renderModels(){
+  const s=document.getElementById('modelSelect');
+
+  s.innerHTML=MODELS.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  s.value=state.model;
+
+  s.onchange=()=>{
+    state.model=s.value;
+    save();
+  };
+}
+
+function renderAgents(){
+  const html=AGENTS.map(a=>
+    `<div class="agent ${a.id===state.agentId?'active':''}" onclick="setAgent('${a.id}')">
+      <div class="ico">${a.icon}</div>
+      <div><b>${a.name}</b><span>${a.desc}</span></div>
+    </div>`
+  ).join('');
+
+  document.getElementById('agentsList').innerHTML=html;
+  document.getElementById('agentsModalList').innerHTML=html;
+
+  const statAgents=document.getElementById('statAgents');
+  if(statAgents)statAgents.textContent=AGENTS.length;
+}
+
+function setAgent(id){
+  state.agentId=id;
+  save();
+  render();
+  closeModal('agentsModal');
+}
+
+function renderChat(){
+  const c=document.getElementById('chat');
+
+  if(!state.messages.length){
+    state.messages=[{
+      role:'assistant',
+      content:'Bienvenue dans La Forge AI by TORINVEST. Le chat est maintenant branché au Worker via /agent/context : tu peux demander un setup, une analyse ou un état système avec les données Worker.',
+      ts:Date.now()
+    }];
+  }
+
+  c.innerHTML=state.messages.map(m=>{
+    const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="image envoyée">`:'';
+
+    return `<div class="msg ${m.role}">
+      <div class="label">${m.role==='user'?'VOUS':agent().name}</div>
+      ${img}
+      ${escapeHtml(m.content)}
+      <div class="time">${new Date(m.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>
+    </div>`;
+  }).join('');
+
+  c.scrollTop=c.scrollHeight;
+}
+
+function renderMemory(){
+  const preview=state.memory.slice(-3).reverse().map(m=>
+    `<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleDateString('fr-FR')}</small></div>`
+  ).join('')||'<div class="mem">Aucune mémoire.</div>';
+
+  document.getElementById('memoryPreview').innerHTML=preview;
+
+  document.getElementById('memoryFull').innerHTML=state.memory.slice().reverse().map(m=>
+    `<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleString('fr-FR')}</small></div>`
+  ).join('')||'<div class="mem">Aucune mémoire.</div>';
+}
+
+function renderStats(){
+  document.getElementById('statChats').textContent=state.chats.length;
+  document.getElementById('statMem').textContent=state.memory.length;
+  document.getElementById('statSize').textContent=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1)+' KB';
+}
+
+function renderImagePreview(){
+  const box=document.getElementById('imagePreviewBox');
+
+  if(!pendingImage){
+    box.classList.remove('open');
+    return;
+  }
+
+  document.getElementById('imagePreview').src=pendingImage.dataUrl;
+  document.getElementById('imageMeta').textContent=`${pendingImage.name} • ${Math.round(pendingImage.size/1024)} KB`;
+  box.classList.add('open');
+}
+
+async function handleImagePick(e){
+  const file=e.target.files[0];
+  if(!file)return;
+
+  if(!file.type.startsWith('image/')){
+    alert('Fichier image uniquement.');
+    return;
+  }
+
+  pendingImage=await compressImage(file);
+  renderImagePreview();
+  e.target.value='';
+}
+
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+
+    reader.onerror=reject;
+
+    reader.onload=()=>{
+      const img=new Image();
+
+      img.onload=()=>{
+        const max=1200;
+        let w=img.width;
+        let h=img.height;
+
+        if(w>h&&w>max){
+          h=Math.round(h*max/w);
+          w=max;
+        }else if(h>w&&h>max){
+          w=Math.round(w*max/h);
+          h=max;
+        }else if(w>max){
+          w=max;
+          h=max;
+        }
+
+        const canvas=document.createElement('canvas');
+        canvas.width=w;
+        canvas.height=h;
+
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,w,h);
+
+        const dataUrl=canvas.toDataURL('image/jpeg',0.82);
+
+        resolve({
+          name:file.name,
+          size:Math.round(dataUrl.length*0.75),
+          dataUrl
+        });
+      };
+
+      img.onerror=reject;
+      img.src=reader.result;
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+function clearPendingImage(){
+  pendingImage=null;
+  renderImagePreview();
+}
+
+function detectSymbolFromText(text){
+  const t=String(text||"").toUpperCase();
+
+  if(t.includes("EURUSD"))return"EURUSD";
+  if(t.includes("GBPUSD"))return"GBPUSD";
+  if(t.includes("EURGBP"))return"EURGBP";
+  if(t.includes("USDJPY"))return"USDJPY";
+  if(t.includes("USDCHF"))return"USDCHF";
+  if(t.includes("USDCAD"))return"USDCAD";
+  if(t.includes("AUDUSD"))return"AUDUSD";
+  if(t.includes("NZDUSD"))return"NZDUSD";
+
+  if(t.includes("BTC"))return"BTCUSD";
+  if(t.includes("ETH"))return"ETHUSD";
+
+  if(t.includes("NASDAQ")||t.includes("NAS100")||t.includes("US100"))return"NASDAQ";
+  if(t.includes("SPX")||t.includes("SP500")||t.includes("S&P"))return"SPX";
+
+  if(t.includes("WTI")||t.includes("USOIL")||t.includes("PÉTROLE")||t.includes("PETROLE")||t.includes("OIL"))return"WTI";
+
+  if(t.includes("SILVER")||t.includes("XAG")||t.includes("ARGENT"))return"XAGUSD";
+
+  if(t.includes("GOLD")||t.includes("XAU")||t.includes(" OR ")||t==="OR"||t.includes(" L OR")||t.includes("L'OR"))return"XAUUSD";
+
+  return"XAUUSD";
+}
+
+function detectModeFromText(text){
+  const t=String(text||"").toLowerCase();
+
+  if(
+    state.agentId==="scalp" ||
+    t.includes("scalp") ||
+    t.includes("m1") ||
+    t.includes("m3") ||
+    t.includes("m5") ||
+    t.includes("setup") ||
+    t.includes("entrée") ||
+    t.includes("entree") ||
+    t.includes("ce matin")
+  ){
+    return"scalping";
+  }
+
+  return"normal";
+}
+
+async function fetchAgentContextForMessage(text){
+  const symbol=detectSymbolFromText(text);
+  const mode=detectModeFromText(text);
+
+  const url =
+    WORKER_AGENT_CONTEXT_URL +
+    "?symbol=" + encodeURIComponent(symbol) +
+    "&mode=" + encodeURIComponent(mode) +
+    "&token=" + encodeURIComponent(COPY_TOKEN);
+
+  const res=await fetch(url,{method:"GET"});
+  const data=await res.json().catch(()=>({
+    ok:false,
+    error:"Réponse /agent/context non JSON"
+  }));
+
+  if(!res.ok||data.ok===false){
+    throw new Error(data.error||data.message||"Erreur /agent/context");
+  }
+
+  setAgentContextSidebarStatus(true,`${symbol} / ${mode}`);
+
+  return data;
+}
+
+function summarizeAgentContext(ctx){
+  if(!ctx||ctx.ok===false)return"Contexte Worker indisponible.";
+
+  const target=ctx.market?.targetAsset;
+  const signal=ctx.signal;
+  const ai=ctx.aiDecision;
+  const news=ctx.news;
+
+  return [
+    `Worker OK : ${ctx.system?.worker ? "oui" : "non"}`,
+    `Symbole : ${ctx.symbol}`,
+    `Mode : ${ctx.mode}`,
+    `Prix cible : ${target?.price ?? "N/A"}`,
+    `TF : ${target?.tf ?? "N/A"}`,
+    `Volume : ${target?.volumeContext?.volumeRegime ?? "N/A"} / ${target?.volumeContext?.volumeSignal ?? "N/A"}`,
+    `MTF : ${target?.mtfContext?.bias ?? "N/A"} / score ${target?.mtfContext?.directionalScore ?? "N/A"}`,
+    `Signal MT5 : ${signal?.action ?? "N/A"} / executable ${signal?.validation?.executable ?? signal?.executable ?? "N/A"}`,
+    `Dernière décision IA : ${ai?.action ?? "N/A"}`,
+    `News risk : ${news?.risk?.regime ?? "N/A"} / score ${news?.risk?.score ?? "N/A"}`
+  ].join("\n");
+}
+
+function buildMessages(agentContext=null){
+  const mem=state.memory.slice(-8).map(m=>'- '+m.text).join('\n');
+
+  const today=new Date().toLocaleDateString('fr-FR',{
+    weekday:'long',
+    year:'numeric',
+    month:'long',
+    day:'numeric'
+  });
+
+  const workerContext=agentContext?JSON.stringify(agentContext,null,2):"Aucun contexte Worker récupéré pour ce message.";
+  const workerSummary=summarizeAgentContext(agentContext);
+
+  const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
 
 DATE ACTUELLE :
 ${today}
+
+CONTEXTE WORKER TORINVEST :
+${workerSummary}
+
+DONNÉES WORKER COMPLÈTES :
+${workerContext}
 
 RÈGLES GLOBALES :
 - Réponds en français, avec structure claire.
@@ -279,19 +1581,144 @@ RÈGLES GLOBALES :
 - Ne jamais inventer une donnée récente.
 - Ne jamais présenter une donnée ancienne comme actuelle.
 - Si une image est fournie, analyse-la précisément et relie-la au contexte demandé.
-- Si tu n’as pas les données live, dis clairement : "Je n’ai pas la donnée live dans le contexte fourni."
+- Si tu n’as pas les données live dans CONTEXTE WORKER, dis clairement : "Je n’ai pas la donnée live dans le contexte fourni."
 - Si volumeContext est présent dans le contexte Worker, tu dois l’intégrer : volumeRatio, volumeSignal, deltaProxy, cvdProxy, VWAP, POC, VAH, VAL.
-- Si volumeContext est absent, dis clairement que la volumétrie n’est pas encore nourrie.
+- Si signal.action = NONE, explique pourquoi le système refuse de trader.
+- Si signal.action = BUY ou SELL, vérifie prix, SL, TP, confiance et validation.executable.
+- Pour une demande de setup, donne : biais, zone d’attente, trigger, invalidation, no-trade zone, et ce qui doit confirmer.
 - Toujours adapter l’analyse au contexte ACTUEL (${today}).
 
 MÉMOIRE LOCALE UTILE :
-${mem||'Aucune.'}`;return[{role:'system',content:sys},...state.messages.filter(m=>!m.loading).slice(-16).map(m=>{if(m.role==='user'&&m.imageDataUrl){return{role:'user',content:[{type:'text',text:m.content||'Analyse cette image.'},{type:'image_url',image_url:m.imageDataUrl}]}}return{role:m.role,content:m.content}})]}
+${mem||'Aucune.'}`;
 
-async function sendMessage(){const input=document.getElementById('userInput');const text=input.value.trim();if(!text&&!pendingImage)return;if(isRecording&&recognition){try{recognition.stop()}catch(e){}}const imageToSend=pendingImage;const userContent=text||"Analyse cette image.";state.messages.push({role:'user',content:userContent,imageDataUrl:imageToSend?.dataUrl||null,ts:Date.now()});input.value='';clearPendingImage();clearVoiceDebug();renderChat();save();state.messages.push({role:'assistant',content:'Forge en cours…',ts:Date.now(),loading:true});renderChat();try{const modelToUse=imageToSend?VISION_MODEL:state.model;const res=await fetch(WORKER_AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:modelToUse,messages:buildMessages(),temperature:agent().temp,max_tokens:4096,top_p:.95})});const data=await res.json();if(!res.ok)throw new Error(data.error||data.message||'Erreur Worker');const reply=data.choices?.[0]?.message?.content||data.reply||'Aucune réponse.';state.messages=state.messages.filter(m=>!m.loading);state.messages.push({role:'assistant',content:reply,ts:Date.now()});save();renderChat()}catch(e){state.messages=state.messages.filter(m=>!m.loading);state.messages.push({role:'assistant',content:'⚠ Erreur : '+e.message+'\n\nSi tu as envoyé une image, vérifie que ton compte Mistral accepte le modèle vision : pixtral-large-latest.',ts:Date.now()});save();renderChat()}}
+  return[
+    {role:'system',content:sys},
+    ...state.messages.filter(m=>!m.loading).slice(-16).map(m=>{
+      if(m.role==='user'&&m.imageDataUrl){
+        return{
+          role:'user',
+          content:[
+            {type:'text',text:m.content||'Analyse cette image.'},
+            {type:'image_url',image_url:m.imageDataUrl}
+          ]
+        };
+      }
+
+      return{
+        role:m.role,
+        content:m.content
+      };
+    })
+  ];
+}
+
+async function sendMessage(){
+  const input=document.getElementById('userInput');
+  const text=input.value.trim();
+
+  if(!text&&!pendingImage)return;
+
+  if(isRecording&&recognition){
+    try{recognition.stop()}catch(e){}
+  }
+
+  const imageToSend=pendingImage;
+  const userContent=text||"Analyse cette image.";
+
+  state.messages.push({
+    role:'user',
+    content:userContent,
+    imageDataUrl:imageToSend?.dataUrl||null,
+    ts:Date.now()
+  });
+
+  input.value='';
+  clearPendingImage();
+  clearVoiceDebug();
+  renderChat();
+  save();
+
+  state.messages.push({
+    role:'assistant',
+    content:'Forge en cours… récupération du contexte Worker...',
+    ts:Date.now(),
+    loading:true
+  });
+
+  renderChat();
+
+  try{
+    let agentContext=null;
+
+    try{
+      agentContext=await fetchAgentContextForMessage(userContent);
+    }catch(ctxErr){
+      setAgentContextSidebarStatus(false);
+
+      agentContext={
+        ok:false,
+        error:ctxErr.message,
+        warning:"Le Worker /agent/context n'a pas répondu. Analyse limitée au chat."
+      };
+    }
+
+    const modelToUse=imageToSend?VISION_MODEL:state.model;
+
+    const res=await fetch(WORKER_AI_URL,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({
+        model:modelToUse,
+        messages:buildMessages(agentContext),
+        temperature:agent().temp,
+        max_tokens:4096,
+        top_p:.95
+      })
+    });
+
+    const data=await res.json().catch(()=>({
+      error:"Réponse Worker non JSON"
+    }));
+
+    if(!res.ok){
+      throw new Error(data.error||data.message||'Erreur Worker');
+    }
+
+    const reply=data.choices?.[0]?.message?.content||data.reply||'Aucune réponse.';
+
+    state.messages=state.messages.filter(m=>!m.loading);
+
+    state.messages.push({
+      role:'assistant',
+      content:reply,
+      ts:Date.now()
+    });
+
+    save();
+    renderChat();
+  }catch(e){
+    state.messages=state.messages.filter(m=>!m.loading);
+
+    state.messages.push({
+      role:'assistant',
+      content:'⚠ Erreur : '+e.message+'\n\nVérifie que ton Worker expose bien /agent/context et /ai/chat, puis teste /ai/status.',
+      ts:Date.now()
+    });
+
+    save();
+    renderChat();
+  }
+}
 
 function renderVolumeContext(ex){
   const vc = ex?.volumeContext;
-  if(!vc){return '<span class="health-warning">Non disponible</span>'}
+
+  if(!vc){
+    return '<span class="health-warning">Non disponible</span>';
+  }
+
   return `
     <span class="health-pill">hasData: ${escapeHtml(vc.hasVolumeData ?? false)}</span>
     <span class="health-pill">régime: ${escapeHtml(vc.volumeRegime ?? 'UNKNOWN')}</span>
@@ -306,32 +1733,286 @@ function renderVolumeContext(ex){
   `;
 }
 
-async function checkSystemHealth(){const box=document.getElementById('healthBox');if(box)box.innerHTML='Analyse en cours...';setHealthSidebarStatus('LOADING','Health en analyse');try{const res=await fetch(WORKER_HEALTH_URL,{method:'GET'});const data=await res.json();if(!res.ok){throw new Error(data.error||data.message||'Erreur /system/health')}const status=String(data.status||'UNKNOWN').toUpperCase();const statusClass=status==='OK'?'health-ok':status==='WARNING'?'health-warning':'health-critical';const statusLabel=status==='OK'?'Health OK':status==='WARNING'?'Health WARNING':'Health CRITICAL';setHealthSidebarStatus(status,statusLabel);const volumeCount=data.checks?.volume?.assetsWithVolumeContext??0;setVolumeSidebarStatus(!!data.checks?.volume?.ok,volumeCount);const summary=Array.isArray(data.summary)&&data.summary.length?data.summary.map(s=>`• ${escapeHtml(s)}`).join('<br>'):'Tous les contrôles principaux sont OK.';let html=`<div class="health-line"><b class="${statusClass}">● ${escapeHtml(status)}</b><br><small>${escapeHtml(data.generatedAt||'')}</small></div><div class="health-line"><b>Résumé</b><br>${summary}</div>`;
-if(data.checks?.executionReadiness){const ex=data.checks.executionReadiness;const gap=typeof ex.priceGap==='number'?Number(ex.priceGap).toFixed(2):'N/A';html+=`<div class="health-line"><b>Trading / MT5</b><br>Action : ${escapeHtml(ex.action??'N/A')}<br>Symbole : ${escapeHtml(ex.symbol??'N/A')}<br>Prix signal : ${escapeHtml(ex.signalPrice??'N/A')}<br>Prix live : ${escapeHtml(ex.livePrice??'N/A')}<br>Écart : ${escapeHtml(gap)}<br>Âge : ${escapeHtml(ex.ageSeconds??'N/A')} sec<br>Exécutable : ${ex.executable?'<span class="health-ok">OUI</span>':'<span class="health-warning">NON</span>'}</div><div class="health-line"><b>Volume Context actif</b><br>${renderVolumeContext(ex)}</div>`}
-if(data.checks?.market){const mk=data.checks.market;html+=`<div class="health-line"><b>Market Data</b><br>Données : ${escapeHtml(mk.count??0)} actifs<br>Sentiment : ${escapeHtml(mk.sentiment?.regime??'N/A')} ${escapeHtml(mk.sentiment?.score??'')}</div>`}
-if(data.checks?.volume){const vol=data.checks.volume;html+=`<div class="health-line"><b>Volume Engine</b><br>Actifs avec volumétrie : ${escapeHtml(vol.assetsWithVolumeContext??0)}<br>Statut : ${vol.ok?'<span class="health-ok">ACTIF</span>':'<span class="health-warning">EN ATTENTE</span>'}<br>${escapeHtml(vol.message??'')}</div>`}
-if(data.checks?.news){const nw=data.checks.news;html+=`<div class="health-line"><b>News Risk</b><br>News : ${escapeHtml(nw.count??0)}<br>Risque : ${escapeHtml(nw.risk?.regime??'N/A')} ${escapeHtml(nw.risk?.score??'')}</div>`}
-if(Array.isArray(data.recommendations)&&data.recommendations.length){html+=`<div class="health-line"><b>Actions recommandées</b><br>${data.recommendations.map(r=>`• ${escapeHtml(r)}`).join('<br>')}</div>`}
-if(box)box.innerHTML=html;state.messages.push({role:'assistant',content:`SYSTEM HEALTH — ${status}\n\n${(data.summary||[]).map(s=>'• '+s).join('\n')||'Tous les contrôles principaux sont OK.'}\n\nVolumeContext : ${data.checks?.volume?.ok?'ACTIF':'EN ATTENTE'} (${volumeCount} actif(s))`,ts:Date.now()});save();renderChat()}catch(e){setHealthSidebarStatus('CRITICAL','Health erreur');setVolumeSidebarStatus(false,0);if(box){box.innerHTML=`<div class="health-line"><b class="health-critical">Erreur health monitor</b><br>${escapeHtml(e.message||String(e))}</div>`}}}
+async function checkSystemHealth(){
+  const box=document.getElementById('healthBox');
 
-async function preloadStatus(){try{const res=await fetch(WORKER_STATUS_URL,{method:'GET'});const data=await res.json();if(res.ok){setVolumeSidebarStatus((data.volumeAssets??0)>0,data.volumeAssets??0)}}catch(e){}}
+  if(box)box.innerHTML='Analyse en cours...';
 
-document.getElementById('userInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
-function newChat(){if(state.messages.length){state.chats.unshift({id:crypto.randomUUID(),title:(state.messages.find(m=>m.role==='user')?.content||'Conversation').slice(0,60),messages:state.messages,ts:Date.now()})}state.messages=[];save();render()}
-function openArchives(){const l=document.getElementById('archivesList');l.innerHTML=state.chats.map(c=>`<div class="mem" style="cursor:pointer" onclick="loadChat('${c.id}')"><b>${escapeHtml(c.title)}</b><br><small>${new Date(c.ts).toLocaleString('fr-FR')}</small></div>`).join('')||'<div class="mem">Aucune archive.</div>';openModal('archivesModal')}
-function loadChat(id){const c=state.chats.find(x=>x.id===id);if(c){state.messages=c.messages;save();render();closeModal('archivesModal')}}
-function addMemory(){const v=document.getElementById('memoryInput').value.trim();if(!v)return;state.memory.push({text:v,ts:Date.now()});document.getElementById('memoryInput').value='';save();renderMemory()}
-function clearMemory(){if(confirm('Effacer toute la mémoire locale ?')){state.memory=[];save();renderMemory()}}
-function quick(t){document.getElementById('userInput').value=t;document.getElementById('userInput').focus()}
-function openModal(id){document.getElementById(id).classList.add('open')}
-function closeModal(id){document.getElementById(id).classList.remove('open')}
-function openAgentsModal(){openModal('agentsModal')}
-function openMemoryModal(){renderMemory();openModal('memoryModal')}
-function toggleLeft(){document.getElementById('leftPanel').classList.toggle('open')}
-function toggleRight(){document.getElementById('rightPanel').classList.toggle('open')}
-function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='torinvest-forge-ai-backup.json';a.click();URL.revokeObjectURL(a.href)}
-function importDataPrompt(){document.getElementById('importFile').click()}
-document.getElementById('importFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{state=JSON.parse(await f.text());save();render()}catch{alert('Fichier invalide')}};
+  setHealthSidebarStatus('LOADING','Health en analyse');
+
+  try{
+    const res=await fetch(WORKER_HEALTH_URL,{method:'GET'});
+    const data=await res.json();
+
+    if(!res.ok){
+      throw new Error(data.error||data.message||'Erreur /system/health');
+    }
+
+    const status=String(data.status||'UNKNOWN').toUpperCase();
+    const statusClass=status==='OK'?'health-ok':status==='WARNING'?'health-warning':'health-critical';
+    const statusLabel=status==='OK'?'Health OK':status==='WARNING'?'Health WARNING':'Health CRITICAL';
+
+    setHealthSidebarStatus(status,statusLabel);
+
+    const volumeCount=data.checks?.volume?.assetsWithVolumeContext??0;
+    setVolumeSidebarStatus(!!data.checks?.volume?.ok,volumeCount);
+
+    const summary=Array.isArray(data.summary)&&data.summary.length
+      ? data.summary.map(s=>`• ${escapeHtml(s)}`).join('<br>')
+      : 'Tous les contrôles principaux sont OK.';
+
+    let html=
+      `<div class="health-line">
+        <b class="${statusClass}">● ${escapeHtml(status)}</b><br>
+        <small>${escapeHtml(data.generatedAt||'')}</small>
+      </div>
+      <div class="health-line">
+        <b>Résumé</b><br>${summary}
+      </div>`;
+
+    if(data.checks?.executionReadiness){
+      const ex=data.checks.executionReadiness;
+      const gap=typeof ex.priceGap==='number'?Number(ex.priceGap).toFixed(2):'N/A';
+
+      html+=
+        `<div class="health-line">
+          <b>Trading / MT5</b><br>
+          Action : ${escapeHtml(ex.action??'N/A')}<br>
+          Mode : ${escapeHtml(ex.mode??'N/A')}<br>
+          Symbole : ${escapeHtml(ex.symbol??'N/A')}<br>
+          Prix signal : ${escapeHtml(ex.signalPrice??'N/A')}<br>
+          Prix live : ${escapeHtml(ex.livePrice??'N/A')}<br>
+          Écart : ${escapeHtml(gap)}<br>
+          Exécutable : ${ex.executable?'<span class="health-ok">OUI</span>':'<span class="health-warning">NON</span>'}
+        </div>
+        <div class="health-line">
+          <b>Volume Context actif</b><br>${renderVolumeContext(ex)}
+        </div>`;
+    }
+
+    if(data.checks?.market){
+      const mk=data.checks.market;
+
+      html+=
+        `<div class="health-line">
+          <b>Market Data</b><br>
+          Données : ${escapeHtml(mk.count??0)} actifs<br>
+          Sentiment : ${escapeHtml(mk.sentiment?.regime??'N/A')} ${escapeHtml(mk.sentiment?.score??'')}
+        </div>`;
+    }
+
+    if(data.checks?.volume){
+      const vol=data.checks.volume;
+
+      html+=
+        `<div class="health-line">
+          <b>Volume Engine</b><br>
+          Actifs avec volumétrie : ${escapeHtml(vol.assetsWithVolumeContext??0)}<br>
+          Statut : ${vol.ok?'<span class="health-ok">ACTIF</span>':'<span class="health-warning">EN ATTENTE</span>'}
+        </div>`;
+    }
+
+    if(data.checks?.news){
+      const nw=data.checks.news;
+
+      html+=
+        `<div class="health-line">
+          <b>News Risk</b><br>
+          News : ${escapeHtml(nw.count??0)}<br>
+          Risque : ${escapeHtml(nw.risk?.regime??'N/A')} ${escapeHtml(nw.risk?.score??'')}
+        </div>`;
+    }
+
+    if(Array.isArray(data.recommendations)&&data.recommendations.length){
+      html+=
+        `<div class="health-line">
+          <b>Actions recommandées</b><br>
+          ${data.recommendations.map(r=>`• ${escapeHtml(r)}`).join('<br>')}
+        </div>`;
+    }
+
+    if(box)box.innerHTML=html;
+
+    state.messages.push({
+      role:'assistant',
+      content:`SYSTEM HEALTH — ${status}
+
+${(data.summary||[]).map(s=>'• '+s).join('\n')||'Tous les contrôles principaux sont OK.'}
+
+VolumeContext : ${data.checks?.volume?.ok?'ACTIF':'EN ATTENTE'} (${volumeCount} actif(s))`,
+      ts:Date.now()
+    });
+
+    save();
+    renderChat();
+  }catch(e){
+    setHealthSidebarStatus('CRITICAL','Health erreur');
+    setVolumeSidebarStatus(false,0);
+
+    if(box){
+      box.innerHTML=
+        `<div class="health-line">
+          <b class="health-critical">Erreur health monitor</b><br>
+          ${escapeHtml(e.message||String(e))}
+        </div>`;
+    }
+  }
+}
+
+async function preloadStatus(){
+  try{
+    const res=await fetch(WORKER_STATUS_URL,{method:'GET'});
+    const data=await res.json();
+
+    if(res.ok){
+      setVolumeSidebarStatus(
+        (data.volumeAssets??data.marketCount??0)>0,
+        data.volumeAssets??data.marketCount??0
+      );
+    }
+  }catch(e){}
+
+  try{
+    const res=await fetch(
+      WORKER_AGENT_CONTEXT_URL+"?symbol=XAUUSD&mode=scalping&token="+encodeURIComponent(COPY_TOKEN),
+      {method:'GET'}
+    );
+
+    const data=await res.json();
+
+    setAgentContextSidebarStatus(res.ok && data.ok!==false, "XAUUSD / scalping");
+  }catch(e){
+    setAgentContextSidebarStatus(false);
+  }
+}
+
+document.getElementById('userInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+function newChat(){
+  if(state.messages.length){
+    state.chats.unshift({
+      id:crypto.randomUUID(),
+      title:(state.messages.find(m=>m.role==='user')?.content||'Conversation').slice(0,60),
+      messages:state.messages,
+      ts:Date.now()
+    });
+  }
+
+  state.messages=[];
+  save();
+  render();
+}
+
+function openArchives(){
+  const l=document.getElementById('archivesList');
+
+  l.innerHTML=state.chats.map(c=>
+    `<div class="mem" style="cursor:pointer" onclick="loadChat('${c.id}')">
+      <b>${escapeHtml(c.title)}</b><br>
+      <small>${new Date(c.ts).toLocaleString('fr-FR')}</small>
+    </div>`
+  ).join('')||'<div class="mem">Aucune archive.</div>';
+
+  openModal('archivesModal');
+}
+
+function loadChat(id){
+  const c=state.chats.find(x=>x.id===id);
+
+  if(c){
+    state.messages=c.messages;
+    save();
+    render();
+    closeModal('archivesModal');
+  }
+}
+
+function addMemory(){
+  const v=document.getElementById('memoryInput').value.trim();
+
+  if(!v)return;
+
+  state.memory.push({
+    text:v,
+    ts:Date.now()
+  });
+
+  document.getElementById('memoryInput').value='';
+  save();
+  renderMemory();
+}
+
+function clearMemory(){
+  if(confirm('Effacer toute la mémoire locale ?')){
+    state.memory=[];
+    save();
+    renderMemory();
+  }
+}
+
+function quick(t){
+  document.getElementById('userInput').value=t;
+  document.getElementById('userInput').focus();
+}
+
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove('open');
+}
+
+function openAgentsModal(){
+  openModal('agentsModal');
+}
+
+function openMemoryModal(){
+  renderMemory();
+  openModal('memoryModal');
+}
+
+function toggleLeft(){
+  document.getElementById('leftPanel').classList.toggle('open');
+}
+
+function toggleRight(){
+  document.getElementById('rightPanel').classList.toggle('open');
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+
+  a.href=URL.createObjectURL(blob);
+  a.download='torinvest-forge-ai-backup.json';
+  a.click();
+
+  URL.revokeObjectURL(a.href);
+}
+
+function importDataPrompt(){
+  document.getElementById('importFile').click();
+}
+
+document.getElementById('importFile').onchange=async e=>{
+  const f=e.target.files[0];
+
+  if(!f)return;
+
+  try{
+    state=normalizeState(JSON.parse(await f.text()));
+    save();
+    render();
+  }catch{
+    alert('Fichier invalide');
+  }
+};
 
 render();
 preloadStatus();
