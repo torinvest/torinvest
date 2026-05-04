@@ -1583,7 +1583,10 @@ RÈGLES GLOBALES :
 - Si une image est fournie, analyse-la précisément et relie-la au contexte demandé.
 - Si tu n’as pas les données live dans CONTEXTE WORKER, dis clairement : "Je n’ai pas la donnée live dans le contexte fourni."
 - Si volumeContext est présent dans le contexte Worker, tu dois l’intégrer : volumeRatio, volumeSignal, deltaProxy, cvdProxy, VWAP, POC, VAH, VAL.
-- Si signal.action = NONE, explique pourquoi le système refuse de trader.
+- Si signal.action = NONE, ne dis pas automatiquement que le trade est bloqué.
+- Explique si le système est en attente, en réduction de risque, ou sans déclencheur technique.
+- Le risque géopolitique/news ne bloque le trade que si le niveau est EXTREME et immédiat.
+- Sinon, il doit réduire l’exposition, raccourcir l’horizon, renforcer les confirmations ou proposer une zone d’attente.
 - Si signal.action = BUY ou SELL, vérifie prix, SL, TP, confiance et validation.executable.
 - Pour une demande de setup, donne : biais, zone d’attente, trigger, invalidation, no-trade zone, et ce qui doit confirmer.
 - Toujours adapter l’analyse au contexte ACTUEL (${today}).
