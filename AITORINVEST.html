@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>TORINVEST AI — La Forge</title>
+<title>TORINVEST AI — La Forge Terminal</title>
 
 <style>
 :root{
@@ -20,6 +20,7 @@
   --ok:#63e66d;
   --warn:#ffb84d;
   --danger:#ff5a5f;
+  --blue:#71b7ff;
   --r:18px;
   --shadow:0 0 28px rgba(217,164,65,.16);
 }
@@ -53,7 +54,7 @@ body:before{
 .app{
   height:100%;
   display:grid;
-  grid-template-columns:270px minmax(520px,1fr) 320px;
+  grid-template-columns:270px minmax(560px,1fr) 340px;
   gap:14px;
   padding:14px;
   position:relative;
@@ -71,7 +72,7 @@ body:before{
 
 .sidebar,.right{display:flex;flex-direction:column}
 .right{padding:14px;gap:14px;overflow-y:auto}
-.main{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;min-width:0}
+.main{display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto;min-width:0}
 
 .brand{
   padding:18px 15px 16px;
@@ -150,7 +151,7 @@ body:before{
   gap:9px;
 }
 
-.nav button,.primary,.ghost,.tool-btn,.quick button{
+.nav button,.primary,.ghost,.tool-btn,.quick button,.mini-btn{
   border:1px solid var(--line);
   background:linear-gradient(180deg,rgba(217,164,65,.10),rgba(0,0,0,.25));
   color:var(--text);
@@ -163,7 +164,7 @@ body:before{
   font-size:13px;
 }
 
-.nav button:hover,.primary:hover,.ghost:hover,.tool-btn:hover,.quick button:hover{
+.nav button:hover,.primary:hover,.ghost:hover,.tool-btn:hover,.quick button:hover,.mini-btn:hover{
   border-color:var(--gold2);
   box-shadow:0 0 18px rgba(217,164,65,.22);
   color:var(--gold2);
@@ -295,11 +296,11 @@ body:before{
   margin:14px 16px 0;
   border:1px solid var(--line);
   border-radius:20px;
-  height:235px;
+  height:185px;
   background:
-    linear-gradient(90deg,rgba(0,0,0,.56),rgba(0,0,0,.18),rgba(0,0,0,.56)),
-    radial-gradient(circle at 50% 31%,rgba(255,206,98,.48),transparent 10%),
-    radial-gradient(circle at 50% 28%,rgba(255,206,98,.19),transparent 24%),
+    linear-gradient(90deg,rgba(0,0,0,.62),rgba(0,0,0,.20),rgba(0,0,0,.62)),
+    radial-gradient(circle at 50% 31%,rgba(255,206,98,.43),transparent 11%),
+    radial-gradient(circle at 50% 28%,rgba(255,206,98,.15),transparent 26%),
     linear-gradient(135deg,rgba(217,164,65,.14),rgba(0,0,0,.2)),
     repeating-linear-gradient(90deg,rgba(217,164,65,.07) 0 1px,transparent 1px 52px);
   overflow:hidden;
@@ -318,7 +319,7 @@ body:before{
   top:26px;
   bottom:26px;
   width:38%;
-  opacity:.42;
+  opacity:.38;
   background:
     linear-gradient(180deg,transparent 0 20%,rgba(217,164,65,.35) 20% 22%,transparent 22% 100%),
     repeating-linear-gradient(90deg,transparent 0 18px,rgba(255,206,98,.34) 18px 23px,transparent 23px 36px);
@@ -329,8 +330,8 @@ body:before{
 
 .hero-mark{
   position:relative;
-  width:145px;
-  height:84px;
+  width:120px;
+  height:60px;
   margin:0 auto 4px;
   display:flex;
   align-items:center;
@@ -342,41 +343,90 @@ body:before{
 .hero-mark .hammer{
   position:absolute;
   top:-8px;
-  right:30px;
+  right:23px;
   transform:rotate(40deg);
-  font-size:41px;
+  font-size:34px;
 }
 
 .hero-mark .anvil{
-  font-size:86px;
+  font-size:62px;
   line-height:1;
   font-weight:900;
 }
 
 .hero h2{
-  margin:3px 0 2px;
-  font-size:40px;
+  margin:0;
+  font-size:34px;
   line-height:1;
   letter-spacing:3px;
   color:var(--gold2);
 }
 
 .hero .forge-big{
-  font-size:19px;
-  letter-spacing:9px;
+  font-size:15px;
+  letter-spacing:8px;
   color:#fff;
   margin-top:5px;
   font-weight:900;
 }
 
 .hero p{
-  margin:12px 0 0;
+  margin:9px 0 0;
   color:var(--gold2);
   letter-spacing:3px;
   text-transform:uppercase;
-  font-size:12px;
+  font-size:11px;
   font-weight:900;
 }
+
+.cockpit{
+  margin:14px 16px 0;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+}
+
+.kpi{
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:11px 12px;
+  background:linear-gradient(180deg,rgba(255,206,98,.08),rgba(0,0,0,.25));
+  min-width:0;
+}
+
+.kpi span{
+  display:block;
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:1px;
+  text-transform:uppercase;
+  font-weight:900;
+  margin-bottom:6px;
+}
+
+.kpi b{
+  display:block;
+  color:var(--gold2);
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.kpi small{
+  display:block;
+  color:var(--muted2);
+  margin-top:4px;
+  font-size:11px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.kpi.ok b{color:var(--ok)}
+.kpi.warn b{color:var(--warn)}
+.kpi.danger b{color:var(--danger)}
+.kpi.blue b{color:var(--blue)}
 
 .chat{
   overflow-y:auto;
@@ -492,7 +542,6 @@ body:before{
 }
 
 .preview .meta{font-size:12px;color:var(--muted);flex:1}
-
 .input{display:flex;gap:10px;align-items:flex-end}
 
 textarea{
@@ -588,9 +637,9 @@ textarea:focus{
 .agent b{font-size:13px;text-transform:uppercase}
 .agent span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
 
-.mem-list{display:flex;flex-direction:column;gap:8px}
+.mem-list,.signal-list,.market-list,.news-list{display:flex;flex-direction:column;gap:8px}
 
-.mem{
+.mem,.signal-card,.market-row,.news-row{
   border:1px solid rgba(217,164,65,.18);
   border-radius:10px;
   padding:10px;
@@ -598,6 +647,34 @@ textarea:focus{
   font-size:12px;
   background:rgba(255,255,255,.02);
 }
+
+.signal-card b,.market-row b,.news-row b{color:var(--gold2)}
+.signal-card .big{font-size:18px;font-weight:950;color:var(--gold2)}
+.signal-card .buy{color:var(--ok)}
+.signal-card .sell{color:var(--danger)}
+.signal-card .none{color:var(--warn)}
+
+.market-row{
+  display:grid;
+  grid-template-columns:70px 1fr auto;
+  gap:8px;
+  align-items:center;
+}
+
+.badge{
+  display:inline-block;
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:2px 7px;
+  font-size:10px;
+  color:var(--gold2);
+  font-weight:900;
+}
+
+.badge.ok{color:var(--ok);border-color:rgba(99,230,109,.35)}
+.badge.warn{color:var(--warn);border-color:rgba(255,184,77,.35)}
+.badge.danger{color:var(--danger);border-color:rgba(255,90,95,.35)}
+.badge.blue{color:var(--blue);border-color:rgba(113,183,255,.35)}
 
 .quick{display:flex;flex-direction:column;gap:9px}
 .quick button{text-align:center;text-transform:uppercase;font-size:12px}
@@ -708,10 +785,10 @@ textarea:focus{
 .warn{font-size:12px;color:var(--muted);line-height:1.5}
 .hidden{display:none!important}
 
-@media(max-width:1250px){
-  .app{grid-template-columns:245px minmax(420px,1fr) 292px}
+@media(max-width:1300px){
+  .app{grid-template-columns:245px minmax(420px,1fr) 310px}
   .topbar{grid-template-columns:230px 1fr 220px}
-  .hero h2{font-size:36px}
+  .cockpit{grid-template-columns:repeat(3,1fr)}
 }
 
 @media(max-width:1050px){
@@ -725,12 +802,9 @@ textarea:focus{
   .topbar{grid-template-columns:1fr;align-items:stretch}
   .title{text-align:left}
   .worker-card small{max-width:100%}
-  .hero{height:220px}
+  .hero{height:190px}
   .hero h2{font-size:30px}
-  .hero-mark{width:120px;height:76px}
-  .hero-mark .anvil{font-size:76px}
-  .hero-mark .hammer{font-size:34px;right:24px}
-  .hero .forge-big{font-size:16px;letter-spacing:7px}
+  .cockpit{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -754,6 +828,7 @@ textarea:focus{
       <button onclick="openAgentsModal()">⚙ Agents</button>
       <button onclick="openMemoryModal()">⬢ Mémoire</button>
       <button onclick="checkSystemHealth()">🧠 System Health</button>
+      <button onclick="refreshCockpit()">📡 Refresh Cockpit</button>
       <button onclick="exportData()">⬇ Exporter</button>
       <button onclick="importDataPrompt()">⬆ Importer</button>
       <input id="importFile" type="file" accept="application/json" class="hidden" />
@@ -812,8 +887,8 @@ textarea:focus{
       </div>
 
       <div class="title">
-        <h1>TORINVEST AI</h1>
-        <p>Ton assistant trading intelligent</p>
+        <h1>TORINVEST AI TERMINAL</h1>
+        <p>Cockpit IA — macro, smart money, signaux, risque et exécution.</p>
       </div>
 
       <div class="worker-card">
@@ -835,6 +910,34 @@ textarea:focus{
         <h2>TORINVEST</h2>
         <div class="forge-big">LA FORGE</div>
         <p>Trader • Investir • Forger ton avenir</p>
+      </div>
+    </section>
+
+    <section class="cockpit">
+      <div class="kpi" id="kpiRegime">
+        <span>Macro regime</span>
+        <b>MIXTE</b>
+        <small>En attente Worker</small>
+      </div>
+      <div class="kpi" id="kpiNews">
+        <span>News risk</span>
+        <b>N/A</b>
+        <small>Flux news</small>
+      </div>
+      <div class="kpi" id="kpiSignal">
+        <span>Signal actif</span>
+        <b>N/A</b>
+        <small>Multi-actifs</small>
+      </div>
+      <div class="kpi" id="kpiReadiness">
+        <span>Readiness</span>
+        <b>N/A</b>
+        <small>Smart money</small>
+      </div>
+      <div class="kpi" id="kpiHealth">
+        <span>System health</span>
+        <b>NON TESTÉ</b>
+        <small>Worker / KV / IA</small>
       </div>
     </section>
 
@@ -870,6 +973,30 @@ textarea:focus{
   <aside class="right" id="rightPanel">
     <div class="panel">
       <div class="panel-head">
+        <div class="small-title">Signal Center</div>
+        <div class="plus" onclick="refreshCockpit()">↻</div>
+      </div>
+      <div class="signal-list" id="signalCenter"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="small-title">Market Map</div>
+        <div class="plus" onclick="refreshCockpit()">↻</div>
+      </div>
+      <div class="market-list" id="marketMap"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="small-title">Smart Money Engine</div>
+        <div class="plus" onclick="quick('Analyse le Smart Money Engine actuel : structure, liquidité, sweep, inducement, MSS/BOS/CHOCH, FVG/OB, readiness et invalidation.')">+</div>
+      </div>
+      <div id="smartMoneyPanel" style="font-size:12px;color:var(--muted);line-height:1.55">En attente du contexte Worker.</div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
         <div class="small-title">Agents spécialisés</div>
         <div class="plus" onclick="openAgentsModal()">+</div>
       </div>
@@ -903,19 +1030,10 @@ textarea:focus{
 
     <div class="panel quick">
       <div class="small-title">Outils rapides</div>
-      <button onclick="quick('Trouve-moi un setup GOLD/XAUUSD ce matin avec données Worker, volumeContext, MTF, news, scénario principal et invalidation.')">Nouvelle analyse</button>
-      <button onclick="quick('Crée un plan de backtest complet pour cette stratégie avec règles, filtres, invalidation et métriques.')">Backtest stratégie</button>
+      <button onclick="quick('Trouve-moi un setup GOLD/XAUUSD avec données Worker, volumeContext, MTF, news, scénario principal et invalidation.')">Setup GOLD</button>
+      <button onclick="quick('Analyse BTCUSD avec le cockpit Worker : MTF, risk appetite, Nasdaq, DXY, volumeContext, signal actif et invalidation.')">Analyse BTC</button>
+      <button onclick="quick('Analyse EURUSD avec différentiel macro, DXY, MTF, volumeContext, signal actif et scénario London/NY.')">Analyse EURUSD</button>
       <button onclick="quick('Calcule-moi une position avec capital, risque %, SL en points/pips, lot, perte max et R:R.')">Calculateur position</button>
-      <button onclick="quick('Analyse le calendrier économique du jour et dis-moi les news dangereuses pour le gold, EURUSD et indices.')">Économie calendrier</button>
-    </div>
-
-    <div class="panel">
-      <div class="small-title">Thème</div>
-      <div class="theme-row">
-        <div class="theme-btn">☀</div>
-        <div class="theme-btn">☾</div>
-        <div class="theme-btn">☼</div>
-      </div>
     </div>
   </aside>
 </div>
@@ -967,9 +1085,12 @@ const WORKER_STATUS_URL=WORKER_BASE_URL+"/ai/status";
 const WORKER_HEALTH_URL=WORKER_BASE_URL+"/system/health?token="+encodeURIComponent(COPY_TOKEN);
 const WORKER_AGENT_CONTEXT_URL=WORKER_BASE_URL+"/agent/context";
 const WORKER_COPY_SIGNAL_URL=WORKER_BASE_URL+"/copy/signal";
+const WORKER_MARKET_CONTEXT_URL=WORKER_BASE_URL+"/market/context";
+const WORKER_NEWS_LATEST_URL=WORKER_BASE_URL+"/news/latest";
 
-const STORAGE_KEY="torinvest_forge_ai_v4_4_stable_complete";
+const STORAGE_KEY="torinvest_forge_ai_terminal_v5_complete";
 const LEGACY_STORAGE_KEYS=[
+  "torinvest_forge_ai_v4_4_stable_complete",
   "torinvest_forge_ai_v4_3_fixed_complete",
   "torinvest_forge_ai_v4_da_complete",
   "torinvest_forge_ai_v3_agent_ready",
@@ -978,6 +1099,8 @@ const LEGACY_STORAGE_KEYS=[
 ];
 
 const VISION_MODEL="pixtral-large-latest";
+
+const WATCH_SYMBOLS=["XAUUSD","EURUSD","BTCUSD","NASDAQ","USDJPY"];
 
 const MODELS=[
   {id:"mistral-large-latest",name:"Mistral Large — analyse profonde"},
@@ -1092,6 +1215,10 @@ let recognition=null;
 let isRecording=false;
 let voiceBaseText="";
 let voiceFinalText="";
+let lastAgentContext=null;
+let lastMarketContext=null;
+let lastNewsContext=null;
+let lastSignals={};
 
 function defaultState(){
   return{
@@ -1122,12 +1249,10 @@ function loadState(){
   try{
     const cur=localStorage.getItem(STORAGE_KEY);
     if(cur)return normalizeState(JSON.parse(cur));
-
     for(const k of LEGACY_STORAGE_KEYS){
       const v=localStorage.getItem(k);
       if(v)return normalizeState(JSON.parse(v));
     }
-
     return defaultState();
   }catch{
     return defaultState();
@@ -1147,39 +1272,24 @@ function save(){
   try{
     const clean={
       ...state,
-      messages:state.messages
-        .filter(m=>!m.loading)
-        .slice(-40)
-        .map(m=>compactMessage(m,12000)),
-      chats:state.chats
-        .slice(0,20)
-        .map(c=>({
-          id:c.id,
-          title:String(c.title||"Conversation").slice(0,80),
-          ts:c.ts||Date.now(),
-          messages:Array.isArray(c.messages)
-            ? c.messages.slice(-25).map(m=>compactMessage(m,8000))
-            : []
-        })),
-      memory:state.memory
-        .slice(-60)
-        .map(m=>({
-          text:String(m.text||"").slice(0,500),
-          ts:m.ts||Date.now()
-        }))
+      messages:state.messages.filter(m=>!m.loading).slice(-40).map(m=>compactMessage(m,12000)),
+      chats:state.chats.slice(0,20).map(c=>({
+        id:c.id,
+        title:String(c.title||"Conversation").slice(0,80),
+        ts:c.ts||Date.now(),
+        messages:Array.isArray(c.messages)?c.messages.slice(-25).map(m=>compactMessage(m,8000)):[]
+      })),
+      memory:state.memory.slice(-60).map(m=>({
+        text:String(m.text||"").slice(0,500),
+        ts:m.ts||Date.now()
+      }))
     };
-
     localStorage.setItem(STORAGE_KEY,JSON.stringify(clean));
     state=clean;
   }catch(e){
     console.warn("Storage protected:",e);
-
     try{
-      state.messages=state.messages
-        .filter(m=>!m.loading)
-        .slice(-12)
-        .map(m=>compactMessage(m,4000));
-
+      state.messages=state.messages.filter(m=>!m.loading).slice(-12).map(m=>compactMessage(m,4000));
       state.chats=[];
       state.memory=state.memory.slice(-20);
       localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
@@ -1187,13 +1297,10 @@ function save(){
       localStorage.removeItem(STORAGE_KEY);
     }
   }
-
   renderStats();
 }
 
-function agent(){
-  return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0];
-}
+function agent(){return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0]}
 
 function escapeHtml(s){
   return String(s??"").replace(/[&<>"]/g,m=>({
@@ -1209,21 +1316,34 @@ function fmtNum(v,d=2){
   return Number.isFinite(n)?n.toFixed(d):"N/A";
 }
 
-function fmtRaw(v){
-  return v===null||v===undefined||v===""?"N/A":String(v);
+function fmtRaw(v){return v===null||v===undefined||v===""?"N/A":String(v)}
+
+function safeClassFromValue(v){
+  const s=String(v||"").toUpperCase();
+  if(s.includes("EXTREME")||s.includes("EXTRÊME")||s.includes("SELL")||s.includes("BEAR")||s.includes("OFF"))return"danger";
+  if(s.includes("HIGH")||s.includes("ÉLEVÉ")||s.includes("WARNING")||s.includes("WATCH")||s.includes("NONE"))return"warn";
+  if(s.includes("BUY")||s.includes("BULL")||s.includes("ON")||s.includes("OK")||s.includes("VALID"))return"ok";
+  return"blue";
 }
 
 function setDot(id,status){
   const dot=document.getElementById(id);
   if(!dot)return;
-
   dot.classList.remove("off","warn","critical","recording");
-
   if(status==="ok")return;
   if(status==="warn")dot.classList.add("warn");
   else if(status==="critical")dot.classList.add("critical");
   else if(status==="recording")dot.classList.add("recording");
   else dot.classList.add("off");
+}
+
+function setKpi(id,value,sub,cls){
+  const box=document.getElementById(id);
+  if(!box)return;
+  box.classList.remove("ok","warn","danger","blue");
+  if(cls)box.classList.add(cls);
+  box.querySelector("b").textContent=value??"N/A";
+  box.querySelector("small").textContent=sub??"";
 }
 
 function setHealthSidebarStatus(status,label){
@@ -1233,24 +1353,28 @@ function setHealthSidebarStatus(status,label){
   if(s==="OK"){
     setDot("healthDot","ok");
     t.innerHTML=`${label||"Health OK"}<br><small>/system/health</small>`;
+    setKpi("kpiHealth","OK","Système opérationnel","ok");
   }else if(s==="WARNING"){
     setDot("healthDot","warn");
     t.innerHTML=`${label||"Health WARNING"}<br><small>/system/health</small>`;
+    setKpi("kpiHealth","WARNING","Surveillance requise","warn");
   }else if(s==="CRITICAL"){
     setDot("healthDot","critical");
     t.innerHTML=`${label||"Health CRITICAL"}<br><small>/system/health</small>`;
+    setKpi("kpiHealth","CRITICAL","Action immédiate","danger");
   }else if(s==="LOADING"){
     setDot("healthDot","warn");
     t.innerHTML=`${label||"Health en analyse"}<br><small>/system/health</small>`;
+    setKpi("kpiHealth","SCAN","Diagnostic en cours","warn");
   }else{
     setDot("healthDot","off");
     t.innerHTML=`${label||"Health non testé"}<br><small>/system/health</small>`;
+    setKpi("kpiHealth","NON TESTÉ","Worker / KV / IA","blue");
   }
 }
 
 function setVolumeSidebarStatus(ok,count){
   const t=document.getElementById("volumeStatusText");
-
   if(ok){
     setDot("volumeDot","ok");
     t.innerHTML=`Volume actif<br><small>${count} actif(s) nourri(s)</small>`;
@@ -1262,7 +1386,6 @@ function setVolumeSidebarStatus(ok,count){
 
 function setAgentContextSidebarStatus(ok,label){
   const t=document.getElementById("agentContextStatusText");
-
   if(ok){
     setDot("agentContextDot","ok");
     t.innerHTML=`Agent context actif<br><small>${escapeHtml(label||"/agent/context")}</small>`;
@@ -1310,6 +1433,9 @@ function render(){
   renderMemory();
   renderStats();
   renderImagePreview();
+  renderSignalCenter();
+  renderMarketMap();
+  renderSmartMoneyPanel();
 
   const short=WORKER_AI_URL.replace("https://","").slice(0,34)+"…";
   document.getElementById("workerShort").textContent=short;
@@ -1325,10 +1451,7 @@ function renderModels(){
   const s=document.getElementById("modelSelect");
   s.innerHTML=MODELS.map(m=>`<option value="${m.id}">${m.name}</option>`).join("");
   s.value=state.model;
-  s.onchange=()=>{
-    state.model=s.value;
-    save();
-  };
+  s.onchange=()=>{state.model=s.value;save()};
 }
 
 function renderAgents(){
@@ -1338,7 +1461,6 @@ function renderAgents(){
       <div><b>${a.name}</b><span>${a.desc}</span></div>
     </div>
   `).join("");
-
   document.getElementById("agentsList").innerHTML=html;
   document.getElementById("agentsModalList").innerHTML=html;
   document.getElementById("statAgents").textContent=AGENTS.length;
@@ -1353,18 +1475,16 @@ function setAgent(id){
 
 function renderChat(){
   const c=document.getElementById("chat");
-
   if(!state.messages.length){
     state.messages=[{
       role:"assistant",
-      content:"Bonjour Trader. Je suis ton assistant IA spécialisé en trading et investissement.\n\nPose-moi une question sur les marchés, une analyse technique, une stratégie ou toute autre demande.",
+      content:"Bienvenue dans TORINVEST AI Terminal.\n\nLe cockpit est branché sur le Worker : /agent/context, /copy/signal, /market/context, /news/latest et /system/health.\n\nDemande-moi une analyse GOLD, EURUSD, BTC, USDJPY ou NASDAQ.",
       ts:Date.now()
     }];
   }
 
   c.innerHTML=state.messages.map(m=>{
     const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="image envoyée">`:"";
-
     return `
       <div class="msg ${m.role}">
         <div class="label">${m.role==="user"?"VOUS":"TORINVEST AI"}</div>
@@ -1403,14 +1523,99 @@ function renderStats(){
   document.getElementById("statSize").textContent=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1)+" KB";
 }
 
+function renderSignalCenter(){
+  const box=document.getElementById("signalCenter");
+  if(!box)return;
+
+  const html=WATCH_SYMBOLS.map(sym=>{
+    const s=lastSignals[sym];
+    const action=s?.action||"N/A";
+    const cls=String(action).toUpperCase()==="BUY"?"buy":String(action).toUpperCase()==="SELL"?"sell":"none";
+    const readiness=s?.execution_readiness||s?.readiness||s?.smart_money?.execution_readiness||"N/A";
+    const conf=s?.confidence??"N/A";
+    const executable=s?.validation?.executable??s?.executable??"N/A";
+
+    return `
+      <div class="signal-card">
+        <b>${sym}</b><br>
+        <span class="big ${cls}">${escapeHtml(action)}</span>
+        <span class="badge ${safeClassFromValue(readiness)}">${escapeHtml(readiness)}</span><br>
+        Confiance : ${escapeHtml(conf)} / Exécutable : ${escapeHtml(executable)}
+      </div>
+    `;
+  }).join("");
+
+  box.innerHTML=html || '<div class="signal-card">Aucun signal chargé.</div>';
+
+  const firstSignal=WATCH_SYMBOLS.map(s=>lastSignals[s]).find(s=>s&&s.action&&s.action!=="NONE");
+  if(firstSignal){
+    setKpi("kpiSignal",`${firstSignal.symbol||"ACTIF"} ${firstSignal.action}`,"Signal actif détecté",safeClassFromValue(firstSignal.action));
+    setKpi("kpiReadiness",firstSignal.execution_readiness||"N/A","Dernier signal",safeClassFromValue(firstSignal.execution_readiness));
+  }
+}
+
+function renderMarketMap(){
+  const box=document.getElementById("marketMap");
+  if(!box)return;
+
+  const data=lastMarketContext?.data||{};
+  const html=WATCH_SYMBOLS.map(sym=>{
+    const m=data[sym];
+    const price=m?.price??"N/A";
+    const change=m?.changePct;
+    const bias=m?.mtfContext?.bias||m?.mtf_context?.bias||"N/A";
+    const vol=m?.volumeContext?.volumeSignal||m?.volume_context?.volume_signal||"N/A";
+    const changeTxt=typeof change==="number"?`${change.toFixed(2)}%`:"N/A";
+    return `
+      <div class="market-row">
+        <b>${sym}</b>
+        <span>${escapeHtml(price)}<br><small>${escapeHtml(bias)} / ${escapeHtml(vol)}</small></span>
+        <span class="badge ${change>0?"ok":change<0?"danger":"blue"}">${escapeHtml(changeTxt)}</span>
+      </div>
+    `;
+  }).join("");
+
+  box.innerHTML=html || '<div class="market-row">Market data indisponible.</div>';
+
+  const sentiment=lastMarketContext?.sentiment;
+  if(sentiment){
+    setKpi("kpiRegime",sentiment.regime||"MIXTE",`Score ${sentiment.score??"N/A"}`,safeClassFromValue(sentiment.regime));
+  }
+}
+
+function renderSmartMoneyPanel(){
+  const box=document.getElementById("smartMoneyPanel");
+  if(!box)return;
+
+  const ctx=lastAgentContext;
+  const sm=ctx?.smartMoneyEngine||ctx?.smart_money_engine||ctx?.smartMoney||{};
+  const signal=ctx?.latestSignal||ctx?.signal||null;
+
+  const bias=sm?.smart_money_bias||sm?.bias||signal?.smart_money_bias||"N/A";
+  const phase=sm?.market_phase||signal?.market_phase||"N/A";
+  const readiness=sm?.execution_readiness||sm?.readiness||signal?.execution_readiness||"N/A";
+  const sweep=sm?.liquidity_sweep_detected??signal?.liquidity_sweep_detected??"N/A";
+  const inducement=sm?.inducement_detected??signal?.inducement_detected??"N/A";
+
+  box.innerHTML=`
+    <div class="health-line">
+      <b>Bias</b> : ${escapeHtml(bias)}<br>
+      <b>Phase</b> : ${escapeHtml(phase)}<br>
+      <b>Readiness</b> : <span class="badge ${safeClassFromValue(readiness)}">${escapeHtml(readiness)}</span><br>
+      <b>Sweep</b> : ${escapeHtml(sweep)}<br>
+      <b>Inducement</b> : ${escapeHtml(inducement)}
+    </div>
+  `;
+
+  if(readiness!=="N/A")setKpi("kpiReadiness",readiness,"Smart Money Engine",safeClassFromValue(readiness));
+}
+
 function renderImagePreview(){
   const box=document.getElementById("imagePreviewBox");
-
   if(!pendingImage){
     box.classList.remove("open");
     return;
   }
-
   document.getElementById("imagePreview").src=pendingImage.dataUrl;
   document.getElementById("imageMeta").textContent=`${pendingImage.name} • ${Math.round(pendingImage.size/1024)} KB`;
   box.classList.add("open");
@@ -1419,12 +1624,10 @@ function renderImagePreview(){
 async function handleImagePick(e){
   const file=e.target.files[0];
   if(!file)return;
-
   if(!file.type.startsWith("image/")){
     alert("Fichier image uniquement.");
     return;
   }
-
   pendingImage=await compressImage(file);
   renderImagePreview();
   e.target.value="";
@@ -1434,44 +1637,24 @@ function compressImage(file){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
     reader.onerror=reject;
-
     reader.onload=()=>{
       const img=new Image();
-
       img.onload=()=>{
         const max=1000;
-        let w=img.width;
-        let h=img.height;
-
-        if(w>h&&w>max){
-          h=Math.round(h*max/w);
-          w=max;
-        }else if(h>w&&h>max){
-          w=Math.round(w*max/h);
-          h=max;
-        }else if(w>max){
-          w=max;
-          h=max;
-        }
-
+        let w=img.width,h=img.height;
+        if(w>h&&w>max){h=Math.round(h*max/w);w=max}
+        else if(h>w&&h>max){w=Math.round(w*max/h);h=max}
+        else if(w>max){w=max;h=max}
         const canvas=document.createElement("canvas");
         canvas.width=w;
         canvas.height=h;
         canvas.getContext("2d").drawImage(img,0,0,w,h);
-
         const dataUrl=canvas.toDataURL("image/jpeg",.74);
-
-        resolve({
-          name:file.name,
-          size:Math.round(dataUrl.length*.75),
-          dataUrl
-        });
+        resolve({name:file.name,size:Math.round(dataUrl.length*.75),dataUrl});
       };
-
       img.onerror=reject;
       img.src=reader.result;
     };
-
     reader.readAsDataURL(file);
   });
 }
@@ -1481,9 +1664,7 @@ function clearPendingImage(){
   renderImagePreview();
 }
 
-function getSpeechRecognitionConstructor(){
-  return window.SpeechRecognition||window.webkitSpeechRecognition||null;
-}
+function getSpeechRecognitionConstructor(){return window.SpeechRecognition||window.webkitSpeechRecognition||null}
 
 function explainSpeechError(code){
   return ({
@@ -1532,13 +1713,11 @@ function toggleVoice(){
 
     recognition.onresult=e=>{
       let interim="";
-
       for(let i=e.resultIndex;i<e.results.length;i++){
         const txt=e.results[i][0].transcript;
         if(e.results[i].isFinal)voiceFinalText+=" "+txt;
         else interim+=" "+txt;
       }
-
       input.value=(voiceBaseText+" "+voiceFinalText+" "+interim).replace(/\s+/g," ").trim();
     };
 
@@ -1591,7 +1770,6 @@ function detectSymbolFromText(text){
 
 function detectModeFromText(text){
   const t=String(text||"").toLowerCase();
-
   return state.agentId==="scalp"||
     t.includes("scalp")||
     t.includes("m1")||
@@ -1606,22 +1784,10 @@ function detectModeFromText(text){
 
 async function fetchLatestSignal(symbol){
   try{
-    const url=
-      WORKER_COPY_SIGNAL_URL+
-      "?token="+encodeURIComponent(COPY_TOKEN)+
-      "&symbol="+encodeURIComponent(symbol);
-
+    const url=WORKER_COPY_SIGNAL_URL+"?token="+encodeURIComponent(COPY_TOKEN)+"&symbol="+encodeURIComponent(symbol);
     const res=await fetch(url,{method:"GET"});
-
-    const data=await res.json().catch(()=>({
-      ok:false,
-      error:"Réponse signal non JSON"
-    }));
-
-    if(!res.ok||data.ok===false){
-      return null;
-    }
-
+    const data=await res.json().catch(()=>({ok:false,error:"Réponse signal non JSON"}));
+    if(!res.ok||data.ok===false)return null;
     return data.signal||null;
   }catch(e){
     return null;
@@ -1639,11 +1805,7 @@ async function fetchAgentContextForMessage(text){
     "&token="+encodeURIComponent(COPY_TOKEN);
 
   const res=await fetch(url);
-
-  const data=await res.json().catch(()=>({
-    ok:false,
-    error:"Réponse /agent/context non JSON"
-  }));
+  const data=await res.json().catch(()=>({ok:false,error:"Réponse /agent/context non JSON"}));
 
   if(!res.ok||data.ok===false){
     throw new Error(data.error||data.message||"Erreur /agent/context");
@@ -1652,14 +1814,17 @@ async function fetchAgentContextForMessage(text){
   setAgentContextSidebarStatus(true,`${symbol} / ${mode}`);
 
   data.latestSignal=await fetchLatestSignal(symbol);
+  lastAgentContext=data;
+  if(data.latestSignal)lastSignals[symbol]=data.latestSignal;
+
+  renderSignalCenter();
+  renderSmartMoneyPanel();
 
   return data;
 }
 
 function summarizeAgentContext(ctx){
-  if(!ctx||ctx.ok===false){
-    return "Contexte Worker indisponible.";
-  }
+  if(!ctx||ctx.ok===false)return "Contexte Worker indisponible.";
 
   const target=ctx.market?.targetAsset||null;
   const signal=ctx.latestSignal||ctx.signal||null;
@@ -1675,8 +1840,8 @@ function summarizeAgentContext(ctx){
     `TF : ${target?.tf??"N/A"}`,
     `Volume : ${target?.volumeContext?.volumeRegime??"N/A"} / ${target?.volumeContext?.volumeSignal??"N/A"}`,
     `MTF : ${target?.mtfContext?.bias??"N/A"} / score ${target?.mtfContext?.directionalScore??"N/A"}`,
-    `Smart Money Bias : ${sm?.smart_money_bias??sm?.bias??"N/A"}`,
-    `Readiness : ${sm?.execution_readiness??sm?.readiness??"N/A"}`,
+    `Smart Money Bias : ${sm?.smart_money_bias??sm?.bias??signal?.smart_money_bias??"N/A"}`,
+    `Readiness : ${sm?.execution_readiness??sm?.readiness??signal?.execution_readiness??"N/A"}`,
     `Signal actif multi-actif : ${signal?.symbol??"N/A"} / ${signal?.action??"N/A"} / executable ${signal?.validation?.executable??signal?.executable??"N/A"}`,
     `Dernière décision IA : ${ai?.symbol??"N/A"} / ${ai?.action??"N/A"}`,
     `News risk : ${news?.risk?.regime??"N/A"} / score ${news?.risk?.score??"N/A"}`
@@ -1685,14 +1850,7 @@ function summarizeAgentContext(ctx){
 
 function buildMessages(agentContext=null){
   const mem=state.memory.slice(-8).map(m=>"- "+m.text).join("\n");
-
-  const today=new Date().toLocaleDateString("fr-FR",{
-    weekday:"long",
-    year:"numeric",
-    month:"long",
-    day:"numeric"
-  });
-
+  const today=new Date().toLocaleDateString("fr-FR",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
   const workerContext=agentContext?JSON.stringify(agentContext,null,2):"Aucun contexte Worker récupéré.";
   const workerSummary=summarizeAgentContext(agentContext);
 
@@ -1723,32 +1881,24 @@ ${mem||"Aucune."}`;
 
   return[
     {role:"system",content:sys},
-    ...state.messages
-      .filter(m=>!m.loading)
-      .slice(-12)
-      .map(m=>{
-        if(m.role==="user"&&m.imageDataUrl){
-          return{
-            role:"user",
-            content:[
-              {type:"text",text:m.content||"Analyse cette image."},
-              {type:"image_url",image_url:m.imageDataUrl}
-            ]
-          };
-        }
-
+    ...state.messages.filter(m=>!m.loading).slice(-12).map(m=>{
+      if(m.role==="user"&&m.imageDataUrl){
         return{
-          role:m.role,
-          content:m.content
+          role:"user",
+          content:[
+            {type:"text",text:m.content||"Analyse cette image."},
+            {type:"image_url",image_url:m.imageDataUrl}
+          ]
         };
-      })
+      }
+      return{role:m.role,content:m.content};
+    })
   ];
 }
 
 async function sendMessage(){
   const input=document.getElementById("userInput");
   const text=input.value.trim();
-
   if(!text&&!pendingImage)return;
 
   if(isRecording&&recognition){
@@ -1786,11 +1936,7 @@ async function sendMessage(){
       agentContext=await fetchAgentContextForMessage(userContent);
     }catch(ctxErr){
       setAgentContextSidebarStatus(false);
-      agentContext={
-        ok:false,
-        error:ctxErr.message,
-        warning:"/agent/context indisponible."
-      };
+      agentContext={ok:false,error:ctxErr.message,warning:"/agent/context indisponible."};
     }
 
     const modelToUse=imageToSend?VISION_MODEL:state.model;
@@ -1807,35 +1953,23 @@ async function sendMessage(){
       })
     });
 
-    const data=await res.json().catch(()=>({
-      error:"Réponse Worker non JSON"
-    }));
-
-    if(!res.ok){
-      throw new Error(data.error||data.message||"Erreur Worker");
-    }
+    const data=await res.json().catch(()=>({error:"Réponse Worker non JSON"}));
+    if(!res.ok)throw new Error(data.error||data.message||"Erreur Worker");
 
     const reply=data.choices?.[0]?.message?.content||data.reply||"Aucune réponse.";
 
     state.messages=state.messages.filter(m=>!m.loading);
-
-    state.messages.push({
-      role:"assistant",
-      content:reply,
-      ts:Date.now()
-    });
+    state.messages.push({role:"assistant",content:reply,ts:Date.now()});
 
     save();
     renderChat();
   }catch(e){
     state.messages=state.messages.filter(m=>!m.loading);
-
     state.messages.push({
       role:"assistant",
       content:"⚠ Erreur : "+e.message+"\n\nVérifie /agent/context, /ai/chat et /ai/status.",
       ts:Date.now()
     });
-
     save();
     renderChat();
   }
@@ -1843,7 +1977,6 @@ async function sendMessage(){
 
 function renderVolumeContextFromAny(obj){
   const vc=obj?.volumeContext||obj?.volume_context||obj?.targetAsset?.volumeContext;
-
   if(!vc)return'<span class="health-warning">Non disponible</span>';
 
   return`
@@ -1883,7 +2016,6 @@ function renderHealthData(data){
 
   if(ex){
     const gap=typeof ex.priceGap==="number"?Number(ex.priceGap).toFixed(2):"N/A";
-
     html+=`
       <div class="health-line">
         <b>Trading / MT5</b><br>
@@ -1916,7 +2048,6 @@ function renderHealthData(data){
 
   if(checks.volume){
     const vol=checks.volume;
-
     html+=`
       <div class="health-line">
         <b>Volume Engine</b><br>
@@ -1972,22 +2103,13 @@ function renderHealthData(data){
 
 async function checkSystemHealth(){
   const box=document.getElementById("healthBox");
-
   if(box)box.innerHTML="Analyse en cours...";
-
   setHealthSidebarStatus("LOADING","Health en analyse");
 
   try{
     const res=await fetch(WORKER_HEALTH_URL);
-
-    const data=await res.json().catch(()=>({
-      ok:false,
-      error:"Réponse /system/health non JSON"
-    }));
-
-    if(!res.ok||data.ok===false){
-      throw new Error(data.error||data.message||"Erreur /system/health");
-    }
+    const data=await res.json().catch(()=>({ok:false,error:"Réponse /system/health non JSON"}));
+    if(!res.ok||data.ok===false)throw new Error(data.error||data.message||"Erreur /system/health");
 
     const status=String(data.status||"UNKNOWN").toUpperCase();
 
@@ -2000,9 +2122,7 @@ async function checkSystemHealth(){
     );
 
     const volumeCount=data.checks?.volume?.assetsWithVolumeContext??data.checks?.volume?.assets_with_volume_context??0;
-
     setVolumeSidebarStatus(!!data.checks?.volume?.ok,volumeCount);
-
     if(box)box.innerHTML=renderHealthData(data);
 
     state.messages.push({
@@ -2020,7 +2140,6 @@ VolumeContext : ${data.checks?.volume?.ok?"ACTIF":"EN ATTENTE"} (${volumeCount} 
   }catch(e){
     setHealthSidebarStatus("CRITICAL","Health erreur");
     setVolumeSidebarStatus(false,0);
-
     if(box){
       box.innerHTML=`
         <div class="health-line">
@@ -2033,16 +2152,61 @@ VolumeContext : ${data.checks?.volume?.ok?"ACTIF":"EN ATTENTE"} (${volumeCount} 
   }
 }
 
+async function refreshCockpit(){
+  await Promise.allSettled([
+    refreshMarketContext(),
+    refreshNewsContext(),
+    refreshSignals()
+  ]);
+  renderMarketMap();
+  renderSignalCenter();
+  renderSmartMoneyPanel();
+}
+
+async function refreshMarketContext(){
+  try{
+    const res=await fetch(WORKER_MARKET_CONTEXT_URL);
+    const data=await res.json().catch(()=>({ok:false}));
+    if(res.ok&&data.ok!==false){
+      lastMarketContext=data;
+      const count=data.count??Object.keys(data.data||{}).length;
+      setVolumeSidebarStatus(count>0,count);
+      if(data.sentiment)setKpi("kpiRegime",data.sentiment.regime||"MIXTE",`Score ${data.sentiment.score??"N/A"}`,safeClassFromValue(data.sentiment.regime));
+    }
+  }catch(e){}
+}
+
+async function refreshNewsContext(){
+  try{
+    const res=await fetch(WORKER_NEWS_LATEST_URL);
+    const data=await res.json().catch(()=>({ok:false}));
+    if(res.ok&&data.ok!==false){
+      lastNewsContext=data;
+      const risk=data.risk;
+      if(risk)setKpi("kpiNews",risk.regime||"N/A",`Score ${risk.score??"N/A"}`,safeClassFromValue(risk.regime));
+    }
+  }catch(e){}
+}
+
+async function refreshSignals(){
+  const results=await Promise.all(WATCH_SYMBOLS.map(async sym=>{
+    const sig=await fetchLatestSignal(sym);
+    if(sig)lastSignals[sym]=sig;
+  }));
+  return results;
+}
+
 async function preloadStatus(){
   try{
     const res=await fetch(WORKER_STATUS_URL);
     const data=await res.json().catch(()=>({ok:false}));
-
     if(res.ok&&data.ok!==false){
       setDot("workerDot","ok");
       setDot("topWorkerDot","ok");
       const count=data.marketCount??0;
       setVolumeSidebarStatus(count>0,count);
+      if(data.sentiment)setKpi("kpiRegime",data.sentiment.regime||"MIXTE",`Score ${data.sentiment.score??"N/A"}`,safeClassFromValue(data.sentiment.regime));
+      if(data.newsRisk)setKpi("kpiNews",data.newsRisk.regime||"N/A",`Score ${data.newsRisk.score??"N/A"}`,safeClassFromValue(data.newsRisk.regime));
     }else{
       setDot("workerDot","warn");
       setDot("topWorkerDot","warn");
@@ -2055,21 +2219,19 @@ async function preloadStatus(){
   }
 
   try{
-    const res=await fetch(
-      WORKER_AGENT_CONTEXT_URL+
-      "?symbol=XAUUSD&mode=scalping&token="+encodeURIComponent(COPY_TOKEN)
-    );
-
+    const res=await fetch(WORKER_AGENT_CONTEXT_URL+"?symbol=XAUUSD&mode=scalping&token="+encodeURIComponent(COPY_TOKEN));
     const data=await res.json().catch(()=>({ok:false}));
-
     if(res.ok&&data.ok!==false){
       setAgentContextSidebarStatus(true,"XAUUSD / scalping");
+      lastAgentContext=data;
     }else{
       setAgentContextSidebarStatus(false);
     }
   }catch(e){
     setAgentContextSidebarStatus(false);
   }
+
+  refreshCockpit();
 }
 
 document.getElementById("userInput").addEventListener("keydown",e=>{
@@ -2088,7 +2250,6 @@ function newChat(){
       ts:Date.now()
     });
   }
-
   state.messages=[];
   save();
   render();
@@ -2096,20 +2257,17 @@ function newChat(){
 
 function openArchives(){
   const l=document.getElementById("archivesList");
-
   l.innerHTML=state.chats.map(c=>`
     <div class="mem" style="cursor:pointer" onclick="loadChat('${c.id}')">
       <b>${escapeHtml(c.title)}</b><br>
       <small>${new Date(c.ts).toLocaleString("fr-FR")}</small>
     </div>
   `).join("")||'<div class="mem">Aucune archive.</div>';
-
   openModal("archivesModal");
 }
 
 function loadChat(id){
   const c=state.chats.find(x=>x.id===id);
-
   if(c){
     state.messages=c.messages;
     save();
@@ -2120,14 +2278,8 @@ function loadChat(id){
 
 function addMemory(){
   const v=document.getElementById("memoryInput").value.trim();
-
   if(!v)return;
-
-  state.memory.push({
-    text:v,
-    ts:Date.now()
-  });
-
+  state.memory.push({text:v,ts:Date.now()});
   document.getElementById("memoryInput").value="";
   save();
   renderMemory();
@@ -2146,51 +2298,27 @@ function quick(t){
   document.getElementById("userInput").focus();
 }
 
-function openModal(id){
-  document.getElementById(id).classList.add("open");
-}
-
-function closeModal(id){
-  document.getElementById(id).classList.remove("open");
-}
-
-function openAgentsModal(){
-  openModal("agentsModal");
-}
-
-function openMemoryModal(){
-  renderMemory();
-  openModal("memoryModal");
-}
-
-function toggleLeft(){
-  document.getElementById("leftPanel").classList.toggle("open");
-}
-
-function toggleRight(){
-  document.getElementById("rightPanel").classList.toggle("open");
-}
+function openModal(id){document.getElementById(id).classList.add("open")}
+function closeModal(id){document.getElementById(id).classList.remove("open")}
+function openAgentsModal(){openModal("agentsModal")}
+function openMemoryModal(){renderMemory();openModal("memoryModal")}
+function toggleLeft(){document.getElementById("leftPanel").classList.toggle("open")}
+function toggleRight(){document.getElementById("rightPanel").classList.toggle("open")}
 
 function exportData(){
   const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
   const a=document.createElement("a");
-
   a.href=URL.createObjectURL(blob);
   a.download="torinvest-forge-ai-backup.json";
   a.click();
-
   URL.revokeObjectURL(a.href);
 }
 
-function importDataPrompt(){
-  document.getElementById("importFile").click();
-}
+function importDataPrompt(){document.getElementById("importFile").click()}
 
 document.getElementById("importFile").onchange=async e=>{
   const f=e.target.files[0];
-
   if(!f)return;
-
   try{
     state=normalizeState(JSON.parse(await f.text()));
     save();
