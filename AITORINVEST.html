@@ -3,31 +3,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>La Forge AI by TORINVEST</title>
+  <title>TORINVEST AI — La Forge</title>
+
   <style>
     :root{
-      --bg:#050403;
-      --panel:#11100d;
+      --bg:#030302;
+      --bg2:#080604;
+      --panel:#0b0a08;
+      --panel2:#11100d;
+      --panel3:#15120c;
       --gold:#d9a441;
       --gold2:#ffce62;
+      --gold3:#8f641d;
       --text:#f4efe3;
-      --muted:#9c9383;
-      --line:rgba(217,164,65,.27);
+      --muted:#a79d8c;
+      --muted2:#6d6559;
+      --line:rgba(217,164,65,.28);
+      --line2:rgba(255,206,98,.42);
       --danger:#ff5a5f;
       --ok:#63e66d;
+      --warn:#ffb84d;
       --shadow:0 0 28px rgba(217,164,65,.18);
+      --shadow2:0 0 45px rgba(255,206,98,.16);
       --r:18px;
+      --r2:24px;
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%;margin:0}
+
+    html,body{
+      height:100%;
+      margin:0;
+    }
 
     body{
       font-family:Inter,Segoe UI,Arial,sans-serif;
       background:
-        radial-gradient(circle at 15% 0%,rgba(217,164,65,.18),transparent 28%),
-        radial-gradient(circle at 90% 20%,rgba(255,206,98,.10),transparent 30%),
-        linear-gradient(135deg,#020201,#0a0805 55%,#020201);
+        radial-gradient(circle at 12% 0%,rgba(255,206,98,.18),transparent 27%),
+        radial-gradient(circle at 50% 10%,rgba(217,164,65,.10),transparent 36%),
+        radial-gradient(circle at 92% 20%,rgba(255,206,98,.09),transparent 32%),
+        linear-gradient(135deg,#010101,#070503 55%,#010101);
       color:var(--text);
       overflow:hidden;
     }
@@ -37,11 +52,23 @@
       position:fixed;
       inset:0;
       background-image:
-        linear-gradient(rgba(217,164,65,.05) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(217,164,65,.05) 1px,transparent 1px);
+        linear-gradient(rgba(217,164,65,.045) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(217,164,65,.045) 1px,transparent 1px);
       background-size:42px 42px;
-      mask-image:radial-gradient(circle at center,black,transparent 75%);
+      mask-image:radial-gradient(circle at center,black,transparent 78%);
       pointer-events:none;
+      z-index:0;
+    }
+
+    body:after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        linear-gradient(90deg,rgba(0,0,0,.68),transparent 18%,transparent 82%,rgba(0,0,0,.68)),
+        radial-gradient(circle at 50% 12%,rgba(255,206,98,.10),transparent 38%);
+      pointer-events:none;
+      z-index:0;
     }
 
     .app{
@@ -56,10 +83,11 @@
 
     .sidebar,.main,.right{
       border:1px solid var(--line);
-      background:linear-gradient(180deg,rgba(17,16,13,.92),rgba(4,4,3,.94));
+      background:linear-gradient(180deg,rgba(17,16,13,.94),rgba(3,3,2,.96));
       border-radius:var(--r);
       box-shadow:var(--shadow);
       overflow:hidden;
+      backdrop-filter:blur(10px);
     }
 
     .sidebar,.right{
@@ -68,16 +96,48 @@
     }
 
     .brand{
-      padding:18px;
+      padding:18px 16px 16px;
       text-align:center;
       border-bottom:1px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 5%,rgba(255,206,98,.22),transparent 36%),
+        linear-gradient(180deg,rgba(255,206,98,.05),rgba(0,0,0,.1));
+    }
+
+    .brand-emblem{
+      width:102px;
+      height:80px;
+      margin:0 auto 8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      color:var(--gold2);
+      filter:drop-shadow(0 0 14px rgba(255,206,98,.38));
+    }
+
+    .brand-emblem .hammer{
+      position:absolute;
+      top:-8px;
+      right:19px;
+      transform:rotate(38deg);
+      font-size:34px;
+      text-shadow:0 0 15px rgba(255,206,98,.6);
+    }
+
+    .brand-emblem .anvil{
+      font-size:76px;
+      line-height:1;
+      font-weight:900;
+      text-shadow:0 0 20px rgba(255,206,98,.45);
     }
 
     .logo{
-      font-weight:900;
-      font-size:30px;
-      letter-spacing:2px;
+      font-weight:950;
+      font-size:31px;
+      letter-spacing:1.5px;
       color:var(--gold2);
+      line-height:1;
       text-shadow:0 0 18px rgba(255,206,98,.45);
     }
 
@@ -85,15 +145,28 @@
       font-size:13px;
       letter-spacing:7px;
       color:#fff;
-      margin-top:2px;
+      margin-top:4px;
+      opacity:.9;
+    }
+
+    .forge:before,.forge:after{
+      content:"";
+      display:inline-block;
+      width:28px;
+      height:1px;
+      background:var(--gold);
+      vertical-align:middle;
+      margin:0 7px 3px;
     }
 
     .slogan{
       font-size:11px;
       color:var(--gold);
       letter-spacing:2px;
-      margin-top:12px;
+      margin-top:14px;
       text-transform:uppercase;
+      line-height:1.55;
+      font-weight:800;
     }
 
     .nav{
@@ -112,18 +185,22 @@
       cursor:pointer;
       text-align:left;
       transition:.2s;
-      font-weight:650;
+      font-weight:750;
+      font-size:13px;
     }
 
     .nav button:hover,.quick button:hover,.primary:hover,.ghost:hover,.tool-btn:hover{
       border-color:var(--gold2);
-      box-shadow:0 0 18px rgba(217,164,65,.22);
+      box-shadow:0 0 18px rgba(217,164,65,.24);
       transform:translateY(-1px);
+      color:var(--gold2);
     }
 
     .nav button.active{
-      background:linear-gradient(90deg,rgba(217,164,65,.28),rgba(0,0,0,.2));
+      background:linear-gradient(90deg,rgba(217,164,65,.28),rgba(0,0,0,.25));
       color:var(--gold2);
+      border-color:var(--line2);
+      box-shadow:0 0 16px rgba(217,164,65,.18) inset;
     }
 
     .side-card{
@@ -131,21 +208,23 @@
       padding:14px;
       border:1px solid var(--line);
       border-radius:14px;
-      background:rgba(0,0,0,.22);
+      background:
+        radial-gradient(circle at 100% 0,rgba(255,206,98,.08),transparent 40%),
+        rgba(0,0,0,.25);
     }
 
     .small-title{
       font-size:12px;
       color:var(--gold2);
-      font-weight:800;
+      font-weight:900;
       letter-spacing:1.3px;
       text-transform:uppercase;
       margin-bottom:10px;
     }
 
     .agent-active{
-      font-size:14px;
-      line-height:1.45;
+      font-size:13px;
+      line-height:1.48;
       color:var(--muted);
     }
 
@@ -169,22 +248,31 @@
       flex-shrink:0;
     }
 
-    .dot.off{background:var(--muted);box-shadow:none}
+    .dot.off{background:var(--muted2);box-shadow:none}
     .dot.recording{background:var(--danger);box-shadow:0 0 14px var(--danger)}
-    .dot.warn{background:#ffb84d;box-shadow:0 0 12px #ffb84d}
+    .dot.warn{background:var(--warn);box-shadow:0 0 12px var(--warn)}
     .dot.critical{background:var(--danger);box-shadow:0 0 12px var(--danger)}
 
     .main{
       display:grid;
       grid-template-rows:auto auto 1fr auto;
+      min-width:0;
     }
 
     .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
+      gap:16px;
       padding:16px 18px;
       border-bottom:1px solid var(--line);
+      background:
+        linear-gradient(90deg,rgba(0,0,0,.22),rgba(217,164,65,.04),rgba(0,0,0,.22));
+    }
+
+    .title{
+      text-align:center;
+      flex:1;
     }
 
     .title h1{
@@ -192,12 +280,27 @@
       margin:0;
       color:var(--gold2);
       letter-spacing:1px;
+      text-shadow:0 0 14px rgba(255,206,98,.25);
     }
 
     .title p{
       margin:5px 0 0;
       color:var(--muted);
       font-size:13px;
+      font-weight:600;
+    }
+
+    .model-box{
+      min-width:260px;
+    }
+
+    .model-label{
+      color:var(--muted);
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      margin-bottom:6px;
+      font-weight:800;
     }
 
     .select{
@@ -206,39 +309,156 @@
       border:1px solid var(--line);
       padding:11px 12px;
       border-radius:12px;
-      min-width:220px;
+      width:100%;
+      outline:none;
+      font-weight:650;
+    }
+
+    .worker-card{
+      min-width:250px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:10px 12px;
+      background:rgba(0,0,0,.28);
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    .worker-card b{
+      color:var(--text);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+    }
+
+    .worker-card small{
+      display:block;
+      color:var(--muted);
+      margin-top:4px;
+    }
+
+    .gear{
+      margin-left:auto;
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:8px;
+      color:var(--gold2);
+      cursor:pointer;
     }
 
     .hero{
       margin:14px 18px 0;
       border:1px solid var(--line);
-      border-radius:18px;
+      border-radius:20px;
+      min-height:305px;
       background:
-        linear-gradient(135deg,rgba(217,164,65,.14),rgba(0,0,0,.18)),
-        radial-gradient(circle at 50% 0,rgba(255,206,98,.22),transparent 30%);
-      padding:26px;
+        linear-gradient(90deg,rgba(0,0,0,.52),rgba(0,0,0,.18),rgba(0,0,0,.52)),
+        radial-gradient(circle at 50% 32%,rgba(255,206,98,.48),transparent 10%),
+        radial-gradient(circle at 50% 28%,rgba(255,206,98,.20),transparent 24%),
+        linear-gradient(135deg,rgba(217,164,65,.15),rgba(0,0,0,.2)),
+        repeating-linear-gradient(90deg,rgba(217,164,65,.08) 0 1px,transparent 1px 52px);
+      overflow:hidden;
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       text-align:center;
     }
 
-    .hero .mark{
-      font-size:58px;
+    .hero:before{
+      content:"";
+      position:absolute;
+      inset:-30%;
+      background:
+        linear-gradient(75deg,transparent 44%,rgba(255,206,98,.16) 45%,transparent 46%),
+        linear-gradient(98deg,transparent 52%,rgba(217,164,65,.10) 53%,transparent 54%),
+        linear-gradient(12deg,transparent 47%,rgba(217,164,65,.07) 48%,transparent 49%);
+      transform:rotate(-4deg);
+    }
+
+    .hero:after{
+      content:"";
+      position:absolute;
+      right:28px;
+      top:25px;
+      bottom:25px;
+      width:42%;
+      opacity:.46;
+      background:
+        linear-gradient(180deg,transparent 0 20%,rgba(217,164,65,.35) 20% 22%,transparent 22% 100%),
+        repeating-linear-gradient(90deg,transparent 0 18px,rgba(255,206,98,.34) 18px 23px,transparent 23px 36px);
+      clip-path:polygon(0 100%,100% 0,100% 100%);
+      filter:drop-shadow(0 0 16px rgba(255,206,98,.25));
+    }
+
+    .hero-inner{
+      position:relative;
+      z-index:2;
+      width:100%;
+      padding:28px;
+    }
+
+    .hero-mark{
+      position:relative;
+      width:190px;
+      height:128px;
+      margin:0 auto 8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       color:var(--gold2);
-      filter:drop-shadow(0 0 18px rgba(255,206,98,.45));
+      filter:drop-shadow(0 0 20px rgba(255,206,98,.48));
+    }
+
+    .hero-mark .hammer{
+      position:absolute;
+      top:-14px;
+      right:43px;
+      transform:rotate(38deg);
+      font-size:53px;
+    }
+
+    .hero-mark .anvil{
+      font-size:122px;
+      line-height:1;
+      font-weight:900;
     }
 
     .hero h2{
-      margin:6px 0 2px;
-      font-size:34px;
+      margin:4px 0 2px;
+      font-size:48px;
+      line-height:1;
       letter-spacing:3px;
       color:var(--gold2);
+      text-shadow:0 0 20px rgba(255,206,98,.38);
+    }
+
+    .hero .forge-big{
+      font-size:24px;
+      letter-spacing:11px;
+      color:#fff;
+      margin-top:5px;
+      font-weight:900;
+    }
+
+    .hero .forge-big:before,.hero .forge-big:after{
+      content:"";
+      display:inline-block;
+      width:50px;
+      height:2px;
+      background:var(--gold);
+      vertical-align:middle;
+      margin:0 10px 7px;
     }
 
     .hero p{
-      margin:0;
-      color:var(--gold);
+      margin:18px 0 0;
+      color:var(--gold2);
       letter-spacing:3px;
       text-transform:uppercase;
       font-size:12px;
+      font-weight:900;
     }
 
     .chat{
@@ -249,6 +469,15 @@
       gap:12px;
     }
 
+    .chat::-webkit-scrollbar,.right::-webkit-scrollbar{
+      width:8px;
+    }
+
+    .chat::-webkit-scrollbar-thumb,.right::-webkit-scrollbar-thumb{
+      background:rgba(217,164,65,.35);
+      border-radius:99px;
+    }
+
     .msg{
       max-width:86%;
       border:1px solid var(--line);
@@ -256,24 +485,26 @@
       padding:14px 16px;
       line-height:1.58;
       white-space:pre-wrap;
+      position:relative;
+      box-shadow:0 0 18px rgba(0,0,0,.25);
     }
 
     .msg.user{
       align-self:flex-end;
-      background:linear-gradient(135deg,rgba(217,164,65,.20),rgba(0,0,0,.25));
+      background:linear-gradient(135deg,rgba(217,164,65,.22),rgba(0,0,0,.32));
       border-bottom-right-radius:4px;
     }
 
     .msg.assistant{
       align-self:flex-start;
-      background:rgba(9,8,6,.82);
+      background:linear-gradient(180deg,rgba(12,11,9,.94),rgba(5,5,4,.92));
       border-bottom-left-radius:4px;
     }
 
     .msg .label{
       font-size:11px;
       color:var(--gold2);
-      font-weight:900;
+      font-weight:950;
       letter-spacing:1px;
       margin-bottom:8px;
       text-transform:uppercase;
@@ -281,8 +512,9 @@
 
     .msg .time{
       font-size:11px;
-      color:var(--muted);
+      color:var(--muted2);
       margin-top:9px;
+      text-align:right;
     }
 
     .msg img{
@@ -293,9 +525,28 @@
       display:block;
     }
 
+    .msg-actions{
+      display:flex;
+      gap:10px;
+      margin-top:10px;
+      color:var(--gold2);
+      font-size:16px;
+    }
+
+    .msg-actions span{
+      cursor:pointer;
+      opacity:.8;
+    }
+
+    .msg-actions span:hover{
+      opacity:1;
+      filter:drop-shadow(0 0 8px rgba(255,206,98,.5));
+    }
+
     .input-zone{
       border-top:1px solid var(--line);
-      padding:12px 18px;
+      padding:12px 18px 14px;
+      background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.35));
     }
 
     .voice-debug{
@@ -351,42 +602,57 @@
       flex:1;
       resize:none;
       max-height:160px;
-      min-height:48px;
+      min-height:52px;
       border:1px solid var(--line);
       border-radius:14px;
       background:#070605;
       color:var(--text);
-      padding:13px 14px;
+      padding:15px 14px;
       font-size:14px;
       outline:none;
+      box-shadow:inset 0 0 18px rgba(0,0,0,.45);
     }
 
     textarea:focus{
       border-color:var(--gold2);
-      box-shadow:0 0 18px rgba(217,164,65,.18);
+      box-shadow:0 0 18px rgba(217,164,65,.18), inset 0 0 18px rgba(0,0,0,.45);
     }
 
     .primary{
       text-align:center;
       color:var(--gold2);
-      font-weight:900;
+      font-weight:950;
+      min-height:48px;
+    }
+
+    .ghost{
+      color:var(--gold2);
     }
 
     .tool-btn{
-      width:48px;
-      height:48px;
+      width:52px;
+      height:52px;
       text-align:center;
       padding:0;
       display:flex;
       align-items:center;
       justify-content:center;
       font-size:18px;
+      flex-shrink:0;
     }
 
     .tool-btn.active{
       border-color:var(--danger);
       color:#fff;
       background:rgba(255,90,95,.2);
+    }
+
+    .footer-note{
+      text-align:center;
+      color:var(--muted2);
+      font-size:11px;
+      margin-top:8px;
+      line-height:1.35;
     }
 
     .right{
@@ -398,8 +664,35 @@
     .panel{
       border:1px solid var(--line);
       border-radius:16px;
-      background:rgba(0,0,0,.22);
+      background:
+        radial-gradient(circle at 100% 0,rgba(255,206,98,.07),transparent 42%),
+        rgba(0,0,0,.25);
       padding:13px;
+    }
+
+    .panel-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .panel-head .small-title{
+      margin:0;
+    }
+
+    .plus{
+      width:22px;
+      height:22px;
+      border:1px solid var(--line);
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--gold2);
+      cursor:pointer;
+      font-weight:900;
     }
 
     .agents{
@@ -416,15 +709,27 @@
       gap:10px;
       cursor:pointer;
       background:rgba(255,255,255,.02);
+      transition:.18s;
     }
 
     .agent:hover,.agent.active{
       border-color:var(--gold2);
       background:rgba(217,164,65,.12);
+      box-shadow:0 0 16px rgba(217,164,65,.16);
     }
 
-    .agent .ico{font-size:22px}
-    .agent b{font-size:13px}
+    .agent .ico{
+      font-size:24px;
+      width:31px;
+      color:var(--gold2);
+      filter:drop-shadow(0 0 8px rgba(255,206,98,.28));
+    }
+
+    .agent b{
+      font-size:13px;
+      text-transform:uppercase;
+    }
+
     .agent span{
       display:block;
       color:var(--muted);
@@ -444,6 +749,7 @@
       padding:10px;
       color:var(--muted);
       font-size:12px;
+      background:rgba(255,255,255,.02);
     }
 
     .quick{
@@ -452,7 +758,11 @@
       gap:9px;
     }
 
-    .quick button{text-align:center}
+    .quick button{
+      text-align:center;
+      text-transform:uppercase;
+      font-size:12px;
+    }
 
     .stats{
       display:grid;
@@ -465,6 +775,7 @@
       border-radius:12px;
       padding:12px;
       text-align:center;
+      background:rgba(0,0,0,.22);
     }
 
     .stat b{
@@ -491,7 +802,7 @@
 
     .health-line b{color:var(--gold2)}
     .health-ok{color:var(--ok)!important}
-    .health-warning{color:#ffb84d!important}
+    .health-warning{color:var(--warn)!important}
     .health-critical{color:var(--danger)!important}
 
     .health-pill{
@@ -502,6 +813,22 @@
       margin:2px 2px 0 0;
       color:var(--gold2);
       font-size:11px;
+    }
+
+    .theme-row{
+      display:flex;
+      gap:10px;
+    }
+
+    .theme-btn{
+      flex:1;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      background:rgba(0,0,0,.2);
+      color:var(--gold2);
+      text-align:center;
+      cursor:pointer;
     }
 
     .mobile-toggle{display:none}
@@ -565,6 +892,24 @@
 
     .hidden{display:none!important}
 
+    @media(max-width:1180px){
+      .app{
+        grid-template-columns:250px minmax(380px,1fr) 300px;
+      }
+
+      .hero h2{
+        font-size:40px;
+      }
+
+      .worker-card{
+        min-width:210px;
+      }
+
+      .model-box{
+        min-width:220px;
+      }
+    }
+
     @media(max-width:1050px){
       body{overflow:auto}
       .app{height:auto;min-height:100%;grid-template-columns:1fr}
@@ -573,9 +918,14 @@
       .mobile-toggle{display:flex;gap:8px;padding:10px}
       .main{min-height:100vh}
       .msg{max-width:96%}
-      .hero h2{font-size:25px}
-      .hero{padding:18px}
-      .hero .mark{font-size:42px}
+      .hero h2{font-size:30px}
+      .hero{padding:18px;min-height:240px}
+      .hero-mark{width:130px;height:92px}
+      .hero-mark .anvil{font-size:88px}
+      .hero-mark .hammer{font-size:38px;right:27px}
+      .topbar{flex-direction:column}
+      .model-box,.worker-card{width:100%;min-width:0}
+      .title{text-align:left;width:100%}
     }
   </style>
 </head>
@@ -584,17 +934,21 @@
 <div class="app">
   <aside class="sidebar" id="leftPanel">
     <div class="brand">
+      <div class="brand-emblem">
+        <div class="hammer">⚒</div>
+        <div class="anvil">⌂</div>
+      </div>
       <div class="logo">TORINVEST</div>
       <div class="forge">LA FORGE</div>
-      <div class="slogan">Trader. Investir. Forger ton avenir.</div>
+      <div class="slogan">Trader. Investir.<br>Forger ton avenir.</div>
     </div>
 
     <div class="nav">
       <button class="active" onclick="newChat()">＋ Nouveau chat</button>
-      <button onclick="checkSystemHealth()">🧠 System Health</button>
       <button onclick="openArchives()">▣ Archives</button>
       <button onclick="openAgentsModal()">⚙ Agents</button>
       <button onclick="openMemoryModal()">⬢ Mémoire</button>
+      <button onclick="checkSystemHealth()">🧠 System Health</button>
       <button onclick="exportData()">⬇ Exporter</button>
       <button onclick="importDataPrompt()">⬆ Importer</button>
       <input id="importFile" type="file" accept="application/json" class="hidden" />
@@ -636,7 +990,7 @@
 
     <div style="margin-top:auto" class="side-card">
       <div class="small-title">Mantra</div>
-      <div class="agent-active">La discipline aujourd’hui, la liberté demain.</div>
+      <div class="agent-active">La discipline aujourd’hui,<br>la liberté demain.</div>
     </div>
   </aside>
 
@@ -647,17 +1001,36 @@
     </div>
 
     <div class="topbar">
-      <div class="title">
-        <h1>LA FORGE AI <span style="font-size:14px;color:var(--muted)">by TORINVEST</span></h1>
-        <p>Machine de guerre IA — trading, formation, mindset, contenu et stratégie.</p>
+      <div class="model-box">
+        <div class="model-label">Modèle</div>
+        <select class="select" id="modelSelect"></select>
       </div>
-      <select class="select" id="modelSelect"></select>
+
+      <div class="title">
+        <h1>TORINVEST AI</h1>
+        <p>Ton assistant trading intelligent</p>
+      </div>
+
+      <div class="worker-card">
+        <span class="dot" id="topWorkerDot"></span>
+        <span>
+          <b>Worker actif</b>
+          <small id="workerShortTop"></small>
+        </span>
+        <span class="gear" onclick="checkSystemHealth()">⚙</span>
+      </div>
     </div>
 
     <section class="hero">
-      <div class="mark">⚒</div>
-      <h2>TORINVEST — LA FORGE</h2>
-      <p>Trader • Investir • Forger ton avenir</p>
+      <div class="hero-inner">
+        <div class="hero-mark">
+          <div class="hammer">⚒</div>
+          <div class="anvil">⌂</div>
+        </div>
+        <h2>TORINVEST</h2>
+        <div class="forge-big">LA FORGE</div>
+        <p>Trader • Investir • Forger ton avenir</p>
+      </div>
     </section>
 
     <section class="chat" id="chat"></section>
@@ -677,21 +1050,32 @@
       <div class="input">
         <button class="tool-btn" title="Ajouter une image" onclick="document.getElementById('imageInput').click()">📎</button>
         <button class="tool-btn" id="micBtn" title="Dicter vocalement" onclick="toggleVoice()">🎙️</button>
-        <textarea id="userInput" placeholder="Écris ton message… Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne"></textarea>
+        <textarea id="userInput" placeholder="Écris ton message…"></textarea>
         <button class="primary" onclick="sendMessage()">ENVOYER ⚡</button>
         <input id="imageInput" class="hidden" type="file" accept="image/*" onchange="handleImagePick(event)" />
+      </div>
+
+      <div class="footer-note">
+        Les informations fournies ne constituent pas un conseil en investissement.<br>
+        Trade avec discipline. Gère ton risque.
       </div>
     </div>
   </main>
 
   <aside class="right" id="rightPanel">
     <div class="panel">
-      <div class="small-title">Agents spécialisés</div>
+      <div class="panel-head">
+        <div class="small-title">Agents spécialisés</div>
+        <div class="plus" onclick="openAgentsModal()">+</div>
+      </div>
       <div class="agents" id="agentsList"></div>
     </div>
 
     <div class="panel">
-      <div class="small-title">Mémoire globale</div>
+      <div class="panel-head">
+        <div class="small-title">Mémoire globale</div>
+        <div class="plus" onclick="openMemoryModal()">+</div>
+      </div>
       <div class="mem-list" id="memoryPreview"></div>
       <button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button>
     </div>
@@ -700,7 +1084,7 @@
       <div class="small-title">Statistiques</div>
       <div class="stats">
         <div class="stat"><b id="statChats">0</b><span>Conversations</span></div>
-        <div class="stat"><b id="statAgents">23</b><span>Agents</span></div>
+        <div class="stat"><b id="statAgents">0</b><span>Agents créés</span></div>
         <div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div>
         <div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div>
       </div>
@@ -714,12 +1098,19 @@
 
     <div class="panel quick">
       <div class="small-title">Outils rapides</div>
-      <button onclick="quick('Trouve-moi un setup GOLD/XAUUSD ce matin avec données Worker, volumeContext, MTF, news, scénario principal et invalidation.')">Setup GOLD</button>
-      <button onclick="quick('Fais une analyse complète GOLD/XAUUSD : macro, technique, liquidité, volumeContext, scénarios, invalidation.')">Analyse GOLD</button>
-      <button onclick="quick('Crée un plan de trading pour la session London/NY avec scénarios, volumeContext et gestion du risque.')">Plan session</button>
-      <button onclick="quick('Crée un post Telegram premium TORINVEST à partir de cette idée : ')">Post Telegram</button>
-      <button onclick="quick('Crée le module de formation de cette semaine, progressif, clair et structuré.')">Module formation</button>
-      <button onclick="quick('Donne-moi la méthode mindset de la semaine avec exercices pratiques.')">Mindset semaine</button>
+      <button onclick="quick('Trouve-moi un setup GOLD/XAUUSD ce matin avec données Worker, volumeContext, MTF, news, scénario principal et invalidation.')">Nouvelle analyse</button>
+      <button onclick="quick('Crée un plan de backtest complet pour cette stratégie avec règles, filtres, invalidation et métriques.')">Backtest stratégie</button>
+      <button onclick="quick('Calcule-moi une position avec capital, risque %, SL en points/pips, lot, perte max et R:R.')">Calculateur position</button>
+      <button onclick="quick('Analyse le calendrier économique du jour et dis-moi les news dangereuses pour le gold, EURUSD et indices.')">Économie calendrier</button>
+    </div>
+
+    <div class="panel">
+      <div class="small-title">Thème</div>
+      <div class="theme-row">
+        <div class="theme-btn">☀</div>
+        <div class="theme-btn">☾</div>
+        <div class="theme-btn">☼</div>
+      </div>
     </div>
   </aside>
 </div>
@@ -771,8 +1162,13 @@ const WORKER_STATUS_URL = WORKER_BASE_URL + "/ai/status";
 const WORKER_HEALTH_URL = WORKER_BASE_URL + "/system/health?token=" + encodeURIComponent(COPY_TOKEN);
 const WORKER_AGENT_CONTEXT_URL = WORKER_BASE_URL + "/agent/context";
 
-const STORAGE_KEY = "torinvest_forge_ai_v3_agent_ready";
-const LEGACY_STORAGE_KEYS = ["torinvest_forge_ai_v2_volume", "torinvest_forge_ai_v1"];
+const STORAGE_KEY = "torinvest_forge_ai_v4_da_complete";
+const LEGACY_STORAGE_KEYS = [
+  "torinvest_forge_ai_v3_agent_ready",
+  "torinvest_forge_ai_v2_volume",
+  "torinvest_forge_ai_v1"
+];
+
 const VISION_MODEL = "pixtral-large-latest";
 
 const MODELS = [
@@ -786,20 +1182,81 @@ const MODELS = [
 const AGENTS = [
   {
     id:"macro",
-    icon:"🏦",
-    name:"Maître Macro",
-    desc:"Banques centrales, inflation, taux, liquidité.",
+    icon:"🐂",
+    name:"Maître des marchés",
+    desc:"Analyse globale & stratégie",
     temp:.35,
-    prompt:`Tu es Maître Macro TORINVEST. Analyse comme un desk macro institutionnel.
-Méthode obligatoire : banques centrales, inflation, croissance, emploi, taux 2Y/5Y/10Y/30Y, courbe des taux, DXY, liquidité, crédit, risk-on/risk-off.
-Si contexte Worker disponible, utilise market, news, sentiment, signal, aiDecision et volumeContext.
-Format : 1) Données disponibles 2) Lecture macro 3) Impact marchés 4) Volume/liquidité 5) Risques cachés 6) Scénario principal 7) Scénario alternatif 8) Conclusion TORINVEST.`
+    prompt:`Tu es Maître des Marchés TORINVEST. Analyse comme un desk institutionnel.
+Méthode obligatoire : macro, banques centrales, inflation, croissance, taux, DXY, liquidité, crédit, risk-on/risk-off, structure, volumeContext et news.
+Format : 1) Données disponibles 2) Lecture macro 3) Structure technique 4) Volume/liquidité 5) Risques cachés 6) Scénario principal 7) Scénario alternatif 8) Invalidation 9) Conclusion TORINVEST.`
+  },
+  {
+    id:"tech",
+    icon:"📈",
+    name:"Analyste technique",
+    desc:"Patterns, indicateurs, signaux",
+    temp:.35,
+    prompt:`Tu es l’Analyste Technique TORINVEST. Lis le prix avec précision.
+Analyse : tendance HTF/LTF, range, expansion, retracement, cassure, retest, momentum, zones clés, RSI, moyennes, volumeContext, POC/VAH/VAL.
+Format : structure HTF / structure LTF / zones clés / volumeContext / scénario haussier / scénario baissier / invalidation / plan d’attente.`
+  },
+  {
+    id:"scalp",
+    icon:"⚡",
+    name:"Scalper Pro",
+    desc:"Scalping & trading court terme",
+    temp:.32,
+    prompt:`Tu es Scalper Pro TORINVEST. Tu transformes le contexte en exécution courte.
+Utilise /agent/context quand il est fourni : market.targetAsset, MTF, volumeContext, signal, aiDecision.
+Règles : pas de trade au milieu, pas sans invalidation, pas sans contexte HTF.
+Format : biais session / zone d’attente / trigger / stop logique / TP / no-trade zone / discipline.`
+  },
+  {
+    id:"risk",
+    icon:"🛡",
+    name:"Gestionnaire risque",
+    desc:"Risk management avancé",
+    temp:.25,
+    prompt:`Tu es Gestionnaire Risque TORINVEST. Ta mission est de protéger le capital.
+Analyse : taille de position, perte max, drawdown, prop firm, surtrading, revenge trading, régularité, exposition.
+Format : risque actuel / erreur potentielle / taille recommandée / limite de perte / règle de sécurité / décision : trade ou abstention.`
+  },
+  {
+    id:"copy",
+    icon:"👥",
+    name:"Copy Strategist",
+    desc:"Stratégies des pros à copier",
+    temp:.32,
+    prompt:`Tu es Copy Strategist TORINVEST. Structure les signaux proprement.
+Format : ACTIF / SENS / ENTRÉE / SL / TP1 / TP2 / RISQUE / JUSTIFICATION / INVALIDATION / NOTE DISCIPLINE.
+Règle : jamais de signal sans risque ni invalidation. Si signal Worker action=NONE, explique pourquoi aucun copy trade.`
+  },
+  {
+    id:"gold",
+    icon:"🥇",
+    name:"Gold Specialist",
+    desc:"XAUUSD, DXY, taux, refuge",
+    temp:.34,
+    prompt:`Tu es Gold Specialist TORINVEST. Ton actif central est XAUUSD.
+Croise toujours : XAUUSD, DXY, US10Y/US2Y/US5Y, VIX, SPX/Nasdaq, géopolitique, pétrole, structure technique, liquidité, volumeContext.
+Classification : GOLD BULLISH MACRO / BEARISH MACRO / MIXTE / REFUGE BID / PIÈGE.
+Format : données disponibles / macro / technique / volumeContext / liquidité / scénario principal / scénario alternatif / invalidation / conclusion.`
+  },
+  {
+    id:"ict",
+    icon:"⚔",
+    name:"Expert ICT / SMC",
+    desc:"Liquidité, inducement, MSS, FVG",
+    temp:.35,
+    prompt:`Tu es Expert ICT / SMC TORINVEST. Lis le marché comme une chasse à la liquidité.
+Analyse : structure, premium/discount, internal/external liquidity, sweep, inducement, MSS/BOS, FVG, OB, breaker, session.
+Format : structure / liquidité ciblée / volumeContext / piège probable / confirmation attendue / setup possible / invalidation / erreur du débutant.`
   },
   {
     id:"geo",
     icon:"🌍",
-    name:"Analyste Géopolitique",
-    desc:"Conflits, sanctions, pétrole, devises.",
+    name:"Analyste géopolitique",
+    desc:"Conflits, sanctions, énergie",
     temp:.42,
     prompt:`Tu es l’Analyste Géopolitique TORINVEST. Transforme une actualité géopolitique en impact marché.
 Analyse : conflit, sanctions, routes maritimes, énergie, inflation, devises, or, pétrole, indices, risque systémique.
@@ -809,177 +1266,17 @@ Format : fait confirmé / acteurs / enjeu / transmission économique / actifs im
     id:"sentiment",
     icon:"📡",
     name:"Sentiment Engine",
-    desc:"Risk ON/OFF cross-asset.",
+    desc:"Risk ON/OFF cross-asset",
     temp:.3,
     prompt:`Tu es le Sentiment Engine TORINVEST. Détermine le régime : RISK ON, RISK OFF, MIXTE, TRANSITION ou FAKE MOVE.
 Croise : DXY, US yields, SPX, Nasdaq, VIX, gold, BTC, JPY, CHF, HYG/LQD, volumeContext et signal actif.
 Format : lecture actifs / cohérence / divergence / volumeContext / régime / piège / décision tactique.`
   },
   {
-    id:"pa",
-    icon:"📊",
-    name:"Analyste Price Action",
-    desc:"Structure HTF→LTF, niveaux, cassures.",
-    temp:.35,
-    prompt:`Tu es l’Analyste Price Action TORINVEST. Lis le prix sans bruit.
-Analyse : tendance HTF/LTF, range, expansion, retracement, cassure, retest, momentum, zones clés, invalidation.
-Si volumeContext est disponible, vérifie volumeRatio, deltaProxy, VWAP, POC, VAH, VAL.
-Format : structure HTF / structure LTF / zones clés / volumeContext / scénario haussier / scénario baissier / invalidation / plan d’attente.`
-  },
-  {
-    id:"ict",
-    icon:"⚔",
-    name:"Expert ICT / SMC",
-    desc:"Liquidité, inducement, MSS, FVG, OB.",
-    temp:.35,
-    prompt:`Tu es Expert ICT / SMC TORINVEST. Lis le marché comme une chasse à la liquidité.
-Analyse : structure, premium/discount, internal/external liquidity, sweep, inducement, MSS/BOS, FVG, OB, breaker, session.
-Format : structure / liquidité ciblée / volumeContext / piège probable / confirmation attendue / setup possible / invalidation / erreur du débutant.`
-  },
-  {
-    id:"liq",
-    icon:"💧",
-    name:"Sniper Liquidité",
-    desc:"Pièges, sweeps et zones de chasse.",
-    temp:.34,
-    prompt:`Tu es Sniper Liquidité TORINVEST. Ton rôle est d’identifier où les stops dorment.
-Analyse : equal highs/lows, anciens hauts/bas, liquidité interne/externe, faux breakout, sweep, réintégration, absorption.
-Format : liquidité au-dessus / liquidité au-dessous / volumeContext / zone dangereuse / piège probable / confirmation / no-trade zone.`
-  },
-  {
-    id:"scalp",
-    icon:"⚡",
-    name:"Scalper M1/M5",
-    desc:"Entrées courtes précises.",
-    temp:.32,
-    prompt:`Tu es Scalper M1/M5 TORINVEST. Tu transformes le contexte en exécution courte.
-Tu dois utiliser /agent/context quand il est fourni : market.targetAsset, MTF, volumeContext, signal et aiDecision.
-Règles : pas de trade au milieu, pas sans invalidation, pas sans contexte HTF.
-Format : biais session / zone d’attente / volumeContext / trigger / stop logique / TP / conditions pour ne PAS trader / discipline.`
-  },
-  {
-    id:"risk",
-    icon:"🛡",
-    name:"Risk Manager",
-    desc:"Risque, drawdown, prop firm.",
-    temp:.25,
-    prompt:`Tu es Risk Manager TORINVEST. Ta mission est de protéger le capital.
-Analyse : taille de position, perte max, drawdown, prop firm, surtrading, revenge trading, régularité, exposition.
-Format : risque actuel / erreur potentielle / taille recommandée / limite de perte / règle de sécurité / décision : trade ou abstention.`
-  },
-  {
-    id:"position",
-    icon:"🎯",
-    name:"Position Builder",
-    desc:"Sizing, scaling, R/R.",
-    temp:.34,
-    prompt:`Tu es Position Builder TORINVEST. Tu construis des plans de position propres.
-Format : actif / direction conditionnelle / entrée / stop / TP1 TP2 TP3 / break-even / partiels / R:R / invalidation / raison de ne pas entrer.`
-  },
-  {
-    id:"journal",
-    icon:"📓",
-    name:"Journal Analyst",
-    desc:"Analyse erreurs et progression.",
-    temp:.4,
-    prompt:`Tu es Journal Analyst TORINVEST. Tu transformes les erreurs en progression.
-Format : bien fait / erreur / cause réelle / correction / exercice / règle à appliquer au prochain trade.`
-  },
-  {
-    id:"gold",
-    icon:"🥇",
-    name:"Gold Specialist",
-    desc:"XAUUSD, real yields, DXY, risk-off.",
-    temp:.34,
-    prompt:`Tu es Gold Specialist TORINVEST. Ton actif central est XAUUSD.
-Croise toujours : XAUUSD, DXY, US10Y/US2Y/US5Y, VIX, SPX/Nasdaq, géopolitique, pétrole, structure technique, liquidité, volumeContext.
-Utilise le contexte Worker complet si présent : market, news, signal, aiDecision.
-Classification : GOLD BULLISH MACRO / BEARISH MACRO / MIXTE / REFUGE BID / PIÈGE.
-Format : données disponibles / macro / technique / volumeContext / liquidité / scénario principal / scénario alternatif / invalidation / conclusion TORINVEST.`
-  },
-  {
-    id:"forex",
-    icon:"💱",
-    name:"Forex Master",
-    desc:"EURUSD, GBP, JPY, triptyque.",
-    temp:.38,
-    prompt:`Tu es Forex Master TORINVEST. Analyse les devises par différentiels macro.
-Croise : banques centrales, taux, inflation, croissance, DXY, rendements, risk sentiment, flux refuge.
-Format : devise forte/faible / paire à privilégier / justification macro / structure technique / piège / scénario / invalidation.`
-  },
-  {
-    id:"crypto",
-    icon:"₿",
-    name:"Crypto Analyst",
-    desc:"BTC/ETH, cycles, risk appetite.",
-    temp:.42,
-    prompt:`Tu es Crypto Analyst TORINVEST. Analyse crypto sans hype.
-Croise : BTC, ETH, dominance BTC, TOTAL/TOTAL2/TOTAL3, Nasdaq, DXY, taux US, liquidité, risk-on/off, volumeContext.
-Format : régime crypto / dominance / BTC / ETH / altcoins / volumeContext / risques / scénario principal / invalidation.`
-  },
-  {
-    id:"telegram",
-    icon:"✍",
-    name:"Générateur Telegram",
-    desc:"Posts premium Torinvest.",
-    temp:.55,
-    prompt:`Tu es Générateur Telegram TORINVEST. Transforme une analyse en post clair, premium et court.
-Format : 🔥 titre / contexte / ce qu’il faut comprendre / scénario / risque / conclusion.
-Style : pro, direct, impactant, sans faute, sans promesse de gains.`
-  },
-  {
-    id:"vip",
-    icon:"💎",
-    name:"Générateur Analyse VIP",
-    desc:"Scénarios premium vendables.",
-    temp:.45,
-    prompt:`Tu es Générateur Analyse VIP TORINVEST. Produit une analyse vendable.
-Format strict : titre impactant / contexte / biais / zones clés / volumeContext si disponible / scénario principal / scénario alternatif / invalidation / risque / conclusion TORINVEST.`
-  },
-  {
-    id:"copy",
-    icon:"👥",
-    name:"Copy Trading Assistant",
-    desc:"Messages copy et signaux structurés.",
-    temp:.32,
-    prompt:`Tu es Copy Trading Assistant TORINVEST. Structure les signaux proprement.
-Format : ACTIF / SENS / ENTRÉE / SL / TP1 / TP2 / RISQUE / JUSTIFICATION / INVALIDATION / NOTE DISCIPLINE.
-Règle : jamais de signal sans risque ni invalidation. Si signal Worker action=NONE, explique pourquoi aucun copy trade.`
-  },
-  {
-    id:"corr",
-    icon:"🔗",
-    name:"Correlation Engine",
-    desc:"HYG/LQD, yields, cross-assets.",
-    temp:.34,
-    prompt:`Tu es Correlation Engine TORINVEST. Tu détectes confirmations et divergences.
-Croise : DXY, yields, gold, SPX, Nasdaq, VIX, HYG/LQD, pétrole, cuivre, JPY/CHF, BTC, volumeContext.
-Format : corrélations normales / divergences / volumeContext / message caché / risque de retournement / actif à surveiller / conclusion.`
-  },
-  {
-    id:"regime",
-    icon:"🧭",
-    name:"Market Regime Detector",
-    desc:"Range, trend, distribution, expansion.",
-    temp:.33,
-    prompt:`Tu es Market Regime Detector TORINVEST. Tu identifies la phase de marché.
-Phases : accumulation, expansion, retracement, distribution, range, manipulation, compression.
-Format : régime actuel / preuves / volumeContext / ce qu’il ne faut pas faire / stratégie adaptée / déclencheur de changement.`
-  },
-  {
-    id:"news",
-    icon:"📰",
-    name:"News Decoder",
-    desc:"News → impact marché.",
-    temp:.4,
-    prompt:`Tu es News Decoder TORINVEST. Transforme une news en lecture de marché.
-Format : fait / attente du marché / surprise / impact immédiat / impact secondaire / actifs touchés / piège possible / conclusion.`
-  },
-  {
     id:"strategy",
     icon:"🧱",
     name:"Strategy Builder",
-    desc:"Crée règles, conditions, exécution.",
+    desc:"Règles, conditions, exécution",
     temp:.45,
     prompt:`Tu es Strategy Builder TORINVEST. Crée des stratégies testables.
 Format : nom / marché / timeframes / conditions d’entrée / filtres volumeContext / sorties / invalidation / risque / conditions de backtest / limites.`
@@ -987,8 +1284,8 @@ Format : nom / marché / timeframes / conditions d’entrée / filtres volumeCon
   {
     id:"formation",
     icon:"🎓",
-    name:"Formation Builder Hebdo",
-    desc:"Module formation chaque semaine.",
+    name:"Formation Builder",
+    desc:"Modules pédagogiques",
     temp:.5,
     prompt:`Tu es Formation Builder TORINVEST. Crée des modules pédagogiques progressifs.
 Format : module / objectif / compréhension clé / cours / exemple / erreurs fréquentes / exercice / quiz / devoir / règle TORINVEST.`
@@ -996,21 +1293,11 @@ Format : module / objectif / compréhension clé / cours / exemple / erreurs fr�
   {
     id:"mindset",
     icon:"🧠",
-    name:"IA Psy & Mindset Hebdo",
-    desc:"Méthodes mindset + exercices.",
+    name:"Mindset Coach",
+    desc:"Psychologie et discipline",
     temp:.45,
-    prompt:`Tu es IA Psy & Mindset TORINVEST. Travaille la psychologie du trader.
+    prompt:`Tu es Mindset Coach TORINVEST. Travaille la psychologie du trader.
 Format : problème / cause mentale / conséquence trading / correction / exercice pratique / règle de la semaine.`
-  },
-  {
-    id:"health",
-    icon:"🧠",
-    name:"System Health Monitor",
-    desc:"Worker, KV, IA, signal, MT5, prix live, volumeContext.",
-    temp:.2,
-    prompt:`Tu es le System Health Monitor TORINVEST.
-Analyse l’état du système automatique : Worker, KV, IA, signaux, prix live, volumeContext, MT5, exécution et risque technique.
-Format : 1. Statut global 2. Ce qui fonctionne 3. Ce qui bloque 4. VolumeContext 5. Risque live 6. Action immédiate.`
   }
 ];
 
@@ -1055,7 +1342,11 @@ function defaultState(){
     model:"mistral-large-latest",
     messages:[],
     chats:[],
-    memory:[]
+    memory:[
+      {text:"Préférence : Swing trading", ts:new Date("2025-05-15").getTime()},
+      {text:"Risque max par trade : 1%", ts:new Date("2025-05-15").getTime()},
+      {text:"Objectif mensuel : 8-12%", ts:new Date("2025-05-14").getTime()}
+    ]
   };
 }
 
@@ -1290,7 +1581,9 @@ function render(){
   renderStats();
   renderImagePreview();
 
-  document.getElementById('workerShort').textContent=WORKER_AI_URL.replace('https://','').slice(0,34)+'…';
+  const short=WORKER_AI_URL.replace('https://','').slice(0,34)+'…';
+  document.getElementById('workerShort').textContent=short;
+  document.getElementById('workerShortTop').textContent=short;
 
   document.getElementById('activeAgentBox').innerHTML=
     `<b style="color:var(--gold2)">${agent().icon} ${agent().name}</b><br>${agent().desc}`;
@@ -1338,7 +1631,7 @@ function renderChat(){
   if(!state.messages.length){
     state.messages=[{
       role:'assistant',
-      content:'Bienvenue dans La Forge AI by TORINVEST. Le chat est maintenant branché au Worker via /agent/context : tu peux demander un setup, une analyse ou un état système avec les données Worker.',
+      content:'Bonjour Trader. Je suis ton assistant IA spécialisé en trading et investissement.\n\nPose-moi une question sur les marchés, une analyse technique, une stratégie ou toute autre demande.',
       ts:Date.now()
     }];
   }
@@ -1347,9 +1640,10 @@ function renderChat(){
     const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="image envoyée">`:'';
 
     return `<div class="msg ${m.role}">
-      <div class="label">${m.role==='user'?'VOUS':agent().name}</div>
+      <div class="label">${m.role==='user'?'VOUS':'TORINVEST AI'}</div>
       ${img}
       ${escapeHtml(m.content)}
+      ${m.role==='assistant'?'<div class="msg-actions"><span title="Copier" onclick="copyMsg(this)">▣</span><span>👍</span><span>👎</span></div>':''}
       <div class="time">${new Date(m.ts).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</div>
     </div>`;
   }).join('');
@@ -1357,9 +1651,16 @@ function renderChat(){
   c.scrollTop=c.scrollHeight;
 }
 
+function copyMsg(el){
+  const msg=el.closest('.msg');
+  if(!msg)return;
+  const text=msg.innerText.replace(/^TORINVEST AI\s*/,'').trim();
+  navigator.clipboard?.writeText(text);
+}
+
 function renderMemory(){
   const preview=state.memory.slice(-3).reverse().map(m=>
-    `<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleDateString('fr-FR')}</small></div>`
+    `<div class="mem">${escapeHtml(m.text)}<br><small>Ajouté le ${new Date(m.ts).toLocaleDateString('fr-FR')}</small></div>`
   ).join('')||'<div class="mem">Aucune mémoire.</div>';
 
   document.getElementById('memoryPreview').innerHTML=preview;
@@ -1467,17 +1768,12 @@ function detectSymbolFromText(text){
   if(t.includes("USDCAD"))return"USDCAD";
   if(t.includes("AUDUSD"))return"AUDUSD";
   if(t.includes("NZDUSD"))return"NZDUSD";
-
   if(t.includes("BTC"))return"BTCUSD";
   if(t.includes("ETH"))return"ETHUSD";
-
   if(t.includes("NASDAQ")||t.includes("NAS100")||t.includes("US100"))return"NASDAQ";
   if(t.includes("SPX")||t.includes("SP500")||t.includes("S&P"))return"SPX";
-
   if(t.includes("WTI")||t.includes("USOIL")||t.includes("PÉTROLE")||t.includes("PETROLE")||t.includes("OIL"))return"WTI";
-
   if(t.includes("SILVER")||t.includes("XAG")||t.includes("ARGENT"))return"XAGUSD";
-
   if(t.includes("GOLD")||t.includes("XAU")||t.includes(" OR ")||t==="OR"||t.includes(" L OR")||t.includes("L'OR"))return"XAUUSD";
 
   return"XAUUSD";
@@ -1535,6 +1831,7 @@ function summarizeAgentContext(ctx){
   const signal=ctx.signal;
   const ai=ctx.aiDecision;
   const news=ctx.news;
+  const sm=ctx.smartMoneyEngine;
 
   return [
     `Worker OK : ${ctx.system?.worker ? "oui" : "non"}`,
@@ -1544,6 +1841,8 @@ function summarizeAgentContext(ctx){
     `TF : ${target?.tf ?? "N/A"}`,
     `Volume : ${target?.volumeContext?.volumeRegime ?? "N/A"} / ${target?.volumeContext?.volumeSignal ?? "N/A"}`,
     `MTF : ${target?.mtfContext?.bias ?? "N/A"} / score ${target?.mtfContext?.directionalScore ?? "N/A"}`,
+    `Smart Money Bias : ${sm?.smart_money_bias ?? "N/A"}`,
+    `Readiness : ${sm?.execution_readiness ?? "N/A"}`,
     `Signal MT5 : ${signal?.action ?? "N/A"} / executable ${signal?.validation?.executable ?? signal?.executable ?? "N/A"}`,
     `Dernière décision IA : ${ai?.action ?? "N/A"}`,
     `News risk : ${news?.risk?.regime ?? "N/A"} / score ${news?.risk?.score ?? "N/A"}`
@@ -1583,6 +1882,7 @@ RÈGLES GLOBALES :
 - Si une image est fournie, analyse-la précisément et relie-la au contexte demandé.
 - Si tu n’as pas les données live dans CONTEXTE WORKER, dis clairement : "Je n’ai pas la donnée live dans le contexte fourni."
 - Si volumeContext est présent dans le contexte Worker, tu dois l’intégrer : volumeRatio, volumeSignal, deltaProxy, cvdProxy, VWAP, POC, VAH, VAL.
+- Si smartMoneyEngine est présent, utilise-le pour qualifier le setup : NO_TRADE, WATCHLIST, SCALP_VALID, INTRADAY_VALID ou SWING_VALID.
 - Si signal.action = NONE, ne dis pas automatiquement que le trade est bloqué.
 - Explique si le système est en attente, en réduction de risque, ou sans déclencheur technique.
 - Le risque géopolitique/news ne bloque le trade que si le niveau est EXTREME et immédiat.
@@ -1786,6 +2086,9 @@ async function checkSystemHealth(){
           Prix signal : ${escapeHtml(ex.signalPrice??'N/A')}<br>
           Prix live : ${escapeHtml(ex.livePrice??'N/A')}<br>
           Écart : ${escapeHtml(gap)}<br>
+          Readiness : ${escapeHtml(ex.execution_readiness??'N/A')}<br>
+          Smart Money Bias : ${escapeHtml(ex.smart_money_bias??'N/A')}<br>
+          Phase : ${escapeHtml(ex.market_phase??'N/A')}<br>
           Exécutable : ${ex.executable?'<span class="health-ok">OUI</span>':'<span class="health-warning">NON</span>'}
         </div>
         <div class="health-line">
