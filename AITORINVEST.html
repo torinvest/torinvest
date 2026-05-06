@@ -4,253 +4,1699 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>TORINVEST AI — La Forge</title>
+
 <style>
-:root{--bg:#050403;--panel:#0d0b08;--panel2:#141008;--gold:#d9a441;--gold2:#ffce62;--text:#f4efe3;--muted:#9c9383;--muted2:#6b6257;--line:rgba(217,164,65,.28);--line2:rgba(255,206,98,.5);--ok:#63e66d;--warn:#ffb84d;--danger:#ff5a5f;--r:18px;--shadow:0 0 28px rgba(217,164,65,.16)}
-*{box-sizing:border-box}html,body{height:100%;margin:0}body{font-family:Inter,Segoe UI,Arial,sans-serif;background:radial-gradient(circle at 12% 0%,rgba(255,206,98,.15),transparent 26%),radial-gradient(circle at 90% 20%,rgba(217,164,65,.08),transparent 32%),linear-gradient(135deg,#020201,#090704 55%,#020201);color:var(--text);overflow:hidden}
-body:before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(217,164,65,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(217,164,65,.045) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(circle at center,black,transparent 76%);pointer-events:none;z-index:0}
-.app{height:100%;display:grid;grid-template-columns:270px minmax(520px,1fr) 320px;gap:14px;padding:14px;position:relative;z-index:1}
-.sidebar,.main,.right{border:1px solid var(--line);background:linear-gradient(180deg,rgba(17,16,13,.94),rgba(4,4,3,.96));border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;min-height:0}
-.sidebar,.right{display:flex;flex-direction:column}.right{padding:14px;gap:14px;overflow-y:auto}.main{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;min-width:0}
-.brand{padding:18px 15px 16px;text-align:center;border-bottom:1px solid var(--line);background:radial-gradient(circle at 50% 5%,rgba(255,206,98,.18),transparent 38%)}
-.forge-logo{width:120px;height:82px;margin:0 auto 9px;position:relative;display:flex;align-items:center;justify-content:center;color:var(--gold2);filter:drop-shadow(0 0 16px rgba(255,206,98,.42))}
-.forge-logo .hammer{position:absolute;top:-5px;right:17px;font-size:34px;transform:rotate(40deg)}.forge-logo .anvil{font-size:70px;line-height:1;font-weight:900}
-.logo{font-weight:950;font-size:31px;letter-spacing:1.5px;color:var(--gold2);line-height:1;text-shadow:0 0 18px rgba(255,206,98,.45)}
-.forge{font-size:13px;letter-spacing:7px;color:#fff;margin-top:5px;opacity:.92}.forge:before,.forge:after{content:"";display:inline-block;width:28px;height:1px;background:var(--gold);vertical-align:middle;margin:0 7px 3px}
-.slogan{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:14px;text-transform:uppercase;line-height:1.55;font-weight:800}
-.nav{padding:14px;display:flex;flex-direction:column;gap:9px}.nav button,.primary,.ghost,.tool-btn,.quick button{border:1px solid var(--line);background:linear-gradient(180deg,rgba(217,164,65,.10),rgba(0,0,0,.25));color:var(--text);border-radius:12px;padding:12px 14px;cursor:pointer;text-align:left;transition:.18s;font-weight:750;font-size:13px}
-.nav button:hover,.primary:hover,.ghost:hover,.tool-btn:hover,.quick button:hover{border-color:var(--gold2);box-shadow:0 0 18px rgba(217,164,65,.22);color:var(--gold2)}.nav button.active{background:linear-gradient(90deg,rgba(217,164,65,.28),rgba(0,0,0,.22));color:var(--gold2);border-color:var(--line2)}
-.side-card,.panel{margin:14px;padding:14px;border:1px solid var(--line);border-radius:14px;background:rgba(0,0,0,.24)}.right .panel{margin:0}.small-title{font-size:12px;color:var(--gold2);font-weight:900;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:10px}
-.agent-active{font-size:13px;line-height:1.48;color:var(--muted)}.status{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);margin-bottom:10px}.status:last-child{margin-bottom:0}
-.dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 12px var(--ok);flex-shrink:0}.dot.off{background:var(--muted2);box-shadow:none}.dot.warn{background:var(--warn);box-shadow:0 0 12px var(--warn)}.dot.critical,.dot.recording{background:var(--danger);box-shadow:0 0 14px var(--danger)}
-.topbar{display:grid;grid-template-columns:260px 1fr 250px;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(217,164,65,.04),rgba(0,0,0,.18))}
-.title{text-align:center}.title h1{font-size:24px;margin:0;color:var(--gold2);letter-spacing:1px}.title p{margin:5px 0 0;color:var(--muted);font-size:13px;font-weight:600}.model-label{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;font-weight:800}
-.select{background:#080706;color:var(--text);border:1px solid var(--line);padding:11px 12px;border-radius:12px;width:100%;outline:none;font-weight:650}
-.worker-card{border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:rgba(0,0,0,.28);display:flex;align-items:center;gap:10px;min-width:0}.worker-card b{font-size:12px;text-transform:uppercase}.worker-card small{display:block;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:155px}.gear{margin-left:auto;border:1px solid var(--line);border-radius:10px;padding:8px;color:var(--gold2);cursor:pointer;flex-shrink:0}
-.hero{margin:14px 16px 0;border:1px solid var(--line);border-radius:20px;height:235px;background:linear-gradient(90deg,rgba(0,0,0,.56),rgba(0,0,0,.18),rgba(0,0,0,.56)),radial-gradient(circle at 50% 31%,rgba(255,206,98,.48),transparent 10%),radial-gradient(circle at 50% 28%,rgba(255,206,98,.19),transparent 24%),linear-gradient(135deg,rgba(217,164,65,.14),rgba(0,0,0,.2)),repeating-linear-gradient(90deg,rgba(217,164,65,.07) 0 1px,transparent 1px 52px);overflow:hidden;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;flex-shrink:0}
-.hero:after{content:"";position:absolute;right:30px;top:26px;bottom:26px;width:38%;opacity:.42;background:linear-gradient(180deg,transparent 0 20%,rgba(217,164,65,.35) 20% 22%,transparent 22% 100%),repeating-linear-gradient(90deg,transparent 0 18px,rgba(255,206,98,.34) 18px 23px,transparent 23px 36px);clip-path:polygon(0 100%,100% 0,100% 100%)}
-.hero-inner{position:relative;z-index:2;width:100%;padding:18px}.hero-mark{position:relative;width:145px;height:84px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;color:var(--gold2);filter:drop-shadow(0 0 20px rgba(255,206,98,.48))}
-.hero-mark .hammer{position:absolute;top:-8px;right:30px;transform:rotate(40deg);font-size:41px}.hero-mark .anvil{font-size:86px;line-height:1;font-weight:900}.hero h2{margin:3px 0 2px;font-size:40px;line-height:1;letter-spacing:3px;color:var(--gold2)}.hero .forge-big{font-size:19px;letter-spacing:9px;color:#fff;margin-top:5px;font-weight:900}.hero p{margin:12px 0 0;color:var(--gold2);letter-spacing:3px;text-transform:uppercase;font-size:12px;font-weight:900}
-.chat{overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:12px;min-height:0}.chat::-webkit-scrollbar,.right::-webkit-scrollbar{width:8px}.chat::-webkit-scrollbar-thumb,.right::-webkit-scrollbar-thumb{background:rgba(217,164,65,.35);border-radius:99px}
-.msg{max-width:86%;border:1px solid var(--line);border-radius:16px;padding:14px 16px;line-height:1.58;white-space:pre-wrap;position:relative;box-shadow:0 0 18px rgba(0,0,0,.25);overflow-wrap:anywhere}.msg.user{align-self:flex-end;background:linear-gradient(135deg,rgba(217,164,65,.22),rgba(0,0,0,.32));border-bottom-right-radius:4px}.msg.assistant{align-self:flex-start;background:linear-gradient(180deg,rgba(12,11,9,.94),rgba(5,5,4,.92));border-bottom-left-radius:4px}
-.msg .label{font-size:11px;color:var(--gold2);font-weight:950;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase}.msg .time{font-size:11px;color:var(--muted2);margin-top:9px;text-align:right}.msg img{max-width:260px;border-radius:12px;border:1px solid var(--line);margin-bottom:10px;display:block}.msg-actions{display:flex;gap:10px;margin-top:10px;color:var(--gold2);font-size:16px}.msg-actions span{cursor:pointer;opacity:.8}
-.input-zone{border-top:1px solid var(--line);padding:12px 16px 14px;background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.35))}.voice-debug{display:none;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(0,0,0,.22);color:var(--muted);font-size:12px;line-height:1.45}.voice-debug.open{display:block}.voice-debug b{color:var(--gold2)}.voice-debug.err{border-color:rgba(255,90,95,.55);color:#ffc0c2}
-.preview{display:none;margin-bottom:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(0,0,0,.22);align-items:center;gap:10px}.preview.open{display:flex}.preview img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}.preview .meta{font-size:12px;color:var(--muted);flex:1}
-.input{display:flex;gap:10px;align-items:flex-end}textarea{flex:1;resize:none;max-height:140px;min-height:52px;border:1px solid var(--line);border-radius:14px;background:#070605;color:var(--text);padding:15px 14px;font-size:14px;outline:none}textarea:focus{border-color:var(--gold2);box-shadow:0 0 18px rgba(217,164,65,.18)}.primary{text-align:center;color:var(--gold2);font-weight:950;min-height:48px}.ghost{color:var(--gold2)}.tool-btn{width:52px;height:52px;text-align:center;padding:0;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}.tool-btn.active{border-color:var(--danger);color:#fff;background:rgba(255,90,95,.2)}.footer-note{text-align:center;color:var(--muted2);font-size:11px;margin-top:8px;line-height:1.35}
-.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.panel-head .small-title{margin:0}.plus{width:22px;height:22px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--gold2);cursor:pointer;font-weight:900}
-.agents{display:flex;flex-direction:column;gap:8px}.agent{border:1px solid var(--line);border-radius:13px;padding:11px;display:flex;gap:10px;cursor:pointer;background:rgba(255,255,255,.02);transition:.18s}.agent:hover,.agent.active{border-color:var(--gold2);background:rgba(217,164,65,.12);box-shadow:0 0 16px rgba(217,164,65,.16)}.agent .ico{font-size:24px;width:31px;color:var(--gold2);flex-shrink:0}.agent b{font-size:13px;text-transform:uppercase}.agent span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
-.mem-list{display:flex;flex-direction:column;gap:8px}.mem{border:1px solid rgba(217,164,65,.18);border-radius:10px;padding:10px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.02)}
-.quick{display:flex;flex-direction:column;gap:9px}.quick button{text-align:center;text-transform:uppercase;font-size:12px}.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat{border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;background:rgba(0,0,0,.22)}.stat b{font-size:22px;color:var(--gold2);display:block}.stat span{font-size:11px;color:var(--muted)}
-.health-line{border:1px solid rgba(217,164,65,.18);border-radius:10px;padding:9px;margin-top:8px;background:rgba(0,0,0,.20);font-size:12px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}.health-line b{color:var(--gold2)}.health-ok{color:var(--ok)!important}.health-warning{color:var(--warn)!important}.health-critical{color:var(--danger)!important}.health-pill{display:inline-block;border:1px solid rgba(217,164,65,.28);border-radius:999px;padding:2px 7px;margin:2px 2px 0 0;color:var(--gold2);font-size:11px}
-.theme-row{display:flex;gap:10px}.theme-btn{flex:1;border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(0,0,0,.2);color:var(--gold2);text-align:center;cursor:pointer}.mobile-toggle{display:none}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}.modal.open{display:flex}.box{width:min(900px,100%);max-height:88vh;overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 0 60px rgba(0,0,0,.8);padding:18px}.box h3{color:var(--gold2);margin-top:0}.field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.field input,.field select{background:#070605;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:11px}.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.warn{font-size:12px;color:var(--muted);line-height:1.5}.hidden{display:none!important}
-@media(max-width:1250px){.app{grid-template-columns:245px minmax(420px,1fr) 292px}.topbar{grid-template-columns:230px 1fr 220px}.hero h2{font-size:36px}}
-@media(max-width:1050px){body{overflow:auto}.app{height:auto;min-height:100%;grid-template-columns:1fr}.sidebar,.right{display:none}.sidebar.open,.right.open{display:flex}.mobile-toggle{display:flex;gap:8px;padding:10px}.main{min-height:100vh}.msg{max-width:96%}.topbar{grid-template-columns:1fr;align-items:stretch}.title{text-align:left}.worker-card small{max-width:100%}.hero{height:220px}.hero h2{font-size:30px}.hero-mark{width:120px;height:76px}.hero-mark .anvil{font-size:76px}.hero-mark .hammer{font-size:34px;right:24px}.hero .forge-big{font-size:16px;letter-spacing:7px}}
+:root{
+  --bg:#050403;
+  --panel:#0d0b08;
+  --panel2:#141008;
+  --gold:#d9a441;
+  --gold2:#ffce62;
+  --text:#f4efe3;
+  --muted:#9c9383;
+  --muted2:#6b6257;
+  --line:rgba(217,164,65,.28);
+  --line2:rgba(255,206,98,.5);
+  --ok:#63e66d;
+  --warn:#ffb84d;
+  --danger:#ff5a5f;
+  --r:18px;
+  --shadow:0 0 28px rgba(217,164,65,.16);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+
+body{
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,206,98,.15),transparent 26%),
+    radial-gradient(circle at 90% 20%,rgba(217,164,65,.08),transparent 32%),
+    linear-gradient(135deg,#020201,#090704 55%,#020201);
+  color:var(--text);
+  overflow:hidden;
+}
+
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(217,164,65,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(217,164,65,.045) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:radial-gradient(circle at center,black,transparent 76%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.app{
+  height:100%;
+  display:grid;
+  grid-template-columns:270px minmax(520px,1fr) 320px;
+  gap:14px;
+  padding:14px;
+  position:relative;
+  z-index:1;
+}
+
+.sidebar,.main,.right{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(17,16,13,.94),rgba(4,4,3,.96));
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  min-height:0;
+}
+
+.sidebar,.right{display:flex;flex-direction:column}
+.right{padding:14px;gap:14px;overflow-y:auto}
+.main{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;min-width:0}
+
+.brand{
+  padding:18px 15px 16px;
+  text-align:center;
+  border-bottom:1px solid var(--line);
+  background:radial-gradient(circle at 50% 5%,rgba(255,206,98,.18),transparent 38%);
+}
+
+.forge-logo{
+  width:120px;
+  height:82px;
+  margin:0 auto 9px;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--gold2);
+  filter:drop-shadow(0 0 16px rgba(255,206,98,.42));
+}
+
+.forge-logo .hammer{
+  position:absolute;
+  top:-5px;
+  right:17px;
+  font-size:34px;
+  transform:rotate(40deg);
+}
+
+.forge-logo .anvil{
+  font-size:70px;
+  line-height:1;
+  font-weight:900;
+}
+
+.logo{
+  font-weight:950;
+  font-size:31px;
+  letter-spacing:1.5px;
+  color:var(--gold2);
+  line-height:1;
+  text-shadow:0 0 18px rgba(255,206,98,.45);
+}
+
+.forge{
+  font-size:13px;
+  letter-spacing:7px;
+  color:#fff;
+  margin-top:5px;
+  opacity:.92;
+}
+
+.forge:before,.forge:after{
+  content:"";
+  display:inline-block;
+  width:28px;
+  height:1px;
+  background:var(--gold);
+  vertical-align:middle;
+  margin:0 7px 3px;
+}
+
+.slogan{
+  font-size:11px;
+  color:var(--gold);
+  letter-spacing:2px;
+  margin-top:14px;
+  text-transform:uppercase;
+  line-height:1.55;
+  font-weight:800;
+}
+
+.nav{
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+}
+
+.nav button,.primary,.ghost,.tool-btn,.quick button{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(217,164,65,.10),rgba(0,0,0,.25));
+  color:var(--text);
+  border-radius:12px;
+  padding:12px 14px;
+  cursor:pointer;
+  text-align:left;
+  transition:.18s;
+  font-weight:750;
+  font-size:13px;
+}
+
+.nav button:hover,.primary:hover,.ghost:hover,.tool-btn:hover,.quick button:hover{
+  border-color:var(--gold2);
+  box-shadow:0 0 18px rgba(217,164,65,.22);
+  color:var(--gold2);
+}
+
+.nav button.active{
+  background:linear-gradient(90deg,rgba(217,164,65,.28),rgba(0,0,0,.22));
+  color:var(--gold2);
+  border-color:var(--line2);
+}
+
+.side-card,.panel{
+  margin:14px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:rgba(0,0,0,.24);
+}
+
+.right .panel{margin:0}
+
+.small-title{
+  font-size:12px;
+  color:var(--gold2);
+  font-weight:900;
+  letter-spacing:1.3px;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+.agent-active{
+  font-size:13px;
+  line-height:1.48;
+  color:var(--muted);
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  font-size:13px;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+
+.status:last-child{margin-bottom:0}
+
+.dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--ok);
+  box-shadow:0 0 12px var(--ok);
+  flex-shrink:0;
+}
+
+.dot.off{background:var(--muted2);box-shadow:none}
+.dot.warn{background:var(--warn);box-shadow:0 0 12px var(--warn)}
+.dot.critical,.dot.recording{background:var(--danger);box-shadow:0 0 14px var(--danger)}
+
+.topbar{
+  display:grid;
+  grid-template-columns:260px 1fr 250px;
+  align-items:center;
+  gap:14px;
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(217,164,65,.04),rgba(0,0,0,.18));
+}
+
+.title{text-align:center}
+.title h1{font-size:24px;margin:0;color:var(--gold2);letter-spacing:1px}
+.title p{margin:5px 0 0;color:var(--muted);font-size:13px;font-weight:600}
+
+.model-label{
+  color:var(--muted);
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  margin-bottom:6px;
+  font-weight:800;
+}
+
+.select{
+  background:#080706;
+  color:var(--text);
+  border:1px solid var(--line);
+  padding:11px 12px;
+  border-radius:12px;
+  width:100%;
+  outline:none;
+  font-weight:650;
+}
+
+.worker-card{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px 12px;
+  background:rgba(0,0,0,.28);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.worker-card b{font-size:12px;text-transform:uppercase}
+
+.worker-card small{
+  display:block;
+  color:var(--muted);
+  margin-top:4px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:155px;
+}
+
+.gear{
+  margin-left:auto;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px;
+  color:var(--gold2);
+  cursor:pointer;
+  flex-shrink:0;
+}
+
+.hero{
+  margin:14px 16px 0;
+  border:1px solid var(--line);
+  border-radius:20px;
+  height:235px;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.56),rgba(0,0,0,.18),rgba(0,0,0,.56)),
+    radial-gradient(circle at 50% 31%,rgba(255,206,98,.48),transparent 10%),
+    radial-gradient(circle at 50% 28%,rgba(255,206,98,.19),transparent 24%),
+    linear-gradient(135deg,rgba(217,164,65,.14),rgba(0,0,0,.2)),
+    repeating-linear-gradient(90deg,rgba(217,164,65,.07) 0 1px,transparent 1px 52px);
+  overflow:hidden;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  flex-shrink:0;
+}
+
+.hero:after{
+  content:"";
+  position:absolute;
+  right:30px;
+  top:26px;
+  bottom:26px;
+  width:38%;
+  opacity:.42;
+  background:
+    linear-gradient(180deg,transparent 0 20%,rgba(217,164,65,.35) 20% 22%,transparent 22% 100%),
+    repeating-linear-gradient(90deg,transparent 0 18px,rgba(255,206,98,.34) 18px 23px,transparent 23px 36px);
+  clip-path:polygon(0 100%,100% 0,100% 100%);
+}
+
+.hero-inner{position:relative;z-index:2;width:100%;padding:18px}
+
+.hero-mark{
+  position:relative;
+  width:145px;
+  height:84px;
+  margin:0 auto 4px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--gold2);
+  filter:drop-shadow(0 0 20px rgba(255,206,98,.48));
+}
+
+.hero-mark .hammer{
+  position:absolute;
+  top:-8px;
+  right:30px;
+  transform:rotate(40deg);
+  font-size:41px;
+}
+
+.hero-mark .anvil{
+  font-size:86px;
+  line-height:1;
+  font-weight:900;
+}
+
+.hero h2{
+  margin:3px 0 2px;
+  font-size:40px;
+  line-height:1;
+  letter-spacing:3px;
+  color:var(--gold2);
+}
+
+.hero .forge-big{
+  font-size:19px;
+  letter-spacing:9px;
+  color:#fff;
+  margin-top:5px;
+  font-weight:900;
+}
+
+.hero p{
+  margin:12px 0 0;
+  color:var(--gold2);
+  letter-spacing:3px;
+  text-transform:uppercase;
+  font-size:12px;
+  font-weight:900;
+}
+
+.chat{
+  overflow-y:auto;
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-height:0;
+}
+
+.chat::-webkit-scrollbar,.right::-webkit-scrollbar{width:8px}
+.chat::-webkit-scrollbar-thumb,.right::-webkit-scrollbar-thumb{background:rgba(217,164,65,.35);border-radius:99px}
+
+.msg{
+  max-width:86%;
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:14px 16px;
+  line-height:1.58;
+  white-space:pre-wrap;
+  position:relative;
+  box-shadow:0 0 18px rgba(0,0,0,.25);
+  overflow-wrap:anywhere;
+}
+
+.msg.user{
+  align-self:flex-end;
+  background:linear-gradient(135deg,rgba(217,164,65,.22),rgba(0,0,0,.32));
+  border-bottom-right-radius:4px;
+}
+
+.msg.assistant{
+  align-self:flex-start;
+  background:linear-gradient(180deg,rgba(12,11,9,.94),rgba(5,5,4,.92));
+  border-bottom-left-radius:4px;
+}
+
+.msg .label{
+  font-size:11px;
+  color:var(--gold2);
+  font-weight:950;
+  letter-spacing:1px;
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+
+.msg .time{
+  font-size:11px;
+  color:var(--muted2);
+  margin-top:9px;
+  text-align:right;
+}
+
+.msg img{
+  max-width:260px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  margin-bottom:10px;
+  display:block;
+}
+
+.msg-actions{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+  color:var(--gold2);
+  font-size:16px;
+}
+
+.msg-actions span{cursor:pointer;opacity:.8}
+
+.input-zone{
+  border-top:1px solid var(--line);
+  padding:12px 16px 14px;
+  background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.35));
+}
+
+.voice-debug{
+  display:none;
+  margin-bottom:10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(0,0,0,.22);
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+
+.voice-debug.open{display:block}
+.voice-debug b{color:var(--gold2)}
+.voice-debug.err{border-color:rgba(255,90,95,.55);color:#ffc0c2}
+
+.preview{
+  display:none;
+  margin-bottom:10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  background:rgba(0,0,0,.22);
+  align-items:center;
+  gap:10px;
+}
+
+.preview.open{display:flex}
+
+.preview img{
+  width:72px;
+  height:72px;
+  object-fit:cover;
+  border-radius:10px;
+  border:1px solid var(--line);
+}
+
+.preview .meta{font-size:12px;color:var(--muted);flex:1}
+
+.input{display:flex;gap:10px;align-items:flex-end}
+
+textarea{
+  flex:1;
+  resize:none;
+  max-height:140px;
+  min-height:52px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#070605;
+  color:var(--text);
+  padding:15px 14px;
+  font-size:14px;
+  outline:none;
+}
+
+textarea:focus{
+  border-color:var(--gold2);
+  box-shadow:0 0 18px rgba(217,164,65,.18);
+}
+
+.primary{text-align:center;color:var(--gold2);font-weight:950;min-height:48px}
+.ghost{color:var(--gold2)}
+
+.tool-btn{
+  width:52px;
+  height:52px;
+  text-align:center;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  flex-shrink:0;
+}
+
+.tool-btn.active{
+  border-color:var(--danger);
+  color:#fff;
+  background:rgba(255,90,95,.2);
+}
+
+.footer-note{
+  text-align:center;
+  color:var(--muted2);
+  font-size:11px;
+  margin-top:8px;
+  line-height:1.35;
+}
+
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.panel-head .small-title{margin:0}
+
+.plus{
+  width:22px;
+  height:22px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:var(--gold2);
+  cursor:pointer;
+  font-weight:900;
+}
+
+.agents{display:flex;flex-direction:column;gap:8px}
+
+.agent{
+  border:1px solid var(--line);
+  border-radius:13px;
+  padding:11px;
+  display:flex;
+  gap:10px;
+  cursor:pointer;
+  background:rgba(255,255,255,.02);
+  transition:.18s;
+}
+
+.agent:hover,.agent.active{
+  border-color:var(--gold2);
+  background:rgba(217,164,65,.12);
+  box-shadow:0 0 16px rgba(217,164,65,.16);
+}
+
+.agent .ico{
+  font-size:24px;
+  width:31px;
+  color:var(--gold2);
+  flex-shrink:0;
+}
+
+.agent b{font-size:13px;text-transform:uppercase}
+.agent span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+
+.mem-list{display:flex;flex-direction:column;gap:8px}
+
+.mem{
+  border:1px solid rgba(217,164,65,.18);
+  border-radius:10px;
+  padding:10px;
+  color:var(--muted);
+  font-size:12px;
+  background:rgba(255,255,255,.02);
+}
+
+.quick{display:flex;flex-direction:column;gap:9px}
+.quick button{text-align:center;text-transform:uppercase;font-size:12px}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+
+.stat{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  text-align:center;
+  background:rgba(0,0,0,.22);
+}
+
+.stat b{font-size:22px;color:var(--gold2);display:block}
+.stat span{font-size:11px;color:var(--muted)}
+
+.health-line{
+  border:1px solid rgba(217,164,65,.18);
+  border-radius:10px;
+  padding:9px;
+  margin-top:8px;
+  background:rgba(0,0,0,.20);
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+.health-line b{color:var(--gold2)}
+.health-ok{color:var(--ok)!important}
+.health-warning{color:var(--warn)!important}
+.health-critical{color:var(--danger)!important}
+
+.health-pill{
+  display:inline-block;
+  border:1px solid rgba(217,164,65,.28);
+  border-radius:999px;
+  padding:2px 7px;
+  margin:2px 2px 0 0;
+  color:var(--gold2);
+  font-size:11px;
+}
+
+.theme-row{display:flex;gap:10px}
+
+.theme-btn{
+  flex:1;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px;
+  background:rgba(0,0,0,.2);
+  color:var(--gold2);
+  text-align:center;
+  cursor:pointer;
+}
+
+.mobile-toggle{display:none}
+
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.75);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:20;
+  padding:16px;
+}
+
+.modal.open{display:flex}
+
+.box{
+  width:min(900px,100%);
+  max-height:88vh;
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:var(--panel);
+  box-shadow:0 0 60px rgba(0,0,0,.8);
+  padding:18px;
+}
+
+.box h3{color:var(--gold2);margin-top:0}
+
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:7px;
+  margin-bottom:12px;
+}
+
+.field input,.field select{
+  background:#070605;
+  border:1px solid var(--line);
+  border-radius:12px;
+  color:var(--text);
+  padding:11px;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  margin-top:14px;
+}
+
+.warn{font-size:12px;color:var(--muted);line-height:1.5}
+.hidden{display:none!important}
+
+@media(max-width:1250px){
+  .app{grid-template-columns:245px minmax(420px,1fr) 292px}
+  .topbar{grid-template-columns:230px 1fr 220px}
+  .hero h2{font-size:36px}
+}
+
+@media(max-width:1050px){
+  body{overflow:auto}
+  .app{height:auto;min-height:100%;grid-template-columns:1fr}
+  .sidebar,.right{display:none}
+  .sidebar.open,.right.open{display:flex}
+  .mobile-toggle{display:flex;gap:8px;padding:10px}
+  .main{min-height:100vh}
+  .msg{max-width:96%}
+  .topbar{grid-template-columns:1fr;align-items:stretch}
+  .title{text-align:left}
+  .worker-card small{max-width:100%}
+  .hero{height:220px}
+  .hero h2{font-size:30px}
+  .hero-mark{width:120px;height:76px}
+  .hero-mark .anvil{font-size:76px}
+  .hero-mark .hammer{font-size:34px;right:24px}
+  .hero .forge-big{font-size:16px;letter-spacing:7px}
+}
 </style>
 </head>
 
 <body>
 <div class="app">
-<aside class="sidebar" id="leftPanel">
-<div class="brand"><div class="forge-logo"><div class="hammer">⚒</div><div class="anvil">⚒</div></div><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">Trader. Investir.<br>Forger ton avenir.</div></div>
-<div class="nav"><button class="active" onclick="newChat()">＋ Nouveau chat</button><button onclick="openArchives()">▣ Archives</button><button onclick="openAgentsModal()">⚙ Agents</button><button onclick="openMemoryModal()">⬢ Mémoire</button><button onclick="checkSystemHealth()">🧠 System Health</button><button onclick="exportData()">⬇ Exporter</button><button onclick="importDataPrompt()">⬆ Importer</button><input id="importFile" type="file" accept="application/json" class="hidden" /></div>
-<div class="side-card"><div class="small-title">Agent actif</div><div class="agent-active" id="activeAgentBox"></div></div>
-<div class="side-card"><div class="small-title">Statut</div><div class="status"><span class="dot" id="workerDot"></span><span>Worker connecté<br><small id="workerShort"></small></span></div><div class="status"><span class="dot off" id="healthDot"></span><span id="healthStatusText">Health non testé<br><small>/system/health</small></span></div><div class="status"><span class="dot off" id="volumeDot"></span><span id="volumeStatusText">Volume en attente<br><small>volumeContext</small></span></div><div class="status"><span class="dot off" id="agentContextDot"></span><span id="agentContextStatusText">Agent context non testé<br><small>/agent/context</small></span></div><div class="status"><span class="dot off" id="micDot"></span><span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span></div></div>
-<div style="margin-top:auto" class="side-card"><div class="small-title">Mantra</div><div class="agent-active">La discipline aujourd’hui,<br>la liberté demain.</div></div>
-</aside>
+  <aside class="sidebar" id="leftPanel">
+    <div class="brand">
+      <div class="forge-logo">
+        <div class="hammer">⚒</div>
+        <div class="anvil">⚒</div>
+      </div>
+      <div class="logo">TORINVEST</div>
+      <div class="forge">LA FORGE</div>
+      <div class="slogan">Trader. Investir.<br>Forger ton avenir.</div>
+    </div>
 
-<main class="main">
-<div class="mobile-toggle"><button class="ghost" onclick="toggleLeft()">☰ Menu</button><button class="ghost" onclick="toggleRight()">Agents</button></div>
-<div class="topbar"><div class="model-box"><div class="model-label">Modèle</div><select class="select" id="modelSelect"></select></div><div class="title"><h1>TORINVEST AI</h1><p>Ton assistant trading intelligent</p></div><div class="worker-card"><span class="dot" id="topWorkerDot"></span><span><b>Worker actif</b><small id="workerShortTop"></small></span><span class="gear" onclick="checkSystemHealth()">⚙</span></div></div>
-<section class="hero"><div class="hero-inner"><div class="hero-mark"><div class="hammer">⚒</div><div class="anvil">⚒</div></div><h2>TORINVEST</h2><div class="forge-big">LA FORGE</div><p>Trader • Investir • Forger ton avenir</p></div></section>
-<section class="chat" id="chat"></section>
-<div class="input-zone"><div class="voice-debug" id="voiceDebug"></div><div class="preview" id="imagePreviewBox"><img id="imagePreview" /><div class="meta"><b style="color:var(--gold2)">Image prête</b><br><span id="imageMeta">Envoyée avec le prochain message.</span></div><button class="ghost" onclick="clearPendingImage()">Retirer</button></div><div class="input"><button class="tool-btn" title="Ajouter une image" onclick="document.getElementById('imageInput').click()">📎</button><button class="tool-btn" id="micBtn" title="Dicter vocalement" onclick="toggleVoice()">🎙️</button><textarea id="userInput" placeholder="Écris ton message…"></textarea><button class="primary" onclick="sendMessage()">ENVOYER ⚡</button><input id="imageInput" class="hidden" type="file" accept="image/*" onchange="handleImagePick(event)" /></div><div class="footer-note">Les informations fournies ne constituent pas un conseil en investissement.<br>Trade avec discipline. Gère ton risque.</div></div>
-</main>
+    <div class="nav">
+      <button class="active" onclick="newChat()">＋ Nouveau chat</button>
+      <button onclick="openArchives()">▣ Archives</button>
+      <button onclick="openAgentsModal()">⚙ Agents</button>
+      <button onclick="openMemoryModal()">⬢ Mémoire</button>
+      <button onclick="checkSystemHealth()">🧠 System Health</button>
+      <button onclick="exportData()">⬇ Exporter</button>
+      <button onclick="importDataPrompt()">⬆ Importer</button>
+      <input id="importFile" type="file" accept="application/json" class="hidden" />
+    </div>
 
-<aside class="right" id="rightPanel">
-<div class="panel"><div class="panel-head"><div class="small-title">Agents spécialisés</div><div class="plus" onclick="openAgentsModal()">+</div></div><div class="agents" id="agentsList"></div></div>
-<div class="panel"><div class="panel-head"><div class="small-title">Mémoire globale</div><div class="plus" onclick="openMemoryModal()">+</div></div><div class="mem-list" id="memoryPreview"></div><button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button></div>
-<div class="panel"><div class="small-title">Statistiques</div><div class="stats"><div class="stat"><b id="statChats">0</b><span>Conversations</span></div><div class="stat"><b id="statAgents">0</b><span>Agents créés</span></div><div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div><div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div></div></div>
-<div class="panel"><div class="small-title">System Health</div><div id="healthBox" style="font-size:12px;color:var(--muted);line-height:1.5">Aucun diagnostic.</div><button class="primary" style="width:100%;margin-top:10px" onclick="checkSystemHealth()">Analyser</button></div>
-<div class="panel quick"><div class="small-title">Outils rapides</div><button onclick="quick('Trouve-moi un setup GOLD/XAUUSD ce matin avec données Worker, volumeContext, MTF, news, scénario principal et invalidation.')">Nouvelle analyse</button><button onclick="quick('Crée un plan de backtest complet pour cette stratégie avec règles, filtres, invalidation et métriques.')">Backtest stratégie</button><button onclick="quick('Calcule-moi une position avec capital, risque %, SL en points/pips, lot, perte max et R:R.')">Calculateur position</button><button onclick="quick('Analyse le calendrier économique du jour et dis-moi les news dangereuses pour le gold, EURUSD et indices.')">Économie calendrier</button></div>
-<div class="panel"><div class="small-title">Thème</div><div class="theme-row"><div class="theme-btn">☀</div><div class="theme-btn">☾</div><div class="theme-btn">☼</div></div></div>
-</aside>
+    <div class="side-card">
+      <div class="small-title">Agent actif</div>
+      <div class="agent-active" id="activeAgentBox"></div>
+    </div>
+
+    <div class="side-card">
+      <div class="small-title">Statut</div>
+
+      <div class="status">
+        <span class="dot" id="workerDot"></span>
+        <span>Worker connecté<br><small id="workerShort"></small></span>
+      </div>
+
+      <div class="status">
+        <span class="dot off" id="healthDot"></span>
+        <span id="healthStatusText">Health non testé<br><small>/system/health</small></span>
+      </div>
+
+      <div class="status">
+        <span class="dot off" id="volumeDot"></span>
+        <span id="volumeStatusText">Volume en attente<br><small>volumeContext</small></span>
+      </div>
+
+      <div class="status">
+        <span class="dot off" id="agentContextDot"></span>
+        <span id="agentContextStatusText">Agent context non testé<br><small>/agent/context</small></span>
+      </div>
+
+      <div class="status">
+        <span class="dot off" id="micDot"></span>
+        <span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span>
+      </div>
+    </div>
+
+    <div style="margin-top:auto" class="side-card">
+      <div class="small-title">Mantra</div>
+      <div class="agent-active">La discipline aujourd’hui,<br>la liberté demain.</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="mobile-toggle">
+      <button class="ghost" onclick="toggleLeft()">☰ Menu</button>
+      <button class="ghost" onclick="toggleRight()">Agents</button>
+    </div>
+
+    <div class="topbar">
+      <div class="model-box">
+        <div class="model-label">Modèle</div>
+        <select class="select" id="modelSelect"></select>
+      </div>
+
+      <div class="title">
+        <h1>TORINVEST AI</h1>
+        <p>Ton assistant trading intelligent</p>
+      </div>
+
+      <div class="worker-card">
+        <span class="dot" id="topWorkerDot"></span>
+        <span>
+          <b>Worker actif</b>
+          <small id="workerShortTop"></small>
+        </span>
+        <span class="gear" onclick="checkSystemHealth()">⚙</span>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-mark">
+          <div class="hammer">⚒</div>
+          <div class="anvil">⚒</div>
+        </div>
+        <h2>TORINVEST</h2>
+        <div class="forge-big">LA FORGE</div>
+        <p>Trader • Investir • Forger ton avenir</p>
+      </div>
+    </section>
+
+    <section class="chat" id="chat"></section>
+
+    <div class="input-zone">
+      <div class="voice-debug" id="voiceDebug"></div>
+
+      <div class="preview" id="imagePreviewBox">
+        <img id="imagePreview" />
+        <div class="meta">
+          <b style="color:var(--gold2)">Image prête</b><br>
+          <span id="imageMeta">Envoyée avec le prochain message.</span>
+        </div>
+        <button class="ghost" onclick="clearPendingImage()">Retirer</button>
+      </div>
+
+      <div class="input">
+        <button class="tool-btn" title="Ajouter une image" onclick="document.getElementById('imageInput').click()">📎</button>
+        <button class="tool-btn" id="micBtn" title="Dicter vocalement" onclick="toggleVoice()">🎙️</button>
+        <textarea id="userInput" placeholder="Écris ton message…"></textarea>
+        <button class="primary" onclick="sendMessage()">ENVOYER ⚡</button>
+        <input id="imageInput" class="hidden" type="file" accept="image/*" onchange="handleImagePick(event)" />
+      </div>
+
+      <div class="footer-note">
+        Les informations fournies ne constituent pas un conseil en investissement.<br>
+        Trade avec discipline. Gère ton risque.
+      </div>
+    </div>
+  </main>
+
+  <aside class="right" id="rightPanel">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="small-title">Agents spécialisés</div>
+        <div class="plus" onclick="openAgentsModal()">+</div>
+      </div>
+      <div class="agents" id="agentsList"></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div class="small-title">Mémoire globale</div>
+        <div class="plus" onclick="openMemoryModal()">+</div>
+      </div>
+      <div class="mem-list" id="memoryPreview"></div>
+      <button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button>
+    </div>
+
+    <div class="panel">
+      <div class="small-title">Statistiques</div>
+      <div class="stats">
+        <div class="stat"><b id="statChats">0</b><span>Conversations</span></div>
+        <div class="stat"><b id="statAgents">0</b><span>Agents créés</span></div>
+        <div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div>
+        <div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="small-title">System Health</div>
+      <div id="healthBox" style="font-size:12px;color:var(--muted);line-height:1.5">Aucun diagnostic.</div>
+      <button class="primary" style="width:100%;margin-top:10px" onclick="checkSystemHealth()">Analyser</button>
+    </div>
+
+    <div class="panel quick">
+      <div class="small-title">Outils rapides</div>
+      <button onclick="quick('Trouve-moi un setup GOLD/XAUUSD ce matin avec données Worker, volumeContext, MTF, news, scénario principal et invalidation.')">Nouvelle analyse</button>
+      <button onclick="quick('Crée un plan de backtest complet pour cette stratégie avec règles, filtres, invalidation et métriques.')">Backtest stratégie</button>
+      <button onclick="quick('Calcule-moi une position avec capital, risque %, SL en points/pips, lot, perte max et R:R.')">Calculateur position</button>
+      <button onclick="quick('Analyse le calendrier économique du jour et dis-moi les news dangereuses pour le gold, EURUSD et indices.')">Économie calendrier</button>
+    </div>
+
+    <div class="panel">
+      <div class="small-title">Thème</div>
+      <div class="theme-row">
+        <div class="theme-btn">☀</div>
+        <div class="theme-btn">☾</div>
+        <div class="theme-btn">☼</div>
+      </div>
+    </div>
+  </aside>
 </div>
 
-<div class="modal" id="agentsModal"><div class="box"><h3>Agents TORINVEST</h3><div class="agents" id="agentsModalList"></div><div class="actions"><button class="ghost" onclick="closeModal('agentsModal')">Fermer</button></div></div></div>
-<div class="modal" id="memoryModal"><div class="box"><h3>Mémoire globale locale</h3><p class="warn">Cette mémoire reste dans le navigateur. Elle est envoyée au Worker seulement comme contexte utile dans tes requêtes.</p><div class="field"><label>Ajouter une mémoire</label><input id="memoryInput" placeholder="Ex : Risque max par trade : 1%" /></div><button class="primary" onclick="addMemory()">Ajouter</button><hr style="border-color:var(--line)"><div class="mem-list" id="memoryFull"></div><div class="actions"><button class="ghost" onclick="clearMemory()">Effacer mémoire</button><button class="ghost" onclick="closeModal('memoryModal')">Fermer</button></div></div></div>
-<div class="modal" id="archivesModal"><div class="box"><h3>Archives conversations</h3><div id="archivesList"></div><div class="actions"><button class="ghost" onclick="closeModal('archivesModal')">Fermer</button></div></div></div>
+<div class="modal" id="agentsModal">
+  <div class="box">
+    <h3>Agents TORINVEST</h3>
+    <div class="agents" id="agentsModalList"></div>
+    <div class="actions">
+      <button class="ghost" onclick="closeModal('agentsModal')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="memoryModal">
+  <div class="box">
+    <h3>Mémoire globale locale</h3>
+    <p class="warn">Cette mémoire reste dans le navigateur. Elle est envoyée au Worker seulement comme contexte utile dans tes requêtes.</p>
+    <div class="field">
+      <label>Ajouter une mémoire</label>
+      <input id="memoryInput" placeholder="Ex : Risque max par trade : 1%" />
+    </div>
+    <button class="primary" onclick="addMemory()">Ajouter</button>
+    <hr style="border-color:var(--line)">
+    <div class="mem-list" id="memoryFull"></div>
+    <div class="actions">
+      <button class="ghost" onclick="clearMemory()">Effacer mémoire</button>
+      <button class="ghost" onclick="closeModal('memoryModal')">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="archivesModal">
+  <div class="box">
+    <h3>Archives conversations</h3>
+    <div id="archivesList"></div>
+    <div class="actions">
+      <button class="ghost" onclick="closeModal('archivesModal')">Fermer</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const WORKER_BASE_URL="https://morning-hall-d8f6.onzerimes.workers.dev";
 const COPY_TOKEN="default";
+
 const WORKER_AI_URL=WORKER_BASE_URL+"/ai/chat";
 const WORKER_STATUS_URL=WORKER_BASE_URL+"/ai/status";
 const WORKER_HEALTH_URL=WORKER_BASE_URL+"/system/health?token="+encodeURIComponent(COPY_TOKEN);
 const WORKER_AGENT_CONTEXT_URL=WORKER_BASE_URL+"/agent/context";
-const WORKER_COPY_SIGNAL_URL=WORKER_BASE_URL + "/copy/signal";
-const STORAGE_KEY="torinvest_forge_ai_v4_4_stable_complete";
-const LEGACY_STORAGE_KEYS=["torinvest_forge_ai_v4_3_fixed_complete","torinvest_forge_ai_v4_da_complete","torinvest_forge_ai_v3_agent_ready","torinvest_forge_ai_v2_volume","torinvest_forge_ai_v1"];
-const VISION_MODEL="pixtral-large-latest";
-const MODELS=[{id:"mistral-large-latest",name:"Mistral Large — analyse profonde"},{id:"pixtral-large-latest",name:"Pixtral Large — image + analyse"},{id:"mistral-small-latest",name:"Mistral Small — rapide / économique"},{id:"codestral-latest",name:"Codestral — code / bots"},{id:"open-mistral-nemo",name:"Open Mistral Nemo — polyvalent"}];
+const WORKER_COPY_SIGNAL_URL=WORKER_BASE_URL+"/copy/signal";
 
-const AGENTS=[
-{id:"macro",icon:"🐂",name:"Maître des marchés",desc:"Analyse globale & stratégie",temp:.35,prompt:`Tu es Maître des Marchés TORINVEST. Analyse comme un desk institutionnel. Méthode : macro, banques centrales, inflation, croissance, taux, DXY, liquidité, crédit, risk-on/risk-off, structure, volumeContext, smartMoneyEngine et news. Format : données disponibles / lecture macro / structure technique / volume-liquidity / risques cachés / scénario principal / scénario alternatif / invalidation / conclusion TORINVEST.`},
-{id:"tech",icon:"📈",name:"Analyste technique",desc:"Patterns, indicateurs, signaux",temp:.35,prompt:`Tu es l’Analyste Technique TORINVEST. Lis le prix avec précision : HTF/LTF, range, expansion, retracement, cassure, retest, momentum, zones clés, RSI, moyennes, volumeContext, POC/VAH/VAL. Format : structure HTF / structure LTF / zones clés / volumeContext / scénario haussier / scénario baissier / invalidation / plan d’attente.`},
-{id:"scalp",icon:"⚡",name:"Scalper Pro",desc:"Scalping & trading court terme",temp:.32,prompt:`Tu es Scalper Pro TORINVEST. Tu transformes le contexte en exécution courte. Utilise /agent/context : market.targetAsset, MTF, volumeContext, signal, aiDecision, smartMoneyEngine. Règles : pas de trade au milieu, pas sans invalidation, pas sans contexte HTF. Format : biais session / zone d’attente / trigger / stop logique / TP / no-trade zone / discipline.`},
-{id:"risk",icon:"🛡",name:"Gestionnaire risque",desc:"Risk management avancé",temp:.25,prompt:`Tu es Gestionnaire Risque TORINVEST. Ta mission est de protéger le capital. Analyse : taille de position, perte max, drawdown, prop firm, surtrading, revenge trading, régularité, exposition. Format : risque actuel / erreur potentielle / taille recommandée / limite de perte / règle de sécurité / décision.`},
-{id:"copy",icon:"👥",name:"Copy Strategist",desc:"Stratégies des pros à copier",temp:.32,prompt:`Tu es Copy Strategist TORINVEST. Structure les signaux : ACTIF / SENS / ENTRÉE / SL / TP1 / TP2 / RISQUE / JUSTIFICATION / INVALIDATION / NOTE DISCIPLINE. Jamais de signal sans risque ni invalidation.`},
-{id:"gold",icon:"🥇",name:"Gold Specialist",desc:"XAUUSD, DXY, taux, refuge",temp:.34,prompt:`Tu es Gold Specialist TORINVEST. Croise : XAUUSD, DXY, US10Y/US2Y/US5Y, VIX, SPX/Nasdaq, géopolitique, pétrole, structure technique, liquidité, volumeContext, smartMoneyEngine. Format : données disponibles / macro / technique / volumeContext / liquidité / scénario principal / scénario alternatif / invalidation / conclusion.`},
-{id:"ict",icon:"⚔",name:"Expert ICT / SMC",desc:"Liquidité, inducement, MSS, FVG",temp:.35,prompt:`Tu es Expert ICT / SMC TORINVEST. Lis le marché comme une chasse à la liquidité : structure, premium/discount, internal/external liquidity, sweep, inducement, MSS/BOS, FVG, OB, breaker, session. Format : structure / liquidité ciblée / volumeContext / piège probable / confirmation attendue / setup possible / invalidation.`},
-{id:"geo",icon:"🌍",name:"Analyste géopolitique",desc:"Conflits, sanctions, énergie",temp:.42,prompt:`Tu es l’Analyste Géopolitique TORINVEST. Transforme une actualité géopolitique en impact marché : conflit, sanctions, routes maritimes, énergie, inflation, devises, or, pétrole, indices, risque systémique.`},
-{id:"sentiment",icon:"📡",name:"Sentiment Engine",desc:"Risk ON/OFF cross-asset",temp:.3,prompt:`Tu es le Sentiment Engine TORINVEST. Détermine RISK ON, RISK OFF, MIXTE, TRANSITION ou FAKE MOVE. Croise DXY, yields, SPX, Nasdaq, VIX, gold, BTC, JPY, CHF, HYG/LQD, volumeContext et signal actif.`},
-{id:"strategy",icon:"🧱",name:"Strategy Builder",desc:"Règles, conditions, exécution",temp:.45,prompt:`Tu es Strategy Builder TORINVEST. Crée des stratégies testables : nom / marché / timeframes / conditions d’entrée / filtres volumeContext / sorties / invalidation / risque / conditions de backtest / limites.`},
-{id:"formation",icon:"🎓",name:"Formation Builder",desc:"Modules pédagogiques",temp:.5,prompt:`Tu es Formation Builder TORINVEST. Crée des modules pédagogiques progressifs : module / objectif / compréhension clé / cours / exemple / erreurs fréquentes / exercice / quiz / devoir / règle TORINVEST.`},
-{id:"mindset",icon:"🧠",name:"Mindset Coach",desc:"Psychologie et discipline",temp:.45,prompt:`Tu es Mindset Coach TORINVEST. Travaille la psychologie du trader : problème / cause mentale / conséquence trading / correction / exercice pratique / règle de la semaine.`}
+const STORAGE_KEY="torinvest_forge_ai_v4_4_stable_complete";
+const LEGACY_STORAGE_KEYS=[
+  "torinvest_forge_ai_v4_3_fixed_complete",
+  "torinvest_forge_ai_v4_da_complete",
+  "torinvest_forge_ai_v3_agent_ready",
+  "torinvest_forge_ai_v2_volume",
+  "torinvest_forge_ai_v1"
 ];
 
-let state=loadState(),pendingImage=null,recognition=null,isRecording=false,voiceBaseText="",voiceFinalText="";
+const VISION_MODEL="pixtral-large-latest";
 
-function defaultState(){return{agentId:"macro",model:"mistral-large-latest",messages:[],chats:[],memory:[{text:"Préférence : Swing trading",ts:new Date("2025-05-15").getTime()},{text:"Risque max par trade : 1%",ts:new Date("2025-05-15").getTime()},{text:"Objectif mensuel : 8-12%",ts:new Date("2025-05-14").getTime()}]}}
-function normalizeState(s){const d=defaultState();return{agentId:s?.agentId||d.agentId,model:s?.model||d.model,messages:Array.isArray(s?.messages)?s.messages:[],chats:Array.isArray(s?.chats)?s.chats:[],memory:Array.isArray(s?.memory)?s.memory:d.memory}}
-function loadState(){try{const cur=localStorage.getItem(STORAGE_KEY);if(cur)return normalizeState(JSON.parse(cur));for(const k of LEGACY_STORAGE_KEYS){const v=localStorage.getItem(k);if(v)return normalizeState(JSON.parse(v))}return defaultState()}catch{return defaultState()}}
-function compactMessage(m,limit=9000){return{role:m.role==="user"?"user":"assistant",content:String(m.content||"").slice(0,limit),ts:m.ts||Date.now(),imageDataUrl:null}}
-function save(){try{const clean={...state,messages:state.messages.filter(m=>!m.loading).slice(-40).map(m=>compactMessage(m,12000)),chats:state.chats.slice(0,20).map(c=>({id:c.id,title:String(c.title||"Conversation").slice(0,80),ts:c.ts||Date.now(),messages:Array.isArray(c.messages)?c.messages.slice(-25).map(m=>compactMessage(m,8000)):[]})),memory:state.memory.slice(-60).map(m=>({text:String(m.text||"").slice(0,500),ts:m.ts||Date.now()}))};localStorage.setItem(STORAGE_KEY,JSON.stringify(clean));state=clean}catch(e){console.warn("Storage protected:",e);try{state.messages=state.messages.filter(m=>!m.loading).slice(-12).map(m=>compactMessage(m,4000));state.chats=[];state.memory=state.memory.slice(-20);localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(_){localStorage.removeItem(STORAGE_KEY)}}renderStats()}
-function agent(){return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0]}
-function escapeHtml(s){return String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
-function fmtNum(v,d=2){const n=Number(v);return Number.isFinite(n)?n.toFixed(d):"N/A"}function fmtRaw(v){return v===null||v===undefined||v===""?"N/A":String(v)}
-function setDot(id,status){const dot=document.getElementById(id);if(!dot)return;dot.classList.remove("off","warn","critical","recording");if(status==="ok")return;if(status==="warn")dot.classList.add("warn");else if(status==="critical")dot.classList.add("critical");else if(status==="recording")dot.classList.add("recording");else dot.classList.add("off")}
-function setHealthSidebarStatus(status,label){const t=document.getElementById("healthStatusText");const s=String(status||"UNKNOWN").toUpperCase();if(s==="OK"){setDot("healthDot","ok");t.innerHTML=`${label||"Health OK"}<br><small>/system/health</small>`}else if(s==="WARNING"){setDot("healthDot","warn");t.innerHTML=`${label||"Health WARNING"}<br><small>/system/health</small>`}else if(s==="CRITICAL"){setDot("healthDot","critical");t.innerHTML=`${label||"Health CRITICAL"}<br><small>/system/health</small>`}else if(s==="LOADING"){setDot("healthDot","warn");t.innerHTML=`${label||"Health en analyse"}<br><small>/system/health</small>`}else{setDot("healthDot","off");t.innerHTML=`${label||"Health non testé"}<br><small>/system/health</small>`}}
-function setVolumeSidebarStatus(ok,count){const t=document.getElementById("volumeStatusText");if(ok){setDot("volumeDot","ok");t.innerHTML=`Volume actif<br><small>${count} actif(s) nourri(s)</small>`}else{setDot("volumeDot","warn");t.innerHTML=`Volume en attente<br><small>volumeContext absent</small>`}}
-function setAgentContextSidebarStatus(ok,label){const t=document.getElementById("agentContextStatusText");if(ok){setDot("agentContextDot","ok");t.innerHTML=`Agent context actif<br><small>${escapeHtml(label||"/agent/context")}</small>`}else{setDot("agentContextDot","warn");t.innerHTML=`Agent context en attente<br><small>/agent/context</small>`}}
-function setMicroStatus(active,text){const d=document.getElementById("micDot"),t=document.getElementById("micStatusText"),b=document.getElementById("micBtn");if(active){d.classList.remove("off");d.classList.add("recording");b.classList.add("active");t.innerHTML=text||"Micro actif<br><small>Écoute en cours...</small>"}else{d.classList.add("off");d.classList.remove("recording");b.classList.remove("active");t.innerHTML=text||"Micro inactif<br><small>Dictée navigateur</small>"}}
-function setVoiceDebug(message,isError=false){const box=document.getElementById("voiceDebug");box.innerHTML=message;box.classList.add("open");box.classList.toggle("err",!!isError)}function clearVoiceDebug(){const box=document.getElementById("voiceDebug");box.classList.remove("open","err");box.innerHTML=""}
-function render(){renderModels();renderAgents();renderChat();renderMemory();renderStats();renderImagePreview();const short=WORKER_AI_URL.replace("https://","").slice(0,34)+"…";document.getElementById("workerShort").textContent=short;document.getElementById("workerShortTop").textContent=short;document.getElementById("activeAgentBox").innerHTML=`<b style="color:var(--gold2)">${agent().icon} ${agent().name}</b><br>${agent().desc}`;setMicroStatus(false)}
-function renderModels(){const s=document.getElementById("modelSelect");s.innerHTML=MODELS.map(m=>`<option value="${m.id}">${m.name}</option>`).join("");s.value=state.model;s.onchange=()=>{state.model=s.value;save()}}
-function renderAgents(){const html=AGENTS.map(a=>`<div class="agent ${a.id===state.agentId?"active":""}" onclick="setAgent('${a.id}')"><div class="ico">${a.icon}</div><div><b>${a.name}</b><span>${a.desc}</span></div></div>`).join("");document.getElementById("agentsList").innerHTML=html;document.getElementById("agentsModalList").innerHTML=html;document.getElementById("statAgents").textContent=AGENTS.length}
-function setAgent(id){state.agentId=id;save();render();closeModal("agentsModal")}
-function renderChat(){const c=document.getElementById("chat");if(!state.messages.length){state.messages=[{role:"assistant",content:"Bonjour Trader. Je suis ton assistant IA spécialisé en trading et investissement.\n\nPose-moi une question sur les marchés, une analyse technique, une stratégie ou toute autre demande.",ts:Date.now()}]}c.innerHTML=state.messages.map(m=>{const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="image envoyée">`:"";return`<div class="msg ${m.role}"><div class="label">${m.role==="user"?"VOUS":"TORINVEST AI"}</div>${img}${escapeHtml(m.content)}${m.role==="assistant"?'<div class="msg-actions"><span title="Copier" onclick="copyMsg(this)">▣</span><span>👍</span><span>👎</span></div>':""}<div class="time">${new Date(m.ts).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</div></div>`}).join("");c.scrollTop=c.scrollHeight}
-function copyMsg(el){const msg=el.closest(".msg");if(!msg)return;navigator.clipboard?.writeText(msg.innerText.trim())}
-function renderMemory(){document.getElementById("memoryPreview").innerHTML=state.memory.slice(-3).reverse().map(m=>`<div class="mem">${escapeHtml(m.text)}<br><small>Ajouté le ${new Date(m.ts).toLocaleDateString("fr-FR")}</small></div>`).join("")||'<div class="mem">Aucune mémoire.</div>';document.getElementById("memoryFull").innerHTML=state.memory.slice().reverse().map(m=>`<div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleString("fr-FR")}</small></div>`).join("")||'<div class="mem">Aucune mémoire.</div>'}
-function renderStats(){document.getElementById("statChats").textContent=state.chats.length;document.getElementById("statMem").textContent=state.memory.length;document.getElementById("statSize").textContent=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1)+" KB"}
-function renderImagePreview(){const box=document.getElementById("imagePreviewBox");if(!pendingImage){box.classList.remove("open");return}document.getElementById("imagePreview").src=pendingImage.dataUrl;document.getElementById("imageMeta").textContent=`${pendingImage.name} • ${Math.round(pendingImage.size/1024)} KB`;box.classList.add("open")}
-async function handleImagePick(e){const file=e.target.files[0];if(!file)return;if(!file.type.startsWith("image/")){alert("Fichier image uniquement.");return}pendingImage=await compressImage(file);renderImagePreview();e.target.value=""}
-function compressImage(file){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=reject;reader.onload=()=>{const img=new Image();img.onload=()=>{const max=1000;let w=img.width,h=img.height;if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>w&&h>max){w=Math.round(w*max/h);h=max}else if(w>max){w=max;h=max}const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;canvas.getContext("2d").drawImage(img,0,0,w,h);const dataUrl=canvas.toDataURL("image/jpeg",.74);resolve({name:file.name,size:Math.round(dataUrl.length*.75),dataUrl})};img.onerror=reject;img.src=reader.result};reader.readAsDataURL(file)})}
-function clearPendingImage(){pendingImage=null;renderImagePreview()}
-function getSpeechRecognitionConstructor(){return window.SpeechRecognition||window.webkitSpeechRecognition||null}
-function explainSpeechError(code){return({"no-speech":"Aucune voix détectée.","audio-capture":"Micro indisponible.","not-allowed":"Micro refusé. Autorise le micro dans le navigateur.","service-not-allowed":"Service de dictée bloqué.","network":"Erreur réseau du service vocal.","aborted":"Dictée arrêtée.","language-not-supported":"Langue non supportée."}[code]||`Erreur dictée : ${code||"inconnue"}`)}
-function toggleVoice(){const SR=getSpeechRecognitionConstructor(),input=document.getElementById("userInput");if(!SR){setVoiceDebug("<b>Dictée indisponible :</b> navigateur non compatible.",true);return}if(isRecording&&recognition){try{recognition.stop()}catch(e){}return}try{recognition=new SR();recognition.lang="fr-FR";recognition.continuous=false;recognition.interimResults=true;isRecording=true;voiceBaseText=input.value.trim();voiceFinalText="";setMicroStatus(true,"Micro actif<br><small>Parle maintenant...</small>");setVoiceDebug("<b>Dictée active :</b> parle maintenant.");const timer=setTimeout(()=>{if(isRecording&&recognition)try{recognition.stop()}catch(e){}},10000);recognition.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const txt=e.results[i][0].transcript;if(e.results[i].isFinal)voiceFinalText+=" "+txt;else interim+=" "+txt}input.value=(voiceBaseText+" "+voiceFinalText+" "+interim).replace(/\s+/g," ").trim()};recognition.onerror=e=>{clearTimeout(timer);isRecording=false;setMicroStatus(false,"Micro erreur<br><small>Voir diagnostic</small>");setVoiceDebug("<b>Erreur dictée :</b> "+escapeHtml(explainSpeechError(e.error)),true);recognition=null};recognition.onend=()=>{clearTimeout(timer);isRecording=false;setMicroStatus(false);recognition=null;input.focus()};recognition.start()}catch(e){isRecording=false;recognition=null;setMicroStatus(false);setVoiceDebug("<b>Blocage vocal :</b> "+escapeHtml(e.message||String(e)),true)}}
-function detectSymbolFromText(text){const t=String(text||"").toUpperCase();if(t.includes("EURUSD"))return"EURUSD";if(t.includes("GBPUSD"))return"GBPUSD";if(t.includes("EURGBP"))return"EURGBP";if(t.includes("USDJPY"))return"USDJPY";if(t.includes("USDCHF"))return"USDCHF";if(t.includes("USDCAD"))return"USDCAD";if(t.includes("AUDUSD"))return"AUDUSD";if(t.includes("NZDUSD"))return"NZDUSD";if(t.includes("BTC"))return"BTCUSD";if(t.includes("ETH"))return"ETHUSD";if(t.includes("NASDAQ")||t.includes("NAS100")||t.includes("US100"))return"NASDAQ";if(t.includes("SPX")||t.includes("SP500")||t.includes("S&P"))return"SPX";if(t.includes("WTI")||t.includes("USOIL")||t.includes("PÉTROLE")||t.includes("PETROLE")||t.includes("OIL"))return"WTI";if(t.includes("SILVER")||t.includes("XAG")||t.includes("ARGENT"))return"XAGUSD";if(t.includes("GOLD")||t.includes("XAU")||t.includes(" OR ")||t==="OR"||t.includes("L'OR"))return"XAUUSD";return"XAUUSD"}
-function detectModeFromText(text){const t=String(text||"").toLowerCase();return state.agentId==="scalp"||t.includes("scalp")||t.includes("m1")||t.includes("m3")||t.includes("m5")||t.includes("setup")||t.includes("entrée")||t.includes("entree")?"scalping":"normal"}
+const MODELS=[
+  {id:"mistral-large-latest",name:"Mistral Large — analyse profonde"},
+  {id:"pixtral-large-latest",name:"Pixtral Large — image + analyse"},
+  {id:"mistral-small-latest",name:"Mistral Small — rapide / économique"},
+  {id:"codestral-latest",name:"Codestral — code / bots"},
+  {id:"open-mistral-nemo",name:"Open Mistral Nemo — polyvalent"}
+];
+
+const AGENTS=[
+  {
+    id:"macro",
+    icon:"🐂",
+    name:"Maître des marchés",
+    desc:"Analyse globale & stratégie",
+    temp:.35,
+    prompt:`Tu es Maître des Marchés TORINVEST. Analyse comme un desk institutionnel. Méthode : macro, banques centrales, inflation, croissance, taux, DXY, liquidité, crédit, risk-on/risk-off, structure, volumeContext, smartMoneyEngine et news. Format : données disponibles / lecture macro / structure technique / volume-liquidity / risques cachés / scénario principal / scénario alternatif / invalidation / conclusion TORINVEST.`
+  },
+  {
+    id:"tech",
+    icon:"📈",
+    name:"Analyste technique",
+    desc:"Patterns, indicateurs, signaux",
+    temp:.35,
+    prompt:`Tu es l’Analyste Technique TORINVEST. Lis le prix avec précision : HTF/LTF, range, expansion, retracement, cassure, retest, momentum, zones clés, RSI, moyennes, volumeContext, POC/VAH/VAL. Format : structure HTF / structure LTF / zones clés / volumeContext / scénario haussier / scénario baissier / invalidation / plan d’attente.`
+  },
+  {
+    id:"scalp",
+    icon:"⚡",
+    name:"Scalper Pro",
+    desc:"Scalping & trading court terme",
+    temp:.32,
+    prompt:`Tu es Scalper Pro TORINVEST. Tu transformes le contexte en exécution courte. Utilise /agent/context : market.targetAsset, MTF, volumeContext, signal, aiDecision, smartMoneyEngine. Règles : pas de trade au milieu, pas sans invalidation, pas sans contexte HTF. Format : biais session / zone d’attente / trigger / stop logique / TP / no-trade zone / discipline.`
+  },
+  {
+    id:"risk",
+    icon:"🛡",
+    name:"Gestionnaire risque",
+    desc:"Risk management avancé",
+    temp:.25,
+    prompt:`Tu es Gestionnaire Risque TORINVEST. Ta mission est de protéger le capital. Analyse : taille de position, perte max, drawdown, prop firm, surtrading, revenge trading, régularité, exposition. Format : risque actuel / erreur potentielle / taille recommandée / limite de perte / règle de sécurité / décision.`
+  },
+  {
+    id:"copy",
+    icon:"👥",
+    name:"Copy Strategist",
+    desc:"Stratégies des pros à copier",
+    temp:.32,
+    prompt:`Tu es Copy Strategist TORINVEST. Structure les signaux : ACTIF / SENS / ENTRÉE / SL / TP1 / TP2 / RISQUE / JUSTIFICATION / INVALIDATION / NOTE DISCIPLINE. Jamais de signal sans risque ni invalidation.`
+  },
+  {
+    id:"gold",
+    icon:"🥇",
+    name:"Gold Specialist",
+    desc:"XAUUSD, DXY, taux, refuge",
+    temp:.34,
+    prompt:`Tu es Gold Specialist TORINVEST. Croise : XAUUSD, DXY, US10Y/US2Y/US5Y, VIX, SPX/Nasdaq, géopolitique, pétrole, structure technique, liquidité, volumeContext, smartMoneyEngine. Format : données disponibles / macro / technique / volumeContext / liquidité / scénario principal / scénario alternatif / invalidation / conclusion.`
+  },
+  {
+    id:"ict",
+    icon:"⚔",
+    name:"Expert ICT / SMC",
+    desc:"Liquidité, inducement, MSS, FVG",
+    temp:.35,
+    prompt:`Tu es Expert ICT / SMC TORINVEST. Lis le marché comme une chasse à la liquidité : structure, premium/discount, internal/external liquidity, sweep, inducement, MSS/BOS, FVG, OB, breaker, session. Format : structure / liquidité ciblée / volumeContext / piège probable / confirmation attendue / setup possible / invalidation.`
+  },
+  {
+    id:"geo",
+    icon:"🌍",
+    name:"Analyste géopolitique",
+    desc:"Conflits, sanctions, énergie",
+    temp:.42,
+    prompt:`Tu es l’Analyste Géopolitique TORINVEST. Transforme une actualité géopolitique en impact marché : conflit, sanctions, routes maritimes, énergie, inflation, devises, or, pétrole, indices, risque systémique.`
+  },
+  {
+    id:"sentiment",
+    icon:"📡",
+    name:"Sentiment Engine",
+    desc:"Risk ON/OFF cross-asset",
+    temp:.3,
+    prompt:`Tu es le Sentiment Engine TORINVEST. Détermine RISK ON, RISK OFF, MIXTE, TRANSITION ou FAKE MOVE. Croise DXY, yields, SPX, Nasdaq, VIX, gold, BTC, JPY, CHF, HYG/LQD, volumeContext et signal actif.`
+  },
+  {
+    id:"strategy",
+    icon:"🧱",
+    name:"Strategy Builder",
+    desc:"Règles, conditions, exécution",
+    temp:.45,
+    prompt:`Tu es Strategy Builder TORINVEST. Crée des stratégies testables : nom / marché / timeframes / conditions d’entrée / filtres volumeContext / sorties / invalidation / risque / conditions de backtest / limites.`
+  },
+  {
+    id:"formation",
+    icon:"🎓",
+    name:"Formation Builder",
+    desc:"Modules pédagogiques",
+    temp:.5,
+    prompt:`Tu es Formation Builder TORINVEST. Crée des modules pédagogiques progressifs : module / objectif / compréhension clé / cours / exemple / erreurs fréquentes / exercice / quiz / devoir / règle TORINVEST.`
+  },
+  {
+    id:"mindset",
+    icon:"🧠",
+    name:"Mindset Coach",
+    desc:"Psychologie et discipline",
+    temp:.45,
+    prompt:`Tu es Mindset Coach TORINVEST. Travaille la psychologie du trader : problème / cause mentale / conséquence trading / correction / exercice pratique / règle de la semaine.`
+  }
+];
+
+let state=loadState();
+let pendingImage=null;
+let recognition=null;
+let isRecording=false;
+let voiceBaseText="";
+let voiceFinalText="";
+
+function defaultState(){
+  return{
+    agentId:"macro",
+    model:"mistral-large-latest",
+    messages:[],
+    chats:[],
+    memory:[
+      {text:"Préférence : Swing trading",ts:new Date("2025-05-15").getTime()},
+      {text:"Risque max par trade : 1%",ts:new Date("2025-05-15").getTime()},
+      {text:"Objectif mensuel : 8-12%",ts:new Date("2025-05-14").getTime()}
+    ]
+  };
+}
+
+function normalizeState(s){
+  const d=defaultState();
+  return{
+    agentId:s?.agentId||d.agentId,
+    model:s?.model||d.model,
+    messages:Array.isArray(s?.messages)?s.messages:[],
+    chats:Array.isArray(s?.chats)?s.chats:[],
+    memory:Array.isArray(s?.memory)?s.memory:d.memory
+  };
+}
+
+function loadState(){
+  try{
+    const cur=localStorage.getItem(STORAGE_KEY);
+    if(cur)return normalizeState(JSON.parse(cur));
+
+    for(const k of LEGACY_STORAGE_KEYS){
+      const v=localStorage.getItem(k);
+      if(v)return normalizeState(JSON.parse(v));
+    }
+
+    return defaultState();
+  }catch{
+    return defaultState();
+  }
+}
+
+function compactMessage(m,limit=9000){
+  return{
+    role:m.role==="user"?"user":"assistant",
+    content:String(m.content||"").slice(0,limit),
+    ts:m.ts||Date.now(),
+    imageDataUrl:null
+  };
+}
+
+function save(){
+  try{
+    const clean={
+      ...state,
+      messages:state.messages
+        .filter(m=>!m.loading)
+        .slice(-40)
+        .map(m=>compactMessage(m,12000)),
+      chats:state.chats
+        .slice(0,20)
+        .map(c=>({
+          id:c.id,
+          title:String(c.title||"Conversation").slice(0,80),
+          ts:c.ts||Date.now(),
+          messages:Array.isArray(c.messages)
+            ? c.messages.slice(-25).map(m=>compactMessage(m,8000))
+            : []
+        })),
+      memory:state.memory
+        .slice(-60)
+        .map(m=>({
+          text:String(m.text||"").slice(0,500),
+          ts:m.ts||Date.now()
+        }))
+    };
+
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(clean));
+    state=clean;
+  }catch(e){
+    console.warn("Storage protected:",e);
+
+    try{
+      state.messages=state.messages
+        .filter(m=>!m.loading)
+        .slice(-12)
+        .map(m=>compactMessage(m,4000));
+
+      state.chats=[];
+      state.memory=state.memory.slice(-20);
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    }catch(_){
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }
+
+  renderStats();
+}
+
+function agent(){
+  return AGENTS.find(a=>a.id===state.agentId)||AGENTS[0];
+}
+
+function escapeHtml(s){
+  return String(s??"").replace(/[&<>"]/g,m=>({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;"
+  }[m]));
+}
+
+function fmtNum(v,d=2){
+  const n=Number(v);
+  return Number.isFinite(n)?n.toFixed(d):"N/A";
+}
+
+function fmtRaw(v){
+  return v===null||v===undefined||v===""?"N/A":String(v);
+}
+
+function setDot(id,status){
+  const dot=document.getElementById(id);
+  if(!dot)return;
+
+  dot.classList.remove("off","warn","critical","recording");
+
+  if(status==="ok")return;
+  if(status==="warn")dot.classList.add("warn");
+  else if(status==="critical")dot.classList.add("critical");
+  else if(status==="recording")dot.classList.add("recording");
+  else dot.classList.add("off");
+}
+
+function setHealthSidebarStatus(status,label){
+  const t=document.getElementById("healthStatusText");
+  const s=String(status||"UNKNOWN").toUpperCase();
+
+  if(s==="OK"){
+    setDot("healthDot","ok");
+    t.innerHTML=`${label||"Health OK"}<br><small>/system/health</small>`;
+  }else if(s==="WARNING"){
+    setDot("healthDot","warn");
+    t.innerHTML=`${label||"Health WARNING"}<br><small>/system/health</small>`;
+  }else if(s==="CRITICAL"){
+    setDot("healthDot","critical");
+    t.innerHTML=`${label||"Health CRITICAL"}<br><small>/system/health</small>`;
+  }else if(s==="LOADING"){
+    setDot("healthDot","warn");
+    t.innerHTML=`${label||"Health en analyse"}<br><small>/system/health</small>`;
+  }else{
+    setDot("healthDot","off");
+    t.innerHTML=`${label||"Health non testé"}<br><small>/system/health</small>`;
+  }
+}
+
+function setVolumeSidebarStatus(ok,count){
+  const t=document.getElementById("volumeStatusText");
+
+  if(ok){
+    setDot("volumeDot","ok");
+    t.innerHTML=`Volume actif<br><small>${count} actif(s) nourri(s)</small>`;
+  }else{
+    setDot("volumeDot","warn");
+    t.innerHTML=`Volume en attente<br><small>volumeContext absent</small>`;
+  }
+}
+
+function setAgentContextSidebarStatus(ok,label){
+  const t=document.getElementById("agentContextStatusText");
+
+  if(ok){
+    setDot("agentContextDot","ok");
+    t.innerHTML=`Agent context actif<br><small>${escapeHtml(label||"/agent/context")}</small>`;
+  }else{
+    setDot("agentContextDot","warn");
+    t.innerHTML=`Agent context en attente<br><small>/agent/context</small>`;
+  }
+}
+
+function setMicroStatus(active,text){
+  const d=document.getElementById("micDot");
+  const t=document.getElementById("micStatusText");
+  const b=document.getElementById("micBtn");
+
+  if(active){
+    d.classList.remove("off");
+    d.classList.add("recording");
+    b.classList.add("active");
+    t.innerHTML=text||"Micro actif<br><small>Écoute en cours...</small>";
+  }else{
+    d.classList.add("off");
+    d.classList.remove("recording");
+    b.classList.remove("active");
+    t.innerHTML=text||"Micro inactif<br><small>Dictée navigateur</small>";
+  }
+}
+
+function setVoiceDebug(message,isError=false){
+  const box=document.getElementById("voiceDebug");
+  box.innerHTML=message;
+  box.classList.add("open");
+  box.classList.toggle("err",!!isError);
+}
+
+function clearVoiceDebug(){
+  const box=document.getElementById("voiceDebug");
+  box.classList.remove("open","err");
+  box.innerHTML="";
+}
+
+function render(){
+  renderModels();
+  renderAgents();
+  renderChat();
+  renderMemory();
+  renderStats();
+  renderImagePreview();
+
+  const short=WORKER_AI_URL.replace("https://","").slice(0,34)+"…";
+  document.getElementById("workerShort").textContent=short;
+  document.getElementById("workerShortTop").textContent=short;
+
+  document.getElementById("activeAgentBox").innerHTML=
+    `<b style="color:var(--gold2)">${agent().icon} ${agent().name}</b><br>${agent().desc}`;
+
+  setMicroStatus(false);
+}
+
+function renderModels(){
+  const s=document.getElementById("modelSelect");
+  s.innerHTML=MODELS.map(m=>`<option value="${m.id}">${m.name}</option>`).join("");
+  s.value=state.model;
+  s.onchange=()=>{
+    state.model=s.value;
+    save();
+  };
+}
+
+function renderAgents(){
+  const html=AGENTS.map(a=>`
+    <div class="agent ${a.id===state.agentId?"active":""}" onclick="setAgent('${a.id}')">
+      <div class="ico">${a.icon}</div>
+      <div><b>${a.name}</b><span>${a.desc}</span></div>
+    </div>
+  `).join("");
+
+  document.getElementById("agentsList").innerHTML=html;
+  document.getElementById("agentsModalList").innerHTML=html;
+  document.getElementById("statAgents").textContent=AGENTS.length;
+}
+
+function setAgent(id){
+  state.agentId=id;
+  save();
+  render();
+  closeModal("agentsModal");
+}
+
+function renderChat(){
+  const c=document.getElementById("chat");
+
+  if(!state.messages.length){
+    state.messages=[{
+      role:"assistant",
+      content:"Bonjour Trader. Je suis ton assistant IA spécialisé en trading et investissement.\n\nPose-moi une question sur les marchés, une analyse technique, une stratégie ou toute autre demande.",
+      ts:Date.now()
+    }];
+  }
+
+  c.innerHTML=state.messages.map(m=>{
+    const img=m.imageDataUrl?`<img src="${m.imageDataUrl}" alt="image envoyée">`:"";
+
+    return `
+      <div class="msg ${m.role}">
+        <div class="label">${m.role==="user"?"VOUS":"TORINVEST AI"}</div>
+        ${img}
+        ${escapeHtml(m.content)}
+        ${m.role==="assistant"?'<div class="msg-actions"><span title="Copier" onclick="copyMsg(this)">▣</span><span>👍</span><span>👎</span></div>':""}
+        <div class="time">${new Date(m.ts).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</div>
+      </div>
+    `;
+  }).join("");
+
+  c.scrollTop=c.scrollHeight;
+}
+
+function copyMsg(el){
+  const msg=el.closest(".msg");
+  if(!msg)return;
+  navigator.clipboard?.writeText(msg.innerText.trim());
+}
+
+function renderMemory(){
+  document.getElementById("memoryPreview").innerHTML=
+    state.memory.slice(-3).reverse().map(m=>`
+      <div class="mem">${escapeHtml(m.text)}<br><small>Ajouté le ${new Date(m.ts).toLocaleDateString("fr-FR")}</small></div>
+    `).join("") || '<div class="mem">Aucune mémoire.</div>';
+
+  document.getElementById("memoryFull").innerHTML=
+    state.memory.slice().reverse().map(m=>`
+      <div class="mem">${escapeHtml(m.text)}<br><small>${new Date(m.ts).toLocaleString("fr-FR")}</small></div>
+    `).join("") || '<div class="mem">Aucune mémoire.</div>';
+}
+
+function renderStats(){
+  document.getElementById("statChats").textContent=state.chats.length;
+  document.getElementById("statMem").textContent=state.memory.length;
+  document.getElementById("statSize").textContent=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1)+" KB";
+}
+
+function renderImagePreview(){
+  const box=document.getElementById("imagePreviewBox");
+
+  if(!pendingImage){
+    box.classList.remove("open");
+    return;
+  }
+
+  document.getElementById("imagePreview").src=pendingImage.dataUrl;
+  document.getElementById("imageMeta").textContent=`${pendingImage.name} • ${Math.round(pendingImage.size/1024)} KB`;
+  box.classList.add("open");
+}
+
+async function handleImagePick(e){
+  const file=e.target.files[0];
+  if(!file)return;
+
+  if(!file.type.startsWith("image/")){
+    alert("Fichier image uniquement.");
+    return;
+  }
+
+  pendingImage=await compressImage(file);
+  renderImagePreview();
+  e.target.value="";
+}
+
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=reject;
+
+    reader.onload=()=>{
+      const img=new Image();
+
+      img.onload=()=>{
+        const max=1000;
+        let w=img.width;
+        let h=img.height;
+
+        if(w>h&&w>max){
+          h=Math.round(h*max/w);
+          w=max;
+        }else if(h>w&&h>max){
+          w=Math.round(w*max/h);
+          h=max;
+        }else if(w>max){
+          w=max;
+          h=max;
+        }
+
+        const canvas=document.createElement("canvas");
+        canvas.width=w;
+        canvas.height=h;
+        canvas.getContext("2d").drawImage(img,0,0,w,h);
+
+        const dataUrl=canvas.toDataURL("image/jpeg",.74);
+
+        resolve({
+          name:file.name,
+          size:Math.round(dataUrl.length*.75),
+          dataUrl
+        });
+      };
+
+      img.onerror=reject;
+      img.src=reader.result;
+    };
+
+    reader.readAsDataURL(file);
+  });
+}
+
+function clearPendingImage(){
+  pendingImage=null;
+  renderImagePreview();
+}
+
+function getSpeechRecognitionConstructor(){
+  return window.SpeechRecognition||window.webkitSpeechRecognition||null;
+}
+
+function explainSpeechError(code){
+  return ({
+    "no-speech":"Aucune voix détectée.",
+    "audio-capture":"Micro indisponible.",
+    "not-allowed":"Micro refusé. Autorise le micro dans le navigateur.",
+    "service-not-allowed":"Service de dictée bloqué.",
+    "network":"Erreur réseau du service vocal.",
+    "aborted":"Dictée arrêtée.",
+    "language-not-supported":"Langue non supportée."
+  }[code]||`Erreur dictée : ${code||"inconnue"}`);
+}
+
+function toggleVoice(){
+  const SR=getSpeechRecognitionConstructor();
+  const input=document.getElementById("userInput");
+
+  if(!SR){
+    setVoiceDebug("<b>Dictée indisponible :</b> navigateur non compatible.",true);
+    return;
+  }
+
+  if(isRecording&&recognition){
+    try{recognition.stop()}catch(e){}
+    return;
+  }
+
+  try{
+    recognition=new SR();
+    recognition.lang="fr-FR";
+    recognition.continuous=false;
+    recognition.interimResults=true;
+
+    isRecording=true;
+    voiceBaseText=input.value.trim();
+    voiceFinalText="";
+
+    setMicroStatus(true,"Micro actif<br><small>Parle maintenant...</small>");
+    setVoiceDebug("<b>Dictée active :</b> parle maintenant.");
+
+    const timer=setTimeout(()=>{
+      if(isRecording&&recognition){
+        try{recognition.stop()}catch(e){}
+      }
+    },10000);
+
+    recognition.onresult=e=>{
+      let interim="";
+
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        const txt=e.results[i][0].transcript;
+        if(e.results[i].isFinal)voiceFinalText+=" "+txt;
+        else interim+=" "+txt;
+      }
+
+      input.value=(voiceBaseText+" "+voiceFinalText+" "+interim).replace(/\s+/g," ").trim();
+    };
+
+    recognition.onerror=e=>{
+      clearTimeout(timer);
+      isRecording=false;
+      setMicroStatus(false,"Micro erreur<br><small>Voir diagnostic</small>");
+      setVoiceDebug("<b>Erreur dictée :</b> "+escapeHtml(explainSpeechError(e.error)),true);
+      recognition=null;
+    };
+
+    recognition.onend=()=>{
+      clearTimeout(timer);
+      isRecording=false;
+      setMicroStatus(false);
+      recognition=null;
+      input.focus();
+    };
+
+    recognition.start();
+  }catch(e){
+    isRecording=false;
+    recognition=null;
+    setMicroStatus(false);
+    setVoiceDebug("<b>Blocage vocal :</b> "+escapeHtml(e.message||String(e)),true);
+  }
+}
+
+function detectSymbolFromText(text){
+  const t=String(text||"").toUpperCase();
+
+  if(t.includes("EURUSD"))return"EURUSD";
+  if(t.includes("GBPUSD"))return"GBPUSD";
+  if(t.includes("EURGBP"))return"EURGBP";
+  if(t.includes("USDJPY"))return"USDJPY";
+  if(t.includes("USDCHF"))return"USDCHF";
+  if(t.includes("USDCAD"))return"USDCAD";
+  if(t.includes("AUDUSD"))return"AUDUSD";
+  if(t.includes("NZDUSD"))return"NZDUSD";
+  if(t.includes("BTC"))return"BTCUSD";
+  if(t.includes("ETH"))return"ETHUSD";
+  if(t.includes("NASDAQ")||t.includes("NAS100")||t.includes("US100"))return"NASDAQ";
+  if(t.includes("SPX")||t.includes("SP500")||t.includes("S&P"))return"SPX";
+  if(t.includes("WTI")||t.includes("USOIL")||t.includes("PÉTROLE")||t.includes("PETROLE")||t.includes("OIL"))return"WTI";
+  if(t.includes("SILVER")||t.includes("XAG")||t.includes("ARGENT"))return"XAGUSD";
+  if(t.includes("GOLD")||t.includes("XAU")||t.includes(" OR ")||t==="OR"||t.includes("L'OR"))return"XAUUSD";
+
+  return"XAUUSD";
+}
+
+function detectModeFromText(text){
+  const t=String(text||"").toLowerCase();
+
+  return state.agentId==="scalp"||
+    t.includes("scalp")||
+    t.includes("m1")||
+    t.includes("m3")||
+    t.includes("m5")||
+    t.includes("setup")||
+    t.includes("entrée")||
+    t.includes("entree")
+      ?"scalping"
+      :"normal";
+}
+
 async function fetchLatestSignal(symbol){
   try{
-    const url =
-      WORKER_COPY_SIGNAL_URL +
-      "?token=" + encodeURIComponent(COPY_TOKEN) +
-      "&symbol=" + encodeURIComponent(symbol);
+    const url=
+      WORKER_COPY_SIGNAL_URL+
+      "?token="+encodeURIComponent(COPY_TOKEN)+
+      "&symbol="+encodeURIComponent(symbol);
 
-    const res = await fetch(url,{method:"GET"});
+    const res=await fetch(url,{method:"GET"});
 
-    const data = await res.json().catch(()=>({
+    const data=await res.json().catch(()=>({
       ok:false,
       error:"Réponse signal non JSON"
     }));
 
-    if(!res.ok || data.ok===false){
-      return {
-        ok:false,
-        error:data.error || "Signal indisponible"
-      };
+    if(!res.ok||data.ok===false){
+      return null;
     }
 
-    return data.signal || null;
-
+    return data.signal||null;
   }catch(e){
-    return {
-      ok:false,
-      error:e.message
-    };
+    return null;
   }
 }
+
 async function fetchAgentContextForMessage(text){
-  const symbol = detectSymbolFromText(text);
-  const mode = detectModeFromText(text);
+  const symbol=detectSymbolFromText(text);
+  const mode=detectModeFromText(text);
 
-  const url =
-    WORKER_AGENT_CONTEXT_URL +
-    "?symbol=" + encodeURIComponent(symbol) +
-    "&mode=" + encodeURIComponent(mode) +
-    "&token=" + encodeURIComponent(COPY_TOKEN);
+  const url=
+    WORKER_AGENT_CONTEXT_URL+
+    "?symbol="+encodeURIComponent(symbol)+
+    "&mode="+encodeURIComponent(mode)+
+    "&token="+encodeURIComponent(COPY_TOKEN);
 
-  const res = await fetch(url);
+  const res=await fetch(url);
 
-  const data = await res.json().catch(()=>({
+  const data=await res.json().catch(()=>({
     ok:false,
     error:"Réponse /agent/context non JSON"
   }));
 
-  if(!res.ok || data.ok === false){
-    throw new Error(data.error || data.message || "Erreur /agent/context");
+  if(!res.ok||data.ok===false){
+    throw new Error(data.error||data.message||"Erreur /agent/context");
   }
 
-  setAgentContextSidebarStatus(true, `${symbol} / ${mode}`);
+  setAgentContextSidebarStatus(true,`${symbol} / ${mode}`);
 
-  const latestSignal = await fetchLatestSignal(symbol);
-  data.latestSignal = latestSignal;
+  data.latestSignal=await fetchLatestSignal(symbol);
 
   return data;
 }
 
 function summarizeAgentContext(ctx){
-  if(!ctx || ctx.ok === false)
+  if(!ctx||ctx.ok===false){
     return "Contexte Worker indisponible.";
+  }
 
-  const target = ctx.market?.targetAsset || null;
-  const signal = ctx.latestSignal || ctx.signal || null;
-  const ai = ctx.aiDecision || null;
-  const news = ctx.news || null;
-  const sm = ctx.smartMoneyEngine || ctx.smart_money_engine || ctx.smartMoney || {};
+  const target=ctx.market?.targetAsset||null;
+  const signal=ctx.latestSignal||ctx.signal||null;
+  const ai=ctx.aiDecision||null;
+  const news=ctx.news||null;
+  const sm=ctx.smartMoneyEngine||ctx.smart_money_engine||ctx.smartMoney||{};
 
   return [
-    `Worker OK : ${ctx.system?.worker ? "oui" : "non"}`,
-    `Symbole : ${ctx.symbol || "N/A"}`,
-    `Mode : ${ctx.mode || "N/A"}`,
-    `Prix cible : ${target?.price ?? "N/A"}`,
-    `TF : ${target?.tf ?? "N/A"}`,
-    `Volume : ${target?.volumeContext?.volumeRegime ?? "N/A"} / ${target?.volumeContext?.volumeSignal ?? "N/A"}`,
-    `MTF : ${target?.mtfContext?.bias ?? "N/A"} / score ${target?.mtfContext?.directionalScore ?? "N/A"}`,
-    `Smart Money Bias : ${sm?.smart_money_bias ?? sm?.bias ?? "N/A"}`,
-    `Readiness : ${sm?.execution_readiness ?? sm?.readiness ?? "N/A"}`,
-    `Signal actif multi-actif : ${signal?.symbol ?? "N/A"} / ${signal?.action ?? "N/A"} / executable ${signal?.validation?.executable ?? signal?.executable ?? "N/A"}`,
-    `Dernière décision IA : ${ai?.symbol ?? "N/A"} / ${ai?.action ?? "N/A"}`,
-    `News risk : ${news?.risk?.regime ?? "N/A"} / score ${news?.risk?.score ?? "N/A"}`
+    `Worker OK : ${ctx.system?.worker?"oui":"non"}`,
+    `Symbole : ${ctx.symbol||"N/A"}`,
+    `Mode : ${ctx.mode||"N/A"}`,
+    `Prix cible : ${target?.price??"N/A"}`,
+    `TF : ${target?.tf??"N/A"}`,
+    `Volume : ${target?.volumeContext?.volumeRegime??"N/A"} / ${target?.volumeContext?.volumeSignal??"N/A"}`,
+    `MTF : ${target?.mtfContext?.bias??"N/A"} / score ${target?.mtfContext?.directionalScore??"N/A"}`,
+    `Smart Money Bias : ${sm?.smart_money_bias??sm?.bias??"N/A"}`,
+    `Readiness : ${sm?.execution_readiness??sm?.readiness??"N/A"}`,
+    `Signal actif multi-actif : ${signal?.symbol??"N/A"} / ${signal?.action??"N/A"} / executable ${signal?.validation?.executable??signal?.executable??"N/A"}`,
+    `Dernière décision IA : ${ai?.symbol??"N/A"} / ${ai?.action??"N/A"}`,
+    `News risk : ${news?.risk?.regime??"N/A"} / score ${news?.risk?.score??"N/A"}`
   ].join("\n");
 }
-function buildMessages(agentContext=null){const mem=state.memory.slice(-8).map(m=>"- "+m.text).join("\n"),today=new Date().toLocaleDateString("fr-FR",{weekday:"long",year:"numeric",month:"long",day:"numeric"}),workerContext=agentContext?JSON.stringify(agentContext,null,2):"Aucun contexte Worker récupéré.",workerSummary=summarizeAgentContext(agentContext);const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
-function summarizeAgentContext(ctx){
-  if(!ctx || ctx.ok === false)
-    return "Contexte Worker indisponible.";
 
-  const target = ctx.market?.targetAsset || null;
-  const signal = ctx.latestSignal || ctx.signal || null;
-  const ai = ctx.aiDecision || null;
-  const news = ctx.news || null;
-  const sm = ctx.smartMoneyEngine || ctx.smart_money_engine || ctx.smartMoney || {};
+function buildMessages(agentContext=null){
+  const mem=state.memory.slice(-8).map(m=>"- "+m.text).join("\n");
 
-  return [
-    `Worker OK : ${ctx.system?.worker ? "oui" : "non"}`,
-    `Symbole : ${ctx.symbol || "N/A"}`,
-    `Mode : ${ctx.mode || "N/A"}`,
-    `Prix cible : ${target?.price ?? "N/A"}`,
-    `TF : ${target?.tf ?? "N/A"}`,
-    `Volume : ${target?.volumeContext?.volumeRegime ?? "N/A"} / ${target?.volumeContext?.volumeSignal ?? "N/A"}`,
-    `MTF : ${target?.mtfContext?.bias ?? "N/A"} / score ${target?.mtfContext?.directionalScore ?? "N/A"}`,
-    `Smart Money Bias : ${sm?.smart_money_bias ?? sm?.bias ?? "N/A"}`,
-    `Readiness : ${sm?.execution_readiness ?? sm?.readiness ?? "N/A"}`,
-    `Signal actif multi-actif : ${signal?.symbol ?? "N/A"} / ${signal?.action ?? "N/A"} / executable ${signal?.validation?.executable ?? signal?.executable ?? "N/A"}`,
-    `Dernière décision IA : ${ai?.symbol ?? "N/A"} / ${ai?.action ?? "N/A"}`,
-    `News risk : ${news?.risk?.regime ?? "N/A"} / score ${news?.risk?.score ?? "N/A"}`
-  ].join("\n");
-}
+  const today=new Date().toLocaleDateString("fr-FR",{
+    weekday:"long",
+    year:"numeric",
+    month:"long",
+    day:"numeric"
+  });
+
+  const workerContext=agentContext?JSON.stringify(agentContext,null,2):"Aucun contexte Worker récupéré.";
+  const workerSummary=summarizeAgentContext(agentContext);
+
+  const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
 
 DATE ACTUELLE :
 ${today}
@@ -273,24 +1719,489 @@ RÈGLES :
 - Pour un setup : biais, zone d’attente, trigger, invalidation, no-trade zone.
 
 MÉMOIRE LOCALE :
-${mem||"Aucune."}`;return[{role:"system",content:sys},...state.messages.filter(m=>!m.loading).slice(-12).map(m=>m.role==="user"&&m.imageDataUrl?{role:"user",content:[{type:"text",text:m.content||"Analyse cette image."},{type:"image_url",image_url:m.imageDataUrl}]}:{role:m.role,content:m.content})]}
-async function sendMessage(){const input=document.getElementById("userInput"),text=input.value.trim();if(!text&&!pendingImage)return;if(isRecording&&recognition)try{recognition.stop()}catch(e){}const imageToSend=pendingImage,userContent=text||"Analyse cette image.";state.messages.push({role:"user",content:userContent,imageDataUrl:imageToSend?.dataUrl||null,ts:Date.now()});input.value="";clearPendingImage();clearVoiceDebug();renderChat();state.messages.push({role:"assistant",content:"Forge en cours… récupération du contexte Worker...",ts:Date.now(),loading:true});renderChat();try{let agentContext=null;try{agentContext=await fetchAgentContextForMessage(userContent)}catch(ctxErr){setAgentContextSidebarStatus(false);agentContext={ok:false,error:ctxErr.message,warning:"/agent/context indisponible."}}const modelToUse=imageToSend?VISION_MODEL:state.model;const res=await fetch(WORKER_AI_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:modelToUse,messages:buildMessages(agentContext),temperature:agent().temp,max_tokens:4096,top_p:.95})});const data=await res.json().catch(()=>({error:"Réponse Worker non JSON"}));if(!res.ok)throw new Error(data.error||data.message||"Erreur Worker");const reply=data.choices?.[0]?.message?.content||data.reply||"Aucune réponse.";state.messages=state.messages.filter(m=>!m.loading);state.messages.push({role:"assistant",content:reply,ts:Date.now()});save();renderChat()}catch(e){state.messages=state.messages.filter(m=>!m.loading);state.messages.push({role:"assistant",content:"⚠ Erreur : "+e.message+"\n\nVérifie /agent/context, /ai/chat et /ai/status.",ts:Date.now()});save();renderChat()}}
-function renderVolumeContextFromAny(obj){const vc=obj?.volumeContext||obj?.volume_context||obj?.targetAsset?.volumeContext;if(!vc)return'<span class="health-warning">Non disponible</span>';return`<span class="health-pill">hasData: ${escapeHtml(vc.hasVolumeData??vc.has_volume_data??false)}</span><span class="health-pill">régime: ${escapeHtml(vc.volumeRegime??vc.volume_regime??"UNKNOWN")}</span><span class="health-pill">signal: ${escapeHtml(vc.volumeSignal??vc.volume_signal??"NEUTRAL")}</span><br>Volume : ${escapeHtml(fmtRaw(vc.volume))}<br>Volume MA : ${escapeHtml(fmtRaw(vc.volumeMa??vc.volume_ma))}<br>Volume Ratio : ${escapeHtml((vc.volumeRatio??vc.volume_ratio)!==null&&(vc.volumeRatio??vc.volume_ratio)!==undefined?fmtNum(vc.volumeRatio??vc.volume_ratio,2):"N/A")}<br>Delta proxy : ${escapeHtml(fmtRaw(vc.deltaProxy??vc.delta_proxy))}<br>CVD proxy : ${escapeHtml(fmtRaw(vc.cvdProxy??vc.cvd_proxy))}<br>VWAP : ${escapeHtml(fmtRaw(vc.vwap))}<br>POC / VAH / VAL : ${escapeHtml(fmtRaw(vc.poc))} / ${escapeHtml(fmtRaw(vc.vah))} / ${escapeHtml(fmtRaw(vc.val))}`}
-function renderHealthData(data){const status=String(data.status||"UNKNOWN").toUpperCase(),statusClass=status==="OK"?"health-ok":status==="WARNING"?"health-warning":"health-critical",checks=data.checks||{},summary=Array.isArray(data.summary)&&data.summary.length?data.summary.map(s=>"• "+escapeHtml(s)).join("<br>"):"Aucun résumé disponible.";let html=`<div class="health-line"><b class="${statusClass}">● ${escapeHtml(status)}</b><br><small>${escapeHtml(data.generatedAt||data.generated_at||"")}</small></div><div class="health-line"><b>Résumé</b><br>${summary}</div>`;const ex=checks.executionReadiness||checks.execution_readiness;if(ex){const gap=typeof ex.priceGap==="number"?Number(ex.priceGap).toFixed(2):"N/A";html+=`<div class="health-line"><b>Trading / MT5</b><br>Action : ${escapeHtml(ex.action??"N/A")}<br>Mode : ${escapeHtml(ex.mode??"N/A")}<br>Symbole : ${escapeHtml(ex.symbol??"N/A")}<br>Prix signal : ${escapeHtml(ex.signalPrice??ex.signal_price??"N/A")}<br>Prix live : ${escapeHtml(ex.livePrice??ex.live_price??"N/A")}<br>Écart : ${escapeHtml(gap)}<br>Readiness : ${escapeHtml(ex.execution_readiness??ex.readiness??"N/A")}<br>Smart Money Bias : ${escapeHtml(ex.smart_money_bias??ex.smartMoneyBias??"N/A")}<br>Phase : ${escapeHtml(ex.market_phase??ex.marketPhase??"N/A")}<br>Exécutable : ${ex.executable?'<span class="health-ok">OUI</span>':'<span class="health-warning">NON</span>'}</div><div class="health-line"><b>Volume Context actif</b><br>${renderVolumeContextFromAny(ex)}</div>`}if(checks.market){html+=`<div class="health-line"><b>Market Data</b><br>Données : ${escapeHtml(checks.market.count??0)} actifs<br>Sentiment : ${escapeHtml(checks.market.sentiment?.regime??"N/A")} ${escapeHtml(checks.market.sentiment?.score??"")}</div>`}if(checks.volume){const vol=checks.volume;html+=`<div class="health-line"><b>Volume Engine</b><br>Actifs avec volumétrie : ${escapeHtml(vol.assetsWithVolumeContext??vol.assets_with_volume_context??0)}<br>Statut : ${vol.ok?'<span class="health-ok">ACTIF</span>':'<span class="health-warning">EN ATTENTE</span>'}</div>`}if(checks.mtf){html+=`<div class="health-line"><b>MTF Engine</b><br>Actifs MTF : ${escapeHtml(checks.mtf.assetsWithMtfContext??checks.mtf.assets_with_mtf_context??0)}<br>Full pyramid : ${escapeHtml(checks.mtf.fullPyramidAssets??checks.mtf.full_pyramid_assets??0)}</div>`}if(checks.news){html+=`<div class="health-line"><b>News Risk</b><br>News : ${escapeHtml(checks.news.count??0)}<br>Risque : ${escapeHtml(checks.news.risk?.regime??"N/A")} ${escapeHtml(checks.news.risk?.score??"")}</div>`}if(checks.ai){html+=`<div class="health-line"><b>IA</b><br>Mistral : ${checks.ai.mistralKeyPresent?'<span class="health-ok">OK</span>':'<span class="health-warning">ABSENT</span>'}<br>OpenAI validation : ${checks.ai.openAiKeyPresent?'<span class="health-ok">OK</span>':'<span class="health-warning">ABSENT</span>'}<br>Auto mode : ${escapeHtml(checks.ai.aiAutoMode??"N/A")}<br>Auto TF : ${escapeHtml(checks.ai.aiAutoTf??"N/A")}</div>`}if(Array.isArray(data.recommendations)&&data.recommendations.length){html+=`<div class="health-line"><b>Actions recommandées</b><br>${data.recommendations.map(r=>"• "+escapeHtml(r)).join("<br>")}</div>`}return html}
-async function checkSystemHealth(){const box=document.getElementById("healthBox");if(box)box.innerHTML="Analyse en cours...";setHealthSidebarStatus("LOADING","Health en analyse");try{const res=await fetch(WORKER_HEALTH_URL);const data=await res.json().catch(()=>({ok:false,error:"Réponse /system/health non JSON"}));if(!res.ok||data.ok===false)throw new Error(data.error||data.message||"Erreur /system/health");const status=String(data.status||"UNKNOWN").toUpperCase();setHealthSidebarStatus(status,status==="OK"?"Health OK":status==="WARNING"?"Health WARNING":status==="CRITICAL"?"Health CRITICAL":"Health reçu");const volumeCount=data.checks?.volume?.assetsWithVolumeContext??data.checks?.volume?.assets_with_volume_context??0;setVolumeSidebarStatus(!!data.checks?.volume?.ok,volumeCount);if(box)box.innerHTML=renderHealthData(data);state.messages.push({role:"assistant",content:`SYSTEM HEALTH — ${status}\n\n${(data.summary||[]).map(s=>"• "+s).join("\n")||"Diagnostic reçu."}\n\nVolumeContext : ${data.checks?.volume?.ok?"ACTIF":"EN ATTENTE"} (${volumeCount} actif(s))`,ts:Date.now()});save();renderChat()}catch(e){setHealthSidebarStatus("CRITICAL","Health erreur");setVolumeSidebarStatus(false,0);if(box)box.innerHTML=`<div class="health-line"><b class="health-critical">Erreur health monitor</b><br>${escapeHtml(e.message||String(e))}<br><br>Route testée : ${escapeHtml(WORKER_HEALTH_URL)}</div>`}}
-async function preloadStatus(){try{const res=await fetch(WORKER_STATUS_URL);const data=await res.json().catch(()=>({ok:false}));if(res.ok&&data.ok!==false){setDot("workerDot","ok");setDot("topWorkerDot","ok");const count=data.marketCount??0;setVolumeSidebarStatus(count>0,count)}else{setDot("workerDot","warn");setDot("topWorkerDot","warn");setVolumeSidebarStatus(false,0)}}catch(e){setDot("workerDot","critical");setDot("topWorkerDot","critical");setVolumeSidebarStatus(false,0)}try{const res=await fetch(WORKER_AGENT_CONTEXT_URL+"?symbol=XAUUSD&mode=scalping&token="+encodeURIComponent(COPY_TOKEN));const data=await res.json().catch(()=>({ok:false}));if(res.ok&&data.ok!==false)setAgentContextSidebarStatus(true,"XAUUSD / scalping");else setAgentContextSidebarStatus(false)}catch(e){setAgentContextSidebarStatus(false)}}
-document.getElementById("userInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}});
-function newChat(){if(state.messages.length){state.chats.unshift({id:crypto.randomUUID(),title:(state.messages.find(m=>m.role==="user")?.content||"Conversation").slice(0,60),messages:state.messages.map(m=>compactMessage(m,5000)),ts:Date.now()})}state.messages=[];save();render()}
-function openArchives(){const l=document.getElementById("archivesList");l.innerHTML=state.chats.map(c=>`<div class="mem" style="cursor:pointer" onclick="loadChat('${c.id}')"><b>${escapeHtml(c.title)}</b><br><small>${new Date(c.ts).toLocaleString("fr-FR")}</small></div>`).join("")||'<div class="mem">Aucune archive.</div>';openModal("archivesModal")}
-function loadChat(id){const c=state.chats.find(x=>x.id===id);if(c){state.messages=c.messages;save();render();closeModal("archivesModal")}}
-function addMemory(){const v=document.getElementById("memoryInput").value.trim();if(!v)return;state.memory.push({text:v,ts:Date.now()});document.getElementById("memoryInput").value="";save();renderMemory()}
-function clearMemory(){if(confirm("Effacer toute la mémoire locale ?")){state.memory=[];save();renderMemory()}}
-function quick(t){document.getElementById("userInput").value=t;document.getElementById("userInput").focus()}
-function openModal(id){document.getElementById(id).classList.add("open")}function closeModal(id){document.getElementById(id).classList.remove("open")}function openAgentsModal(){openModal("agentsModal")}function openMemoryModal(){renderMemory();openModal("memoryModal")}function toggleLeft(){document.getElementById("leftPanel").classList.toggle("open")}function toggleRight(){document.getElementById("rightPanel").classList.toggle("open")}
-function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="torinvest-forge-ai-backup.json";a.click();URL.revokeObjectURL(a.href)}
-function importDataPrompt(){document.getElementById("importFile").click()}
-document.getElementById("importFile").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{state=normalizeState(JSON.parse(await f.text()));save();render()}catch{alert("Fichier invalide")}};
-render();preloadStatus();
+${mem||"Aucune."}`;
+
+  return[
+    {role:"system",content:sys},
+    ...state.messages
+      .filter(m=>!m.loading)
+      .slice(-12)
+      .map(m=>{
+        if(m.role==="user"&&m.imageDataUrl){
+          return{
+            role:"user",
+            content:[
+              {type:"text",text:m.content||"Analyse cette image."},
+              {type:"image_url",image_url:m.imageDataUrl}
+            ]
+          };
+        }
+
+        return{
+          role:m.role,
+          content:m.content
+        };
+      })
+  ];
+}
+
+async function sendMessage(){
+  const input=document.getElementById("userInput");
+  const text=input.value.trim();
+
+  if(!text&&!pendingImage)return;
+
+  if(isRecording&&recognition){
+    try{recognition.stop()}catch(e){}
+  }
+
+  const imageToSend=pendingImage;
+  const userContent=text||"Analyse cette image.";
+
+  state.messages.push({
+    role:"user",
+    content:userContent,
+    imageDataUrl:imageToSend?.dataUrl||null,
+    ts:Date.now()
+  });
+
+  input.value="";
+  clearPendingImage();
+  clearVoiceDebug();
+  renderChat();
+
+  state.messages.push({
+    role:"assistant",
+    content:"Forge en cours… récupération du contexte Worker...",
+    ts:Date.now(),
+    loading:true
+  });
+
+  renderChat();
+
+  try{
+    let agentContext=null;
+
+    try{
+      agentContext=await fetchAgentContextForMessage(userContent);
+    }catch(ctxErr){
+      setAgentContextSidebarStatus(false);
+      agentContext={
+        ok:false,
+        error:ctxErr.message,
+        warning:"/agent/context indisponible."
+      };
+    }
+
+    const modelToUse=imageToSend?VISION_MODEL:state.model;
+
+    const res=await fetch(WORKER_AI_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:modelToUse,
+        messages:buildMessages(agentContext),
+        temperature:agent().temp,
+        max_tokens:4096,
+        top_p:.95
+      })
+    });
+
+    const data=await res.json().catch(()=>({
+      error:"Réponse Worker non JSON"
+    }));
+
+    if(!res.ok){
+      throw new Error(data.error||data.message||"Erreur Worker");
+    }
+
+    const reply=data.choices?.[0]?.message?.content||data.reply||"Aucune réponse.";
+
+    state.messages=state.messages.filter(m=>!m.loading);
+
+    state.messages.push({
+      role:"assistant",
+      content:reply,
+      ts:Date.now()
+    });
+
+    save();
+    renderChat();
+  }catch(e){
+    state.messages=state.messages.filter(m=>!m.loading);
+
+    state.messages.push({
+      role:"assistant",
+      content:"⚠ Erreur : "+e.message+"\n\nVérifie /agent/context, /ai/chat et /ai/status.",
+      ts:Date.now()
+    });
+
+    save();
+    renderChat();
+  }
+}
+
+function renderVolumeContextFromAny(obj){
+  const vc=obj?.volumeContext||obj?.volume_context||obj?.targetAsset?.volumeContext;
+
+  if(!vc)return'<span class="health-warning">Non disponible</span>';
+
+  return`
+    <span class="health-pill">hasData: ${escapeHtml(vc.hasVolumeData??vc.has_volume_data??false)}</span>
+    <span class="health-pill">régime: ${escapeHtml(vc.volumeRegime??vc.volume_regime??"UNKNOWN")}</span>
+    <span class="health-pill">signal: ${escapeHtml(vc.volumeSignal??vc.volume_signal??"NEUTRAL")}</span><br>
+    Volume : ${escapeHtml(fmtRaw(vc.volume))}<br>
+    Volume MA : ${escapeHtml(fmtRaw(vc.volumeMa??vc.volume_ma))}<br>
+    Volume Ratio : ${escapeHtml((vc.volumeRatio??vc.volume_ratio)!==null&&(vc.volumeRatio??vc.volume_ratio)!==undefined?fmtNum(vc.volumeRatio??vc.volume_ratio,2):"N/A")}<br>
+    Delta proxy : ${escapeHtml(fmtRaw(vc.deltaProxy??vc.delta_proxy))}<br>
+    CVD proxy : ${escapeHtml(fmtRaw(vc.cvdProxy??vc.cvd_proxy))}<br>
+    VWAP : ${escapeHtml(fmtRaw(vc.vwap))}<br>
+    POC / VAH / VAL : ${escapeHtml(fmtRaw(vc.poc))} / ${escapeHtml(fmtRaw(vc.vah))} / ${escapeHtml(fmtRaw(vc.val))}
+  `;
+}
+
+function renderHealthData(data){
+  const status=String(data.status||"UNKNOWN").toUpperCase();
+  const statusClass=status==="OK"?"health-ok":status==="WARNING"?"health-warning":"health-critical";
+  const checks=data.checks||{};
+
+  const summary=Array.isArray(data.summary)&&data.summary.length
+    ? data.summary.map(s=>"• "+escapeHtml(s)).join("<br>")
+    : "Aucun résumé disponible.";
+
+  let html=`
+    <div class="health-line">
+      <b class="${statusClass}">● ${escapeHtml(status)}</b><br>
+      <small>${escapeHtml(data.generatedAt||data.generated_at||"")}</small>
+    </div>
+    <div class="health-line">
+      <b>Résumé</b><br>${summary}
+    </div>
+  `;
+
+  const ex=checks.executionReadiness||checks.execution_readiness;
+
+  if(ex){
+    const gap=typeof ex.priceGap==="number"?Number(ex.priceGap).toFixed(2):"N/A";
+
+    html+=`
+      <div class="health-line">
+        <b>Trading / MT5</b><br>
+        Action : ${escapeHtml(ex.action??"N/A")}<br>
+        Mode : ${escapeHtml(ex.mode??"N/A")}<br>
+        Symbole : ${escapeHtml(ex.symbol??"N/A")}<br>
+        Prix signal : ${escapeHtml(ex.signalPrice??ex.signal_price??"N/A")}<br>
+        Prix live : ${escapeHtml(ex.livePrice??ex.live_price??"N/A")}<br>
+        Écart : ${escapeHtml(gap)}<br>
+        Readiness : ${escapeHtml(ex.execution_readiness??ex.readiness??"N/A")}<br>
+        Smart Money Bias : ${escapeHtml(ex.smart_money_bias??ex.smartMoneyBias??"N/A")}<br>
+        Phase : ${escapeHtml(ex.market_phase??ex.marketPhase??"N/A")}<br>
+        Exécutable : ${ex.executable?'<span class="health-ok">OUI</span>':'<span class="health-warning">NON</span>'}
+      </div>
+      <div class="health-line">
+        <b>Volume Context actif</b><br>${renderVolumeContextFromAny(ex)}
+      </div>
+    `;
+  }
+
+  if(checks.market){
+    html+=`
+      <div class="health-line">
+        <b>Market Data</b><br>
+        Données : ${escapeHtml(checks.market.count??0)} actifs<br>
+        Sentiment : ${escapeHtml(checks.market.sentiment?.regime??"N/A")} ${escapeHtml(checks.market.sentiment?.score??"")}
+      </div>
+    `;
+  }
+
+  if(checks.volume){
+    const vol=checks.volume;
+
+    html+=`
+      <div class="health-line">
+        <b>Volume Engine</b><br>
+        Actifs avec volumétrie : ${escapeHtml(vol.assetsWithVolumeContext??vol.assets_with_volume_context??0)}<br>
+        Statut : ${vol.ok?'<span class="health-ok">ACTIF</span>':'<span class="health-warning">EN ATTENTE</span>'}
+      </div>
+    `;
+  }
+
+  if(checks.mtf){
+    html+=`
+      <div class="health-line">
+        <b>MTF Engine</b><br>
+        Actifs MTF : ${escapeHtml(checks.mtf.assetsWithMtfContext??checks.mtf.assets_with_mtf_context??0)}<br>
+        Full pyramid : ${escapeHtml(checks.mtf.fullPyramidAssets??checks.mtf.full_pyramid_assets??0)}
+      </div>
+    `;
+  }
+
+  if(checks.news){
+    html+=`
+      <div class="health-line">
+        <b>News Risk</b><br>
+        News : ${escapeHtml(checks.news.count??0)}<br>
+        Risque : ${escapeHtml(checks.news.risk?.regime??"N/A")} ${escapeHtml(checks.news.risk?.score??"")}
+      </div>
+    `;
+  }
+
+  if(checks.ai){
+    html+=`
+      <div class="health-line">
+        <b>IA</b><br>
+        Mistral : ${checks.ai.mistralKeyPresent?'<span class="health-ok">OK</span>':'<span class="health-warning">ABSENT</span>'}<br>
+        OpenAI validation : ${checks.ai.openAiKeyPresent?'<span class="health-ok">OK</span>':'<span class="health-warning">ABSENT</span>'}<br>
+        Auto mode : ${escapeHtml(checks.ai.aiAutoMode??"N/A")}<br>
+        Auto TF : ${escapeHtml(checks.ai.aiAutoTf??"N/A")}
+      </div>
+    `;
+  }
+
+  if(Array.isArray(data.recommendations)&&data.recommendations.length){
+    html+=`
+      <div class="health-line">
+        <b>Actions recommandées</b><br>
+        ${data.recommendations.map(r=>"• "+escapeHtml(r)).join("<br>")}
+      </div>
+    `;
+  }
+
+  return html;
+}
+
+async function checkSystemHealth(){
+  const box=document.getElementById("healthBox");
+
+  if(box)box.innerHTML="Analyse en cours...";
+
+  setHealthSidebarStatus("LOADING","Health en analyse");
+
+  try{
+    const res=await fetch(WORKER_HEALTH_URL);
+
+    const data=await res.json().catch(()=>({
+      ok:false,
+      error:"Réponse /system/health non JSON"
+    }));
+
+    if(!res.ok||data.ok===false){
+      throw new Error(data.error||data.message||"Erreur /system/health");
+    }
+
+    const status=String(data.status||"UNKNOWN").toUpperCase();
+
+    setHealthSidebarStatus(
+      status,
+      status==="OK"?"Health OK":
+      status==="WARNING"?"Health WARNING":
+      status==="CRITICAL"?"Health CRITICAL":
+      "Health reçu"
+    );
+
+    const volumeCount=data.checks?.volume?.assetsWithVolumeContext??data.checks?.volume?.assets_with_volume_context??0;
+
+    setVolumeSidebarStatus(!!data.checks?.volume?.ok,volumeCount);
+
+    if(box)box.innerHTML=renderHealthData(data);
+
+    state.messages.push({
+      role:"assistant",
+      content:`SYSTEM HEALTH — ${status}
+
+${(data.summary||[]).map(s=>"• "+s).join("\n")||"Diagnostic reçu."}
+
+VolumeContext : ${data.checks?.volume?.ok?"ACTIF":"EN ATTENTE"} (${volumeCount} actif(s))`,
+      ts:Date.now()
+    });
+
+    save();
+    renderChat();
+  }catch(e){
+    setHealthSidebarStatus("CRITICAL","Health erreur");
+    setVolumeSidebarStatus(false,0);
+
+    if(box){
+      box.innerHTML=`
+        <div class="health-line">
+          <b class="health-critical">Erreur health monitor</b><br>
+          ${escapeHtml(e.message||String(e))}<br><br>
+          Route testée : ${escapeHtml(WORKER_HEALTH_URL)}
+        </div>
+      `;
+    }
+  }
+}
+
+async function preloadStatus(){
+  try{
+    const res=await fetch(WORKER_STATUS_URL);
+    const data=await res.json().catch(()=>({ok:false}));
+
+    if(res.ok&&data.ok!==false){
+      setDot("workerDot","ok");
+      setDot("topWorkerDot","ok");
+      const count=data.marketCount??0;
+      setVolumeSidebarStatus(count>0,count);
+    }else{
+      setDot("workerDot","warn");
+      setDot("topWorkerDot","warn");
+      setVolumeSidebarStatus(false,0);
+    }
+  }catch(e){
+    setDot("workerDot","critical");
+    setDot("topWorkerDot","critical");
+    setVolumeSidebarStatus(false,0);
+  }
+
+  try{
+    const res=await fetch(
+      WORKER_AGENT_CONTEXT_URL+
+      "?symbol=XAUUSD&mode=scalping&token="+encodeURIComponent(COPY_TOKEN)
+    );
+
+    const data=await res.json().catch(()=>({ok:false}));
+
+    if(res.ok&&data.ok!==false){
+      setAgentContextSidebarStatus(true,"XAUUSD / scalping");
+    }else{
+      setAgentContextSidebarStatus(false);
+    }
+  }catch(e){
+    setAgentContextSidebarStatus(false);
+  }
+}
+
+document.getElementById("userInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&!e.shiftKey){
+    e.preventDefault();
+    sendMessage();
+  }
+});
+
+function newChat(){
+  if(state.messages.length){
+    state.chats.unshift({
+      id:crypto.randomUUID(),
+      title:(state.messages.find(m=>m.role==="user")?.content||"Conversation").slice(0,60),
+      messages:state.messages.map(m=>compactMessage(m,5000)),
+      ts:Date.now()
+    });
+  }
+
+  state.messages=[];
+  save();
+  render();
+}
+
+function openArchives(){
+  const l=document.getElementById("archivesList");
+
+  l.innerHTML=state.chats.map(c=>`
+    <div class="mem" style="cursor:pointer" onclick="loadChat('${c.id}')">
+      <b>${escapeHtml(c.title)}</b><br>
+      <small>${new Date(c.ts).toLocaleString("fr-FR")}</small>
+    </div>
+  `).join("")||'<div class="mem">Aucune archive.</div>';
+
+  openModal("archivesModal");
+}
+
+function loadChat(id){
+  const c=state.chats.find(x=>x.id===id);
+
+  if(c){
+    state.messages=c.messages;
+    save();
+    render();
+    closeModal("archivesModal");
+  }
+}
+
+function addMemory(){
+  const v=document.getElementById("memoryInput").value.trim();
+
+  if(!v)return;
+
+  state.memory.push({
+    text:v,
+    ts:Date.now()
+  });
+
+  document.getElementById("memoryInput").value="";
+  save();
+  renderMemory();
+}
+
+function clearMemory(){
+  if(confirm("Effacer toute la mémoire locale ?")){
+    state.memory=[];
+    save();
+    renderMemory();
+  }
+}
+
+function quick(t){
+  document.getElementById("userInput").value=t;
+  document.getElementById("userInput").focus();
+}
+
+function openModal(id){
+  document.getElementById(id).classList.add("open");
+}
+
+function closeModal(id){
+  document.getElementById(id).classList.remove("open");
+}
+
+function openAgentsModal(){
+  openModal("agentsModal");
+}
+
+function openMemoryModal(){
+  renderMemory();
+  openModal("memoryModal");
+}
+
+function toggleLeft(){
+  document.getElementById("leftPanel").classList.toggle("open");
+}
+
+function toggleRight(){
+  document.getElementById("rightPanel").classList.toggle("open");
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+
+  a.href=URL.createObjectURL(blob);
+  a.download="torinvest-forge-ai-backup.json";
+  a.click();
+
+  URL.revokeObjectURL(a.href);
+}
+
+function importDataPrompt(){
+  document.getElementById("importFile").click();
+}
+
+document.getElementById("importFile").onchange=async e=>{
+  const f=e.target.files[0];
+
+  if(!f)return;
+
+  try{
+    state=normalizeState(JSON.parse(await f.text()));
+    save();
+    render();
+  }catch{
+    alert("Fichier invalide");
+  }
+};
+
+render();
+preloadStatus();
 </script>
 </body>
 </html>
