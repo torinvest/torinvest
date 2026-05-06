@@ -87,6 +87,7 @@ const WORKER_AI_URL=WORKER_BASE_URL+"/ai/chat";
 const WORKER_STATUS_URL=WORKER_BASE_URL+"/ai/status";
 const WORKER_HEALTH_URL=WORKER_BASE_URL+"/system/health?token="+encodeURIComponent(COPY_TOKEN);
 const WORKER_AGENT_CONTEXT_URL=WORKER_BASE_URL+"/agent/context";
+const WORKER_COPY_SIGNAL_URL=WORKER_BASE_URL + "/copy/signal";
 const STORAGE_KEY="torinvest_forge_ai_v4_4_stable_complete";
 const LEGACY_STORAGE_KEYS=["torinvest_forge_ai_v4_3_fixed_complete","torinvest_forge_ai_v4_da_complete","torinvest_forge_ai_v3_agent_ready","torinvest_forge_ai_v2_volume","torinvest_forge_ai_v1"];
 const VISION_MODEL="pixtral-large-latest";
@@ -140,9 +141,116 @@ function explainSpeechError(code){return({"no-speech":"Aucune voix détectée.",
 function toggleVoice(){const SR=getSpeechRecognitionConstructor(),input=document.getElementById("userInput");if(!SR){setVoiceDebug("<b>Dictée indisponible :</b> navigateur non compatible.",true);return}if(isRecording&&recognition){try{recognition.stop()}catch(e){}return}try{recognition=new SR();recognition.lang="fr-FR";recognition.continuous=false;recognition.interimResults=true;isRecording=true;voiceBaseText=input.value.trim();voiceFinalText="";setMicroStatus(true,"Micro actif<br><small>Parle maintenant...</small>");setVoiceDebug("<b>Dictée active :</b> parle maintenant.");const timer=setTimeout(()=>{if(isRecording&&recognition)try{recognition.stop()}catch(e){}},10000);recognition.onresult=e=>{let interim="";for(let i=e.resultIndex;i<e.results.length;i++){const txt=e.results[i][0].transcript;if(e.results[i].isFinal)voiceFinalText+=" "+txt;else interim+=" "+txt}input.value=(voiceBaseText+" "+voiceFinalText+" "+interim).replace(/\s+/g," ").trim()};recognition.onerror=e=>{clearTimeout(timer);isRecording=false;setMicroStatus(false,"Micro erreur<br><small>Voir diagnostic</small>");setVoiceDebug("<b>Erreur dictée :</b> "+escapeHtml(explainSpeechError(e.error)),true);recognition=null};recognition.onend=()=>{clearTimeout(timer);isRecording=false;setMicroStatus(false);recognition=null;input.focus()};recognition.start()}catch(e){isRecording=false;recognition=null;setMicroStatus(false);setVoiceDebug("<b>Blocage vocal :</b> "+escapeHtml(e.message||String(e)),true)}}
 function detectSymbolFromText(text){const t=String(text||"").toUpperCase();if(t.includes("EURUSD"))return"EURUSD";if(t.includes("GBPUSD"))return"GBPUSD";if(t.includes("EURGBP"))return"EURGBP";if(t.includes("USDJPY"))return"USDJPY";if(t.includes("USDCHF"))return"USDCHF";if(t.includes("USDCAD"))return"USDCAD";if(t.includes("AUDUSD"))return"AUDUSD";if(t.includes("NZDUSD"))return"NZDUSD";if(t.includes("BTC"))return"BTCUSD";if(t.includes("ETH"))return"ETHUSD";if(t.includes("NASDAQ")||t.includes("NAS100")||t.includes("US100"))return"NASDAQ";if(t.includes("SPX")||t.includes("SP500")||t.includes("S&P"))return"SPX";if(t.includes("WTI")||t.includes("USOIL")||t.includes("PÉTROLE")||t.includes("PETROLE")||t.includes("OIL"))return"WTI";if(t.includes("SILVER")||t.includes("XAG")||t.includes("ARGENT"))return"XAGUSD";if(t.includes("GOLD")||t.includes("XAU")||t.includes(" OR ")||t==="OR"||t.includes("L'OR"))return"XAUUSD";return"XAUUSD"}
 function detectModeFromText(text){const t=String(text||"").toLowerCase();return state.agentId==="scalp"||t.includes("scalp")||t.includes("m1")||t.includes("m3")||t.includes("m5")||t.includes("setup")||t.includes("entrée")||t.includes("entree")?"scalping":"normal"}
-async function fetchAgentContextForMessage(text){const symbol=detectSymbolFromText(text),mode=detectModeFromText(text),url=WORKER_AGENT_CONTEXT_URL+"?symbol="+encodeURIComponent(symbol)+"&mode="+encodeURIComponent(mode)+"&token="+encodeURIComponent(COPY_TOKEN);const res=await fetch(url);const data=await res.json().catch(()=>({ok:false,error:"Réponse /agent/context non JSON"}));if(!res.ok||data.ok===false)throw new Error(data.error||data.message||"Erreur /agent/context");setAgentContextSidebarStatus(true,`${symbol} / ${mode}`);return data}
-function summarizeAgentContext(ctx){if(!ctx||ctx.ok===false)return"Contexte Worker indisponible.";const target=ctx.market?.targetAsset,signal=ctx.signal,ai=ctx.aiDecision,news=ctx.news,sm=ctx.smartMoneyEngine||ctx.smart_money_engine||{};return[`Worker OK : ${ctx.system?.worker?"oui":"non"}`,`Symbole : ${ctx.symbol}`,`Mode : ${ctx.mode}`,`Prix cible : ${target?.price??"N/A"}`,`TF : ${target?.tf??"N/A"}`,`Volume : ${target?.volumeContext?.volumeRegime??"N/A"} / ${target?.volumeContext?.volumeSignal??"N/A"}`,`MTF : ${target?.mtfContext?.bias??"N/A"} / score ${target?.mtfContext?.directionalScore??"N/A"}`,`Smart Money Bias : ${sm?.smart_money_bias??sm?.bias??"N/A"}`,`Readiness : ${sm?.execution_readiness??sm?.readiness??"N/A"}`,`Signal MT5 : ${signal?.action??"N/A"} / executable ${signal?.validation?.executable??signal?.executable??"N/A"}`,`Dernière décision IA : ${ai?.action??"N/A"}`,`News risk : ${news?.risk?.regime??"N/A"} / score ${news?.risk?.score??"N/A"}`].join("\n")}
+async function fetchLatestSignal(symbol){
+  try{
+    const url =
+      WORKER_COPY_SIGNAL_URL +
+      "?token=" + encodeURIComponent(COPY_TOKEN) +
+      "&symbol=" + encodeURIComponent(symbol);
+
+    const res = await fetch(url,{method:"GET"});
+
+    const data = await res.json().catch(()=>({
+      ok:false,
+      error:"Réponse signal non JSON"
+    }));
+
+    if(!res.ok || data.ok===false){
+      return {
+        ok:false,
+        error:data.error || "Signal indisponible"
+      };
+    }
+
+    return data.signal || null;
+
+  }catch(e){
+    return {
+      ok:false,
+      error:e.message
+    };
+  }
+}
+async function fetchAgentContextForMessage(text){
+  const symbol = detectSymbolFromText(text);
+  const mode = detectModeFromText(text);
+
+  const url =
+    WORKER_AGENT_CONTEXT_URL +
+    "?symbol=" + encodeURIComponent(symbol) +
+    "&mode=" + encodeURIComponent(mode) +
+    "&token=" + encodeURIComponent(COPY_TOKEN);
+
+  const res = await fetch(url);
+
+  const data = await res.json().catch(()=>({
+    ok:false,
+    error:"Réponse /agent/context non JSON"
+  }));
+
+  if(!res.ok || data.ok === false){
+    throw new Error(data.error || data.message || "Erreur /agent/context");
+  }
+
+  setAgentContextSidebarStatus(true, `${symbol} / ${mode}`);
+
+  const latestSignal = await fetchLatestSignal(symbol);
+  data.latestSignal = latestSignal;
+
+  return data;
+}
+
+function summarizeAgentContext(ctx){
+  if(!ctx || ctx.ok === false)
+    return "Contexte Worker indisponible.";
+
+  const target = ctx.market?.targetAsset || null;
+  const signal = ctx.latestSignal || ctx.signal || null;
+  const ai = ctx.aiDecision || null;
+  const news = ctx.news || null;
+  const sm = ctx.smartMoneyEngine || ctx.smart_money_engine || ctx.smartMoney || {};
+
+  return [
+    `Worker OK : ${ctx.system?.worker ? "oui" : "non"}`,
+    `Symbole : ${ctx.symbol || "N/A"}`,
+    `Mode : ${ctx.mode || "N/A"}`,
+    `Prix cible : ${target?.price ?? "N/A"}`,
+    `TF : ${target?.tf ?? "N/A"}`,
+    `Volume : ${target?.volumeContext?.volumeRegime ?? "N/A"} / ${target?.volumeContext?.volumeSignal ?? "N/A"}`,
+    `MTF : ${target?.mtfContext?.bias ?? "N/A"} / score ${target?.mtfContext?.directionalScore ?? "N/A"}`,
+    `Smart Money Bias : ${sm?.smart_money_bias ?? sm?.bias ?? "N/A"}`,
+    `Readiness : ${sm?.execution_readiness ?? sm?.readiness ?? "N/A"}`,
+    `Signal actif multi-actif : ${signal?.symbol ?? "N/A"} / ${signal?.action ?? "N/A"} / executable ${signal?.validation?.executable ?? signal?.executable ?? "N/A"}`,
+    `Dernière décision IA : ${ai?.symbol ?? "N/A"} / ${ai?.action ?? "N/A"}`,
+    `News risk : ${news?.risk?.regime ?? "N/A"} / score ${news?.risk?.score ?? "N/A"}`
+  ].join("\n");
+}
 function buildMessages(agentContext=null){const mem=state.memory.slice(-8).map(m=>"- "+m.text).join("\n"),today=new Date().toLocaleDateString("fr-FR",{weekday:"long",year:"numeric",month:"long",day:"numeric"}),workerContext=agentContext?JSON.stringify(agentContext,null,2):"Aucun contexte Worker récupéré.",workerSummary=summarizeAgentContext(agentContext);const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
+function summarizeAgentContext(ctx){
+  if(!ctx || ctx.ok === false)
+    return "Contexte Worker indisponible.";
+
+  const target = ctx.market?.targetAsset || null;
+  const signal = ctx.latestSignal || ctx.signal || null;
+  const ai = ctx.aiDecision || null;
+  const news = ctx.news || null;
+  const sm = ctx.smartMoneyEngine || ctx.smart_money_engine || ctx.smartMoney || {};
+
+  return [
+    `Worker OK : ${ctx.system?.worker ? "oui" : "non"}`,
+    `Symbole : ${ctx.symbol || "N/A"}`,
+    `Mode : ${ctx.mode || "N/A"}`,
+    `Prix cible : ${target?.price ?? "N/A"}`,
+    `TF : ${target?.tf ?? "N/A"}`,
+    `Volume : ${target?.volumeContext?.volumeRegime ?? "N/A"} / ${target?.volumeContext?.volumeSignal ?? "N/A"}`,
+    `MTF : ${target?.mtfContext?.bias ?? "N/A"} / score ${target?.mtfContext?.directionalScore ?? "N/A"}`,
+    `Smart Money Bias : ${sm?.smart_money_bias ?? sm?.bias ?? "N/A"}`,
+    `Readiness : ${sm?.execution_readiness ?? sm?.readiness ?? "N/A"}`,
+    `Signal actif multi-actif : ${signal?.symbol ?? "N/A"} / ${signal?.action ?? "N/A"} / executable ${signal?.validation?.executable ?? signal?.executable ?? "N/A"}`,
+    `Dernière décision IA : ${ai?.symbol ?? "N/A"} / ${ai?.action ?? "N/A"}`,
+    `News risk : ${news?.risk?.regime ?? "N/A"} / score ${news?.risk?.score ?? "N/A"}`
+  ].join("\n");
+}
 
 DATE ACTUELLE :
 ${today}
