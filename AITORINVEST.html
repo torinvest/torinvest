@@ -1851,7 +1851,34 @@ function summarizeAgentContext(ctx){
 function buildMessages(agentContext=null){
   const mem=state.memory.slice(-8).map(m=>"- "+m.text).join("\n");
   const today=new Date().toLocaleDateString("fr-FR",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-  const workerContext=agentContext?JSON.stringify(agentContext,null,2):"Aucun contexte Worker récupéré.";
+ const compactCtx = agentContext ? {
+  ok: agentContext.ok,
+  symbol: agentContext.symbol,
+  mode: agentContext.mode,
+  smartMoneyEngine: agentContext.smartMoneyEngine || null,
+  signal: agentContext.latestSignal || agentContext.signal || null,
+  aiDecision: agentContext.aiDecision ? {
+    action: agentContext.aiDecision.action,
+    symbol: agentContext.aiDecision.symbol,
+    tf: agentContext.aiDecision.tf,
+    price: agentContext.aiDecision.price,
+    sl: agentContext.aiDecision.sl,
+    tp: agentContext.aiDecision.tp,
+    confidence: agentContext.aiDecision.confidence,
+    execution_readiness: agentContext.aiDecision.execution_readiness,
+    validation: agentContext.aiDecision.validation
+  } : null,
+  market: agentContext.market ? {
+    targetAsset: agentContext.market.targetAsset,
+    sentiment: agentContext.market.sentiment
+  } : null,
+  news: agentContext.news ? {
+    risk: agentContext.news.risk,
+    items: Array.isArray(agentContext.news.items) ? agentContext.news.items.slice(0,5) : []
+  } : null
+} : null;
+
+const workerContext = compactCtx ? JSON.stringify(compactCtx,null,2) : "Aucun contexte Worker récupéré.";
   const workerSummary=summarizeAgentContext(agentContext);
 
   const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
