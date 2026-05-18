@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>TORINVEST AI — La Forge Dashboard V6</title>
+<title>TORINVEST AI — La Forge Command Center V9</title>
 <style>
 :root{
   --bg:#030302;--panel:#0b0906;--panel2:#11100c;--glass:rgba(12,10,7,.82);
@@ -43,12 +43,33 @@ body:after{content:"";position:fixed;inset:auto -15% -35% -15%;height:45%;backgr
 .mobile-toggle{display:none}.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}.modal.open{display:flex}.box{width:min(900px,100%);max-height:88vh;overflow:auto;border:1px solid var(--line);border-radius:18px;background:var(--panel);box-shadow:0 0 60px rgba(0,0,0,.8);padding:18px}.box h3{color:var(--gold2);margin-top:0}.field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.field input,.field select{background:#070605;border:1px solid var(--line);border-radius:12px;color:var(--text);padding:11px}.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}.warn{font-size:12px;color:var(--muted);line-height:1.5}
 @media(max-width:1380px){.app{grid-template-columns:250px minmax(520px,1fr) 330px}.cockpit{grid-template-columns:repeat(3,1fr)}.hero{grid-template-columns:1fr}.hero-screen{display:none}.dashboard{grid-template-columns:1fr}.hero,.cockpit{grid-column:1}}
 @media(max-width:1050px){body{overflow:auto}.app{height:auto;min-height:100%;grid-template-columns:1fr}.sidebar,.right{display:none}.sidebar.open,.right.open{display:flex}.mobile-toggle{display:flex;gap:8px;padding:10px}.main{min-height:100vh}.msg{max-width:96%}.topbar{grid-template-columns:1fr;align-items:stretch}.title{text-align:left}.worker-card small{max-width:100%}.cockpit{grid-template-columns:1fr 1fr}.dashboard{padding:10px}.hero h2{font-size:34px}}
+
+
+/* =====================
+   TORINVEST V9 — Command Center fluide et lisible
+   Aucun endpoint Worker/EA modifié
+   ===================== */
+:root{--r:18px;--shadow:0 10px 34px rgba(0,0,0,.34);--soft:rgba(255,255,255,.035)}
+body{overflow:hidden;background:linear-gradient(135deg,#020201,#070604 55%,#010101);}
+body:before{opacity:.55;background-size:58px 58px;}
+.app{grid-template-columns:248px minmax(760px,1fr) 330px;gap:10px;padding:10px;}
+.sidebar,.main,.right{box-shadow:var(--shadow);backdrop-filter:none;background:linear-gradient(180deg,rgba(15,13,9,.96),rgba(4,4,3,.98));}
+.brand{padding:16px 12px 14px}.forge-logo{height:54px;width:92px}.forge-logo .anvil{font-size:48px}.forge-logo .hammer{font-size:25px;right:15px}.logo{font-size:26px}.forge{letter-spacing:5px}.slogan{letter-spacing:1.3px;line-height:1.45}
+.nav{gap:7px}.nav button,.primary,.ghost,.tool-btn,.quick button,.mini-btn{transition:border-color .12s ease,background .12s ease,color .12s ease;transform:none!important;box-shadow:none!important}.nav button:hover,.primary:hover,.ghost:hover,.tool-btn:hover,.quick button:hover,.mini-btn:hover{background:rgba(217,164,65,.14)}
+.topbar{grid-template-columns:230px 1fr 230px;padding:10px 12px}.title h1{font-size:20px}.title p{font-size:12px}.worker-card{padding:8px 10px}.select{padding:9px 10px}
+.dashboard{padding:10px;gap:10px;grid-template-columns:minmax(0,1fr) 330px;align-content:start}.right-stack{gap:10px}.panel,.side-card,.dashboard-card{border-color:rgba(217,164,65,.18);background:rgba(0,0,0,.22)}.right{padding:10px;gap:10px}
+.command-banner{grid-column:1/3;border:1px solid rgba(255,206,98,.36);border-radius:20px;min-height:134px;background:linear-gradient(135deg,rgba(217,164,65,.13),rgba(0,0,0,.32) 42%,rgba(0,0,0,.62)),radial-gradient(circle at 88% 18%,rgba(255,206,98,.14),transparent 34%);display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:14px;padding:18px;overflow:hidden;position:relative}.command-banner:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,206,98,.07),transparent);pointer-events:none}.command-left,.command-status{position:relative;z-index:1}.command-eyebrow{font-size:11px;letter-spacing:2.5px;color:var(--gold2);font-weight:950}.command-banner h2{font-size:28px;margin:6px 0 6px;color:#fff;letter-spacing:.5px}.command-banner p{margin:0;color:var(--muted);font-size:13px;line-height:1.45;max-width:760px}.command-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}.mini-btn{padding:9px 11px;text-align:center;font-size:12px}.command-status{display:grid;gap:8px}.status-chip{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:9px;align-items:center;border:1px solid rgba(217,164,65,.18);border-radius:14px;background:rgba(0,0,0,.25);padding:10px}.status-chip .dot{grid-row:1/3}.status-chip b{font-size:12px;color:var(--gold2);text-transform:uppercase}.status-chip small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.asset-strip{grid-column:1/3;display:grid;grid-template-columns:repeat(5,minmax(145px,1fr));gap:10px}.asset-card{border:1px solid rgba(217,164,65,.20);border-radius:16px;background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(0,0,0,.28));padding:12px;min-height:118px;cursor:pointer;position:relative;overflow:hidden}.asset-card:hover{border-color:rgba(255,206,98,.55);background:linear-gradient(180deg,rgba(217,164,65,.10),rgba(0,0,0,.32))}.asset-card:before{content:"";position:absolute;right:-18px;top:-18px;width:58px;height:58px;border-radius:50%;background:rgba(255,206,98,.08)}.asset-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.asset-symbol{font-size:15px;font-weight:950;color:var(--gold2);letter-spacing:.8px}.asset-price{font-size:18px;font-weight:950;margin-top:8px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.asset-meta{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.45}.asset-footer{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}.cockpit{grid-column:1/3;grid-template-columns:repeat(5,1fr);gap:10px}.kpi{padding:11px 12px;border-radius:14px;background:rgba(255,255,255,.028)}.kpi:after{display:none}.kpi b{font-size:14px}.chat-panel{min-height:520px;border-radius:18px}.chat{padding:12px}.msg{box-shadow:none;max-width:92%;font-size:14px;line-height:1.52}.market-row{grid-template-columns:62px 1fr auto}.signal-card .big{font-size:18px}.screen-grid,.hero,.hero-screen{display:none!important}
+@media(max-width:1380px){.app{grid-template-columns:230px minmax(600px,1fr) 310px}.dashboard{grid-template-columns:1fr}.command-banner,.asset-strip,.cockpit{grid-column:1}.asset-strip{grid-template-columns:repeat(3,1fr)}.command-banner{grid-template-columns:1fr}.command-status{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1050px){body{overflow:auto}.app{grid-template-columns:1fr;padding:8px}.asset-strip{grid-template-columns:1fr 1fr}.cockpit{grid-template-columns:1fr 1fr}.command-status{grid-template-columns:1fr}.command-banner{padding:14px}.dashboard{padding:8px}.chat-panel{min-height:560px}.topbar{grid-template-columns:1fr}.title{text-align:left}}
+@media(max-width:620px){.asset-strip,.cockpit{grid-template-columns:1fr}.command-banner h2{font-size:23px}.msg{max-width:98%}.input{gap:6px}.tool-btn{width:44px;height:48px}textarea{min-height:48px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="sidebar" id="leftPanel">
-    <div class="brand"><div class="forge-logo"><div class="hammer">⚒</div><div class="anvil">⚒</div></div><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">Trader. Investir.<br>Forger ton avenir.</div></div>
+    <div class="brand"><div class="forge-logo"><div class="hammer">⚒</div><div class="anvil">⚒</div></div><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">La force d’un esprit libre</div></div>
     <div class="nav"><button class="active" onclick="newChat()">＋ Nouveau chat</button><button onclick="openArchives()">▣ Archives</button><button onclick="openAgentsModal()">⚙ Agents</button><button onclick="openMemoryModal()">⬢ Mémoire</button><button onclick="checkSystemHealth()">🧠 System Health</button><button onclick="refreshCockpit()">📡 Refresh Cockpit</button><button onclick="exportData()">⬇ Exporter</button><button onclick="importDataPrompt()">⬆ Importer</button><input id="importFile" type="file" accept="application/json" class="hidden" /></div>
     <div class="side-card"><div class="small-title">Agent actif</div><div class="agent-active" id="activeAgentBox"></div></div>
     <div class="side-card"><div class="small-title">Statut</div><div class="status"><span class="dot" id="workerDot"></span><span>Worker connecté<br><small id="workerShort"></small></span></div><div class="status"><span class="dot off" id="healthDot"></span><span id="healthStatusText">Health non testé<br><small>/system/health</small></span></div><div class="status"><span class="dot off" id="volumeDot"></span><span id="volumeStatusText">Volume en attente<br><small>volumeContext</small></span></div><div class="status"><span class="dot off" id="agentContextDot"></span><span id="agentContextStatusText">Agent context non testé<br><small>/agent/context</small></span></div><div class="status"><span class="dot off" id="micDot"></span><span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span></div></div>
@@ -58,7 +79,23 @@ body:after{content:"";position:fixed;inset:auto -15% -35% -15%;height:45%;backgr
     <div class="mobile-toggle"><button class="ghost" onclick="toggleLeft()">☰ Menu</button><button class="ghost" onclick="toggleRight()">Agents</button></div>
     <div class="topbar"><div class="model-box"><div class="model-label">Modèle</div><select class="select" id="modelSelect"></select></div><div class="title"><h1>TORINVEST AI TERMINAL</h1><p>Cockpit IA — macro, smart money, signaux, risque et exécution.</p></div><div class="worker-card"><span class="dot" id="topWorkerDot"></span><span><b>Worker actif</b><small id="workerShortTop"></small></span><span class="gear" onclick="checkSystemHealth()">⚙</span></div></div>
     <section class="dashboard">
-      <section class="hero"><div class="hero-inner"><div class="hero-mark"><div class="hammer">⚒</div><div class="anvil">⚒</div></div><h2>TORINVEST</h2><div class="forge-big">LA FORGE</div><p>Analyse • Décide • Exécute</p></div><div class="hero-screen"><div class="screen-grid"><div class="screen-tile"><span>Marché cible</span><b>XAUUSD</b><div class="mini-chart"></div></div><div class="screen-tile ok"><span>Biais MTF</span><b>BULLISH</b><div class="mini-chart"></div></div><div class="screen-tile warn"><span>News risk</span><b>MODÉRÉ</b><div class="mini-chart"></div></div><div class="screen-tile ok"><span>Signal actif</span><b>BUY</b></div><div class="screen-tile ok"><span>Readiness</span><b>SCALP_VALID</b></div><div class="screen-tile"><span>Confiance</span><b>78/100</b></div></div></div></section>
+      <section class="command-banner">
+        <div class="command-left">
+          <div class="command-eyebrow">TORINVEST COMMAND CENTER</div>
+          <h2>Vue marché multi-actifs</h2>
+          <p>Le haut du dashboard n’est plus bloqué sur XAUUSD : il lit la watchlist active et affiche les signaux, prix, biais MTF, volume et readiness.</p>
+          <div class="command-actions">
+            <button class="mini-btn" onclick="refreshCockpit()">↻ Rafraîchir cockpit</button>
+            <button class="mini-btn" onclick="quick('Fais une synthèse multi-actifs du cockpit Worker : XAUUSD, EURUSD, BTCUSD, NASDAQ, USDJPY. Classe les meilleures opportunités et les no-trade zones.')">Synthèse multi-actifs</button>
+          </div>
+        </div>
+        <div class="command-status">
+          <div class="status-chip"><span class="dot" id="bannerWorkerDot"></span><b>Worker</b><small id="bannerWorkerText">connexion...</small></div>
+          <div class="status-chip"><span class="dot off" id="bannerContextDot"></span><b>Context</b><small id="bannerContextText">en attente</small></div>
+          <div class="status-chip"><span class="dot off" id="bannerHealthDot"></span><b>Health</b><small id="bannerHealthText">non testé</small></div>
+        </div>
+      </section>
+      <section class="asset-strip" id="assetStrip"></section>
       <section class="cockpit"><div class="kpi" id="kpiRegime"><span>Macro regime</span><b>MIXTE</b><small>En attente Worker</small></div><div class="kpi" id="kpiNews"><span>News risk</span><b>N/A</b><small>Flux news</small></div><div class="kpi" id="kpiSignal"><span>Signal actif</span><b>N/A</b><small>Multi-actifs</small></div><div class="kpi" id="kpiReadiness"><span>Readiness</span><b>N/A</b><small>Smart money</small></div><div class="kpi" id="kpiHealth"><span>System health</span><b>NON TESTÉ</b><small>Worker / KV / IA</small></div></section>
       <section class="chat-panel"><div class="chat-head"><div class="small-title">Forge Assistant</div><span class="badge ok">LIVE</span></div><section class="chat" id="chat"></section></section>
       <section class="right-stack"><div class="panel"><div class="panel-head"><div class="small-title">Smart Money Engine</div><div class="plus" onclick="quick('Analyse le Smart Money Engine actuel : structure, liquidité, sweep, inducement, MSS/BOS/CHOCH, FVG/OB, readiness et invalidation.')">+</div></div><div id="smartMoneyPanel" style="font-size:12px;color:var(--muted);line-height:1.55">En attente du contexte Worker.</div></div><div class="panel"><div class="panel-head"><div class="small-title">Signal Center</div><div class="plus" onclick="refreshCockpit()">↻</div></div><div class="signal-list" id="signalCenter"></div></div><div class="panel"><div class="panel-head"><div class="small-title">Market Map</div><div class="plus" onclick="refreshCockpit()">↻</div></div><div class="market-list" id="marketMap"></div></div></section>
@@ -82,8 +119,10 @@ const WORKER_COPY_SIGNAL_URL=WORKER_BASE_URL+"/copy/signal";
 const WORKER_MARKET_CONTEXT_URL=WORKER_BASE_URL+"/market/context";
 const WORKER_NEWS_LATEST_URL=WORKER_BASE_URL+"/news/latest";
 
-const STORAGE_KEY="torinvest_forge_ai_terminal_v5_complete";
+const STORAGE_KEY="torinvest_forge_ai_terminal_v9_command_center";
 const LEGACY_STORAGE_KEYS=[
+  "torinvest_forge_ai_terminal_v8_cockpit",
+  "torinvest_forge_ai_terminal_v7_optimise",
   "torinvest_forge_ai_v4_4_stable_complete",
   "torinvest_forge_ai_v4_3_fixed_complete",
   "torinvest_forge_ai_v4_da_complete",
@@ -348,22 +387,32 @@ function setHealthSidebarStatus(status,label){
     setDot("healthDot","ok");
     t.innerHTML=`${label||"Health OK"}<br><small>/system/health</small>`;
     setKpi("kpiHealth","OK","Système opérationnel","ok");
+    setDot("bannerHealthDot","ok");
+    document.getElementById("bannerHealthText").textContent="OK";
   }else if(s==="WARNING"){
     setDot("healthDot","warn");
     t.innerHTML=`${label||"Health WARNING"}<br><small>/system/health</small>`;
     setKpi("kpiHealth","WARNING","Surveillance requise","warn");
+    setDot("bannerHealthDot","warn");
+    document.getElementById("bannerHealthText").textContent="warning";
   }else if(s==="CRITICAL"){
     setDot("healthDot","critical");
     t.innerHTML=`${label||"Health CRITICAL"}<br><small>/system/health</small>`;
     setKpi("kpiHealth","CRITICAL","Action immédiate","danger");
+    setDot("bannerHealthDot","critical");
+    document.getElementById("bannerHealthText").textContent="critical";
   }else if(s==="LOADING"){
     setDot("healthDot","warn");
     t.innerHTML=`${label||"Health en analyse"}<br><small>/system/health</small>`;
     setKpi("kpiHealth","SCAN","Diagnostic en cours","warn");
+    setDot("bannerHealthDot","warn");
+    document.getElementById("bannerHealthText").textContent="scan";
   }else{
     setDot("healthDot","off");
     t.innerHTML=`${label||"Health non testé"}<br><small>/system/health</small>`;
     setKpi("kpiHealth","NON TESTÉ","Worker / KV / IA","blue");
+    setDot("bannerHealthDot","off");
+    document.getElementById("bannerHealthText").textContent="non testé";
   }
 }
 
@@ -382,9 +431,13 @@ function setAgentContextSidebarStatus(ok,label){
   const t=document.getElementById("agentContextStatusText");
   if(ok){
     setDot("agentContextDot","ok");
+    setDot("bannerContextDot","ok");
+    document.getElementById("bannerContextText").textContent=label||"actif";
     t.innerHTML=`Agent context actif<br><small>${escapeHtml(label||"/agent/context")}</small>`;
   }else{
     setDot("agentContextDot","warn");
+    setDot("bannerContextDot","warn");
+    document.getElementById("bannerContextText").textContent="en attente";
     t.innerHTML=`Agent context en attente<br><small>/agent/context</small>`;
   }
 }
@@ -430,6 +483,7 @@ function render(){
   renderSignalCenter();
   renderMarketMap();
   renderSmartMoneyPanel();
+  renderAssetStrip();
 
   const short=WORKER_AI_URL.replace("https://","").slice(0,34)+"…";
   document.getElementById("workerShort").textContent=short;
@@ -546,6 +600,43 @@ function renderSignalCenter(){
     setKpi("kpiSignal",`${firstSignal.symbol||"ACTIF"} ${firstSignal.action}`,"Signal actif détecté",safeClassFromValue(firstSignal.action));
     setKpi("kpiReadiness",firstSignal.execution_readiness||"N/A","Dernier signal",safeClassFromValue(firstSignal.execution_readiness));
   }
+}
+
+
+function renderAssetStrip(){
+  const box=document.getElementById("assetStrip");
+  if(!box)return;
+  const data=lastMarketContext?.data||{};
+  box.innerHTML=WATCH_SYMBOLS.map(sym=>{
+    const m=data[sym]||{};
+    const sig=lastSignals[sym]||{};
+    const action=sig.action||"WAIT";
+    const price=m.price??sig.price??"N/A";
+    const change=typeof m.changePct==="number"?m.changePct:null;
+    const bias=m?.mtfContext?.bias||m?.mtf_context?.bias||sig.smart_money_bias||sig.bias||"N/A";
+    const vol=m?.volumeContext?.volumeSignal||m?.volume_context?.volume_signal||"N/A";
+    const ready=sig.execution_readiness||sig.readiness||sig?.smart_money?.execution_readiness||"N/A";
+    const conf=sig.confidence??"N/A";
+    const cls=safeClassFromValue(action+" "+ready+" "+bias);
+    const changeTxt=change===null?"N/A":(change>0?"+":"")+change.toFixed(2)+"%";
+    return `
+      <article class="asset-card" onclick="quick('Analyse ${sym} avec le cockpit Worker : prix, MTF, volumeContext, Smart Money, signal, readiness, invalidation et no-trade zone.')">
+        <div class="asset-top">
+          <span class="asset-symbol">${escapeHtml(sym)}</span>
+          <span class="badge ${cls}">${escapeHtml(action)}</span>
+        </div>
+        <div class="asset-price">${escapeHtml(price)}</div>
+        <div class="asset-meta">
+          Variation : ${escapeHtml(changeTxt)}<br>
+          Biais : ${escapeHtml(bias)}<br>
+          Volume : ${escapeHtml(vol)}
+        </div>
+        <div class="asset-footer">
+          <span class="badge ${safeClassFromValue(ready)}">${escapeHtml(ready)}</span>
+          <span class="badge blue">Conf. ${escapeHtml(conf)}</span>
+        </div>
+      </article>`;
+  }).join("");
 }
 
 function renderMarketMap(){
@@ -1182,6 +1273,7 @@ async function refreshCockpit(){
   renderMarketMap();
   renderSignalCenter();
   renderSmartMoneyPanel();
+  renderAssetStrip();
 }
 
 async function refreshMarketContext(){
@@ -1224,6 +1316,8 @@ async function preloadStatus(){
     if(res.ok&&data.ok!==false){
       setDot("workerDot","ok");
       setDot("topWorkerDot","ok");
+      setDot("bannerWorkerDot","ok");
+      document.getElementById("bannerWorkerText").textContent="actif";
       const count=data.marketCount??0;
       setVolumeSidebarStatus(count>0,count);
       if(data.sentiment)setKpi("kpiRegime",data.sentiment.regime||"MIXTE",`Score ${data.sentiment.score??"N/A"}`,safeClassFromValue(data.sentiment.regime));
@@ -1231,11 +1325,15 @@ async function preloadStatus(){
     }else{
       setDot("workerDot","warn");
       setDot("topWorkerDot","warn");
+      setDot("bannerWorkerDot","warn");
+      document.getElementById("bannerWorkerText").textContent="réponse faible";
       setVolumeSidebarStatus(false,0);
     }
   }catch(e){
     setDot("workerDot","critical");
     setDot("topWorkerDot","critical");
+    setDot("bannerWorkerDot","critical");
+    document.getElementById("bannerWorkerText").textContent="hors ligne";
     setVolumeSidebarStatus(false,0);
   }
 
@@ -1352,8 +1450,5 @@ document.getElementById("importFile").onchange=async e=>{
 render();
 preloadStatus();
 </script>
-</body>
-</html>
-
 </body>
 </html>
