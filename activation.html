@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>TORINVEST — Activation licence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{--gold:#ffb400;--gold2:#ffd36a;--red:#ff4b5c;--green:#15d16b;--text:#f6f0df;--muted:#9a9aad;--line:rgba(255,180,0,.24)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 14% 5%,rgba(255,180,0,.18),transparent 31%),radial-gradient(circle at 86% 12%,rgba(255,75,92,.11),transparent 28%),linear-gradient(135deg,#020201,#090704 55%,#020201);display:grid;place-items:center;padding:20px}
+    body::before{content:"";position:fixed;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,180,0,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,180,0,.035) 1px,transparent 1px);background-size:54px 54px;mask-image:radial-gradient(circle at center,black,transparent 78%)}
+    .shell{width:min(1040px,100%);display:grid;grid-template-columns:1fr 440px;gap:18px;position:relative;z-index:2}
+    .hero,.card{border:1px solid var(--line);background:linear-gradient(180deg,rgba(18,15,10,.92),rgba(3,3,2,.96));border-radius:28px;box-shadow:0 22px 60px rgba(0,0,0,.62);overflow:hidden}
+    .hero{padding:34px;min-height:560px;display:flex;flex-direction:column;justify-content:space-between}
+    .brand{display:flex;align-items:center;gap:13px;margin-bottom:28px}.logo-box{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--gold2);font-size:26px}.brand-title{font-weight:950;letter-spacing:.18em;font-size:15px}.brand-sub{color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-size:10px;margin-top:3px}
+    .eyebrow{color:var(--gold2);text-transform:uppercase;letter-spacing:.18em;font-size:11px;font-weight:900;margin-bottom:12px}
+    h1{font-size:clamp(34px,5vw,62px);line-height:.95;letter-spacing:-.05em;margin-bottom:18px}.grad{background:linear-gradient(115deg,var(--gold2),var(--gold),var(--red));-webkit-background-clip:text;color:transparent}
+    .hero p{color:var(--muted);max-width:640px;font-size:15px;line-height:1.6}.steps{display:grid;gap:10px;margin-top:28px}.step{border:1px solid rgba(255,180,0,.16);background:rgba(0,0,0,.22);border-radius:16px;padding:13px;color:var(--muted);font-size:13px}.step b{color:var(--gold2)}
+    .card{padding:28px;display:flex;flex-direction:column;justify-content:center}.status-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(21,209,107,.25);color:#b9ffd8;background:rgba(21,209,107,.08);border-radius:999px;padding:7px 11px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:18px;width:fit-content}.dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}
+    .card h2{font-size:26px;margin-bottom:8px}.intro{color:var(--muted);font-size:13px;margin-bottom:18px;line-height:1.55}
+    label{display:block;color:var(--gold2);font-size:11px;text-transform:uppercase;letter-spacing:.12em;font-weight:900;margin:14px 0 7px}
+    input,textarea,select{width:100%;border:1px solid var(--line);background:rgba(0,0,0,.38);color:var(--text);border-radius:14px;padding:13px 14px;outline:none;font-size:14px}textarea{resize:vertical;min-height:88px}input:focus,textarea:focus,select:focus{border-color:var(--gold2);box-shadow:0 0 18px rgba(255,180,0,.14)}
+    button{width:100%;margin-top:18px;border:none;border-radius:999px;padding:13px 16px;background:linear-gradient(135deg,var(--gold),var(--red));color:#1a1200;font-weight:950;cursor:pointer;transition:.15s ease}button:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(255,180,0,.14)}button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .ghost{display:inline-flex;justify-content:center;width:100%;margin-top:10px;border:1px solid rgba(255,255,255,.09);border-radius:999px;padding:12px 16px;color:var(--muted);text-decoration:none;font-size:13px;background:rgba(255,255,255,.035)}
+    .result{margin-top:16px;min-height:54px;border:1px solid rgba(255,180,0,.16);background:rgba(0,0,0,.22);border-radius:16px;padding:13px;color:var(--muted);font-size:13px;line-height:1.5}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--gold2)}.small{color:var(--muted);font-size:11px;margin-top:13px;line-height:1.45}
+    .back-home-btn{position:fixed;bottom:22px;right:22px;padding:8px 14px;font-size:12px;font-weight:700;text-decoration:none;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#f5f5f7;backdrop-filter:blur(4px);transition:.2s ease;z-index:9999}.back-home-btn:hover{background:rgba(255,180,0,.25);border-color:rgba(255,180,0,.6);transform:translateY(-2px)}
+    @media(max-width:920px){.shell{grid-template-columns:1fr}.hero{min-height:auto}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="brand"><div class="logo-box">⚒</div><div><div class="brand-title">TORINVEST</div><div class="brand-sub">La force d’un esprit libre</div></div></div>
+        <div class="eyebrow">Activation après paiement</div>
+        <h1><span class="grad">Demande ta licence</span><br>TORINVEST AI.</h1>
+        <p>Après paiement, cette page permet de transmettre les informations nécessaires pour créer ta licence et activer ton accès au terminal TORINVEST AI.</p>
+      </div>
+      <div class="steps">
+        <div class="step"><b>1.</b> Tu règles ton accès via Stripe.</div>
+        <div class="step"><b>2.</b> Tu remplis ce formulaire avec le même email.</div>
+        <div class="step"><b>3.</b> Ta licence est créée et liée à ton email.</div>
+        <div class="step"><b>4.</b> Tu peux ensuite accéder à la page AI Access avec ta licence.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="status-pill"><span class="dot"></span> activation request</div>
+      <h2>Activation licence</h2>
+      <p class="intro">Utilise le même email que celui utilisé pour le paiement. Cela permet de retrouver ta licence en cas d’oubli.</p>
+      <form id="activationForm" method="POST" name="activation-torinvest">
+        <input type="hidden" name="form-name" value="activation-torinvest" />
+        <p style="display:none"><label>Ne pas remplir : <input name="bot-field" /></label></p>
+        <label for="name">Nom / Prénom</label>
+        <input id="name" name="name" placeholder="Ton nom" required />
+        <label for="email">Email de paiement</label>
+        <input id="email" name="email" type="email" placeholder="ton@email.com" required />
+        <label for="plan">Offre achetée</label>
+        <select id="plan" name="plan" required>
+          <option value="Robot Access 79€">Robot Access — 79€ promo</option>
+          <option value="Accompagnement VIP">Accompagnement VIP</option>
+          <option value="Autre">Autre</option>
+        </select>
+        <label for="stripeRef">Référence Stripe optionnelle</label>
+        <input id="stripeRef" name="stripeRef" placeholder="ID paiement / email Stripe / reçu" />
+        <label for="message">Message optionnel</label>
+        <textarea id="message" name="message" placeholder="Ex : Je viens de payer, voici mon email Stripe..."></textarea>
+        <button id="submitBtn" type="submit">Envoyer ma demande de licence</button>
+      </form>
+      <a class="ghost" href="/ai-access.html">J’ai déjà une licence</a>
+      <div id="result" class="result">En attente d’envoi.</div>
+      <p class="small">Conserve bien ta licence. Elle pourra être demandée sur un nouvel appareil, un autre navigateur ou après expiration de session.</p>
+    </section>
+  </main>
+  <a href="/" class="back-home-btn">← Retour accueil</a>
+  <script>
+    const form=document.getElementById("activationForm");
+    const result=document.getElementById("result");
+    const submitBtn=document.getElementById("submitBtn");
+    function setResult(html){result.innerHTML=html}
+    form.addEventListener("submit",async function(e){
+      e.preventDefault();
+      const data=new FormData(form);
+      submitBtn.disabled=true;
+      setResult('<span class="warn">Envoi de la demande en cours...</span>');
+      try{
+        await fetch("/",{method:"POST",body:data});
+        setResult('<span class="ok">Demande envoyée.</span><br>Ta demande d’activation a été transmise. Ta licence sera créée avec l’email indiqué.');
+        form.reset();
+      }catch(err){
+        setResult('<span class="bad">Erreur pendant l’envoi.</span><br>Si le problème persiste, contacte TORINVEST directement avec ton email de paiement.');
+      }
+      submitBtn.disabled=false;
+    });
+  </script>
+</body>
+</html>
