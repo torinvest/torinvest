@@ -217,11 +217,298 @@ body:before{opacity:.55;background-size:58px 58px;}
   .api-status-grid{grid-template-columns:1fr}
 }
 
+
+/* =====================
+   TORINVEST V10.1 — FIX VISIBILITÉ / SCROLL / RESPONSIVE
+   Objectif : aucune zone cachée, page exploitable sur desktop + laptop + mobile
+   ===================== */
+html, body {
+  min-height: 100%;
+  height: auto;
+}
+
+body {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.app {
+  min-height: 100vh;
+  height: auto !important;
+  align-items: stretch;
+}
+
+.sidebar,
+.main,
+.right {
+  max-height: calc(100vh - 20px);
+}
+
+.sidebar,
+.right {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+.main {
+  min-height: calc(100vh - 20px);
+  max-height: calc(100vh - 20px);
+  overflow: hidden;
+}
+
+.dashboard {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  min-height: 0;
+  padding-bottom: 18px;
+}
+
+.chat-panel {
+  min-height: 430px;
+  height: auto;
+}
+
+.chat {
+  min-height: 320px;
+  max-height: 52vh;
+  overflow-y: auto !important;
+}
+
+.input-zone {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+}
+
+.command-banner,
+.access-grid,
+.route-panel,
+.asset-strip,
+.cockpit {
+  min-width: 0;
+}
+
+.command-banner {
+  grid-template-columns: minmax(0,1fr) minmax(260px,390px);
+}
+
+.access-card,
+.asset-card,
+.route-pill,
+.kpi,
+.panel,
+.signal-card,
+.market-row,
+.health-line,
+.license-result {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.right .panel {
+  flex-shrink: 0;
+}
+
+textarea {
+  min-width: 0;
+}
+
+@media (max-width: 1500px) {
+  .app {
+    grid-template-columns: 220px minmax(0,1fr) 300px;
+  }
+
+  .dashboard {
+    grid-template-columns: minmax(0,1fr);
+  }
+
+  .command-banner,
+  .asset-strip,
+  .access-grid,
+  .route-panel,
+  .cockpit {
+    grid-column: 1;
+  }
+
+  .asset-strip {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+
+  .access-grid {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+
+  .route-panel {
+    grid-template-columns: repeat(4,minmax(0,1fr));
+  }
+
+  .cockpit {
+    grid-template-columns: repeat(5,minmax(0,1fr));
+  }
+}
+
+@media (max-width: 1280px) {
+  .app {
+    grid-template-columns: 210px minmax(0,1fr);
+  }
+
+  .right {
+    display: none;
+  }
+
+  .right.open {
+    display: flex;
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    bottom: 10px;
+    width: min(360px, calc(100vw - 20px));
+    z-index: 30;
+    max-height: calc(100vh - 20px);
+  }
+
+  .mobile-toggle {
+    display: flex;
+  }
+
+  .asset-strip {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .access-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .route-panel {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+  }
+
+  .cockpit {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+
+  .command-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .command-status {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+}
+
+@media (max-width: 1050px) {
+  .app {
+    display: block;
+    min-height: 100vh;
+  }
+
+  .sidebar,
+  .right {
+    display: none;
+  }
+
+  .sidebar.open,
+  .right.open {
+    display: flex;
+    position: fixed;
+    inset: 8px;
+    z-index: 40;
+    max-height: calc(100vh - 16px);
+    width: auto;
+  }
+
+  .main {
+    max-height: none;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .dashboard {
+    overflow: visible !important;
+  }
+
+  .chat {
+    max-height: none;
+  }
+
+  .input-zone {
+    position: sticky;
+    bottom: 0;
+  }
+
+  .topbar {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .app {
+    padding: 6px;
+  }
+
+  .asset-strip,
+  .access-grid,
+  .route-panel,
+  .cockpit,
+  .command-status {
+    grid-template-columns: 1fr;
+  }
+
+  .command-banner {
+    padding: 14px;
+  }
+
+  .command-banner h2 {
+    font-size: 23px;
+    line-height: 1.12;
+  }
+
+  .title h1 {
+    font-size: 18px;
+  }
+
+  .title p {
+    font-size: 11px;
+  }
+
+  .input {
+    display: grid;
+    grid-template-columns: 44px 44px 1fr;
+    align-items: stretch;
+  }
+
+  textarea {
+    grid-column: 1 / -1;
+    order: -1;
+    width: 100%;
+  }
+
+  .primary {
+    grid-column: 1 / -1;
+    text-align: center;
+    justify-content: center;
+  }
+}
+
+/* Bouton visible pour fermer les panneaux mobiles */
+.panel-close-mobile {
+  display: none;
+}
+
+@media (max-width: 1280px) {
+  .panel-close-mobile {
+    display: block;
+    width: 100%;
+    margin: 0 0 10px 0;
+    text-align: center;
+  }
+}
+
 </style>
 </head>
 <body>
 <div class="app">
-  <aside class="sidebar" id="leftPanel">
+  <aside class="sidebar" id="leftPanel"><button class="ghost panel-close-mobile" onclick="toggleLeft()">Fermer le menu</button>
     <div class="brand"><div class="forge-logo"><div class="hammer">⚒</div><div class="anvil">⚒</div></div><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">La force d’un esprit libre</div></div>
     <div class="nav"><button class="active" onclick="newChat()">＋ Nouveau chat</button><button onclick="openArchives()">▣ Archives</button><button onclick="openAgentsModal()">⚙ Agents</button><button onclick="openMemoryModal()">⬢ Mémoire</button><button onclick="checkSystemHealth()">🧠 System Health</button><button onclick="refreshCockpit()">📡 Refresh Cockpit</button><button onclick="exportData()">⬇ Exporter</button><button onclick="importDataPrompt()">⬆ Importer</button><input id="importFile" type="file" accept="application/json" class="hidden" /></div>
     <div class="side-card"><div class="small-title">Agent actif</div><div class="agent-active" id="activeAgentBox"></div></div>
@@ -229,7 +516,7 @@ body:before{opacity:.55;background-size:58px 58px;}
     <div style="margin-top:auto" class="side-card"><div class="small-title">Mantra</div><div class="agent-active">La discipline aujourd’hui,<br>la liberté demain.</div></div>
   </aside>
   <main class="main">
-    <div class="mobile-toggle"><button class="ghost" onclick="toggleLeft()">☰ Menu</button><button class="ghost" onclick="toggleRight()">Agents</button></div>
+    <div class="mobile-toggle"><button class="ghost" onclick="toggleLeft()">☰ Menu</button><button class="ghost" onclick="toggleRight()">Panneau droit</button></div>
     <div class="topbar"><div class="model-box"><div class="model-label">Modèle</div><select class="select" id="modelSelect"></select></div><div class="title"><h1>TORINVEST AI ACCESS</h1><p>Terminal décisionnel — macro, smart money, signaux, risque, licences et MT5.</p></div><div class="worker-card"><span class="dot" id="topWorkerDot"></span><span><b>Worker actif</b><small id="workerShortTop"></small></span><span class="gear" onclick="checkSystemHealth()">⚙</span></div></div>
     <section class="dashboard">
       <section class="command-banner">
@@ -280,7 +567,7 @@ body:before{opacity:.55;background-size:58px 58px;}
     </section>
     <div class="input-zone"><div class="voice-debug" id="voiceDebug"></div><div class="preview" id="imagePreviewBox"><img id="imagePreview" /><div class="meta"><b style="color:var(--gold2)">Image prête</b><br><span id="imageMeta">Envoyée avec le prochain message.</span></div><button class="ghost" onclick="clearPendingImage()">Retirer</button></div><div class="input"><button class="tool-btn" title="Ajouter une image" onclick="document.getElementById('imageInput').click()">📎</button><button class="tool-btn" id="micBtn" title="Dicter vocalement" onclick="toggleVoice()">🎙️</button><textarea id="userInput" placeholder="Écris ton message…"></textarea><button class="primary" onclick="sendMessage()">ENVOYER ⚡</button><input id="imageInput" class="hidden" type="file" accept="image/*" onchange="handleImagePick(event)" /></div><div class="footer-note">Les informations fournies ne constituent pas un conseil en investissement.<br>Trade avec discipline. Gère ton risque.</div></div>
   </main>
-  <aside class="right" id="rightPanel"><div class="panel"><div class="panel-head"><div class="small-title">Agents spécialisés</div><div class="plus" onclick="openAgentsModal()">+</div></div><div class="agents" id="agentsList"></div></div><div class="panel"><div class="panel-head"><div class="small-title">Mémoire globale</div><div class="plus" onclick="openMemoryModal()">+</div></div><div class="mem-list" id="memoryPreview"></div><button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button></div><div class="panel"><div class="small-title">Statistiques</div><div class="stats"><div class="stat"><b id="statChats">0</b><span>Conversations</span></div><div class="stat"><b id="statAgents">0</b><span>Agents créés</span></div><div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div><div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div></div></div><div class="panel"><div class="small-title">System Health</div><div id="healthBox" style="font-size:12px;color:var(--muted);line-height:1.5">Aucun diagnostic.</div><button class="primary" style="width:100%;margin-top:10px" onclick="checkSystemHealth()">Analyser</button></div><div class="panel">
+  <aside class="right" id="rightPanel"><button class="ghost panel-close-mobile" onclick="toggleRight()">Fermer le panneau</button><div class="panel"><div class="panel-head"><div class="small-title">Agents spécialisés</div><div class="plus" onclick="openAgentsModal()">+</div></div><div class="agents" id="agentsList"></div></div><div class="panel"><div class="panel-head"><div class="small-title">Mémoire globale</div><div class="plus" onclick="openMemoryModal()">+</div></div><div class="mem-list" id="memoryPreview"></div><button class="primary" style="width:100%;margin-top:10px" onclick="openMemoryModal()">Voir toute la mémoire</button></div><div class="panel"><div class="small-title">Statistiques</div><div class="stats"><div class="stat"><b id="statChats">0</b><span>Conversations</span></div><div class="stat"><b id="statAgents">0</b><span>Agents créés</span></div><div class="stat"><b id="statMem">0</b><span>Souvenirs</span></div><div class="stat"><b id="statSize">0 KB</b><span>Taille locale</span></div></div></div><div class="panel"><div class="small-title">System Health</div><div id="healthBox" style="font-size:12px;color:var(--muted);line-height:1.5">Aucun diagnostic.</div><button class="primary" style="width:100%;margin-top:10px" onclick="checkSystemHealth()">Analyser</button></div><div class="panel">
   <div class="panel-head"><div class="small-title">License Check</div><div class="plus" onclick="validateLicenseFromPanel()">↻</div></div>
   <div class="license-panel">
     <div class="license-form">
