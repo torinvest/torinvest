@@ -127,6 +127,82 @@
       background: rgba(255,180,0,.08);
     }
 
+    .nav-dropdown {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .nav-drop-btn {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(255,255,255,.035);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      transition: .18s ease;
+    }
+
+    .nav-drop-btn:hover {
+      color: var(--gold);
+      background: rgba(255,180,0,.08);
+      border-color: rgba(255,180,0,.24);
+    }
+
+    .nav-drop-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      min-width: 250px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      padding: 10px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(8,8,15,.96);
+      backdrop-filter: blur(18px);
+      box-shadow: 0 22px 55px rgba(0,0,0,.55);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: .18s ease;
+      z-index: 100;
+    }
+
+    .nav-dropdown:hover .nav-drop-menu,
+    .nav-dropdown:focus-within .nav-drop-menu,
+    .nav-dropdown.open .nav-drop-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .nav-drop-menu a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 11px;
+      border-radius: 12px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid transparent;
+    }
+
+    .nav-drop-menu a:hover {
+      color: var(--text);
+      background: rgba(255,180,0,.08);
+      border-color: rgba(255,180,0,.16);
+    }
+
+    .nav-drop-menu a span {
+      color: var(--gold);
+      opacity: .85;
+      font-size: 11px;
+    }
+
     .top-actions {
       display: flex;
       align-items: center;
@@ -765,8 +841,30 @@
         <a href="#mt5">MT5</a>
         <a href="#research">Research</a>
         <a href="/ai-torinvest">TORINVEST AI</a>
-        <a href="/formation">Formation</a>
-        <a href="/disclaimer">Disclaimer</a>
+
+        <div class="nav-dropdown">
+          <button class="nav-drop-btn" type="button" aria-haspopup="true" aria-expanded="false">
+            Écosystème ▾
+          </button>
+
+          <div class="nav-drop-menu" aria-label="Menu complet TORINVEST">
+            <a href="/forge-page">La Forge <span>formation</span></a>
+            <a href="/chroniques">Chroniques <span>articles</span></a>
+            <a href="/actualites">Actu Torinvest <span>news</span></a>
+            <a href="/crypto">Crypto <span>marchés</span></a>
+            <a href="/torpass">Accès Premium <span>VIP</span></a>
+            <a href="/video">Vidéos <span>YouTube</span></a>
+            <a href="/bootcamp">Bootcamp <span>coaching</span></a>
+            <a href="/formation">Formation <span>modules</span></a>
+            <a href="/minage">Minage <span>crypto</span></a>
+            <a href="/indicateur">Indicateur <span>outils</span></a>
+            <a href="/partenaires">Partenaires <span>réseau</span></a>
+            <a href="/liens">Liens utiles <span>ressources</span></a>
+            <a href="#contact">Contact <span>attente</span></a>
+            <a href="/disclaimer">Disclaimer <span>légal</span></a>
+            <a href="/faq">FAQ <span>aide</span></a>
+          </div>
+        </div>
       </nav>
 
       <div class="top-actions">
@@ -1220,6 +1318,25 @@
       } catch (e) {
         list.innerHTML = "<li>Erreur lors du chargement des news marchés.</li>";
       }
+    }
+
+
+    const dropdown = document.querySelector(".nav-dropdown");
+    const dropdownBtn = document.querySelector(".nav-drop-btn");
+
+    if (dropdown && dropdownBtn) {
+      dropdownBtn.addEventListener("click", function (e) {
+        e.preventDefault();
+        dropdown.classList.toggle("open");
+        dropdownBtn.setAttribute("aria-expanded", dropdown.classList.contains("open") ? "true" : "false");
+      });
+
+      document.addEventListener("click", function (e) {
+        if (!dropdown.contains(e.target)) {
+          dropdown.classList.remove("open");
+          dropdownBtn.setAttribute("aria-expanded", "false");
+        }
+      });
     }
 
     loadMarketContext();
