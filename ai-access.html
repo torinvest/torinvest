@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>TORINVEST AI ACCESS — Connexion licence</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #040407;
+      --panel: rgba(12, 10, 7, 0.88);
+      --gold: #ffb400;
+      --gold2: #ffd36a;
+      --red: #ff4b5c;
+      --green: #15d16b;
+      --text: #f6f0df;
+      --muted: #9a9aad;
+      --line: rgba(255, 180, 0, 0.24);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 5%, rgba(255,180,0,.18), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(255,75,92,.12), transparent 28%),
+        linear-gradient(135deg, #020201, #090704 55%, #020201);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,180,0,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,180,0,.035) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: radial-gradient(circle at center, black, transparent 78%);
+    }
+
+    .shell {
+      width: min(980px, 100%);
+      display: grid;
+      grid-template-columns: 1fr 430px;
+      gap: 18px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero,
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(18,15,10,.92), rgba(3,3,2,.96));
+      border-radius: 28px;
+      box-shadow: 0 22px 60px rgba(0,0,0,.62);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 34px;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 28px;
+    }
+
+    .logo-box {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: var(--gold2);
+      font-size: 26px;
+      filter: drop-shadow(0 0 14px rgba(255,180,0,.22));
+    }
+
+    .brand-title {
+      font-weight: 950;
+      letter-spacing: .18em;
+      font-size: 15px;
+    }
+
+    .brand-sub {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 10px;
+      margin-top: 3px;
+    }
+
+    .eyebrow {
+      color: var(--gold2);
+      text-transform: uppercase;
+      letter-spacing: .18em;
+      font-size: 11px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: clamp(34px, 5vw, 62px);
+      line-height: .95;
+      letter-spacing: -.05em;
+      margin-bottom: 18px;
+    }
+
+    .grad {
+      background: linear-gradient(115deg, var(--gold2), var(--gold), var(--red));
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 620px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .step {
+      border: 1px solid rgba(255,180,0,.16);
+      background: rgba(0,0,0,.22);
+      border-radius: 16px;
+      padding: 13px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .step b {
+      color: var(--gold2);
+    }
+
+    .card {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(21,209,107,.25);
+      color: #b9ffd8;
+      background: rgba(21,209,107,.08);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin-bottom: 18px;
+      width: fit-content;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 14px var(--green);
+    }
+
+    .card h2 {
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .card .intro {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+      line-height: 1.55;
+    }
+
+    label {
+      display: block;
+      color: var(--gold2);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-weight: 900;
+      margin: 14px 0 7px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.38);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input:focus {
+      border-color: var(--gold2);
+      box-shadow: 0 0 18px rgba(255,180,0,.14);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 18px;
+      border: none;
+      border-radius: 999px;
+      padding: 13px 16px;
+      background: linear-gradient(135deg, var(--gold), var(--red));
+      color: #1a1200;
+      font-weight: 950;
+      cursor: pointer;
+      transition: .15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 34px rgba(255,180,0,.14);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .ghost {
+      display: inline-flex;
+      justify-content: center;
+      width: 100%;
+      margin-top: 10px;
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 999px;
+      padding: 12px 16px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      background: rgba(255,255,255,.035);
+    }
+
+    .result {
+      margin-top: 16px;
+      min-height: 54px;
+      border: 1px solid rgba(255,180,0,.16);
+      background: rgba(0,0,0,.22);
+      border-radius: 16px;
+      padding: 13px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .ok { color: var(--green); }
+    .bad { color: var(--red); }
+    .warn { color: var(--gold2); }
+
+    .small {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 13px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 920px) {
+      .shell { grid-template-columns: 1fr; }
+      .hero { min-height: auto; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <div class="brand">
+          <div class="logo-box">⚒</div>
+          <div>
+            <div class="brand-title">TORINVEST</div>
+            <div class="brand-sub">La force d’un esprit libre</div>
+          </div>
+        </div>
+
+        <div class="eyebrow">Private Access</div>
+        <h1><span class="grad">AI Access</span><br>réservé aux abonnés.</h1>
+        <p>
+          Cette zone donne accès au terminal TORINVEST AI : analyse multi-agents, dashboard marché,
+          signaux publics/privés, lecture Smart Money, validation licence et couche MT5.
+        </p>
+      </div>
+
+      <div class="steps">
+        <div class="step"><b>1.</b> Le client achète son abonnement.</div>
+        <div class="step"><b>2.</b> Tu génères une licence via le Worker.</div>
+        <div class="step"><b>3.</b> Le client colle sa licence ici.</div>
+        <div class="step"><b>4.</b> Si la licence est active, le terminal AI Access s’ouvre.</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="status-pill"><span class="dot"></span> licence required</div>
+      <h2>Connexion AI Access</h2>
+      <p class="intro">
+        Entre ta licence TORINVEST. Si elle est active, l’accès sera ouvert sur ce navigateur.
+      </p>
+
+      <form id="loginForm">
+        <label for="licenseKey">Licence</label>
+        <input id="licenseKey" name="licenseKey" placeholder="TOR-VIP-XXXX-XXXX-XXXX" autocomplete="off" required />
+
+        <label for="mt5Account">Compte MT5 optionnel</label>
+        <input id="mt5Account" name="mt5Account" placeholder="Ex : 1159266" autocomplete="off" />
+
+        <button id="submitBtn" type="submit">Vérifier et ouvrir AI Access</button>
+      </form>
+
+      <a class="ghost" href="/">← Retour accueil</a>
+
+      <div id="result" class="result">
+        En attente de vérification.
+      </div>
+
+      <p class="small">
+        Aucun conseil financier. L’accès peut être coupé automatiquement si la licence expire ou si l’abonnement n’est plus actif.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
+    const AI_ACCESS_PAGE = "/ai-access.html";
+
+    const form = document.getElementById("loginForm");
+    const result = document.getElementById("result");
+    const submitBtn = document.getElementById("submitBtn");
+
+    function setResult(html) {
+      result.innerHTML = html;
+    }
+
+    function saveSession(data, licenseKey, mt5Account) {
+      const session = {
+        licenseKey,
+        mt5Account: mt5Account || "",
+        email: data.email || "",
+        plan: data.plan || "",
+        status: data.status || "",
+        expires: data.expires || "",
+        canTrade: data.canTrade === true,
+        verifiedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem("torinvest_ai_access_session", JSON.stringify(session));
+    }
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const licenseKey = document.getElementById("licenseKey").value.trim();
+      const mt5Account = document.getElementById("mt5Account").value.trim();
+
+      if (!licenseKey) {
+        setResult('<span class="bad">Licence obligatoire.</span>');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setResult('<span class="warn">Vérification de la licence en cours...</span>');
+
+      try {
+        let url = WORKER + "/validate-license?key=" + encodeURIComponent(licenseKey);
+        if (mt5Account) url += "&account=" + encodeURIComponent(mt5Account);
+
+        const resp = await fetch(url, { headers: { "Accept": "application/json" } });
+        const data = await resp.json();
+
+        if (!resp.ok || data.ok === false || data.canTrade === false) {
+          localStorage.removeItem("torinvest_ai_access_session");
+          setResult(
+            '<span class="bad">Accès refusé.</span><br>' +
+            'Raison : ' + (data.reason || data.error || "Licence invalide ou expirée") + '<br>' +
+            'Expiration : ' + (data.expires || "N/A")
+          );
+          submitBtn.disabled = false;
+          return;
+        }
+
+        saveSession(data, licenseKey, mt5Account);
+
+        setResult(
+          '<span class="ok">Licence active. Ouverture du terminal...</span><br>' +
+          'Plan : ' + (data.plan || "N/A") + '<br>' +
+          'Expiration : ' + (data.expires || "N/A")
+        );
+
+        setTimeout(function () {
+          window.location.href = AI_ACCESS_PAGE;
+        }, 900);
+
+      } catch (err) {
+        setResult('<span class="bad">Erreur de connexion au Worker : ' + err.message + '</span>');
+        submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
