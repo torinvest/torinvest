@@ -821,6 +821,61 @@
       .small-input { min-width: 100%; width: 100%; }
       .btn { width: 100%; }
     }
+
+    .plan-price {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 12px 0 14px;
+      flex-wrap: wrap;
+    }
+
+    .price-current {
+      font-size: 30px;
+      font-weight: 950;
+      color: var(--gold2);
+      letter-spacing: -.04em;
+    }
+
+    .price-old {
+      color: var(--muted2);
+      font-size: 14px;
+      text-decoration: line-through;
+    }
+
+    .price-badge {
+      color: #1b1200;
+      background: linear-gradient(135deg, var(--gold), var(--red));
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 10px;
+      font-weight: 950;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .plan-actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .plan-actions .btn {
+      flex: 1 1 145px;
+    }
+
+    .btn-pay {
+      color: #1b1200;
+      background: linear-gradient(135deg, var(--gold2), var(--gold));
+      border-color: rgba(255,180,0,.38);
+      box-shadow: 0 14px 34px rgba(255, 180, 0, .13);
+    }
+
+    .btn-pay:hover {
+      box-shadow: 0 18px 40px rgba(255, 180, 0, .18);
+    }
+
   </style>
 </head>
 
@@ -1032,40 +1087,53 @@
 
         <div class="plans">
           <article class="plan">
-            <h3 class="plan-name">Signals</h3>
-            <p class="plan-desc">Pour suivre les décisions IA, le contexte marché et la veille macro.</p>
+            <h3 class="plan-name">Signal Public</h3>
+            <p class="plan-desc">Une porte d’entrée gratuite pour découvrir la logique TORINVEST sans abonnement.</p>
             <ul class="plan-list">
-              <li>Dashboard IA</li>
-              <li>Signaux surveillés</li>
-              <li>Discord / Telegram</li>
-              <li>News macro filtrées</li>
+              <li>Un signal gratuit affiché dans le dashboard chaque semaine</li>
+              <li>Lecture simple du contexte : actif, biais, niveau de risque</li>
+              <li>Aperçu de la logique IA / Smart Money</li>
+              <li>Accès public sans exécution automatique MT5</li>
             </ul>
-            <a class="btn btn-ghost" href="#contact">Liste d’attente</a>
+            <a class="btn btn-ghost" href="#contact">Recevoir les alertes gratuites</a>
           </article>
 
           <article class="plan featured">
-            <div class="plan-badge">central</div>
+            <div class="plan-badge">promo</div>
             <h3 class="plan-name">Robot Access</h3>
-            <p class="plan-desc">EA MT5 connecté à l’infrastructure décisionnelle TORINVEST.</p>
+            <p class="plan-desc">EA MT5 connecté à l’infrastructure décisionnelle TORINVEST avec licence individuelle.</p>
+
+            <div class="plan-price">
+              <span class="price-current">79€</span>
+              <span class="price-old">149€</span>
+              <span class="price-badge">prix promo</span>
+            </div>
+
             <ul class="plan-list">
               <li>Licence client individuelle</li>
-              <li>EA MT5 connecté</li>
-              <li>Multi-assets</li>
-              <li>Contrôle expiration</li>
+              <li>EA MT5 connecté au Worker TORINVEST</li>
+              <li>Signaux IA / Smart Money / Risk Engine</li>
+              <li>Multi-assets selon disponibilité du Worker</li>
+              <li>Contrôle expiration et accès abonné</li>
             </ul>
-            <a class="btn btn-primary" href="#contact">Demander l’accès</a>
+
+            <div class="plan-actions">
+              <a class="btn btn-pay" href="https://buy.stripe.com/TON-LIEN-STRIPE" target="_blank" rel="noopener">Payer maintenant</a>
+              <a class="btn btn-primary" href="#contact">Demander l’accès</a>
+            </div>
           </article>
 
           <article class="plan">
-            <h3 class="plan-name">Institutional</h3>
-            <p class="plan-desc">Pour utilisateurs avancés : API, multi-comptes, agents et suivi renforcé.</p>
+            <h3 class="plan-name">Accompagnement VIP</h3>
+            <p class="plan-desc">Pour les novices qui veulent apprendre le trading sérieusement avant de se lancer seuls.</p>
             <ul class="plan-list">
-              <li>API / Worker access</li>
-              <li>Multi-comptes</li>
-              <li>Risk profile avancé</li>
-              <li>Support prioritaire</li>
+              <li>Accompagnement pas à pas pour débutants</li>
+              <li>Comprendre les bases : marché, risque, psychologie, exécution</li>
+              <li>Lecture des signaux et du contexte macro / technique</li>
+              <li>Aide à la mise en place MT5, routine et discipline</li>
+              <li>Accès communautaire et suivi pédagogique</li>
             </ul>
-            <a class="btn btn-ghost" href="#contact">Candidater</a>
+            <a class="btn btn-ghost" href="#contact">Demander l’accompagnement</a>
           </article>
         </div>
       </section>
