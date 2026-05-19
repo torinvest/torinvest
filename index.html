@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta name="google-adsense-account" content="ca-pub-7026076448428574">
+  <meta charset="UTF-8" />
+  <title>TORINVEST AI — Market Intelligence Ecosystem</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="TORINVEST AI — infrastructure décisionnelle macro, smart money, IA, MT5 et intelligence de marché." />
+
+  <style>
+    :root {
+      --bg: #040407;
+      --bg2: #07070d;
+      --panel: rgba(16, 16, 27, 0.84);
+      --panel2: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.085);
+      --gold: #ffb400;
+      --gold2: #ffd36a;
+      --red: #ff4b5c;
+      --green: #15d16b;
+      --blue: #5aa7ff;
+      --text: #f6f6f8;
+      --muted: #9a9aad;
+      --muted2: #6f7084;
+      --shadow: 0 22px 60px rgba(0,0,0,.65);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(255,180,0,.18), transparent 34%),
+        radial-gradient(circle at 88% 8%, rgba(255,75,92,.12), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(90,167,255,.08), transparent 35%),
+        linear-gradient(180deg, #090911 0%, #040407 55%, #020204 100%);
+      color: var(--text);
+      line-height: 1.55;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255,255,255,.026) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.026) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: radial-gradient(circle at center, black, transparent 78%);
+      z-index: -1;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+
+    .page {
+      width: min(1240px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 22px 0 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      background: rgba(5,5,9,.72);
+      backdrop-filter: blur(18px);
+      border-radius: 22px;
+      position: sticky;
+      top: 14px;
+      z-index: 50;
+      box-shadow: 0 12px 40px rgba(0,0,0,.36);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 220px;
+    }
+
+    .logo-img {
+      height: 42px;
+      width: 42px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+    }
+
+    .brand-title {
+      font-weight: 900;
+      letter-spacing: .16em;
+      font-size: 14px;
+    }
+
+    .brand-sub {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    nav a {
+      padding: 6px 8px;
+      border-radius: 999px;
+      transition: .18s ease;
+    }
+
+    nav a:hover {
+      color: var(--gold);
+      background: rgba(255,180,0,.08);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: flex-end;
+      min-width: 230px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 10px 15px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease, background .15s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      color: #1b1200;
+      background: linear-gradient(135deg, var(--gold), var(--red));
+      box-shadow: 0 14px 34px rgba(255, 180, 0, .14);
+    }
+
+    .btn-ghost {
+      color: var(--text);
+      border-color: var(--border);
+      background: rgba(255,255,255,.035);
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(255,180,0,.28);
+      background: rgba(255,180,0,.07);
+    }
+
+    .ticker {
+      margin: 18px auto 30px;
+      overflow: hidden;
+      border: 1px solid rgba(255,180,0,.28);
+      background: rgba(10,10,18,.72);
+      border-radius: 999px;
+      padding: 7px 0;
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      position: relative;
+    }
+
+    .ticker::before,
+    .ticker::after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 80px;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .ticker::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
+    .ticker::after { right: 0; background: linear-gradient(270deg, var(--bg), transparent); }
+
+    .ticker-track {
+      display: inline-flex;
+      white-space: nowrap;
+      gap: 46px;
+      animation: ticker 38s linear infinite;
+      padding-left: 30px;
+    }
+
+    .ticker strong { color: var(--gold2); font-weight: 800; }
+    @keyframes ticker { to { transform: translateX(-50%); } }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(420px, .95fr);
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 28px;
+    }
+
+    .hero-copy,
+    .terminal {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(16,16,27,.88), rgba(7,7,13,.86));
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-copy { padding: 34px; min-height: 520px; }
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      right: -150px;
+      bottom: -160px;
+      background: radial-gradient(circle, rgba(255,180,0,.18), transparent 68%);
+      pointer-events: none;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(21,209,107,.25);
+      color: #b9ffd8;
+      background: rgba(21,209,107,.08);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      margin-bottom: 20px;
+    }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 14px var(--green);
+    }
+
+    h1 {
+      font-size: clamp(34px, 6vw, 68px);
+      line-height: .96;
+      letter-spacing: -.05em;
+      max-width: 720px;
+      margin-bottom: 20px;
+    }
+
+    .grad {
+      background: linear-gradient(115deg, var(--gold2), var(--gold), var(--red));
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-sub {
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 650px;
+      margin-bottom: 22px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .tag {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.035);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 30px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .stat {
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.24);
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    .stat-label {
+      color: var(--muted2);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 5px;
+    }
+
+    .stat-value {
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .terminal {
+      min-height: 520px;
+      padding: 0;
+    }
+
+    .terminal-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,.26);
+    }
+
+    .traffic { display: flex; gap: 7px; }
+    .traffic span { width: 10px; height: 10px; border-radius: 50%; display: block; }
+    .traffic span:nth-child(1) { background: #ff5f56; }
+    .traffic span:nth-child(2) { background: #ffbd2e; }
+    .traffic span:nth-child(3) { background: #27c93f; }
+
+    .terminal-title {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .terminal-body { padding: 16px; }
+
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .market-card {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 13px;
+      background: rgba(255,255,255,.032);
+    }
+
+    .market-head {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 8px;
+    }
+
+    .market-price {
+      font-weight: 900;
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+
+    .market-meta {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .positive { color: var(--green); }
+    .negative { color: var(--red); }
+    .neutral { color: var(--text); }
+
+    .regime-panel {
+      border: 1px solid rgba(255,180,0,.22);
+      background:
+        radial-gradient(circle at top left, rgba(255,180,0,.12), transparent 45%),
+        rgba(255,255,255,.035);
+      border-radius: 22px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .regime-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .regime-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+    }
+
+    .regime-value {
+      font-size: 28px;
+      font-weight: 950;
+      letter-spacing: -.03em;
+    }
+
+    .bar {
+      height: 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 50%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--red), var(--gold), var(--green));
+      transition: width .4s ease;
+    }
+
+    .signal-panel {
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.24);
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .signal-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 9px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+    }
+
+    .signal-main {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .signal-text {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .section {
+      margin-top: 26px;
+      border: 1px solid var(--border);
+      background: rgba(10,10,18,.56);
+      border-radius: 28px;
+      padding: 26px;
+      box-shadow: 0 18px 42px rgba(0,0,0,.32);
+    }
+
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+
+    h2 {
+      font-size: clamp(22px, 3vw, 34px);
+      letter-spacing: -.03em;
+      line-height: 1.05;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 720px;
+      margin-top: 8px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.035);
+      border-radius: 22px;
+      padding: 18px;
+      min-height: 155px;
+      transition: .18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255,180,0,.24);
+      background: rgba(255,180,0,.045);
+    }
+
+    .card-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,180,0,.1);
+      border: 1px solid rgba(255,180,0,.2);
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .card-text {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .flow-step {
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.22);
+      border-radius: 18px;
+      padding: 14px;
+      position: relative;
+    }
+
+    .flow-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gold);
+      font-weight: 900;
+      z-index: 2;
+    }
+
+    .step-num {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .step-title { font-weight: 900; font-size: 14px; }
+    .step-text { color: var(--muted); font-size: 12px; margin-top: 5px; }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .plan {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.032);
+      border-radius: 24px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plan.featured {
+      border-color: rgba(255,180,0,.42);
+      box-shadow: 0 0 0 1px rgba(255,180,0,.08), 0 22px 60px rgba(255,180,0,.08);
+    }
+
+    .plan-badge {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      color: var(--gold);
+      background: rgba(255,180,0,.1);
+      border: 1px solid rgba(255,180,0,.24);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .plan-name {
+      font-size: 20px;
+      font-weight: 950;
+      margin-bottom: 8px;
+    }
+
+    .plan-desc {
+      color: var(--muted);
+      font-size: 13px;
+      min-height: 58px;
+      margin-bottom: 16px;
+    }
+
+    .plan-list {
+      list-style: none;
+      display: grid;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    .plan-list li::before {
+      content: "✓";
+      color: var(--green);
+      margin-right: 8px;
+      font-weight: 900;
+    }
+
+    .research-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 14px;
+    }
+
+    .news-list {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .news-list li {
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.18);
+      padding: 12px;
+      border-radius: 14px;
+    }
+
+    .contact-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid rgba(255,180,0,.24);
+      background: linear-gradient(135deg, rgba(255,180,0,.08), rgba(255,75,92,.06));
+      border-radius: 24px;
+      padding: 20px;
+    }
+
+    .small-input-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .small-input {
+      min-width: 240px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,.42);
+      color: var(--text);
+      outline: none;
+    }
+
+    footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 26px 4px 0;
+    }
+
+    @media (max-width: 1050px) {
+      .hero { grid-template-columns: 1fr; }
+      .topbar { position: relative; top: 0; align-items: flex-start; flex-direction: column; }
+      .top-actions { min-width: 0; }
+      nav { justify-content: flex-start; }
+      .stats-row, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow { grid-template-columns: 1fr; }
+      .flow-step::after { display: none; }
+      .plans, .grid-3, .research-grid { grid-template-columns: 1fr; }
+      .contact-card { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .page { width: min(100% - 18px, 1240px); padding-top: 10px; }
+      .hero-copy, .section { padding: 18px; border-radius: 22px; }
+      .terminal { border-radius: 22px; }
+      .market-grid, .stats-row, .grid-4 { grid-template-columns: 1fr; }
+      .small-input { min-width: 100%; width: 100%; }
+      .btn { width: 100%; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="/">
+        <img src="forge-logo.png" alt="TORINVEST La Forge" class="logo-img">
+        <div>
+          <div class="brand-title">TORINVEST</div>
+          <div class="brand-sub">La force d’un esprit libre</div>
+        </div>
+      </a>
+
+      <nav>
+        <a href="#engine">AI Engine</a>
+        <a href="#access">Abonnements</a>
+        <a href="#mt5">MT5</a>
+        <a href="#research">Research</a>
+        <a href="/ai-torinvest">TORINVEST AI</a>
+        <a href="/formation">Formation</a>
+        <a href="/disclaimer">Disclaimer</a>
+      </nav>
+
+      <div class="top-actions">
+        <a class="btn btn-ghost" href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">Discord</a>
+        <a class="btn btn-primary" href="#access">Accès IA</a>
+      </div>
+    </header>
+
+    <div class="ticker">
+      <div class="ticker-track">
+        <span><strong>TORINVEST AI</strong> — infrastructure décisionnelle macro & smart money</span>
+        <span>MT5 connecté par licences • Worker Cloudflare • IA multi-agents</span>
+        <span>Gold • Forex • Indices • Crypto • Taux • Crédit • Géopolitique</span>
+        <span>Aucun conseil financier — outil éducatif, analytique et expérimental</span>
+        <span><strong>TORINVEST AI</strong> — infrastructure décisionnelle macro & smart money</span>
+        <span>MT5 connecté par licences • Worker Cloudflare • IA multi-agents</span>
+      </div>
+    </div>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="status-pill"><span class="dot"></span> infrastructure active • licences SaaS</div>
+
+          <h1>
+            <span class="grad">TORINVEST AI</span><br>
+            Market Intelligence Ecosystem.
+          </h1>
+
+          <p class="hero-sub">
+            Une infrastructure décisionnelle qui combine macroéconomie, smart money concepts, liquidité,
+            géopolitique, risk engine et exécution MT5. Le but : transformer les données en contexte,
+            le contexte en décision, et la décision en exécution contrôlée.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#access">Découvrir les accès</a>
+            <a class="btn btn-ghost" href="/ai-torinvest">Ouvrir TORINVEST AI</a>
+            <a class="btn btn-ghost" href="#mt5">Architecture MT5</a>
+          </div>
+
+          <div class="hero-tags">
+            <span class="tag">Smart Money Engine</span>
+            <span class="tag">Macro Intelligence</span>
+            <span class="tag">MT5 Execution</span>
+            <span class="tag">Licences clients</span>
+            <span class="tag">Risk-on / Risk-off</span>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat">
+              <div class="stat-label">Infrastructure</div>
+              <div class="stat-value" id="stat-worker">Cloud AI</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Marchés suivis</div>
+              <div class="stat-value" id="stat-market-count">--</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">News risk</div>
+              <div class="stat-value" id="stat-news-risk">--</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Mode</div>
+              <div class="stat-value">SaaS</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="terminal" aria-label="Dashboard TORINVEST AI">
+          <div class="terminal-top">
+            <div class="traffic"><span></span><span></span><span></span></div>
+            <div class="terminal-title">TORINVEST COMMAND CENTER</div>
+          </div>
+
+          <div class="terminal-body">
+            <div class="regime-panel">
+              <div class="regime-header">
+                <div>
+                  <div class="regime-title">Régime marché IA</div>
+                  <div id="regime-value" class="regime-value">SYNC...</div>
+                </div>
+                <div class="status-pill" style="margin:0"><span class="dot"></span> live</div>
+              </div>
+              <div class="bar"><div id="regime-bar" class="bar-fill"></div></div>
+            </div>
+
+            <div class="market-grid">
+              <div class="market-card">
+                <div class="market-head"><span>Gold</span><span>XAUUSD</span></div>
+                <div id="m-xau-price" class="market-price">--</div>
+                <div class="market-meta"><span>Change</span><span id="m-xau-change">--</span></div>
+              </div>
+              <div class="market-card">
+                <div class="market-head"><span>Dollar</span><span>DXY</span></div>
+                <div id="m-dxy-price" class="market-price">--</div>
+                <div class="market-meta"><span>Change</span><span id="m-dxy-change">--</span></div>
+              </div>
+              <div class="market-card">
+                <div class="market-head"><span>Bitcoin</span><span>BTCUSD</span></div>
+                <div id="m-btc-price" class="market-price">--</div>
+                <div class="market-meta"><span>Change</span><span id="m-btc-change">--</span></div>
+              </div>
+              <div class="market-card">
+                <div class="market-head"><span>Risk</span><span>VIX</span></div>
+                <div id="m-vix-price" class="market-price">--</div>
+                <div class="market-meta"><span>Change</span><span id="m-vix-change">--</span></div>
+              </div>
+            </div>
+
+            <div class="signal-panel">
+              <div class="signal-title">
+                <span>Dernier signal IA public</span>
+                <span id="signal-time">--</span>
+              </div>
+              <div id="signal-status" class="signal-main neutral">Connexion au Worker...</div>
+              <p id="signal-text" class="signal-text">Chargement du contexte TORINVEST AI.</p>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="engine" class="section">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">AI Decision System</div>
+            <h2>Un moteur multi-agents pour lire le marché en profondeur.</h2>
+            <p class="section-sub">
+              TORINVEST AI ne regarde pas seulement un signal. Il pondère le contexte : macro, news,
+              structure, liquidité, volatilité, corrélations et risque.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <article class="card">
+            <div class="card-icon">🧠</div>
+            <h3 class="card-title">Macro Agent</h3>
+            <p class="card-text">Dollar, taux US, banques centrales, cycles économiques, inflation, dette et flux globaux.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">⚡</div>
+            <h3 class="card-title">Smart Money Engine</h3>
+            <p class="card-text">Sweep, inducement, MSS/BOS/CHOCH, premium/discount, FVG, OB, POC, VAH/VAL.</p>
+          </article>
+          <article class="card">
+            <div class="card-icon">🛡️</div>
+            <h3 class="card-title">Risk Engine</h3>
+            <p class="card-text">Le risque ne bloque pas tout : il ajuste l’exposition, la confiance, les TP et le niveau d’exécution.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="access" class="section">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">TORINVEST AI Access</div>
+            <h2>Une offre pensée comme une infrastructure, pas comme un simple robot.</h2>
+            <p class="section-sub">
+              Chaque abonné reçoit une licence individuelle. L’EA MT5 se connecte au Worker TORINVEST,
+              qui valide l’accès et transmet les signaux autorisés.
+            </p>
+          </div>
+        </div>
+
+        <div class="plans">
+          <article class="plan">
+            <h3 class="plan-name">Signals</h3>
+            <p class="plan-desc">Pour suivre les décisions IA, le contexte marché et la veille macro.</p>
+            <ul class="plan-list">
+              <li>Dashboard IA</li>
+              <li>Signaux surveillés</li>
+              <li>Discord / Telegram</li>
+              <li>News macro filtrées</li>
+            </ul>
+            <a class="btn btn-ghost" href="#contact">Liste d’attente</a>
+          </article>
+
+          <article class="plan featured">
+            <div class="plan-badge">central</div>
+            <h3 class="plan-name">Robot Access</h3>
+            <p class="plan-desc">EA MT5 connecté à l’infrastructure décisionnelle TORINVEST.</p>
+            <ul class="plan-list">
+              <li>Licence client individuelle</li>
+              <li>EA MT5 connecté</li>
+              <li>Multi-assets</li>
+              <li>Contrôle expiration</li>
+            </ul>
+            <a class="btn btn-primary" href="#contact">Demander l’accès</a>
+          </article>
+
+          <article class="plan">
+            <h3 class="plan-name">Institutional</h3>
+            <p class="plan-desc">Pour utilisateurs avancés : API, multi-comptes, agents et suivi renforcé.</p>
+            <ul class="plan-list">
+              <li>API / Worker access</li>
+              <li>Multi-comptes</li>
+              <li>Risk profile avancé</li>
+              <li>Support prioritaire</li>
+            </ul>
+            <a class="btn btn-ghost" href="#contact">Candidater</a>
+          </article>
+        </div>
+      </section>
+
+      <section id="mt5" class="section">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">MT5 Execution Layer</div>
+            <h2>Le cerveau reste dans le cloud. L’EA devient l’exécutant.</h2>
+            <p class="section-sub">
+              Le client ne récupère pas ton système décisionnel complet. Il installe un EA connecté,
+              colle sa licence, et le Worker autorise ou bloque l’accès.
+            </p>
+          </div>
+        </div>
+
+        <div class="flow">
+          <div class="flow-step"><div class="step-num">01</div><div class="step-title">Abonnement</div><p class="step-text">Le client obtient une licence TORINVEST.</p></div>
+          <div class="flow-step"><div class="step-num">02</div><div class="step-title">EA MT5</div><p class="step-text">Installation du fichier .ex5 sur MetaTrader.</p></div>
+          <div class="flow-step"><div class="step-num">03</div><div class="step-title">Worker</div><p class="step-text">Validation licence + statut abonnement.</p></div>
+          <div class="flow-step"><div class="step-num">04</div><div class="step-title">AI Engine</div><p class="step-text">Analyse macro, smart money, risque et signal.</p></div>
+          <div class="flow-step"><div class="step-num">05</div><div class="step-title">Execution</div><p class="step-text">MT5 exécute seulement si le signal est autorisé.</p></div>
+        </div>
+      </section>
+
+      <section id="research" class="section">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">TORINVEST Research</div>
+            <h2>Macro, géopolitique, crédit et liquidité.</h2>
+            <p class="section-sub">
+              Une base de recherche pour comprendre les vrais moteurs des marchés : taux, dette,
+              dollar, banques centrales, or, pétrole, risques géopolitiques et crédit.
+            </p>
+          </div>
+        </div>
+
+        <div class="research-grid">
+          <article class="card">
+            <h3 class="card-title">Axes d’analyse prioritaires</h3>
+            <p class="card-text">
+              Gold, Forex, indices, crypto, US10Y, DXY, VIX, HYG/LQD, tensions géopolitiques,
+              guerres commerciales, Japon, Chine, Fed, BCE et cycles de liquidité.
+            </p>
+          </article>
+          <article class="card">
+            <h3 class="card-title">News marchés</h3>
+            <ul id="news-list" class="news-list">
+              <li>Chargement des news marchés...</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="community" class="section">
+        <div class="section-head">
+          <div>
+            <div class="eyebrow">Communauté & formation</div>
+            <h2>Former des traders capables de penser, pas seulement de cliquer.</h2>
+            <p class="section-sub">
+              TORINVEST reste aussi une communauté : formation, lives, routines, modules macro,
+              psychologie, price action, ICT/SMC et gestion du risque.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid-4">
+          <article class="card"><h3 class="card-title">La Forge</h3><p class="card-text">Modules structurés pour construire la méthode.</p></article>
+          <article class="card"><h3 class="card-title">Lives marché</h3><p class="card-text">Sessions London / NY, contexte et liquidités.</p></article>
+          <article class="card"><h3 class="card-title">Discord</h3><p class="card-text">Communauté, alertes, veille et échanges.</p></article>
+          <article class="card"><h3 class="card-title">Psychologie</h3><p class="card-text">Discipline, frustration, overtrading et propfirms.</p></article>
+        </div>
+      </section>
+
+      <section id="contact" class="section">
+        <div class="contact-card">
+          <div>
+            <div class="eyebrow">Liste d’attente</div>
+            <h2>Recevoir les accès TORINVEST AI.</h2>
+            <p class="section-sub">
+              Laisse ton email pour être prévenu des ouvertures : dashboard, robot connecté,
+              accès IA, modules et communauté privée.
+            </p>
+          </div>
+
+          <form id="waitlist-form" method="POST" name="liste-attente-torinvest">
+            <input type="hidden" name="form-name" value="liste-attente-torinvest" />
+            <p style="display:none"><label>Ne pas remplir : <input name="bot-field" /></label></p>
+            <div class="small-input-row">
+              <input class="small-input" type="email" name="email" placeholder="Ton email" required />
+              <button class="btn btn-primary" type="submit">Rejoindre</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
+      <span>Aucun conseil financier — outil éducatif, analytique et expérimental.</span>
+      <a href="https://github.com/torinvest/TORINVEST-Ecosystem" target="_blank" rel="noopener">GitHub</a>
+    </footer>
+  </div>
+
+  <script>
+    const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
+    const PUBLIC_SIGNAL_TOKEN = "default";
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const form = document.getElementById("waitlist-form");
+    if (form) {
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const data = new FormData(form);
+        fetch("/", { method: "POST", body: data })
+          .then(() => { window.location.href = "merci.html"; })
+          .catch(() => { window.location.href = "merci.html"; });
+      });
+    }
+
+    function formatPrice(v) {
+      if (v === null || v === undefined || Number.isNaN(Number(v))) return "--";
+      const n = Number(v);
+      if (Math.abs(n) >= 1000) return n.toLocaleString("fr-FR", { maximumFractionDigits: 2 });
+      if (Math.abs(n) >= 10) return n.toLocaleString("fr-FR", { maximumFractionDigits: 3 });
+      return n.toLocaleString("fr-FR", { maximumFractionDigits: 5 });
+    }
+
+    function setChange(id, value) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const n = Number(value);
+      if (!Number.isFinite(n)) {
+        el.textContent = "--";
+        el.className = "";
+        return;
+      }
+      el.textContent = (n > 0 ? "+" : "") + n.toFixed(2) + "%";
+      el.className = n > 0 ? "positive" : n < 0 ? "negative" : "neutral";
+    }
+
+    function setMarket(prefix, item) {
+      const price = document.getElementById(prefix + "-price");
+      if (price) price.textContent = formatPrice(item && item.price);
+      setChange(prefix + "-change", item && item.changePct);
+    }
+
+    async function loadMarketContext() {
+      try {
+        const resp = await fetch(WORKER + "/market/context", { headers: { "Accept": "application/json" } });
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        const data = await resp.json();
+        const m = data.data || {};
+
+        setMarket("m-xau", m.XAUUSD);
+        setMarket("m-dxy", m.DXY);
+        setMarket("m-btc", m.BTCUSD);
+        setMarket("m-vix", m.VIX);
+
+        const regime = data.sentiment && data.sentiment.regime ? data.sentiment.regime : "NEUTRE";
+        const score = data.sentiment && typeof data.sentiment.score === "number" ? data.sentiment.score : 50;
+
+        const rv = document.getElementById("regime-value");
+        const rb = document.getElementById("regime-bar");
+        const count = document.getElementById("stat-market-count");
+
+        if (rv) rv.textContent = regime + " " + score + "/100";
+        if (rb) rb.style.width = Math.max(0, Math.min(100, score)) + "%";
+        if (count) count.textContent = data.count || "--";
+      } catch (e) {
+        const rv = document.getElementById("regime-value");
+        if (rv) rv.textContent = "WORKER OFFLINE";
+      }
+    }
+
+    async function loadSignal() {
+      const statusEl = document.getElementById("signal-status");
+      const textEl = document.getElementById("signal-text");
+      const timeEl = document.getElementById("signal-time");
+
+      try {
+        const resp = await fetch(WORKER + "/copy/signal?token=" + encodeURIComponent(PUBLIC_SIGNAL_TOKEN) + "&symbol=XAUUSD", {
+          headers: { "Accept": "application/json" }
+        });
+
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        const data = await resp.json();
+        const s = data.signal || {};
+        const action = String(s.action || "NONE").toUpperCase();
+
+        statusEl.className = "signal-main " + (action === "BUY" ? "positive" : action === "SELL" ? "negative" : "neutral");
+        statusEl.textContent = action === "BUY" ? "🟢 BUY — XAUUSD" : action === "SELL" ? "🔴 SELL — XAUUSD" : "⚪ NO TRADE / WATCHLIST";
+
+        textEl.textContent =
+          "Readiness : " + (s.execution_readiness || "--") +
+          " • Confidence : " + (s.confidence ?? "--") +
+          " • Risk : " + (s.global_risk_score ?? "--") +
+          (s.reason ? " • " + String(s.reason).slice(0, 120) : "");
+
+        timeEl.textContent = s.createdAt ? new Date(s.createdAt).toLocaleTimeString("fr-FR") : "--";
+      } catch (e) {
+        statusEl.className = "signal-main neutral";
+        statusEl.textContent = "⚠️ Signal indisponible";
+        textEl.textContent = "Aucun signal public disponible pour le moment.";
+        timeEl.textContent = "--";
+      }
+    }
+
+    async function loadNews() {
+      const list = document.getElementById("news-list");
+      const riskEl = document.getElementById("stat-news-risk");
+      if (!list) return;
+
+      try {
+        const resp = await fetch(WORKER + "/news/latest", { headers: { "Accept": "application/json" } });
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        const data = await resp.json();
+        const items = Array.isArray(data.items) ? data.items.slice(0, 5) : [];
+
+        if (riskEl) {
+          const risk = data.risk || {};
+          riskEl.textContent = risk.regime ? risk.regime.replace("RISQUE_", "") : "--";
+        }
+
+        list.innerHTML = "";
+
+        if (!items.length) {
+          list.innerHTML = "<li>Aucune news disponible pour le moment.</li>";
+          return;
+        }
+
+        for (const item of items) {
+          const li = document.createElement("li");
+          const impact = item.impact ? "[" + item.impact + "] " : "";
+          const source = item.source ? item.source + " — " : "";
+          const link = item.url || item.link || "";
+          if (link) {
+            const a = document.createElement("a");
+            a.href = link;
+            a.target = "_blank";
+            a.rel = "noopener noreferrer";
+            a.textContent = impact + source + (item.title || "News");
+            li.appendChild(a);
+          } else {
+            li.textContent = impact + source + (item.title || "News");
+          }
+          list.appendChild(li);
+        }
+      } catch (e) {
+        list.innerHTML = "<li>Erreur lors du chargement des news marchés.</li>";
+      }
+    }
+
+    loadMarketContext();
+    loadSignal();
+    loadNews();
+
+    setInterval(loadMarketContext, 30000);
+    setInterval(loadSignal, 15000);
+    setInterval(loadNews, 120000);
+  </script>
+</body>
+</html>
