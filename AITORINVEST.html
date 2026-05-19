@@ -743,6 +743,49 @@ textarea {
 </style>
 </head>
 <body>
+
+<script>
+(async function protectAiAccess() {
+  const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
+  const LOGIN_PAGE = "/ai-access-login.html";
+
+  const raw = localStorage.getItem("torinvest_ai_access_session");
+
+  if (!raw) {
+    window.location.href = LOGIN_PAGE;
+    return;
+  }
+
+  try {
+    const session = JSON.parse(raw);
+    const key = session.licenseKey;
+    const account = session.mt5Account || "";
+
+    if (!key) {
+      localStorage.removeItem("torinvest_ai_access_session");
+      window.location.href = LOGIN_PAGE;
+      return;
+    }
+
+    let url = WORKER + "/validate-license?key=" + encodeURIComponent(key);
+    if (account) url += "&account=" + encodeURIComponent(account);
+
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    if (!resp.ok || data.ok === false || data.canTrade === false) {
+      localStorage.removeItem("torinvest_ai_access_session");
+      window.location.href = LOGIN_PAGE;
+      return;
+    }
+
+  } catch (e) {
+    localStorage.removeItem("torinvest_ai_access_session");
+    window.location.href = LOGIN_PAGE;
+  }
+})();
+</script>
+
 <div class="app">
   <aside class="sidebar" id="leftPanel"><button class="ghost panel-close-mobile" onclick="toggleLeft()">Fermer le menu</button>
     <div class="brand"><div class="forge-logo"><div class="hammer">⚒</div><div class="anvil">⚒</div></div><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">La force d’un esprit libre</div></div>
