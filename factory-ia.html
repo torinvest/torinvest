@@ -3,103 +3,293 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TORINVEST AI Site Builder</title>
+  <title>TORINVEST AI Builder</title>
   <style>
     :root {
-      --bg: #050505;
-      --panel: #0d0d0f;
-      --panel2: #151515;
-      --gold: #d4af37;
-      --gold2: #ffcc55;
-      --text: #f4f4f4;
-      --muted: #9ca3af;
-      --danger: #ff4b5c;
-      --border: rgba(212, 175, 55, 0.28);
-      --shadow: 0 22px 80px rgba(0, 0, 0, 0.45);
+      --bg: #030407;
+      --panel: rgba(13, 15, 22, 0.94);
+      --panel-2: rgba(18, 20, 29, 0.92);
+      --panel-3: rgba(8, 10, 15, 0.96);
+      --line: rgba(255, 255, 255, 0.08);
+      --line-gold: rgba(255, 180, 0, 0.38);
+      --gold: #ffb400;
+      --gold-2: #ffd36a;
+      --red: #ff4b5c;
+      --green: #16d16b;
+      --text: #f5f5f7;
+      --muted: #9a9aad;
+      --muted-2: #6f7283;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.58);
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 13px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0;
-      font-family: Inter, Arial, sans-serif;
-      background:
-        radial-gradient(circle at top left, rgba(212, 175, 55, 0.14), transparent 36%),
-        radial-gradient(circle at bottom right, rgba(255, 75, 92, 0.08), transparent 32%),
-        var(--bg);
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
-      min-height: 100vh;
-    }
-
-    .app {
-      display: grid;
-      grid-template-columns: 420px 1fr;
-      min-height: 100vh;
-    }
-
-    aside {
-      border-right: 1px solid var(--border);
-      background: rgba(5, 5, 5, 0.88);
-      backdrop-filter: blur(18px);
-      padding: 22px;
-      overflow-y: auto;
-      max-height: 100vh;
-      position: sticky;
-      top: 0;
-    }
-
-    main {
-      padding: 22px;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255, 180, 0, 0.16), transparent 30%),
+        radial-gradient(circle at 85% 15%, rgba(255, 75, 92, 0.10), transparent 28%),
+        radial-gradient(circle at 50% 100%, rgba(255, 180, 0, 0.08), transparent 34%),
+        #030407;
       overflow: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .app-shell {
+      height: 100vh;
+      padding: 14px;
+      display: grid;
+      grid-template-rows: 58px 1fr;
+      gap: 14px;
+    }
+
+    .topbar {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(20, 22, 31, 0.92), rgba(10, 12, 18, 0.92));
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      backdrop-filter: blur(16px);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 22px;
+      gap: 12px;
+      min-width: 220px;
     }
 
-    .brand h1 {
-      margin: 0;
-      font-size: 21px;
-      color: var(--gold2);
-      letter-spacing: 0.06em;
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 12px;
+      border: 1px solid var(--line-gold);
+      background: radial-gradient(circle at 30% 20%, rgba(255, 211, 106, 0.35), rgba(255, 180, 0, 0.08));
+      display: grid;
+      place-items: center;
+      color: var(--gold);
+      box-shadow: 0 0 24px rgba(255, 180, 0, 0.16);
+      font-weight: 900;
     }
 
-    .pill {
-      border: 1px solid var(--border);
-      color: var(--gold2);
-      padding: 7px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      background: rgba(212, 175, 55, 0.06);
+    .brand-title {
+      line-height: 1.05;
     }
 
-    .group {
-      background: rgba(17, 17, 18, 0.92);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow);
-    }
-
-    .group h2 {
-      margin: 0 0 14px;
-      font-size: 14px;
-      color: var(--gold2);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    label {
+    .brand-title strong {
       display: block;
-      margin: 12px 0 7px;
-      color: #e5e7eb;
+      color: var(--gold-2);
+      letter-spacing: 0.12em;
       font-size: 13px;
+    }
+
+    .brand-title span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    .main-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+
+    .nav-btn {
+      height: 42px;
+      padding: 0 17px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.2s ease;
+      position: relative;
+    }
+
+    .nav-btn:hover,
+    .nav-btn.active {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .nav-btn.active::after {
+      content: "";
+      position: absolute;
+      bottom: -8px;
+      left: 18px;
+      right: 18px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--gold), var(--red));
+      box-shadow: 0 0 12px rgba(255, 180, 0, 0.55);
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 260px;
+      justify-content: flex-end;
+    }
+
+    .icon-btn,
+    .primary-btn,
+    .ghost-btn,
+    .danger-btn {
+      border: 0;
+      cursor: pointer;
+      border-radius: 13px;
+      font-weight: 800;
+      transition: 0.2s ease;
+      font-family: inherit;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      background: transparent;
+      color: var(--gold);
+      border: 1px solid transparent;
+      font-size: 17px;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--line-gold);
+      background: rgba(255, 180, 0, 0.08);
+    }
+
+    .primary-btn {
+      height: 40px;
+      padding: 0 20px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-2));
+      color: #080808;
+      box-shadow: 0 14px 35px rgba(255, 180, 0, 0.26);
+    }
+
+    .ghost-btn {
+      height: 40px;
+      padding: 0 17px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--line-gold);
+      color: var(--text);
+    }
+
+    .danger-btn {
+      height: 40px;
+      padding: 0 17px;
+      background: rgba(255, 75, 92, 0.12);
+      border: 1px solid rgba(255, 75, 92, 0.35);
+      color: #fff;
+    }
+
+    .primary-btn:hover,
+    .ghost-btn:hover,
+    .danger-btn:hover,
+    .icon-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    .workspace {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 240px minmax(460px, 1fr) 400px;
+      gap: 14px;
+    }
+
+    .sidebar,
+    .preview-panel,
+    .code-panel {
+      min-height: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      background: linear-gradient(180deg, rgba(20, 22, 31, 0.88), rgba(8, 10, 15, 0.9));
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-section-title {
+      padding: 16px 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .sidebar-content {
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .accordion {
+      margin-bottom: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .accordion-head {
+      padding: 13px 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+
+    .accordion-body {
+      display: none;
+      padding: 0 12px 13px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .accordion.active .accordion-body { display: block; }
+
+    .field { margin-top: 12px; }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 7px;
+      font-weight: 700;
     }
 
     input,
@@ -107,298 +297,382 @@
     select {
       width: 100%;
       border: 1px solid rgba(255,255,255,0.09);
-      background: #09090b;
+      background: rgba(2, 3, 7, 0.82);
       color: var(--text);
       border-radius: 12px;
-      padding: 12px;
-      font-size: 14px;
+      padding: 10px 11px;
       outline: none;
+      font-size: 12px;
+      font-family: inherit;
     }
 
     textarea {
-      min-height: 90px;
+      min-height: 88px;
       resize: vertical;
+      line-height: 1.45;
     }
 
     input:focus,
     textarea:focus,
     select:focus {
       border-color: var(--gold);
-      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.12);
+      box-shadow: 0 0 0 3px rgba(255, 180, 0, 0.10);
     }
 
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .check-grid {
+    .mini-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-top: 8px;
     }
 
-    .check {
+    .check-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 10px;
+    }
+
+    .check-item {
       display: flex;
-      gap: 8px;
       align-items: center;
-      padding: 10px;
-      border: 1px solid rgba(255,255,255,0.08);
+      gap: 8px;
+      padding: 9px;
       border-radius: 12px;
-      background: #09090b;
-      font-size: 13px;
+      background: rgba(0,0,0,.24);
+      border: 1px solid rgba(255,255,255,.06);
+      font-size: 12px;
+      color: var(--muted);
     }
 
-    .check input {
-      width: auto;
-      margin: 0;
+    .check-item input { width: auto; }
+
+    .preview-panel {
+      display: flex;
+      flex-direction: column;
+      position: relative;
     }
 
-    .actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    button {
-      border: none;
-      border-radius: 13px;
-      padding: 13px 15px;
-      font-weight: 800;
-      cursor: pointer;
-      color: #050505;
-      background: linear-gradient(135deg, var(--gold), var(--gold2));
-      transition: transform 0.15s ease, filter 0.15s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.08);
-    }
-
-    button.secondary {
-      background: #171717;
-      color: var(--gold2);
-      border: 1px solid var(--border);
-    }
-
-    button.danger {
-      background: rgba(255,75,92,0.18);
-      color: #fff;
-      border: 1px solid rgba(255,75,92,0.35);
-    }
-
-    .preview-shell {
-      height: calc(100vh - 44px);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      overflow: hidden;
-      background: white;
-      box-shadow: var(--shadow);
-    }
-
-    .topbar {
-      height: 46px;
-      background: #101010;
-      border-bottom: 1px solid var(--border);
+    .preview-toolbar {
+      min-height: 44px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(3, 4, 7, 0.55);
     }
 
-    .dots {
-      display: flex;
-      gap: 7px;
+    .window-dots { display: flex; gap: 7px; }
+    .window-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .window-dot:nth-child(1){ background:#ff5f57; }
+    .window-dot:nth-child(2){ background:#ffbd2e; }
+    .window-dot:nth-child(3){ background:#28c840; }
+
+    .preview-url {
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(0,0,0,.20);
+      padding: 7px 12px;
+      border-radius: 999px;
+      max-width: 55%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-      background: #555;
+    .preview-badge {
+      color: var(--gold);
+      border: 1px solid var(--line-gold);
+      background: rgba(255, 180, 0, 0.08);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
     }
 
-    .urlbar {
-      color: #aaa;
-      font-size: 12px;
+    .preview-wrap {
+      flex: 1;
+      min-height: 0;
+      padding: 0;
+      background:
+        radial-gradient(circle at 70% 20%, rgba(255,180,0,.12), transparent 30%),
+        #050506;
     }
 
     iframe {
       width: 100%;
-      height: calc(100% - 46px);
+      height: 100%;
       border: none;
-      background: #fff;
+      background: #050505;
+      display: block;
     }
 
-    .code-modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.78);
-      display: none;
+    .code-panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .code-head {
+      min-height: 56px;
+      display: flex;
       align-items: center;
-      justify-content: center;
-      z-index: 99;
-      padding: 24px;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .code-head h2 {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     .code-box {
-      width: min(1100px, 100%);
-      max-height: 86vh;
-      background: #080808;
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: var(--shadow);
+      flex: 1;
+      min-height: 0;
+      padding: 12px;
     }
 
     .code-box textarea {
-      height: 62vh;
-      font-family: Consolas, monospace;
-      font-size: 12px;
+      height: 100%;
+      min-height: 100%;
+      font-family: Consolas, "SFMono-Regular", monospace;
+      font-size: 11px;
+      line-height: 1.5;
       white-space: pre;
+      color: #d7e1ff;
+      background: rgba(2,3,7,.85);
+      border-radius: 16px;
     }
 
-    @media(max-width: 1050px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
+    .code-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 12px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
 
-      aside {
-        max-height: none;
-        position: relative;
-      }
+    .back-home-btn {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 650;
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,255,255,0.13);
+      color: #f5f5f7;
+      backdrop-filter: blur(10px);
+      transition: 0.2s ease;
+      z-index: 9999;
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+    }
 
-      .preview-shell {
-        height: 780px;
-      }
+    .back-home-btn:hover {
+      background: rgba(255, 180, 0, 0.25);
+      border-color: rgba(255, 180, 0, 0.6);
+      transform: translateY(-2px);
+      color: #fff;
+    }
+
+    @media(max-width: 1200px) {
+      body { overflow: auto; }
+      .app-shell { height: auto; min-height: 100vh; }
+      .workspace { grid-template-columns: 1fr; }
+      .sidebar, .preview-panel, .code-panel { min-height: 520px; }
+      .code-panel { min-height: 620px; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <aside>
+  <div class="app-shell">
+    <header class="topbar">
       <div class="brand">
-        <h1>TORINVEST BUILDER</h1>
-        <span class="pill">LIVE BUILDER</span>
-      </div>
-
-      <div class="group">
-        <h2>Identité</h2>
-        <label>Nom du site</label>
-        <input id="siteName" value="TORINVEST AI EXECUTOR" />
-
-        <label>Slogan</label>
-        <input id="tagline" value="La force d’un esprit libre" />
-
-        <label>Pitch principal</label>
-        <textarea id="pitch">Une plateforme intelligente pensée pour analyser, structurer et exécuter avec discipline dans un environnement de marché complexe.</textarea>
-
-        <div class="row">
-          <div>
-            <label>Template</label>
-            <select id="template">
-              <option value="premium">Premium sombre</option>
-              <option value="startup">Startup moderne</option>
-              <option value="agency">Agence / service</option>
-              <option value="course">Formation</option>
-            </select>
-          </div>
-          <div>
-            <label>Couleur</label>
-            <input id="mainColor" type="color" value="#d4af37" />
-          </div>
+        <div class="brand-mark">T</div>
+        <div class="brand-title">
+          <strong>TORINVEST</strong>
+          <span>AI Builder</span>
         </div>
       </div>
 
-      <div class="group">
-        <h2>Contenu</h2>
-        <label>CTA principal</label>
-        <input id="cta" value="Découvrir l’offre" />
+      <nav class="main-nav">
+        <button class="nav-btn active" onclick="focusPanel('generate', this)">Générer</button>
+        <button class="nav-btn" onclick="focusPanel('design', this)">Design</button>
+        <button class="nav-btn" onclick="focusPanel('pages', this)">Pages</button>
+        <button class="nav-btn" onclick="focusPanel('seo', this)">SEO</button>
+        <button class="nav-btn" onclick="focusPanel('export', this)">Export</button>
+      </nav>
 
-        <label>Lien CTA</label>
-        <input id="ctaLink" value="#pricing" />
-
-        <label>Offre / Produit</label>
-        <input id="offer" value="TORINVEST AI EXECUTOR" />
-
-        <label>Prix ou accroche</label>
-        <input id="price" value="Offre de lancement disponible" />
+      <div class="top-actions">
+        <button class="icon-btn" title="Mode premium">☼</button>
+        <button class="ghost-btn" onclick="refreshPreview()">Aperçu</button>
+        <button class="primary-btn" onclick="downloadHTML()">Exporter</button>
       </div>
+    </header>
 
-      <div class="group">
-        <h2>Sections visibles</h2>
-        <div class="check-grid">
-          <label class="check"><input type="checkbox" id="sFeatures" checked /> Avantages</label>
-          <label class="check"><input type="checkbox" id="sProcess" checked /> Process</label>
-          <label class="check"><input type="checkbox" id="sPricing" checked /> Offre</label>
-          <label class="check"><input type="checkbox" id="sFaq" checked /> FAQ</label>
-          <label class="check"><input type="checkbox" id="sTestimonials" checked /> Témoignages</label>
-          <label class="check"><input type="checkbox" id="sContact" checked /> Contact</label>
+    <div class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-section-title">
+          <span>Contenu</span>
+          <span>⌃</span>
         </div>
-      </div>
 
-      <div class="group">
-        <h2>Options</h2>
-        <label>Style du bouton</label>
-        <select id="buttonStyle">
-          <option value="rounded">Arrondi premium</option>
-          <option value="sharp">Carré institutionnel</option>
-          <option value="pill">Pilule moderne</option>
-        </select>
-
-        <label>Ton du site</label>
-        <select id="tone">
-          <option value="premium">Premium</option>
-          <option value="aggressive">Impact commercial</option>
-          <option value="educational">Pédagogique</option>
-        </select>
-      </div>
-
-      <div class="actions">
-        <button onclick="refreshPreview()">Générer</button>
-        <button class="secondary" onclick="openCode()">Voir code</button>
-        <button class="secondary" onclick="downloadHTML()">Exporter HTML</button>
-        <button class="danger" onclick="resetForm()">Reset</button>
-      </div>
-    </aside>
-
-    <main>
-      <div class="preview-shell">
-        <div class="topbar">
-          <div class="dots">
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
+        <div class="sidebar-content">
+          <div class="accordion active" data-panel="generate">
+            <div class="accordion-head" onclick="toggleAcc(this)">
+              <span>01. Informations</span><span>⌄</span>
+            </div>
+            <div class="accordion-body">
+              <div class="field">
+                <label>Nom du site</label>
+                <input id="siteName" value="TORINVEST AI EXECUTOR" />
+              </div>
+              <div class="field">
+                <label>Slogan</label>
+                <input id="tagline" value="La force d’un esprit libre" />
+              </div>
+              <div class="field">
+                <label>Pitch principal</label>
+                <textarea id="pitch">Une plateforme intelligente pensée pour analyser, structurer et exécuter avec discipline dans un environnement de marché complexe.</textarea>
+              </div>
+            </div>
           </div>
-          <div class="urlbar">preview://site-generated-by-torinvest-builder</div>
-          <div class="pill">LIVE PREVIEW</div>
-        </div>
-        <iframe id="preview"></iframe>
-      </div>
-    </main>
-  </div>
 
-  <div class="code-modal" id="codeModal">
-    <div class="code-box">
-      <div class="brand">
-        <h1>Code HTML généré</h1>
-        <button class="secondary" onclick="closeCode()">Fermer</button>
-      </div>
-      <textarea id="codeOutput"></textarea>
-      <div class="actions">
-        <button onclick="copyCode()">Copier le code</button>
-        <button class="secondary" onclick="downloadHTML()">Télécharger index.html</button>
-      </div>
+          <div class="accordion active" data-panel="design">
+            <div class="accordion-head" onclick="toggleAcc(this)">
+              <span>02. Design</span><span>⌄</span>
+            </div>
+            <div class="accordion-body">
+              <div class="mini-grid">
+                <div class="field">
+                  <label>Template</label>
+                  <select id="template">
+                    <option value="premium">Premium sombre</option>
+                    <option value="startup">Startup moderne</option>
+                    <option value="agency">Agence / service</option>
+                    <option value="course">Formation</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Couleur</label>
+                  <input id="mainColor" type="color" value="#ffb400" />
+                </div>
+              </div>
+              <div class="field">
+                <label>Style du bouton</label>
+                <select id="buttonStyle">
+                  <option value="rounded">Arrondi premium</option>
+                  <option value="sharp">Carré institutionnel</option>
+                  <option value="pill">Pilule moderne</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Ton du site</label>
+                <select id="tone">
+                  <option value="premium">Premium</option>
+                  <option value="aggressive">Impact commercial</option>
+                  <option value="educational">Pédagogique</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion active" data-panel="pages">
+            <div class="accordion-head" onclick="toggleAcc(this)">
+              <span>03. Sections</span><span>⌄</span>
+            </div>
+            <div class="accordion-body">
+              <div class="check-list">
+                <label class="check-item"><input type="checkbox" id="sFeatures" checked /> Avantages</label>
+                <label class="check-item"><input type="checkbox" id="sProcess" checked /> Process</label>
+                <label class="check-item"><input type="checkbox" id="sPricing" checked /> Offre</label>
+                <label class="check-item"><input type="checkbox" id="sFaq" checked /> FAQ</label>
+                <label class="check-item"><input type="checkbox" id="sTestimonials" checked /> Témoignages</label>
+                <label class="check-item"><input type="checkbox" id="sContact" checked /> Contact</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion active" data-panel="seo">
+            <div class="accordion-head" onclick="toggleAcc(this)">
+              <span>04. Offre & SEO</span><span>⌄</span>
+            </div>
+            <div class="accordion-body">
+              <div class="field">
+                <label>CTA principal</label>
+                <input id="cta" value="Découvrir l’offre" />
+              </div>
+              <div class="field">
+                <label>Lien CTA</label>
+                <input id="ctaLink" value="#pricing" />
+              </div>
+              <div class="field">
+                <label>Offre / Produit</label>
+                <input id="offer" value="TORINVEST AI EXECUTOR" />
+              </div>
+              <div class="field">
+                <label>Prix ou accroche</label>
+                <input id="price" value="Offre de lancement disponible" />
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion active" data-panel="export">
+            <div class="accordion-head" onclick="toggleAcc(this)">
+              <span>05. Export</span><span>⌄</span>
+            </div>
+            <div class="accordion-body">
+              <div class="mini-grid">
+                <button class="primary-btn" onclick="refreshPreview()">Générer</button>
+                <button class="ghost-btn" onclick="copyCode()">Copier</button>
+                <button class="ghost-btn" onclick="downloadHTML()">HTML</button>
+                <button class="danger-btn" onclick="resetForm()">Reset</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="preview-panel">
+        <div class="preview-toolbar">
+          <div class="window-dots">
+            <span class="window-dot"></span>
+            <span class="window-dot"></span>
+            <span class="window-dot"></span>
+          </div>
+          <div class="preview-url">preview://site-generated-by-torinvest-builder</div>
+          <div class="preview-badge">LIVE PREVIEW</div>
+        </div>
+        <div class="preview-wrap">
+          <iframe id="preview"></iframe>
+        </div>
+      </section>
+
+      <section class="code-panel">
+        <div class="code-head">
+          <h2>Code HTML</h2>
+          <span class="pill">Generated</span>
+        </div>
+        <div class="code-box">
+          <textarea id="codeOutput" spellcheck="false"></textarea>
+        </div>
+        <div class="code-actions">
+          <button class="ghost-btn" onclick="copyCode()">Copier le code</button>
+          <button class="primary-btn" onclick="downloadHTML()">Exporter</button>
+        </div>
+      </section>
     </div>
   </div>
 
+  <a href="/" class="back-home-btn">← Retour accueil</a>
+
 <script>
   let generatedHTML = "";
-
   const $ = (id) => document.getElementById(id);
 
   function escapeHTML(value) {
@@ -410,6 +684,20 @@
       .replaceAll("'", "&#039;");
   }
 
+  function toggleAcc(head) {
+    head.closest(".accordion").classList.toggle("active");
+  }
+
+  function focusPanel(panel, btn) {
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const target = document.querySelector(`[data-panel="${panel}"]`);
+    if (target) {
+      target.classList.add("active");
+      target.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
   function getButtonRadius(style) {
     if (style === "sharp") return "8px";
     if (style === "pill") return "999px";
@@ -419,24 +707,22 @@
   function getToneText(tone) {
     if (tone === "aggressive") {
       return {
-        badge: "Passe au niveau supérieur",
-        headline: "Transforme ton idée en produit visible, crédible et vendable.",
-        sub: "Une présence digitale claire pour convertir ton audience en clients."
+        badge: "Propulsé par l’IA",
+        headline: "Nous créons des sites qui convertissent.",
+        sub: "Des pages modernes, rapides et optimisées pour transformer une idée en business visible."
       };
     }
-
     if (tone === "educational") {
       return {
         badge: "Comprendre. Structurer. Avancer.",
-        headline: "Un espace clair pour présenter ton savoir, ton offre et ta méthode.",
+        headline: "Un espace clair pour présenter ton savoir.",
         sub: "Pensé pour expliquer simplement ce qui paraît complexe."
       };
     }
-
     return {
-      badge: "Vision premium",
-      headline: "Une interface sobre, puissante et orientée confiance.",
-      sub: "L’essentiel est mis en avant avec une structure professionnelle."
+      badge: "Propulsé par l’IA",
+      headline: "Nous créons des sites qui convertissent.",
+      sub: "Une interface sobre, puissante et orientée confiance."
     };
   }
 
@@ -452,11 +738,9 @@
     const price = escapeHTML($("price").value);
     const radius = getButtonRadius($("buttonStyle").value);
     const tone = getToneText($("tone").value);
-
     const lightMode = template === "startup";
     const agencyMode = template === "agency";
     const courseMode = template === "course";
-
     const bg = lightMode ? "#f7f7f4" : "#050505";
     const surface = lightMode ? "#ffffff" : "#101010";
     const text = lightMode ? "#111111" : "#f7f7f7";
@@ -467,72 +751,53 @@
       <section id="features">
         <div class="section-head">
           <span>${agencyMode ? "Expertise" : courseMode ? "Pédagogie" : "Avantages"}</span>
-          <h2>Une structure pensée pour inspirer confiance.</h2>
-          <p>Le site présente clairement la valeur, le mécanisme et le passage à l’action.</p>
+          <h2>Un site pensé pour être clair, crédible et vendeur.</h2>
+          <p>Chaque bloc guide le visiteur vers la compréhension, la confiance et l’action.</p>
         </div>
         <div class="grid three">
-          <div class="card"><h3>Clarté</h3><p>Un message direct pour que le visiteur comprenne immédiatement ce que tu proposes.</p></div>
-          <div class="card"><h3>Crédibilité</h3><p>Une mise en page premium qui renforce la perception professionnelle du projet.</p></div>
-          <div class="card"><h3>Conversion</h3><p>Des appels à l’action visibles pour guider naturellement vers l’offre.</p></div>
+          <div class="card"><h3>Design premium</h3><p>Une mise en page moderne, sombre et élégante.</p></div>
+          <div class="card"><h3>Optimisé SEO</h3><p>Une structure propre pour Google et les moteurs de recherche.</p></div>
+          <div class="card"><h3>Rapide & léger</h3><p>Un HTML exportable, simple à héberger et facile à modifier.</p></div>
         </div>
       </section>` : "";
 
     const process = $("sProcess").checked ? `
       <section id="process">
-        <div class="section-head">
-          <span>Méthode</span>
-          <h2>Un parcours simple en 3 étapes.</h2>
-        </div>
+        <div class="section-head"><span>Méthode</span><h2>De l’idée au site prêt à publier.</h2></div>
         <div class="steps">
-          <div><b>01</b><h3>Découverte</h3><p>Le visiteur comprend ton univers, ton positionnement et ton objectif.</p></div>
-          <div><b>02</b><h3>Preuve</h3><p>Tu présentes ta méthode, tes avantages et les raisons de te faire confiance.</p></div>
-          <div><b>03</b><h3>Action</h3><p>Le site pousse vers le contact, l’inscription, l’achat ou la prise de rendez-vous.</p></div>
+          <div><b>01</b><h3>Brief</h3><p>Tu renseignes ton projet, ton offre et ton positionnement.</p></div>
+          <div><b>02</b><h3>Génération</h3><p>Le builder crée une page propre avec sections, CTA et design.</p></div>
+          <div><b>03</b><h3>Export</h3><p>Tu récupères le code HTML et tu peux le publier.</p></div>
         </div>
       </section>` : "";
 
     const testimonials = $("sTestimonials").checked ? `
       <section id="testimonials">
-        <div class="section-head">
-          <span>Retours</span>
-          <h2>Ce que les utilisateurs peuvent ressentir.</h2>
-        </div>
+        <div class="section-head"><span>Retours</span><h2>Une présence plus professionnelle dès les premières secondes.</h2></div>
         <div class="grid two">
-          <div class="quote">“Une présentation claire, propre et professionnelle. On comprend rapidement l’offre.”<small>— Utilisateur test</small></div>
-          <div class="quote">“Le site donne une image sérieuse et premium dès les premières secondes.”<small>— Client potentiel</small></div>
+          <div class="quote">“On comprend rapidement l’offre et le rendu inspire confiance.”<small>— Utilisateur test</small></div>
+          <div class="quote">“Le design donne une impression premium sans être compliqué.”<small>— Client potentiel</small></div>
         </div>
       </section>` : "";
 
     const pricing = $("sPricing").checked ? `
       <section id="pricing">
         <div class="pricing">
-          <div>
-            <span>Offre</span>
-            <h2>${offer}</h2>
-            <p>${price}</p>
-          </div>
+          <div><span>Offre</span><h2>${offer}</h2><p>${price}</p></div>
           <a class="btn" href="${ctaLink}">${cta}</a>
         </div>
       </section>` : "";
 
     const faq = $("sFaq").checked ? `
       <section id="faq">
-        <div class="section-head">
-          <span>FAQ</span>
-          <h2>Questions fréquentes</h2>
-        </div>
-        <details open><summary>À qui s’adresse cette offre ?</summary><p>Aux personnes qui veulent une solution claire, structurée et professionnelle.</p></details>
-        <details><summary>Est-ce modifiable ?</summary><p>Oui. Le code HTML généré peut être modifié, hébergé ou intégré dans un projet plus large.</p></details>
-        <details><summary>Peut-on ajouter une IA ?</summary><p>Oui. Cette base peut ensuite être connectée à une API IA pour générer automatiquement textes, sections et pages.</p></details>
+        <div class="section-head"><span>FAQ</span><h2>Questions fréquentes</h2></div>
+        <details open><summary>À qui s’adresse cette offre ?</summary><p>Aux entrepreneurs, créateurs, traders, agences et porteurs de projets.</p></details>
+        <details><summary>Est-ce modifiable ?</summary><p>Oui. Le code généré peut être modifié, hébergé ou intégré dans un projet plus large.</p></details>
+        <details><summary>Peut-on ajouter une IA ?</summary><p>Oui. Cette base peut ensuite être connectée à une API IA.</p></details>
       </section>` : "";
 
     const contact = $("sContact").checked ? `
-      <section id="contact">
-        <div class="contact">
-          <h2>Prêt à commencer ?</h2>
-          <p>Présente ton offre, ton produit ou ta communauté avec une page claire et premium.</p>
-          <a class="btn" href="${ctaLink}">${cta}</a>
-        </div>
-      </section>` : "";
+      <section id="contact"><div class="contact"><h2>Prêt à commencer ?</h2><p>Transforme ton idée en site professionnel prêt à présenter.</p><a class="btn" href="${ctaLink}">${cta}</a></div></section>` : "";
 
     return `<!DOCTYPE html>
 <html lang="fr">
@@ -541,218 +806,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${siteName}</title>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: Inter, Arial, sans-serif;
-      background: ${bg};
-      color: ${text};
-    }
-    body:before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at top left, ${mainColor}33, transparent 35%), radial-gradient(circle at bottom right, ${mainColor}18, transparent 35%);
-      pointer-events: none;
-      z-index: -1;
-    }
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: ${bg}; color: ${text}; }
+    body:before { content: ""; position: fixed; inset: 0; background: radial-gradient(circle at 75% 20%, ${mainColor}33, transparent 32%), radial-gradient(circle at 20% 0%, ${mainColor}18, transparent 35%); pointer-events: none; z-index: -1; }
     a { color: inherit; text-decoration: none; }
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 7vw;
-      background: ${lightMode ? "rgba(247,247,244,0.86)" : "rgba(5,5,5,0.82)"};
-      backdrop-filter: blur(18px);
-      border-bottom: 1px solid ${border};
-    }
-    .logo {
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      color: ${mainColor};
-    }
-    nav { display: flex; gap: 22px; font-size: 14px; color: ${muted}; }
-    .hero {
-      min-height: 82vh;
-      display: grid;
-      place-items: center;
-      padding: 80px 7vw;
-      text-align: center;
-    }
-    .hero-inner { max-width: 980px; }
-    .badge {
-      display: inline-flex;
-      border: 1px solid ${mainColor}66;
-      color: ${mainColor};
-      background: ${mainColor}14;
-      border-radius: 999px;
-      padding: 9px 14px;
-      font-size: 13px;
-      font-weight: 800;
-      margin-bottom: 22px;
-    }
-    h1 {
-      font-size: clamp(42px, 8vw, 92px);
-      line-height: 0.95;
-      margin: 0 0 20px;
-      letter-spacing: -0.06em;
-    }
-    .gradient {
-      background: linear-gradient(135deg, ${text}, ${mainColor});
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-    .lead {
-      color: ${muted};
-      font-size: clamp(17px, 2vw, 23px);
-      line-height: 1.65;
-      max-width: 820px;
-      margin: 0 auto 34px;
-    }
-    .btn {
-      display: inline-flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, ${mainColor}, #fff1a8);
-      color: #050505;
-      padding: 16px 26px;
-      border-radius: ${radius};
-      font-weight: 900;
-      box-shadow: 0 20px 60px ${mainColor}33;
-    }
-    .btn.secondary {
-      background: transparent;
-      color: ${text};
-      border: 1px solid ${border};
-      box-shadow: none;
-    }
-    .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-    section { padding: 80px 7vw; }
+    header { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 22px 7vw; background: ${lightMode ? "rgba(247,247,244,0.86)" : "rgba(5,5,5,0.82)"}; backdrop-filter: blur(18px); border-bottom: 1px solid ${border}; }
+    .logo { font-weight: 900; letter-spacing: 0.08em; color: ${mainColor}; }
+    nav { display: flex; gap: 22px; font-size: 13px; color: ${muted}; text-transform: uppercase; letter-spacing: .06em; }
+    .hero { min-height: 82vh; display: grid; place-items: center; padding: 90px 7vw; text-align: left; position: relative; overflow: hidden; }
+    .hero:after { content:""; position:absolute; right: 2vw; top: 10%; width: 48%; height: 75%; background: radial-gradient(circle, ${mainColor}33, transparent 62%); filter: blur(18px); opacity: .75; }
+    .hero-inner { width: 100%; max-width: 980px; position: relative; z-index: 1; }
+    .badge { display: inline-flex; border: 1px solid ${mainColor}66; color: ${mainColor}; background: ${mainColor}14; border-radius: 999px; padding: 8px 12px; font-size: 11px; font-weight: 800; margin-bottom: 22px; text-transform: uppercase; letter-spacing: .08em; }
+    h1 { font-size: clamp(44px, 7vw, 84px); line-height: 1.02; margin: 0 0 20px; letter-spacing: -0.06em; max-width: 760px; }
+    .gradient { background: linear-gradient(135deg, ${text}, ${mainColor}); -webkit-background-clip: text; color: transparent; }
+    .lead { color: ${muted}; font-size: clamp(16px, 1.8vw, 22px); line-height: 1.7; max-width: 620px; margin-bottom: 26px; }
+    .btn { display: inline-flex; justify-content: center; align-items: center; background: linear-gradient(135deg, ${mainColor}, #fff1a8); color: #050505; padding: 15px 25px; border-radius: ${radius}; font-weight: 900; box-shadow: 0 20px 60px ${mainColor}33; }
+    .btn.secondary { background: transparent; color: ${text}; border: 1px solid ${border}; box-shadow: none; }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    section { padding: 82px 7vw; }
     .section-head { max-width: 760px; margin-bottom: 34px; }
-    .section-head span, section span {
-      color: ${mainColor};
-      font-weight: 900;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      font-size: 12px;
-    }
+    .section-head span, section span { color: ${mainColor}; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; font-size: 12px; }
     h2 { font-size: clamp(32px, 4vw, 56px); line-height: 1; margin: 12px 0; letter-spacing: -0.04em; }
     .section-head p, .card p, .steps p, .pricing p, .contact p, details p { color: ${muted}; line-height: 1.7; }
     .grid { display: grid; gap: 22px; }
     .three { grid-template-columns: repeat(3, 1fr); }
     .two { grid-template-columns: repeat(2, 1fr); }
-    .card, .quote, details {
-      background: ${surface};
-      border: 1px solid ${border};
-      border-radius: 26px;
-      padding: 28px;
-      box-shadow: 0 20px 80px rgba(0,0,0,0.16);
-    }
+    .card, .quote, details { background: ${surface}; border: 1px solid ${border}; border-radius: 26px; padding: 28px; box-shadow: 0 20px 80px rgba(0,0,0,0.16); }
     .card h3 { color: ${mainColor}; font-size: 24px; }
-    .steps {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      counter-reset: step;
-    }
-    .steps div {
-      background: ${surface};
-      border: 1px solid ${border};
-      border-radius: 26px;
-      padding: 28px;
-    }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .steps div { background: ${surface}; border: 1px solid ${border}; border-radius: 26px; padding: 28px; }
     .steps b { color: ${mainColor}; font-size: 34px; }
     .quote { font-size: 22px; line-height: 1.5; }
     .quote small { display: block; color: ${muted}; margin-top: 18px; font-size: 14px; }
-    .pricing, .contact {
-      background: linear-gradient(135deg, ${surface}, ${mainColor}18);
-      border: 1px solid ${mainColor}66;
-      border-radius: 34px;
-      padding: 42px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 24px;
-    }
+    .pricing, .contact { background: linear-gradient(135deg, ${surface}, ${mainColor}18); border: 1px solid ${mainColor}66; border-radius: 34px; padding: 42px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
     details { margin-bottom: 14px; }
     summary { cursor: pointer; font-weight: 900; color: ${mainColor}; }
-    footer {
-      padding: 34px 7vw;
-      border-top: 1px solid ${border};
-      color: ${muted};
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      flex-wrap: wrap;
-    }
-    @media(max-width: 850px) {
-      header { flex-direction: column; gap: 15px; }
-      nav { flex-wrap: wrap; justify-content: center; }
-      .three, .two, .steps { grid-template-columns: 1fr; }
-      .pricing, .contact { flex-direction: column; align-items: flex-start; }
-      .hero { min-height: auto; }
-    }
+    footer { padding: 34px 7vw; border-top: 1px solid ${border}; color: ${muted}; display: flex; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+    @media(max-width: 850px) { header { flex-direction: column; gap: 15px; } nav { flex-wrap: wrap; justify-content: center; } .three, .two, .steps { grid-template-columns: 1fr; } .pricing, .contact { flex-direction: column; align-items: flex-start; } .hero { min-height: auto; text-align: left; } }
   </style>
 </head>
 <body>
-  <header>
-    <div class="logo">${siteName}</div>
-    <nav>
-      <a href="#features">Avantages</a>
-      <a href="#process">Méthode</a>
-      <a href="#pricing">Offre</a>
-      <a href="#contact">Contact</a>
-    </nav>
-  </header>
-
+  <header><div class="logo">${siteName}</div><nav><a href="#features">Accueil</a><a href="#process">À propos</a><a href="#pricing">Services</a><a href="#contact">Contact</a></nav></header>
   <main>
-    <section class="hero">
-      <div class="hero-inner">
-        <div class="badge">${tone.badge}</div>
-        <h1><span class="gradient">${siteName}</span></h1>
-        <p class="lead"><strong>${tagline}</strong><br>${pitch}</p>
-        <p class="lead">${tone.headline}<br>${tone.sub}</p>
-        <div class="hero-actions">
-          <a href="${ctaLink}" class="btn">${cta}</a>
-          <a href="#features" class="btn secondary">Voir la méthode</a>
-        </div>
-      </div>
-    </section>
-
-    ${features}
-    ${process}
-    ${testimonials}
-    ${pricing}
-    ${faq}
-    ${contact}
+    <section class="hero"><div class="hero-inner"><div class="badge">${tone.badge}</div><h1><span class="gradient">${tone.headline}</span></h1><p class="lead"><strong>${tagline}</strong><br>${pitch}</p><p class="lead">${tone.sub}</p><div class="hero-actions"><a href="${ctaLink}" class="btn">${cta}</a><a href="#features" class="btn secondary">En savoir plus →</a></div></div></section>
+    ${features}${process}${testimonials}${pricing}${faq}${contact}
   </main>
-
-  <footer>
-    <div>© ${new Date().getFullYear()} ${siteName}. Tous droits réservés.</div>
-    <div>${tagline}</div>
-  </footer>
+  <footer><div>© ${new Date().getFullYear()} ${siteName}. Tous droits réservés.</div><div>${tagline}</div></footer>
 </body>
 </html>`;
   }
 
   function refreshPreview() {
     generatedHTML = buildGeneratedSite();
-    const iframe = $("preview");
-    iframe.srcdoc = generatedHTML;
+    $("preview").srcdoc = generatedHTML;
     $("codeOutput").value = generatedHTML;
-  }
-
-  function openCode() {
-    refreshPreview();
-    $("codeModal").style.display = "flex";
-  }
-
-  function closeCode() {
-    $("codeModal").style.display = "none";
   }
 
   async function copyCode() {
@@ -785,7 +893,7 @@
     $("tagline").value = "La force d’un esprit libre";
     $("pitch").value = "Une plateforme intelligente pensée pour analyser, structurer et exécuter avec discipline dans un environnement de marché complexe.";
     $("template").value = "premium";
-    $("mainColor").value = "#d4af37";
+    $("mainColor").value = "#ffb400";
     $("cta").value = "Découvrir l’offre";
     $("ctaLink").value = "#pricing";
     $("offer").value = "TORINVEST AI EXECUTOR";
@@ -805,3 +913,4 @@
 </script>
 </body>
 </html>
+
