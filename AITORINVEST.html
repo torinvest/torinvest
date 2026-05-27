@@ -1814,7 +1814,7 @@ async function sendMessage(){
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         model:modelToUse,
-        messages:buildMessages(agentContext),
+        messages: buildMessages(null),
         temperature:agent().temp,
         max_tokens:1800,
         top_p:.95
