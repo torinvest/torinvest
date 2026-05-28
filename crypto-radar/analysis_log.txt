@@ -1,0 +1,10 @@
+[2026-05-28 09:41:16] Échec clé 5qaRTj R HTTP 401, tentative 1
+[2026-05-28 09:41:17] Échec clé 5qaRTj R HTTP 401, tentative 2
+[2026-05-28 09:41:18] Échec clé 5qaRTj R HTTP 401, tentative 3
+[2026-05-28 09:41:19] Échec clé o3rG tu HTTP 401, tentative 1
+[2026-05-28 09:41:21] Échec clé o3rG tu HTTP 401, tentative 2
+[2026-05-28 09:41:22] Échec clé o3rG tu HTTP 401, tentative 3
+[2026-05-28 09:41:23] Échec clé vEzQM kF HTTP 401, tentative 1
+[2026-05-28 09:41:25] Échec clé vEzQM kF HTTP 401, tentative 2
+[2026-05-28 09:41:26] Échec clé vEzQM kF HTTP 401, tentative 3
+[2026-05-28 09:41:27] ERREUR FATALE update_analyses: SQLSTATE[HY000]: General error: 5 database is locked

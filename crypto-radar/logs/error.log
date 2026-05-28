@@ -1,0 +1,81 @@
+[28-May-2026 08:12:59 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:12:59 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:12:59] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:12:59] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:13:10 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:13:10 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:13:10] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:13:10] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:13:11 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:13:11 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:13:11] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:13:11] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:13:16 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:13:16 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:13:16] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:13:16] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:13:27 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:13:27 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:13:27] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:13:27] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:13:28 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:13:28 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:13:28] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:13:28] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:14:02 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:02 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:02] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:02] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:14:06 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:06 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:06] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:06] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:14:09 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:09 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:09] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:09] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[2026-05-28 10:14:16] [ERROR] PHP Error [2]: Constant ROOT_DIR already defined in C:\laragon\www\crypto-price\generate_global_press.php on line 9
+[28-May-2026 08:14:19 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:19 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:19] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:19] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:14:24 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:24 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:24] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:24] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:14:24 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:24 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:24] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:24] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:14:36 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:36 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:36] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:36] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:14:37 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:37 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:37] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:37] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:14:49 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:14:49 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:14:49] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:14:49] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
+[28-May-2026 08:41:14 UTC] PHP Warning:  Constant LOG_FILE already defined in C:\laragon\www\crypto-price\config.php on line 34
+[28-May-2026 08:41:14 UTC] PHP Warning:  Constant ERROR_LOG already defined in C:\laragon\www\crypto-price\config.php on line 35
+[2026-05-28 10:41:14] [CRITICAL] Database error: SQLSTATE[HY000]: General error: 25 column index out of range
+[2026-05-28 10:41:14] [CRITICAL] Stack trace: #0 C:\laragon\www\crypto-price\index.php(167): PDOStatement->execute(Array)
+#1 {main}
