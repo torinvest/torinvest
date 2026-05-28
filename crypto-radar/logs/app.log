@@ -1,0 +1,281 @@
+[2026-05-28 08:12:59] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:12:59] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:12:59] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:12:59] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:12:59] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:12:59] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:12:59] [INFO] Starting database initialization...
+[2026-05-28 10:12:59] [INFO] Database initialization completed successfully
+[2026-05-28 10:12:59] [INFO] Starting database initialization...
+[2026-05-28 10:12:59] [INFO] Database initialization completed successfully
+[2026-05-28 10:12:59] [INFO] Connecting to database...
+[2026-05-28 10:12:59] [INFO] Database connection successful
+[2026-05-28 10:12:59] [INFO] Fetching coins data...
+[2026-05-28 10:12:59] [INFO] Found 0 coins
+[2026-05-28 10:12:59] [INFO] Fetching individual analyses...
+[2026-05-28 10:12:59] [INFO] Found 0 analyses
+[2026-05-28 10:12:59] [INFO] Fetching global analysis...
+[2026-05-28 10:12:59] [WARNING] No global analysis found
+[2026-05-28 10:12:59] [INFO] Portfolio stats calculated
+[2026-05-28 10:12:59] [INFO] Fetching RL thresholds...
+[2026-05-28 10:12:59] [INFO] Index.php rendering completed
+[2026-05-28 08:13:10] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:13:10] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:10] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:13:10] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:13:10] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:13:10] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:10] [INFO] Connecting to database...
+[2026-05-28 10:13:10] [INFO] Database connection successful
+[2026-05-28 10:13:10] [INFO] Fetching coins data...
+[2026-05-28 10:13:10] [INFO] Found 0 coins
+[2026-05-28 10:13:10] [INFO] Fetching individual analyses...
+[2026-05-28 10:13:10] [INFO] Found 0 analyses
+[2026-05-28 10:13:10] [INFO] Fetching global analysis...
+[2026-05-28 10:13:10] [WARNING] No global analysis found
+[2026-05-28 10:13:10] [INFO] Portfolio stats calculated
+[2026-05-28 10:13:10] [INFO] Fetching RL thresholds...
+[2026-05-28 10:13:10] [INFO] Index.php rendering completed
+[2026-05-28 08:13:11] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:13:11] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:11] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:13:11] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:13:11] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:13:11] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:11] [INFO] Connecting to database...
+[2026-05-28 10:13:11] [INFO] Database connection successful
+[2026-05-28 10:13:11] [INFO] Fetching coins data...
+[2026-05-28 10:13:11] [INFO] Found 0 coins
+[2026-05-28 10:13:11] [INFO] Fetching individual analyses...
+[2026-05-28 10:13:11] [INFO] Found 0 analyses
+[2026-05-28 10:13:11] [INFO] Fetching global analysis...
+[2026-05-28 10:13:11] [WARNING] No global analysis found
+[2026-05-28 10:13:11] [INFO] Portfolio stats calculated
+[2026-05-28 10:13:11] [INFO] Fetching RL thresholds...
+[2026-05-28 10:13:11] [INFO] Index.php rendering completed
+[2026-05-28 08:13:16] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:13:16] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:16] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:13:16] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:13:16] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:13:16] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:16] [INFO] Connecting to database...
+[2026-05-28 10:13:16] [INFO] Database connection successful
+[2026-05-28 10:13:16] [INFO] Fetching coins data...
+[2026-05-28 10:13:16] [INFO] Found 0 coins
+[2026-05-28 10:13:16] [INFO] Fetching individual analyses...
+[2026-05-28 10:13:16] [INFO] Found 0 analyses
+[2026-05-28 10:13:16] [INFO] Fetching global analysis...
+[2026-05-28 10:13:16] [WARNING] No global analysis found
+[2026-05-28 10:13:16] [INFO] Portfolio stats calculated
+[2026-05-28 10:13:16] [INFO] Fetching RL thresholds...
+[2026-05-28 10:13:16] [INFO] Index.php rendering completed
+[2026-05-28 08:13:27] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:13:27] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:27] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:13:27] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:13:27] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:13:27] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:27] [INFO] Connecting to database...
+[2026-05-28 10:13:27] [INFO] Database connection successful
+[2026-05-28 10:13:27] [INFO] Fetching coins data...
+[2026-05-28 10:13:27] [INFO] Found 0 coins
+[2026-05-28 10:13:27] [INFO] Fetching individual analyses...
+[2026-05-28 10:13:27] [INFO] Found 0 analyses
+[2026-05-28 10:13:27] [INFO] Fetching global analysis...
+[2026-05-28 10:13:27] [WARNING] No global analysis found
+[2026-05-28 10:13:27] [INFO] Portfolio stats calculated
+[2026-05-28 10:13:27] [INFO] Fetching RL thresholds...
+[2026-05-28 10:13:27] [INFO] Index.php rendering completed
+[2026-05-28 08:13:28] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:13:28] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:28] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:13:28] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:13:28] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:13:28] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:13:28] [INFO] Connecting to database...
+[2026-05-28 10:13:28] [INFO] Database connection successful
+[2026-05-28 10:13:28] [INFO] Fetching coins data...
+[2026-05-28 10:13:28] [INFO] Found 0 coins
+[2026-05-28 10:13:28] [INFO] Fetching individual analyses...
+[2026-05-28 10:13:28] [INFO] Found 0 analyses
+[2026-05-28 10:13:28] [INFO] Fetching global analysis...
+[2026-05-28 10:13:28] [WARNING] No global analysis found
+[2026-05-28 10:13:28] [INFO] Portfolio stats calculated
+[2026-05-28 10:13:28] [INFO] Fetching RL thresholds...
+[2026-05-28 10:13:28] [INFO] Index.php rendering completed
+[2026-05-28 08:14:02] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:02] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:02] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:02] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:02] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:02] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:02] [INFO] Connecting to database...
+[2026-05-28 10:14:02] [INFO] Database connection successful
+[2026-05-28 10:14:02] [INFO] Fetching coins data...
+[2026-05-28 10:14:02] [INFO] Found 0 coins
+[2026-05-28 10:14:02] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:02] [INFO] Found 0 analyses
+[2026-05-28 10:14:02] [INFO] Fetching global analysis...
+[2026-05-28 10:14:02] [WARNING] No global analysis found
+[2026-05-28 10:14:02] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:02] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:02] [INFO] Index.php rendering completed
+[2026-05-28 08:14:06] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:06] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:06] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:06] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:06] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:06] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:06] [INFO] Connecting to database...
+[2026-05-28 10:14:06] [INFO] Database connection successful
+[2026-05-28 10:14:06] [INFO] Fetching coins data...
+[2026-05-28 10:14:06] [INFO] Found 0 coins
+[2026-05-28 10:14:06] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:06] [INFO] Found 0 analyses
+[2026-05-28 10:14:06] [INFO] Fetching global analysis...
+[2026-05-28 10:14:06] [WARNING] No global analysis found
+[2026-05-28 10:14:06] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:06] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:06] [INFO] Index.php rendering completed
+[2026-05-28 08:14:09] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:09] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:09] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:09] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:09] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:09] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:09] [INFO] Connecting to database...
+[2026-05-28 10:14:09] [INFO] Database connection successful
+[2026-05-28 10:14:09] [INFO] Fetching coins data...
+[2026-05-28 10:14:09] [INFO] Found 0 coins
+[2026-05-28 10:14:09] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:09] [INFO] Found 0 analyses
+[2026-05-28 10:14:09] [INFO] Fetching global analysis...
+[2026-05-28 10:14:09] [WARNING] No global analysis found
+[2026-05-28 10:14:09] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:09] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:09] [INFO] Index.php rendering completed
+[2026-05-28 10:14:16] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:16] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:16] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:16] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:16] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 08:14:19] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:19] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:19] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:19] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:19] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:19] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:19] [INFO] Connecting to database...
+[2026-05-28 10:14:19] [INFO] Database connection successful
+[2026-05-28 10:14:19] [INFO] Fetching coins data...
+[2026-05-28 10:14:19] [INFO] Found 0 coins
+[2026-05-28 10:14:19] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:19] [INFO] Found 0 analyses
+[2026-05-28 10:14:19] [INFO] Fetching global analysis...
+[2026-05-28 10:14:19] [WARNING] No global analysis found
+[2026-05-28 10:14:19] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:19] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:19] [INFO] Index.php rendering completed
+[2026-05-28 08:14:24] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:24] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:24] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:24] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:24] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:24] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:24] [INFO] Connecting to database...
+[2026-05-28 10:14:24] [INFO] Database connection successful
+[2026-05-28 10:14:24] [INFO] Fetching coins data...
+[2026-05-28 10:14:24] [INFO] Found 0 coins
+[2026-05-28 10:14:24] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:24] [INFO] Found 0 analyses
+[2026-05-28 10:14:24] [INFO] Fetching global analysis...
+[2026-05-28 10:14:24] [WARNING] No global analysis found
+[2026-05-28 10:14:24] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:24] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:24] [INFO] Index.php rendering completed
+[2026-05-28 08:14:24] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:24] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:24] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:24] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:24] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:24] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:24] [INFO] Connecting to database...
+[2026-05-28 10:14:24] [INFO] Database connection successful
+[2026-05-28 10:14:24] [INFO] Fetching coins data...
+[2026-05-28 10:14:24] [INFO] Found 0 coins
+[2026-05-28 10:14:24] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:24] [INFO] Found 0 analyses
+[2026-05-28 10:14:24] [INFO] Fetching global analysis...
+[2026-05-28 10:14:24] [WARNING] No global analysis found
+[2026-05-28 10:14:24] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:24] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:24] [INFO] Index.php rendering completed
+[2026-05-28 08:14:36] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:36] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:36] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:36] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:36] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:36] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:36] [INFO] Connecting to database...
+[2026-05-28 10:14:36] [INFO] Database connection successful
+[2026-05-28 10:14:36] [INFO] Fetching coins data...
+[2026-05-28 10:14:36] [INFO] Found 0 coins
+[2026-05-28 10:14:36] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:36] [INFO] Found 0 analyses
+[2026-05-28 10:14:36] [INFO] Fetching global analysis...
+[2026-05-28 10:14:36] [WARNING] No global analysis found
+[2026-05-28 10:14:36] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:36] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:36] [INFO] Index.php rendering completed
+[2026-05-28 08:14:37] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:37] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:37] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:37] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:37] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:37] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:37] [INFO] Connecting to database...
+[2026-05-28 10:14:37] [INFO] Database connection successful
+[2026-05-28 10:14:37] [INFO] Fetching coins data...
+[2026-05-28 10:14:37] [INFO] Found 0 coins
+[2026-05-28 10:14:37] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:37] [INFO] Found 0 analyses
+[2026-05-28 10:14:37] [INFO] Fetching global analysis...
+[2026-05-28 10:14:37] [WARNING] No global analysis found
+[2026-05-28 10:14:37] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:37] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:37] [INFO] Index.php rendering completed
+[2026-05-28 08:14:49] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:14:49] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:49] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:14:49] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:14:49] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:14:49] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:14:49] [INFO] Connecting to database...
+[2026-05-28 10:14:49] [INFO] Database connection successful
+[2026-05-28 10:14:49] [INFO] Fetching coins data...
+[2026-05-28 10:14:49] [INFO] Found 0 coins
+[2026-05-28 10:14:49] [INFO] Fetching individual analyses...
+[2026-05-28 10:14:49] [INFO] Found 0 analyses
+[2026-05-28 10:14:49] [INFO] Fetching global analysis...
+[2026-05-28 10:14:49] [WARNING] No global analysis found
+[2026-05-28 10:14:49] [INFO] Portfolio stats calculated
+[2026-05-28 10:14:49] [INFO] Fetching RL thresholds...
+[2026-05-28 10:14:49] [INFO] Index.php rendering completed
+[2026-05-28 08:41:14] [INFO] === INDEX.PHP v5.0 AUTONOME STARTED ===
+[2026-05-28 10:41:14] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:41:14] [INFO] NEO CRYPTO DASH v3.0.0 configuration loaded
+[2026-05-28 10:41:14] [INFO] Timezone: Europe/Paris | PHP Version: 8.3.30
+[2026-05-28 10:41:14] [INFO] Database: C:\laragon\www\crypto-price/crypto_cache.db
+[2026-05-28 10:41:14] [INFO] ═══════════════════════════════════════════════════════
+[2026-05-28 10:41:14] [INFO] Connecting to database...
+[2026-05-28 10:41:14] [INFO] Database connection successful
+[2026-05-28 10:41:14] [INFO] Fetching coins data...
+[2026-05-28 10:41:14] [INFO] Found 100 coins
+[2026-05-28 10:41:14] [INFO] Fetching individual analyses...
+[2026-05-28 10:41:14] [INFO] Found 0 analyses
+[2026-05-28 10:41:14] [INFO] Fetching global analysis...
+[2026-05-28 10:41:14] [WARNING] No global analysis found
+[2026-05-28 10:41:14] [INFO] Portfolio stats calculated
+[2026-05-28 10:41:14] [INFO] Fetching RL thresholds...
+[2026-05-28 10:41:14] [INFO] Index.php rendering completed
