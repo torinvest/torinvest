@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Pages privées / archives
+Disallow: /indexOLD.html
+Disallow: /index1.html
+Disallow: /index3.html
+Disallow: /indexx.html
+Disallow: /AITORINVEST2.html
+Disallow: /dev-access.html
+Disallow: /ai-access.html
+Disallow: /accompagnement-access.html
+Disallow: /activation.html
+Disallow: /activation-accompagnement.html
+Disallow: /api/
+Disallow: /crypto-radar/logs/
+Disallow: /crypto-radar/test.php
+Disallow: /crypto-radar/index_debug.php
+
+Sitemap: https://torinvest.fr/sitemap.xml
