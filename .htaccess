@@ -1,0 +1,71 @@
+# TORINVEST — Configuration Apache (Hostinger / VPS)
+RewriteEngine On
+
+# ---------------------------------------------------------------------------
+# Redirections des pages archives vers l'accueil principal
+# Les fichiers restent dans le dépôt mais ne sont plus accessibles publiquement.
+# ---------------------------------------------------------------------------
+Redirect 301 /indexOLD.html /index.html
+Redirect 301 /index1.html /index.html
+Redirect 301 /index3.html /index.html
+Redirect 301 /indexx.html /index.html
+
+# ---------------------------------------------------------------------------
+# Module Crypto Radar (PHP)
+# ---------------------------------------------------------------------------
+RewriteRule ^crypto-radar/?$ crypto-radar/index.php [L]
+
+# ---------------------------------------------------------------------------
+# URLs propres : /page → /page.html (si le fichier existe)
+# ---------------------------------------------------------------------------
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}.html -f
+RewriteRule ^([^./]+)/?$ $1.html [L]
+
+# ---------------------------------------------------------------------------
+# Protéger la configuration locale
+# ---------------------------------------------------------------------------
+<Files "config.local.php">
+    Require all denied
+</Files>
+
+# ---------------------------------------------------------------------------
+# Bloquer l'accès direct aux fichiers sensibles crypto-radar
+# ---------------------------------------------------------------------------
+<FilesMatch "^(test|index_debug)\.php$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(backup|log|db)$">
+    Require all denied
+</FilesMatch>
+
+# ---------------------------------------------------------------------------
+# En-têtes de sécurité de base
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Compression (si mod_deflate disponible)
+# ---------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Cache navigateur pour assets statiques
+# ---------------------------------------------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 30 days"
+    ExpiresByType image/jpeg "access plus 30 days"
+    ExpiresByType image/webp "access plus 30 days"
+    ExpiresByType text/css "access plus 7 days"
+    ExpiresByType application/javascript "access plus 7 days"
+</IfModule>

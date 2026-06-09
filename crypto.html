@@ -3,6 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- TORINVEST META SEO -->
+  <meta name="description" content="Crypto TORINVEST — tokens KRM et ORAX, écosystème Solana et vision tokenisation." />
+  <meta name="keywords" content="crypto, KRM, ORAX, Solana, TORINVEST" />
+  <meta name="author" content="TORINVEST" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.torinvest-trading.com/crypto.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="TORINVEST" />
+  <meta property="og:title" content="Crypto – TORINVEST" />
+  <meta property="og:description" content="Crypto TORINVEST — tokens KRM et ORAX, écosystème Solana et vision tokenisation." />
+  <meta property="og:url" content="https://www.torinvest-trading.com/crypto.html" />
+  <meta property="og:image" content="https://www.torinvest-trading.com/forge-logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Crypto – TORINVEST" />
+  <meta name="twitter:description" content="Crypto TORINVEST — tokens KRM et ORAX, écosystème Solana et vision tokenisation." />
+  <meta name="twitter:image" content="https://www.torinvest-trading.com/forge-logo.png" />
+  <meta name="theme-color" content="#040407" />
+  <link rel="icon" href="/forge-logo.png" type="image/png" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"Crypto – TORINVEST","description":"Crypto TORINVEST — tokens KRM et ORAX, écosystème Solana et vision tokenisation.","url":"https://www.torinvest-trading.com/crypto.html","inLanguage":"fr-FR","isPartOf":{"@type":"WebSite","name":"TORINVEST","url":"https://www.torinvest-trading.com/"}}
+  </script>
   <title>Crypto – TORINVEST</title>
 
   <style>
@@ -695,7 +718,7 @@
             <select id="cryptoPageSelect" class="crypto-select" aria-label="Choisir une page crypto">
               <option value="/crypto" selected>Accueil Crypto (KRM / ORAX)</option>
               <option value="/crypto-blockchain">Blockchain — de Bitcoin à aujourd’hui</option>
-              <!-- Ajoute tes futures pages ici -->
+              <option value="/crypto-radar/" data-torinvest-php="/crypto-radar/">Crypto Radar — Dashboard IA &amp; analyses</option>
             </select>
 
             <button class="crypto-go" id="cryptoGoBtn">Ouvrir <span>↗</span></button>
@@ -711,6 +734,11 @@
           <a class='crypto-page-card' href='/crypto-blockchain'>
             <div class="crypto-page-title">Blockchain</div>
             <div class="crypto-page-meta">Origines, utilité, mineurs/validateurs, nuances.</div>
+          </a>
+
+          <a class='crypto-page-card' href='/crypto-radar/' data-torinvest-php="/crypto-radar/">
+            <div class="crypto-page-title">Crypto Radar</div>
+            <div class="crypto-page-meta">Dashboard IA — top 100 cryptos, analyses Mistral, portefeuille virtuel.</div>
           </a>
 
           <a class='crypto-page-card' href='/'>
@@ -886,6 +914,7 @@
 
 <a href="/" class="back-home-btn">← Retour accueil</a>
 
+<script src="/assets/torinvest-php.js"></script>
 <script>
   // MENU CRYPTO
   (function(){
@@ -895,8 +924,14 @@
     if(!select || !btn) return;
 
     function go(){
-      const target = select.value;
-      if(target) window.location.href = target;
+      const opt = select.options[select.selectedIndex];
+      const phpPath = opt.getAttribute("data-torinvest-php");
+      if (phpPath && window.TORINVEST_PHP) {
+        window.location.href = window.TORINVEST_PHP.url(phpPath);
+      } else {
+        const target = select.value;
+        if (target) window.location.href = target;
+      }
     }
 
     btn.addEventListener("click", go);
