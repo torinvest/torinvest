@@ -1,0 +1,19 @@
+# Secrets et configuration locale (ne jamais versionner)
+api/config.local.php
+
+# Sauvegardes locales
+backups/*.tar.gz
+
+# Logs et cache crypto-radar
+crypto-radar/logs/
+crypto-radar/cache/
+crypto-radar/data/
+crypto-radar/exports/
+crypto-radar/*.db
+crypto-radar/analysis_log.txt
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+*.swp
+*~

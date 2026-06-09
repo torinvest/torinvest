@@ -1,0 +1,8 @@
+# Bloquer l'accès direct au fichier de configuration
+<Files "config.local.php">
+    Require all denied
+</Files>
+
+<Files "config.example.php">
+    Require all denied
+</Files>
