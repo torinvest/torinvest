@@ -579,6 +579,51 @@ debugLog('Index.php rendering completed', 'INFO');
         .rounded-xxl {
             border-radius: 24px;
         }
+
+        .back-home-torinvest {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #374151;
+            background: #f3f4f6;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            transition: all 0.2s ease;
+        }
+
+        .back-home-torinvest:hover {
+            color: var(--primary-dark);
+            background: #e0e7ff;
+            border-color: #93c5fd;
+        }
+
+        .back-home-torinvest-fixed {
+            position: fixed;
+            bottom: 22px;
+            right: 22px;
+            z-index: 1100;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.96);
+            border: 1px solid var(--border);
+            color: var(--dark);
+            box-shadow: var(--card-shadow);
+            transition: 0.2s ease;
+        }
+
+        .back-home-torinvest-fixed:hover {
+            background: #eff6ff;
+            border-color: var(--primary);
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -595,6 +640,7 @@ debugLog('Index.php rendering completed', 'INFO');
             </div>
             
             <nav class="nav-menu">
+                <a href="https://www.torinvest-trading.com/" class="back-home-torinvest"><i class="fas fa-arrow-left"></i> Retour accueil</a>
                 <a href="index.php" class="nav-item-pro"><i class="fas fa-home me-1"></i>Dashboard</a>
                 <a href="portfolio.php" class="nav-item-pro"><i class="fas fa-wallet me-1"></i>Portefeuille</a>
                 <a href="blog.php" class="nav-item-pro"><i class="fas fa-blog me-1"></i>Blog IA</a>
@@ -1041,6 +1087,8 @@ setInterval(function() {
     });
 }, 3600000);
 </script>
+
+<a href="https://www.torinvest-trading.com/" class="back-home-torinvest-fixed">← Retour accueil</a>
 
 </body>
 </html>
