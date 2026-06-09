@@ -5,11 +5,11 @@
  * VPS OVH  → PHP (crypto-radar, api/)
  *
  * Modifiez phpBaseUrl avec l'URL de votre VPS une fois le sous-domaine configuré.
- * Exemple : "https://radar.torinvest.fr"
+ * Exemple : "https://radar.torinvest-trading.com"
  * Laisser "" si tout tourne sur le même serveur (VPS seul, sans Netlify).
  */
 window.TORINVEST_CONFIG = window.TORINVEST_CONFIG || {
-  phpBaseUrl: "https://radar.torinvest.fr"
+  phpBaseUrl: "https://radar.torinvest-trading.com"
 };
 
 window.TORINVEST_PHP = {

@@ -9,7 +9,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SITE_URL = "https://torinvest.fr"
+SITE_URL = "https://www.torinvest-trading.com"
 SITE_NAME = "TORINVEST"
 OG_IMAGE = f"{SITE_URL}/forge-logo.png"
 
