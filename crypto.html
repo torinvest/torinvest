@@ -718,7 +718,7 @@
             <select id="cryptoPageSelect" class="crypto-select" aria-label="Choisir une page crypto">
               <option value="/crypto" selected>Accueil Crypto (KRM / ORAX)</option>
               <option value="/crypto-blockchain">Blockchain — de Bitcoin à aujourd’hui</option>
-              <option value="/crypto-radar/">Crypto Radar — Dashboard IA &amp; analyses</option>
+              <option value="/crypto-radar/" data-torinvest-php="/crypto-radar/">Crypto Radar — Dashboard IA &amp; analyses</option>
             </select>
 
             <button class="crypto-go" id="cryptoGoBtn">Ouvrir <span>↗</span></button>
@@ -736,7 +736,7 @@
             <div class="crypto-page-meta">Origines, utilité, mineurs/validateurs, nuances.</div>
           </a>
 
-          <a class='crypto-page-card' href='/crypto-radar/'>
+          <a class='crypto-page-card' href='/crypto-radar/' data-torinvest-php="/crypto-radar/">
             <div class="crypto-page-title">Crypto Radar</div>
             <div class="crypto-page-meta">Dashboard IA — top 100 cryptos, analyses Mistral, portefeuille virtuel.</div>
           </a>
@@ -914,6 +914,7 @@
 
 <a href="/" class="back-home-btn">← Retour accueil</a>
 
+<script src="/assets/torinvest-php.js"></script>
 <script>
   // MENU CRYPTO
   (function(){
@@ -923,8 +924,14 @@
     if(!select || !btn) return;
 
     function go(){
-      const target = select.value;
-      if(target) window.location.href = target;
+      const opt = select.options[select.selectedIndex];
+      const phpPath = opt.getAttribute("data-torinvest-php");
+      if (phpPath && window.TORINVEST_PHP) {
+        window.location.href = window.TORINVEST_PHP.url(phpPath);
+      } else {
+        const target = select.value;
+        if (target) window.location.href = target;
+      }
     }
 
     btn.addEventListener("click", go);

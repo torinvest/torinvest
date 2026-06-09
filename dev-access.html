@@ -94,6 +94,7 @@
     <a href="/">← Retour accueil</a>
   </div>
 
+  <script src="/assets/torinvest-php.js"></script>
   <script>
     const STORAGE_KEY = "torinvest_dev_session";
     const TARGET = "/AITORINVEST2.html";
@@ -106,7 +107,7 @@
       msg.textContent = "Vérification...";
 
       try {
-        const resp = await fetch("/api/dev-auth.php", {
+        const resp = await window.TORINVEST_PHP.fetch("/api/dev-auth.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ pin })
