@@ -17,4 +17,4 @@ Disallow: /crypto-radar/logs/
 Disallow: /crypto-radar/test.php
 Disallow: /crypto-radar/index_debug.php
 
-Sitemap: https://torinvest.fr/sitemap.xml
+Sitemap: https://www.torinvest-trading.com/sitemap.xml

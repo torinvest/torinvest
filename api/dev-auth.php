@@ -5,8 +5,8 @@
  */
 header('Content-Type: application/json; charset=utf-8');
 $allowedOrigins = [
-    'https://torinvest.fr',
-    'https://www.torinvest.fr',
+    'https://www.torinvest-trading.com',
+    'https://torinvest-trading.com',
     'https://torinvest-trading.netlify.app',
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
