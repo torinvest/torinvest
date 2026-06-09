@@ -163,10 +163,11 @@ try {
     
     // Mettre à jour en base si nécessaire
     if (($thresholds['buy_score'] ?? 65) != 60) {
-        $pdo->prepare("INSERT OR REPLACE INTO rl_thresholds (param, value) VALUES ('buy_score', ?)")
-           ->execute(['buy_score', 60]);
-        $pdo->prepare("INSERT OR REPLACE INTO rl_thresholds (param, value) VALUES ('sell_score', ?)")
-           ->execute(['sell_score', 35]);
+        $now = time();
+        $pdo->prepare("INSERT OR REPLACE INTO rl_thresholds (param, value, last_adjustment) VALUES ('buy_score', ?, ?)")
+           ->execute([60, $now]);
+        $pdo->prepare("INSERT OR REPLACE INTO rl_thresholds (param, value, last_adjustment) VALUES ('sell_score', ?, ?)")
+           ->execute([35, $now]);
     }
     
     // Derniers trades pour la console
@@ -1071,6 +1072,17 @@ function runAllUpdates() {
 function showAPIStats() {
     alert('Statistiques API disponibles dans le fichier logs/api_usage.log');
 }
+
+// Premier chargement : récupérer les prix si la table est vide
+<?php if (count($coins) === 0): ?>
+$(document).ready(function() {
+    $.get('update.php').done(function(resp) {
+        if (resp && resp.trim() === 'OK') {
+            location.reload();
+        }
+    });
+});
+<?php endif; ?>
 
 // Auto-refresh intervals
 setInterval(function() {
