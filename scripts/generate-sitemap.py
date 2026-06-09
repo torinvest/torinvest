@@ -14,6 +14,9 @@ EXCLUDE = {
 
 PRIORITY = {
     "index.html": "1.0",
+    "confidentialite.html": "0.5",
+    "cookies.html": "0.5",
+    "mentions-legales.html": "0.5",
     "crypto.html": "0.9",
     "faq.html": "0.8",
     "roadmap.html": "0.8",

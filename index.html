@@ -1051,6 +1051,8 @@
             <a href="/liens">Liens utiles <span>ressources</span></a>
             <a href="#contact">Contact <span>attente</span></a>
             <a href="/disclaimer">Disclaimer <span>légal</span></a>
+            <a href="/confidentialite.html">Confidentialité <span>RGPD</span></a>
+            <a href="/cookies.html">Cookies <span>RGPD</span></a>
             <a href="/faq">FAQ <span>aide</span></a>
             <a href="/dev-access.html" class="nav-dev-link">Terminal Forge <span>accès</span></a>
           </div>
@@ -1400,6 +1402,10 @@
               <input class="small-input" type="email" name="email" placeholder="Ton email" required />
               <button class="btn btn-primary" type="submit">Rejoindre</button>
             </div>
+            <label class="rgpd-consent-label" style="display:flex;align-items:flex-start;gap:8px;margin-top:12px;font-size:12px;color:var(--muted);line-height:1.45;cursor:pointer">
+              <input type="checkbox" id="waitlist-rgpd" name="rgpd-consent" required style="margin-top:3px" />
+              <span>J'accepte que mon email soit utilisé pour m'informer des ouvertures TORINVEST. <a href="/confidentialite.html" style="color:var(--gold)">Politique de confidentialité</a>.</span>
+            </label>
           </form>
         </div>
       </section>
@@ -1409,7 +1415,11 @@
       <span>© <span id="year"></span> TORINVEST. Tous droits réservés.</span>
       <span>Aucun conseil financier — outil éducatif, analytique et expérimental.</span>
       <span>
-        <a href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">Discord</a>
+        <a href="/mentions-legales.html">Mentions légales</a>
+        · <a href="/confidentialite.html">Confidentialité</a>
+        · <a href="/cookies.html">Cookies</a>
+        · <a href="/disclaimer.html">Disclaimer</a>
+        · <a href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">Discord</a>
         · <a href="https://t.me/+2qMkEX3KnhowNTU0" target="_blank" rel="noopener">Telegram</a>
         · <a href="https://www.youtube.com/@ONZERtv" target="_blank" rel="noopener">YouTube</a>
         · <a href="https://www.tiktok.com/@live_b00stfr?lang=fr" target="_blank" rel="noopener">TikTok</a>
@@ -1627,5 +1637,6 @@
 }
 </style>
   
+  <script src="/assets/torinvest-rgpd.js" defer></script>
 </body>
 </html>

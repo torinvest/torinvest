@@ -19,6 +19,9 @@
 /liens           /liens.html           200
 /disclaimer      /disclaimer.html      200
 /faq             /faq.html             200
+/confidentialite /confidentialite.html 200
+/cookies         /cookies.html         200
+/mentions-legales /mentions-legales.html 200
 /aitorinvest     /AITORINVEST.html     200
 
 # Hybride Netlify + VPS — PHP sur radar.torinvest-trading.com

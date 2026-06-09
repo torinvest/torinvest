@@ -56,6 +56,16 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.torinvest-trading.com/confidentialite.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/cookies.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.torinvest-trading.com/copytrading.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -137,6 +147,11 @@
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/liens.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/mentions-legales.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
