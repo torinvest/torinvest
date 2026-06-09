@@ -1,0 +1,20 @@
+# Module crypto-radar — page d'accueil PHP
+DirectoryIndex index.php index.html
+
+# Protection du module crypto-radar
+<FilesMatch "^(test|index_debug|init_db)\.php$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(backup|log|db)$">
+    Require all denied
+</FilesMatch>
+
+<Files "config.php">
+    # Autoriser l'inclusion PHP mais bloquer l'affichage brut si mal configuré
+</Files>
+
+# Bloquer l'accès aux dossiers logs et cache
+RedirectMatch 403 ^/crypto-radar/logs/
+RedirectMatch 403 ^/crypto-radar/cache/
+RedirectMatch 403 ^/crypto-radar/data/

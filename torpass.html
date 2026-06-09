@@ -4,6 +4,29 @@
   <meta charset="UTF-8" />
   <title>La Forge TorInvest – Accès TorPass (Solana)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- TORINVEST META SEO -->
+  <meta name="description" content="TorPass — accès Premium La Forge via wallet Solana (KRM & ORAX)." />
+  <meta name="keywords" content="TorPass, Solana, premium, TORINVEST" />
+  <meta name="author" content="TORINVEST" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.torinvest-trading.com/torpass.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fr_FR" />
+  <meta property="og:site_name" content="TORINVEST" />
+  <meta property="og:title" content="La Forge TorInvest – Accès TorPass (Solana)" />
+  <meta property="og:description" content="TorPass — accès Premium La Forge via wallet Solana (KRM & ORAX)." />
+  <meta property="og:url" content="https://www.torinvest-trading.com/torpass.html" />
+  <meta property="og:image" content="https://www.torinvest-trading.com/forge-logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="La Forge TorInvest – Accès TorPass (Solana)" />
+  <meta name="twitter:description" content="TorPass — accès Premium La Forge via wallet Solana (KRM & ORAX)." />
+  <meta name="twitter:image" content="https://www.torinvest-trading.com/forge-logo.png" />
+  <meta name="theme-color" content="#040407" />
+  <link rel="icon" href="/forge-logo.png" type="image/png" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"WebPage","name":"La Forge TorInvest – Accès TorPass (Solana)","description":"TorPass — accès Premium La Forge via wallet Solana (KRM & ORAX).","url":"https://www.torinvest-trading.com/torpass.html","inLanguage":"fr-FR","isPartOf":{"@type":"WebSite","name":"TORINVEST","url":"https://www.torinvest-trading.com/"}}
+  </script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -356,12 +379,12 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
   </div>
 
  <!-- Solana Web3.js -->
+<script src="/assets/torinvest-php.js"></script>
 <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
 <script>
-  // ⚙️ RENSEIGNE CES 3 CONSTANTES AVEC LES MÊMES VALEURS QUE TU AS DÉJÀ
   const KRM_MINT   = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
   const ORAX_MINT  = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
-  const RPC_URL    = "https://mainnet.helius-rpc.com/?api-key=45ca60a1-c7be-4b07-900f-131227f53c27";
+  const RPC_URL    = window.TORINVEST_PHP.url("/api/solana-rpc.php");
   const PREMIUM_URL = "/premium.html"; // ou l'URL exacte de ta page premium
 
   const MIN_KRM = 40_000;
