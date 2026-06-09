@@ -5,7 +5,20 @@
  * les soldes KRM/ORAX dans le wallet Phantom (lecture seule).
  */
 header('Content-Type: application/json; charset=utf-8');
-header('Access-Control-Allow-Origin: *');
+$allowedOrigins = [
+    'https://torinvest.fr',
+    'https://www.torinvest.fr',
+    'https://torinvest-trading.netlify.app',
+];
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$originHost = parse_url($origin, PHP_URL_HOST) ?? '';
+$isNetlifyPreview = (bool) preg_match('/\.netlify\.app$/', $originHost);
+if (in_array($origin, $allowedOrigins, true) || $isNetlifyPreview) {
+    header('Access-Control-Allow-Origin: ' . $origin);
+    header('Vary: Origin');
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 

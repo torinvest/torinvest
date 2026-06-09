@@ -503,12 +503,12 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
   </div>
 
   <!-- Solana Web3.js -->
+  <script src="/assets/torinvest-php.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
   <script>
-    // mêmes constantes que sur /torpass et /premium
     const KRM_MINT = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
     const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
-    const RPC_URL = "/api/solana-rpc.php";
+    const RPC_URL = window.TORINVEST_PHP.url("/api/solana-rpc.php");
 
     const MIN_KRM = 10_000;
     const MIN_ORAX = 2_000_000;

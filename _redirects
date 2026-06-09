@@ -20,5 +20,9 @@
 /disclaimer      /disclaimer.html      200
 /faq             /faq.html             200
 /aitorinvest     /AITORINVEST.html     200
-/crypto-radar    /crypto-radar/index.php  200
-/crypto-radar/*  /crypto-radar/:splat  200
+
+# Hybride Netlify + VPS — PHP sur radar.torinvest.fr (modifier si autre URL)
+/crypto-radar           https://radar.torinvest.fr/crypto-radar/           301
+/crypto-radar/*         https://radar.torinvest.fr/crypto-radar/:splat       301
+/api/solana-rpc.php     https://radar.torinvest.fr/api/solana-rpc.php        301
+/api/dev-auth.php       https://radar.torinvest.fr/api/dev-auth.php          301

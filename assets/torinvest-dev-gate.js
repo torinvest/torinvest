@@ -29,7 +29,11 @@
     return;
   }
 
-  fetch("/api/dev-auth.php?token=" + encodeURIComponent(session.token))
+  var authUrl = (window.TORINVEST_PHP
+    ? window.TORINVEST_PHP.url("/api/dev-auth.php")
+  : "/api/dev-auth.php") + "?token=" + encodeURIComponent(session.token);
+
+  fetch(authUrl)
     .then(function (r) { return r.json(); })
     .then(function (data) {
       if (!data.ok) {
