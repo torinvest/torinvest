@@ -1,165 +1,348 @@
-🔥 TORINVEST — Trading • Macro • Discipline
 
-Bienvenue dans l’univers TORINVEST, un projet qui fusionne :
+# 🔥 TORINVEST — Trading • Macro • Discipline • Automation
 
-la macroéconomie,
+Bienvenue dans l’univers **TORINVEST**, un écosystème construit autour d’une idée simple :
 
-la psychologie du trader,
+> Comprendre les marchés, structurer la connaissance, automatiser les processus et construire des outils utiles pour les traders, les entrepreneurs et les créateurs de projets digitaux.
 
-la discipline,
+TORINVEST n’est pas seulement un projet de trading.  
+C’est une forge où se développent des méthodes, des outils, des formations, des dashboards, des bots, des automatisations et des projets digitaux concrets.
 
-et l’innovation à travers la tokenisation.
+---
 
-Ici, pas de promesses irréalistes.
-Seulement méthode, lucidité, travail, et une vraie volonté de comprendre l’algorithme du marché.
+## 🧭 Vision
 
-🛠️ La Forge TORINVEST
+Mon objectif est de bâtir un écosystème complet autour de :
 
-La Forge, c’est le cœur du projet :
-l’endroit où se construisent les méthodes, les outils, les tokens, les indicateurs, les modules et les futurs services TORINVEST.
+- l’analyse macroéconomique,
+- le trading Price Action / ICT / Smart Money Concepts,
+- la psychologie et la discipline du trader,
+- l’automatisation des analyses et des alertes,
+- la création d’outils web, IA et dashboards,
+- la tokenisation et les infrastructures blockchain expérimentales.
 
-Ce que construit la Forge :
+Ici, pas de promesses irréalistes.  
+Seulement du travail, de la méthode, de la lucidité, de l’expérimentation et une vraie volonté de comprendre les mécanismes profonds des marchés.
 
-📊 outils et indicateurs (TradingView, bots, dashboards)
+---
 
-📚 modules pédagogiques (macro, psychologie, cycle, logique institutionnelle)
+## ⚒️ La Forge TORINVEST
 
-🧠 formations premium débloquées via ORAX
+**La Forge**, c’est le cœur du projet.
 
-🛡️ salle des marchés TORINVEST (2026–2027)
+C’est l’espace où je construis progressivement :
 
-🌐 un écosystème complet structuré autour de 3 tokens
+- 📊 des indicateurs TradingView,
+- 🤖 des bots Discord / Telegram,
+- 🧠 des agents IA d’analyse,
+- 🗂️ des dashboards de suivi,
+- 📚 des modules pédagogiques,
+- 🔐 des systèmes d’accès premium,
+- 🌐 des sites web et plateformes connectées,
+- 🪙 des expérimentations autour de tokens et blockchain.
 
-🪙 L’Écosystème Tokenisé
+L’objectif est de transformer l’expérience, les erreurs, les recherches et les idées en outils concrets.
 
-TORINVEST repose sur trois tokens distincts, chacun avec un rôle clair :
+---
 
-⚡ KRM – La Monnaie Utilitaire
+## 📈 Trading & Analyse de Marché
 
-Paiement des services TORINVEST
+TORINVEST repose sur une approche multi-couches du marché :
 
-Accès à certains salons Discord privés
+### Analyse technique
 
-Cashback & récompenses internes
+- Price Action
+- Market Structure
+- Break of Structure
+- Change of Character
+- Liquidity Sweeps
+- Fair Value Gaps
+- Order Blocks
+- Fibonacci / OTE
+- POC / Volume
+- RSI / Stochastique / Moyennes mobiles
 
-Monnaie vivante de l’écosystème (2026+)
+### Analyse ICT / Smart Money Concepts
 
-Token Solana – Utilité & Communauté.
+- Zones de liquidité
+- Inducement
+- Premium / Discount
+- Kill Zones
+- Manipulation / Distribution
+- Logique institutionnelle
+- Lecture multi-timeframe
 
-🟡 ORAX – Le Token du Savoir
+### Analyse macroéconomique
 
-Accès aux cours avancés
+- Inflation
+- Taux directeurs
+- Rendements obligataires
+- Dollar Index
+- Or / matières premières
+- Cycles économiques
+- Banques centrales
+- Géopolitique
+- Corrélations inter-marchés
 
-Déblocage des modules premium
+---
 
-Accès à la salle de marché en 2026–2027
+## 🧠 Discipline & Psychologie
 
-Coaching premium (individuel + collectif)
+Le trading ne repose pas seulement sur l’analyse.
 
-Récompense de contribution intellectuelle
+Il repose aussi sur :
 
-Token Solana – Savoir, Clarté & Discipline.
+- la patience,
+- la gestion du risque,
+- la maîtrise émotionnelle,
+- la capacité à ne pas sur-trader,
+- la revue de ses erreurs,
+- l’acceptation des pertes,
+- la construction d’une méthode répétable.
 
-🛡️ TOR TOKEN – Innovation & Recherche
+TORINVEST cherche à documenter ce chemin avec lucidité, sans masquer la difficulté réelle du métier.
 
-À venir (2027–2028)
+---
 
-Branche "Innovation" du projet
+## 🚀 Projets en cours
 
-Financement d’outils, IA, bots, R&D
+### 🟡 TORINVEST
 
-Constellations TORINVEST (extensions futures)
+Projet principal autour du trading, de la macroéconomie, de la formation, des outils et de la communauté.
 
-Développement communautaire long terme
+Objectifs :
 
-📈 Roadmap
-2025 — Fondation
+- créer des contenus pédagogiques,
+- développer des outils de trading,
+- structurer une communauté,
+- automatiser les analyses,
+- construire une plateforme progressive autour du trader indépendant.
 
-Création des tokens KRM & ORAX
+---
 
-Lancement du site torinvest-trading.com
+### 🔨 La Forge
 
-Structure pédagogique et Forge interne
+Espace de construction technique de l’écosystème TORINVEST.
 
-Premiers indicateurs / premiers modules
+La Forge regroupe :
 
-2026 — Accès Premium & Utility
+- les scripts,
+- les indicateurs,
+- les bots,
+- les dashboards,
+- les prototypes,
+- les automatisations,
+- les modules futurs.
 
-Activation des salons Discord privés
+---
 
-Accès via KRM + ORAX
+### 🧩 Chainwork
 
-Lancement de la Salle des Marchés (V1)
+Projet expérimental de blockchain orienté Proof of Work.
 
-Début des sessions de coaching premium
+Objectifs :
 
-Whitepaper officiel v1
+- comprendre l’infrastructure blockchain,
+- expérimenter le minage,
+- développer un écosystème interne,
+- explorer l’usage de tokens utilitaires dans un environnement structuré.
 
-2027 — Expansion
+---
 
-Salle des Marchés V2 (Zoom / Discord)
+### ⚡ KRM Token
 
-Automatisation & bots internes
+Token utilitaire en développement dans l’univers TORINVEST.
 
-Outils multi-timeframe TORINVEST
+Objectif :
 
-Lancement du TOR TOKEN
+- servir d’outil d’accès,
+- structurer certains services,
+- expérimenter des usages réels,
+- connecter progressivement la logique communautaire, éducative et digitale.
 
-Partenariats & ouverture écosystème
+---
 
-2028 — Économie Interne
+### 🧪 ORAX
 
-Marketplace TORINVEST (scripts, signaux, outils)
+Première expérience de création de token.
 
-Réseau de contributeurs TOR.
+ORAX représente une étape d’apprentissage importante.  
+Le projet n’est pas aujourd’hui le centre de développement principal, mais il fait partie de l’historique de construction de l’écosystème.
 
-Extensions blockchain & interopérabilité
+---
 
-Système complet KRM / ORAX / TOR Token
+### 🌐 KAP-IA
 
-📂 Repositories Importants
+Projet séparé de TORINVEST.
 
-🔸 TORINVEST-Ecosystem
-Documentation complète : KRM, ORAX, TOR Token, outils & Whitepaper
-https://github.com/torinvest/TORINVEST-Ecosystem
+KAP-IA est une agence de digitalisation et d’automatisation destinée aux petites entreprises.
 
-🔸 torinvest-trading.com
-Code source du site officiel (public, lecture seule)
+Objectifs :
 
-🔸 krm-token-assets
-Logos & fichiers officiels du token KRM
+- création de sites web,
+- automatisation de formulaires,
+- CRM léger,
+- agents IA,
+- présence digitale,
+- solutions simples pour TPE / PME.
 
-💬 Communauté & Accès
+---
 
-👉 Le Discord devient progressivement privé en 2026.
-L’accès se fera par :
+### 🛒 KAPE STORE
 
-possession de KRM pour l’utilité,
+Projet e-commerce expérimental.
 
-ou de ORAX pour la connaissance,
+Objectifs :
 
-ou achat de la formation TORINVEST
+- créer une boutique structurée,
+- gérer produits, commandes, clients et SAV,
+- connecter un backend,
+- tester des workflows commerciaux,
+- construire une base solide pour un futur système e-commerce plus avancé.
 
-accès premium pour la salle des marchés
+---
 
-Ceux présents avant 2026 sont les Pionniers de la Forge 🔥
+### 🧼 H2EAUX Services
 
-🤝 Contribution
+Projet professionnel réel dans les services aux entreprises et copropriétés.
 
-Développeurs, designers, analystes, créateurs, IA builders…
-La Forge accueille toutes les bonnes volontés.
+Objectifs :
 
-Récompense possible selon contribution :
+- présence web professionnelle,
+- formulaires de devis,
+- automatisation commerciale,
+- suivi des prospects,
+- structuration digitale d’une activité existante.
 
-KRM (utilité)
+---
 
-ORAX (savoir)
+## 🛠️ Stack & Outils
 
-TOR TOKEN (innovation)
+### Développement web
 
-🛡️ Disclaimer
+- HTML
+- CSS
+- JavaScript
+- Node.js
+- Express
+- SQLite
+- Git / GitHub
+- Netlify
+- Cloudflare
+- VPS / Ubuntu
 
-Projet éducatif, pédagogique et expérimental.
-Aucun conseil en investissement.
-Aucune promesse de gains.
-TORINVEST prône : discipline, méthode et compréhension macro.
+### Trading & automatisation
+
+- TradingView
+- Pine Script
+- Discord Bots
+- Telegram Bots
+- Webhooks
+- Cloudflare Workers
+- Dashboards
+- APIs
+- Agents IA
+
+### Organisation
+
+- GitHub
+- README documentés
+- Workflows projet
+- Structuration par modules
+- Roadmaps progressives
+
+---
+
+## 📚 Ce que vous trouverez ici
+
+Sur ce GitHub, vous pourrez trouver progressivement :
+
+- des projets web,
+- des prototypes d’outils,
+- des scripts TradingView,
+- des dashboards,
+- des bots,
+- des fichiers de documentation,
+- des expérimentations blockchain,
+- des modules de formation,
+- des notes de recherche,
+- des systèmes d’automatisation.
+
+Chaque dépôt représente une pièce de construction dans un écosystème plus large.
+
+---
+
+## 🧱 Méthode de travail
+
+Je construis étape par étape.
+
+Mon approche :
+
+1. Comprendre le problème.
+2. Construire une première version simple.
+3. Tester.
+4. Corriger.
+5. Documenter.
+6. Améliorer.
+7. Automatiser.
+8. Professionnaliser.
+
+L’objectif n’est pas de prétendre que tout est parfait dès le départ.  
+L’objectif est de bâtir, apprendre, corriger et progresser avec méthode.
+
+---
+
+## 🎯 Objectif long terme
+
+Créer un écosystème complet combinant :
+
+- trading,
+- macroéconomie,
+- éducation financière,
+- automatisation,
+- IA,
+- outils digitaux,
+- blockchain,
+- communauté,
+- services professionnels.
+
+TORINVEST est un laboratoire, une forge et une base de construction.
+
+---
+
+## 📡 Me suivre
+
+- 🎥 Kick : [kick.com/onzertv](https://www.kick.com/onzertv)
+- 📺 YouTube : [youtube.com/@onzertv](https://www.youtubecom/@onzertv)
+- 💬 Discord : [discord.gg/5mSC8gFsT7](https://discord.gg/5mSC8gFsT7)
+- 📢 Telegram : [t.me/+2qMkEX3KnhowNTU0](https://t.me/+2qMkEX3KnhowNTU0)       
+- 🐙 GitHub : [github.com/torinvest](https://github.com/torinvest)
+
+---
+
+## 🧠 Citation
+
+> Le marché ne récompense pas celui qui prédit tout.  
+> Il récompense celui qui sait attendre, comprendre, s’adapter et survivre.
+
+---
+
+## ⚠️ Disclaimer
+
+Les contenus, scripts, analyses et projets présents ici sont fournis à titre éducatif, expérimental et informatif.
+
+Ils ne constituent pas des conseils financiers, des recommandations d’investissement ou des promesses de performance.
+
+Le trading comporte des risques importants.  
+Chaque personne est responsable de ses propres décisions.
+
+---
+
+## 🔥 TORINVEST
+
+**Trading. Macro. Discipline. Automation.**
+
+Construire lentement.  
+Documenter proprement.  
+Comprendre profondément.  
+Exécuter avec méthode.
