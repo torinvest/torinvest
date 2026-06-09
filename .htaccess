@@ -11,6 +11,11 @@ Redirect 301 /index3.html /index.html
 Redirect 301 /indexx.html /index.html
 
 # ---------------------------------------------------------------------------
+# Module Crypto Radar (PHP)
+# ---------------------------------------------------------------------------
+RewriteRule ^crypto-radar/?$ crypto-radar/index.php [L]
+
+# ---------------------------------------------------------------------------
 # URLs propres : /page → /page.html (si le fichier existe)
 # ---------------------------------------------------------------------------
 RewriteCond %{REQUEST_FILENAME} !-f

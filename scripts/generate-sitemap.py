@@ -36,6 +36,13 @@ for path in sorted(ROOT.glob("*.html")):
     lines.append(f"    <priority>{priority}</priority>")
     lines.append("  </url>")
 
+# Module PHP crypto-radar
+lines.append("  <url>")
+lines.append(f"    <loc>{SITE_URL}/crypto-radar/</loc>")
+lines.append("    <changefreq>daily</changefreq>")
+lines.append("    <priority>0.85</priority>")
+lines.append("  </url>")
+
 lines.append("</urlset>")
 (ROOT / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
 print(f"Sitemap généré : {len([l for l in lines if '<loc>' in l])} URLs")

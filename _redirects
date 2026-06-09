@@ -20,3 +20,5 @@
 /disclaimer      /disclaimer.html      200
 /faq             /faq.html             200
 /aitorinvest     /AITORINVEST.html     200
+/crypto-radar    /crypto-radar/index.php  200
+/crypto-radar/*  /crypto-radar/:splat  200
