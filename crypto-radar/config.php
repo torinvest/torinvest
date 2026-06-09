@@ -368,9 +368,9 @@ define('CACHE_CONFIG', [
 // ============================================================================
 
 define('UI_CONFIG', [
-    'app_name' => 'NEO CRYPTO DASH',
-    'app_version' => '3.0.0',
-    'app_tagline' => 'IA Mistral · Analyses RL · Portefeuille virtuel 1M€',
+    'app_name' => 'TORINVEST Crypto Radar',
+    'app_version' => '1.0.0',
+    'app_tagline' => 'Top 100 · IA Mistral · Analyses RL · Portefeuille virtuel 1M€',
     'theme_primary' => '#3b82f6',
     'theme_success' => '#10b981',
     'theme_danger' => '#ef4444',
@@ -520,7 +520,7 @@ if (!defined('SKIP_CONFIG_AUTOLOAD')) {
     date_default_timezone_set('Europe/Paris');
     
     appLog('═══════════════════════════════════════════════════════');
-    appLog('NEO CRYPTO DASH v' . UI_CONFIG['app_version'] . ' configuration loaded');
+    appLog('TORINVEST Crypto Radar v' . UI_CONFIG['app_version'] . ' configuration loaded');
     appLog('Timezone: Europe/Paris | PHP Version: ' . phpversion());
     appLog('Database: ' . DB_FILE);
     appLog('═══════════════════════════════════════════════════════');
