@@ -208,8 +208,8 @@ debugLog('Index.php rendering completed', 'INFO');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="NEO CRYPTO DASH v4.0 - Dashboard crypto autonome avec IA Mistral, trading automatique RL, portefeuille 1M€">
-    <title>NEO CRYPTO DASH v4.0 | IA Autonome Trading Pro</title>
+    <meta name="description" content="TORINVEST Crypto Radar — Top 100 cryptos, analyses IA Mistral, trading RL et portefeuille virtuel 1M€.">
+    <title>TORINVEST Crypto Radar — Analyses IA & Top 100</title>
     
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -579,6 +579,51 @@ debugLog('Index.php rendering completed', 'INFO');
         .rounded-xxl {
             border-radius: 24px;
         }
+
+        .back-home-torinvest {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.9rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: #374151;
+            background: #f3f4f6;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            transition: all 0.2s ease;
+        }
+
+        .back-home-torinvest:hover {
+            color: var(--primary-dark);
+            background: #e0e7ff;
+            border-color: #93c5fd;
+        }
+
+        .back-home-torinvest-fixed {
+            position: fixed;
+            bottom: 22px;
+            right: 22px;
+            z-index: 1100;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.96);
+            border: 1px solid var(--border);
+            color: var(--dark);
+            box-shadow: var(--card-shadow);
+            transition: 0.2s ease;
+        }
+
+        .back-home-torinvest-fixed:hover {
+            background: #eff6ff;
+            border-color: var(--primary);
+            color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -589,12 +634,13 @@ debugLog('Index.php rendering completed', 'INFO');
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div class="d-flex align-items-center gap-3">
                 <div class="brand-logo">
-                    <i class="fas fa-brain me-2"></i>NEO CRYPTO DASH
-                    <span class="brand-badge">v3.0 PRO</span>
+                    <i class="fas fa-chart-line me-2"></i>TORINVEST Crypto Radar
+                    <span class="brand-badge">IA · Top 100</span>
                 </div>
             </div>
             
             <nav class="nav-menu">
+                <a href="https://www.torinvest-trading.com/" class="back-home-torinvest"><i class="fas fa-arrow-left"></i> Retour accueil</a>
                 <a href="index.php" class="nav-item-pro"><i class="fas fa-home me-1"></i>Dashboard</a>
                 <a href="portfolio.php" class="nav-item-pro"><i class="fas fa-wallet me-1"></i>Portefeuille</a>
                 <a href="blog.php" class="nav-item-pro"><i class="fas fa-blog me-1"></i>Blog IA</a>
@@ -819,9 +865,9 @@ debugLog('Index.php rendering completed', 'INFO');
         <div class="row g-3 justify-content-center">
             <div class="col-auto">
                 <span class="text-muted small">
-                    <i class="fas fa-database me-1"></i>Données CoinGecko · 
-                    <i class="fas fa-brain me-1"></i>IA Mistral 20 modèles ·
-                    <i class="fas fa-shield-halved me-1"></i>Sécurisé Hostinger
+                    <i class="fas fa-database me-1"></i>Données CoinGecko ·
+                    <i class="fas fa-brain me-1"></i>Analyses IA Mistral ·
+                    <i class="fas fa-fire me-1"></i>Écosystème TORINVEST
                 </span>
             </div>
         </div>
@@ -1041,6 +1087,8 @@ setInterval(function() {
     });
 }, 3600000);
 </script>
+
+<a href="https://www.torinvest-trading.com/" class="back-home-torinvest-fixed">← Retour accueil</a>
 
 </body>
 </html>

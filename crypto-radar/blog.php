@@ -9,7 +9,7 @@ $posts = $pdo->query("SELECT id, title, created_at, tags FROM ai_blog_posts ORDE
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Blog AI · NEO CRYPTO DASH</title>
+    <title>Blog IA · TORINVEST Crypto Radar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>

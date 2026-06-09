@@ -123,7 +123,7 @@ function generateBlogPost($pdo, $coinId, $coinName, $action, $price, $amount, $s
     try {
         $title = ucfirst($action) . " de $coinName - Décision IA du " . date('d/m/Y H:i');
         
-        $content = "**DÉCISION DE TRADING AUTONOME - NEO CRYPTO DASH v4.0**\n\n";
+        $content = "**DÉCISION DE TRADING AUTONOME - TORINVEST Crypto Radar**\n\n";
         $content .= "**Action:** " . strtoupper($action) . "\n";
         $content .= "**Cryptomonnaie:** $coinName (" . strtoupper($coinId) . ")\n";
         $content .= "**Prix d'exécution:** " . number_format($price, 2) . " €\n";
@@ -162,7 +162,7 @@ function generateBlogPost($pdo, $coinId, $coinName, $action, $price, $amount, $s
         $content .= "- Les seuils d'achat/vente (actuellement: achat >= 65, vente <= 35)\n";
         $content .= "- La taille des positions selon la volatilité\n";
         $content .= "- La confiance accordée aux différents indicateurs\n\n";
-        $content .= "*Article généré automatiquement par NEO CRYPTO DASH v4.0*";
+        $content .= "*Article généré automatiquement par TORINVEST Crypto Radar*";
         
         $stmt = $pdo->prepare("INSERT INTO ai_blog_posts (title, content, created_at, tags) VALUES (?, ?, ?, ?)");
         $stmt->execute([$title, $content, time(), "trade,$action," . strtolower($coinId)]);
