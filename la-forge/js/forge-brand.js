@@ -8,9 +8,9 @@ const FORGE_BRAND = {
   slogan: "La force d'un esprit libre",
   site: "torinvest-trading.com",
   logos: {
-    anvil: "/la-forge/img/forge-anvil.png",
-    full: "/la-forge/img/torinvest-logo-full.png",
-    liveBanner: "/la-forge/img/live-trading-banner.png",
+    anvil: "https://app.torinvest-trading.com/img/forge-anvil.png",
+    full: "https://app.torinvest-trading.com/img/torinvest-logo-full.png",
+    liveBanner: "https://app.torinvest-trading.com/img/live-trading-banner.png",
   },
   social: {
     youtube: {
@@ -69,7 +69,7 @@ function renderForgeHeader(active, extraNav) {
     { id: "accueil", href: "/", label: "Accueil" },
     { id: "live", href: "/#live", label: "Live" },
     { id: "tarifs", href: "/la-forge/pricing.html", label: "Tarifs" },
-    { id: "connexion", href: "https://app.torinvest-trading.com/login.html", label: "Connexion" },
+    { id: "connexion", href: "/la-forge/login.html", label: "Connexion" },
   ];
   let navHtml = nav
     .map((n) => '<a href="' + n.href + '"' + (active === n.id ? ' class="active"' : "") + ">" + n.label + "</a>")
