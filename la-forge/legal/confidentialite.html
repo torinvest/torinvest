@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Politique de confidentialité — TORINVEST</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-header=""></header>
+  <main class="container legal-page">
+    <p class="breadcrumb"><a href="/la-forge/">Accueil</a> › <span id="legal-breadcrumb">Confidentialité</span></p>
+    <h1>Politique de confidentialité (RGPD)</h1>
+    <p class="legal-updated">Dernière mise à jour : <span data-legal-date></span></p>
+    <div id="legal-content" class="legal-content"></div>
+  </main>
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/forge-legal.js"></script>
+  <script src="/la-forge/js/legal-page.js"></script>
+  <script>
+    document.querySelector("[data-legal-date]").textContent = FORGE_LEGAL.lastUpdate;
+    initLegalPage("Confidentialité", `
+      <h2>1. Responsable du traitement</h2>
+      <p>${FORGE_LEGAL.editor.name} — ${FORGE_LEGAL.emailLegal}</p>
+
+      <h2>2. Données collectées</h2>
+      <ul>
+        <li>Identité : nom, prénom, email</li>
+        <li>Compte : mot de passe hashé, statut abonnement, progression formation</li>
+        <li>Paiement : traité par Stripe — TORINVEST ne stocke pas les numéros de carte</li>
+        <li>Technique : logs IP, navigateur, cookies (voir <a href="/la-forge/legal/cookies.html">Cookies</a>)</li>
+        <li>Robot Access : identifiant licence, broker déclaré, logs connexion Worker</li>
+        <li>Calendrier formation : données stockées localement + sync serveur (modules planifiés)</li>
+      </ul>
+
+      <h2>3. Finalités & bases légales</h2>
+      <table class="legal-table">
+        <thead><tr><th>Finalité</th><th>Base légale</th></tr></thead>
+        <tbody>
+          <tr><td>Gestion compte & formation</td><td>Exécution du contrat</td></tr>
+          <tr><td>Facturation & abonnement</td><td>Exécution du contrat · obligation légale</td></tr>
+          <tr><td>Licence EA & Worker</td><td>Exécution du contrat</td></tr>
+          <tr><td>Signaux Telegram/Discord</td><td>Contrat ou consentement</td></tr>
+          <tr><td>Statistiques anonymisées</td><td>Intérêt légitime</td></tr>
+          <tr><td>Newsletter (si activée)</td><td>Consentement</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. Durée de conservation</h2>
+      <ul>
+        <li>Compte actif : durée de la relation contractuelle + 3 ans (prospection B2C)</li>
+        <li>Données comptables : 10 ans</li>
+        <li>Logs Worker : 12 mois maximum</li>
+      </ul>
+
+      <h2>5. Destinataires & sous-traitants</h2>
+      <ul>
+        <li>Netlify (hébergement pages publiques)</li>
+        <li>OVH VPS (application formation)</li>
+        <li>Cloudflare Worker (API MT5 · signaux)</li>
+        <li>Stripe (paiement)</li>
+        <li>Discord / Telegram (canaux communautaires — selon votre adhésion)</li>
+      </ul>
+
+      <h2>6. Transferts hors UE</h2>
+      <p>Certains prestataires (Netlify, Cloudflare, Stripe) peuvent traiter des données aux USA avec garanties appropriées (clauses contractuelles types).</p>
+
+      <h2>7. Vos droits</h2>
+      <p>Accès, rectification, effacement, limitation, portabilité, opposition — contact : <a href="mailto:${FORGE_LEGAL.emailLegal}">${FORGE_LEGAL.emailLegal}</a></p>
+      <p>Réclamation CNIL : <a href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a></p>
+
+      <h2>8. Sécurité</h2>
+      <p>HTTPS, mots de passe hashés (bcrypt), JWT sécurisé, rate limiting, hébergement VPS durci. Aucune mesure n'est infaillible à 100 %.</p>
+    `);
+  </script>
+</body>
+</html>
