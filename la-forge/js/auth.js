@@ -1,9 +1,22 @@
+const APP_ORIGIN =
+  window.location.hostname === "app.torinvest-trading.com"
+    ? ""
+    : "https://app.torinvest-trading.com";
+
 async function api(path, options = {}) {
-  const res = await fetch(path, {
-    credentials: "same-origin",
-    headers: { "Content-Type": "application/json", ...(options.headers || {}) },
-    ...options,
-  });
+  const url = path.startsWith("http") ? path : APP_ORIGIN + path;
+  let res;
+  try {
+    res = await fetch(url, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options,
+    });
+  } catch {
+    throw new Error(
+      "Espace membres indisponible pour le moment. Le serveur app.torinvest-trading.com est en cours d'activation — réessayez après réception de vos identifiants par email."
+    );
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || "Erreur serveur");
   return data;
@@ -62,7 +75,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             password: fd.get("password"),
           }),
         });
-        const next = new URLSearchParams(window.location.search).get("next") || "https://app.torinvest-trading.com/dashboard.html";
+        const next =
+          new URLSearchParams(window.location.search).get("next") ||
+          APP_ORIGIN + "https://app.torinvest-trading.com/dashboard.html";
         window.location.href = next;
       } catch (err) {
         showAlert(alertEl, err.message);
