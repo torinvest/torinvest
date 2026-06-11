@@ -155,7 +155,7 @@
   flex-shrink: 0;
   width: 24px;
   height: 24px;
-  background: url("/la-forge/img/forge-anvil.png") center/contain no-repeat;
+  background: url("https://app.torinvest-trading.com/img/forge-anvil.png") center/contain no-repeat;
   mix-blend-mode: lighten;
 }
 .lesson-pro .site-header {
