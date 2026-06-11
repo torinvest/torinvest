@@ -8,8 +8,8 @@ const FORGE_BRAND = {
   slogan: "La force d'un esprit libre",
   site: "torinvest-trading.com",
   logos: {
-    anvil: "/la-forge/img/forge-anvil.png",
-    full: "/la-forge/img/torinvest-logo-full.png",
+    anvil: "/la-forge/img/forge-anvil.png?v=20260612",
+    full: "/la-forge/img/torinvest-logo-full.png?v=20260612",
     liveBanner: "/la-forge/img/live-trading-banner.png",
   },
   social: {
