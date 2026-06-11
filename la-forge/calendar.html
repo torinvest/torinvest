@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calendrier v2 — La Forge</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="calendar"></header>
+
+  <div class="container">
+    <h1 style="margin-bottom:0.35rem">Calendrier d'apprentissage</h1>
+    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.92rem">
+      Planifiez vos modules · sync compte · export JSON.
+      <span id="cal-sync-badge" class="cal-sync-badge idle">—</span>
+    </p>
+    <div class="cal-toolbar" style="margin-bottom:1rem">
+      <button type="button" class="btn btn-secondary" id="cal-sync-btn">Synchroniser</button>
+      <button type="button" class="btn btn-secondary" id="cal-export">Exporter JSON</button>
+      <label class="btn btn-secondary" style="cursor:pointer;margin:0">
+        Importer JSON
+        <input type="file" id="cal-import" accept="application/json,.json" hidden />
+      </label>
+    </div>
+    <div class="cal-layout">
+      <div class="cal-main"><div id="calendar-root"></div></div>
+      <aside class="cal-sidebar card">
+        <h3 style="color:var(--gold);margin-bottom:0.75rem">Statistiques</h3>
+        <p style="font-size:0.9rem;color:var(--muted);margin-bottom:1rem">Série : <strong style="color:var(--gold)" id="cal-streak">0</strong> jour(s)</p>
+        <h4 style="font-size:0.85rem;color:var(--aqua);margin-bottom:0.5rem">7 prochains jours</h4>
+        <div id="cal-upcoming"></div>
+      </aside>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/auth.js"></script>
+  <script src="/la-forge/js/course-data.js"></script>
+  <script src="/la-forge/js/forge-calendar.js"></script>
+  <script>
+    getMe().then(async (me) => {
+      if (!me) { window.location.href = "https://app.torinvest-trading.com/login.html"; return; }
+      await initForgeCalendar(me.email);
+      initCalendarPage();
+      const now = new Date();
+      renderMonthCalendar("calendar-root", now.getFullYear(), now.getMonth());
+    });
+  </script>
+<script src="/la-forge/js/forge-legal.js"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Politique cookies — TORINVEST</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-header=""></header>
+  <main class="container legal-page">
+    <p class="breadcrumb"><a href="/la-forge/">Accueil</a> › <span id="legal-breadcrumb">Cookies</span></p>
+    <h1>Politique cookies</h1>
+    <p class="legal-updated">Dernière mise à jour : <span data-legal-date></span></p>
+    <div id="legal-content" class="legal-content"></div>
+  </main>
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/forge-legal.js"></script>
+  <script src="/la-forge/js/legal-page.js"></script>
+  <script>
+    document.querySelector("[data-legal-date]").textContent = FORGE_LEGAL.lastUpdate;
+    initLegalPage("Cookies", `
+      <h2>1. Qu'est-ce qu'un cookie ?</h2>
+      <p>Petit fichier déposé sur votre terminal lors de la visite du site. Il permet la session, la sécurité ou des mesures d'audience.</p>
+
+      <h2>2. Cookies utilisés par TORINVEST</h2>
+      <table class="legal-table">
+        <thead><tr><th>Cookie</th><th>Type</th><th>Durée</th><th>Finalité</th></tr></thead>
+        <tbody>
+          <tr><td>forge_token (JWT)</td><td>Strictement nécessaire</td><td>Session / 7 j</td><td>Authentification espace membre</td></tr>
+          <tr><td>localStorage calendrier</td><td>Fonctionnel</td><td>Local</td><td>Progression calendrier formation</td></tr>
+          <tr><td>localStorage modules</td><td>Fonctionnel</td><td>Local</td><td>Progression quiz & exercices</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. Cookies tiers (à activer si intégrés)</h2>
+      <ul>
+        <li><strong>Stripe :</strong> paiement sécurisé</li>
+        <li><strong>Netlify Analytics / Plausible :</strong> [À COMPLÉTER si activé]</li>
+        <li><strong>YouTube embeds :</strong> si vidéos intégrées</li>
+      </ul>
+
+      <h2>4. Gestion</h2>
+      <p>Vous pouvez refuser les cookies non essentiels via les paramètres de votre navigateur. Le refus du cookie de session empêche la connexion à l'espace membre.</p>
+      <p>Pour exercer vos droits : <a href="/la-forge/legal/confidentialite.html">Politique de confidentialité</a>.</p>
+    `);
+  </script>
+</body>
+</html>

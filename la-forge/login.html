@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connexion — TORINVEST La Forge</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-header="connexion"></header>
+
+  <div class="container" style="max-width:440px;padding-top:2rem">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <img src="/la-forge/img/forge-anvil.png" alt="La Forge" width="72" height="72" class="forge-logo-img" style="margin-bottom:0.75rem" />
+      <p class="forge-slogan" style="margin:0">La force d'un esprit libre</p>
+    </div>
+    <div class="card">
+      <h2>Connexion membre</h2>
+      <div id="login-alert" class="alert alert-error" hidden></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input id="password" name="password" type="password" required autocomplete="current-password" />
+        </div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Se connecter</button>
+      </form>
+      <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">
+        Démo Premium : abonne@torinvest-trading.com
+      </p>
+    </div>
+  </div>
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/auth.js"></script>
+<script src="/la-forge/js/forge-legal.js"></script>
+</body>
+</html>
