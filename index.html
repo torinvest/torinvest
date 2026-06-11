@@ -102,30 +102,23 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      min-width: 220px;
+      min-width: 0;
+      flex: 0 0 auto;
+      max-width: min(260px, 48vw);
     }
 
     .logo-img {
-      height: 42px;
-      width: 42px;
+      height: 52px;
+      width: auto;
+      max-width: 100%;
       object-fit: contain;
-      border-radius: 12px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid var(--border);
+      mix-blend-mode: lighten;
+      background: transparent;
+      border: none;
+      border-radius: 0;
     }
 
-    .brand-title {
-      font-weight: 900;
-      letter-spacing: .16em;
-      font-size: 14px;
-    }
-
-    .brand-sub {
-      color: var(--muted);
-      font-size: 10px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-    }
+    .brand-text-fallback { display: none; }
 
     nav {
       display: flex;
@@ -1015,11 +1008,7 @@
   <div class="page">
     <header class="topbar">
       <a class="brand" href="/">
-        <img src="forge-logo.png" alt="TORINVEST La Forge" class="logo-img">
-        <div>
-          <div class="brand-title">TORINVEST</div>
-          <div class="brand-sub">La force d’un esprit libre</div>
-        </div>
+        <img src="forge-logo.png" alt="TORINVEST La Forge — TRADER. INVESTIR. FORGER TON AVENIR." class="logo-img">
       </a>
 
       <nav>
