@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         const next =
           new URLSearchParams(window.location.search).get("next") ||
-          APP_ORIGIN + "https://app.torinvest-trading.com/dashboard.html";
+          APP_ORIGIN + "/dashboard.html";
         window.location.href = next;
       } catch (err) {
         showAlert(alertEl, err.message);
