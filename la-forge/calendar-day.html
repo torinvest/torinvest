@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Journée — Calendrier La Forge</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="calendar"></header>
+
+  <div class="container" style="max-width:760px">
+    <h1 id="day-title" style="margin-bottom:0.25rem">Journée</h1>
+    <p style="color:var(--muted);margin-bottom:1.5rem;font-size:0.9rem">
+      Sync compte + local · <button type="button" class="btn btn-secondary" id="day-export" style="padding:0.3rem 0.65rem;font-size:0.78rem">Exporter JSON</button>
+    </p>
+
+    <form id="day-form" class="card">
+      <h3 style="color:var(--gold);font-size:1rem;margin-bottom:0.75rem">Modules du jour</h3>
+      <div id="module-picker" class="module-picker-grid"></div>
+      <div class="form-group" style="margin-top:1rem">
+        <label for="modules">Saisie libre (F1, module-03…)</label>
+        <input type="text" id="modules" name="modules" />
+      </div>
+      <div class="grid-2" style="margin-top:1rem">
+        <div class="form-group"><label for="hours">Heures d'étude</label><input type="text" id="hours" name="hours" placeholder="1.5" /></div>
+        <div class="form-group"><label for="reminder">Rappel</label><input type="text" id="reminder" name="reminder" placeholder="09:00 London" /></div>
+      </div>
+      <div class="form-group"><label for="goals">Objectifs</label><input type="text" id="goals" name="goals" /></div>
+      <div class="form-group">
+        <label for="mood">Humeur</label>
+        <select id="mood" name="mood" style="width:100%;padding:0.75rem;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text)">
+          <option value="">—</option>
+          <option value="focus">Focusé</option>
+          <option value="fatigue">Fatigué</option>
+          <option value="motivé">Motivé</option>
+          <option value="stress">Stressé</option>
+        </select>
+      </div>
+      <div class="form-group"><label for="notes">Notes</label><textarea id="notes" name="notes" rows="8"></textarea></div>
+      <div class="cal-checkboxes">
+        <label><input type="checkbox" name="chartDone" /> Exercice chart fait</label>
+        <label><input type="checkbox" name="completed" /> Journée complétée</label>
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-top:1rem">Enregistrer & synchroniser</button>
+      <div id="save-msg" class="alert" hidden style="margin-top:1rem"></div>
+    </form>
+  </div>
+
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/auth.js"></script>
+  <script src="/la-forge/js/course-data.js"></script>
+  <script src="/la-forge/js/forge-calendar.js"></script>
+  <script>
+    getMe().then(async (me) => {
+      if (!me) { window.location.href = "https://app.torinvest-trading.com/login.html"; return; }
+      await initForgeCalendar(me.email);
+      await initCalendarDayPage();
+    });
+  </script>
+<script src="/la-forge/js/forge-legal.js"></script>
+</body>
+</html>

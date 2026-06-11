@@ -29,3 +29,14 @@
 /crypto-radar/*         https://radar.torinvest-trading.com/crypto-radar/:splat       301
 /api/solana-rpc.php     https://radar.torinvest-trading.com/api/solana-rpc.php        301
 /api/dev-auth.php       https://radar.torinvest-trading.com/api/dev-auth.php          301
+# --- La Forge (fusion auto) ---
+/la-forge                     /la-forge/index.html                     200
+/la-forge/                    /la-forge/index.html                     200
+
+# App formation VPS (accès après achat + mail de bienvenue)
+/login.html                   https://app.torinvest-trading.com/login.html                          302!
+/dashboard.html               https://app.torinvest-trading.com/dashboard.html                      302!
+/calendar.html                https://app.torinvest-trading.com/calendar.html                       302!
+/calendar-day.html            https://app.torinvest-trading.com/calendar-day.html                   302!
+/course/*                     https://app.torinvest-trading.com/course/:splat                       302!
+/api/*                        https://app.torinvest-trading.com/api/:splat                          302!

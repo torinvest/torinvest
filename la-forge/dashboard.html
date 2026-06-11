@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Espace membre — TORINVEST La Forge</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="dashboard"></header>
+
+  <div class="container">
+    <div id="locked-alert" class="alert alert-warn" hidden>
+      Accès formation réservé aux abonnés Premium. <a href="/la-forge/pricing.html">Voir les offres</a>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+      <img src="/la-forge/img/forge-anvil.png" alt="" width="48" height="48" class="forge-logo-img" />
+      <div>
+        <span class="forge-hero-tag">torinvest-trading.com</span>
+        <h1 style="margin:0.15rem 0">La Forge — ÉLITE</h1>
+        <p class="forge-slogan" style="margin:0">La force d'un esprit libre</p>
+      </div>
+    </div>
+    <p id="dash-meta" style="color:var(--muted);margin-bottom:2rem">Chargement…</p>
+
+    <div class="overall-progress">
+      <h3>Progression formation</h3>
+      <div class="progress-bar"><div id="dash-progress-bar" style="width:0%"></div></div>
+      <p id="dash-progress-text" style="color:var(--muted);font-size:0.9rem;margin-top:0.5rem">Chargement…</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card" id="course-access">
+        <h3>Parcours ÉLITE</h3>
+        <ul style="color:var(--muted);font-size:0.9rem;padding-left:1.2rem;margin:0.75rem 0;line-height:1.7">
+          <li id="dash-course-line">Module 0 → 37 · ICT/SMC · macro · pro avancé · mindset</li>
+          <li>Exercices chart · replays · quiz par module</li>
+          <li>Calendrier sync · export JSON</li>
+        </ul>
+        <a class="btn btn-primary" href="https://app.torinvest-trading.com/course/index.html" id="course-link">Ouvrir la formation</a>
+        <a class="btn btn-secondary" href="https://app.torinvest-trading.com/calendar.html" style="margin-left:0.5rem">Calendrier</a>
+      </div>
+      <div class="card">
+        <h3>Live & communauté</h3>
+        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem">Complétez la formation par le terrain — sessions live chart.</p>
+        <div id="dash-live-pills" style="display:flex;flex-wrap:wrap;gap:0.4rem"></div>
+        <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">
+          Durée : <strong style="color:var(--gold)" id="dash-hours">~42 h</strong>
+        </p>
+        <p id="plan-text" style="color:var(--muted);margin-top:0.5rem">Chargement…</p>
+      </div>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/auth.js"></script>
+  <script src="/la-forge/js/progress.js"></script>
+  <script src="/la-forge/js/course-data.js"></script>
+  <script>
+    const MODULE_IDS = getAllModuleIds();
+    document.getElementById("dash-hours").textContent = "~" + FORGE_TOTAL_HOURS + " h";
+    document.getElementById("dash-meta").textContent =
+      FORGE_TOTAL_HOURS + " h · " + MODULES.length + " modules · " + COURSE_PARTS.length + " parties";
+    const dcl = document.getElementById("dash-course-line");
+    if (dcl) dcl.textContent = "Module 0 → " + MODULES.length + " · ICT/SMC · macro · pro avancé · mindset";
+    const pills = document.getElementById("dash-live-pills");
+    Object.keys(FORGE_BRAND.social).forEach((k) => {
+      const s = FORGE_BRAND.social[k];
+      const a = document.createElement("a");
+      a.className = "social-pill";
+      a.href = s.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.style.setProperty("--pill-color", s.color);
+      a.textContent = s.label;
+      pills.appendChild(a);
+    });
+    getMe().then((me) => {
+      if (!me) { window.location.href = "https://app.torinvest-trading.com/login.html"; return; }
+      document.getElementById("plan-text").textContent = me.subscribed
+        ? "Plan Premium actif — accès La Forge débloqué."
+        : "Plan gratuit — abonnez-vous pour accéder aux " + MODULES.length + " modules.";
+      if (!me.subscribed) {
+        const link = document.getElementById("course-link");
+        link.classList.remove("btn-primary");
+        link.classList.add("btn-secondary");
+        link.textContent = "Formation (Premium requis)";
+        link.href = "/la-forge/pricing.html";
+      }
+      const o = getOverallProgress(MODULE_IDS);
+      document.getElementById("dash-progress-bar").style.width = o.pct + "%";
+      document.getElementById("dash-progress-text").textContent =
+        o.done + " / " + o.total + " modules validés · " + o.pct + "%";
+    });
+  </script>
+<script src="/la-forge/js/forge-legal.js"></script>
+</body>
+</html>

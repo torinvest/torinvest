@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mentions légales — TORINVEST</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-header=""></header>
+  <main class="container legal-page">
+    <p class="breadcrumb"><a href="/la-forge/">Accueil</a> › <span id="legal-breadcrumb">Mentions légales</span></p>
+    <h1>Mentions légales</h1>
+    <p class="legal-updated">Dernière mise à jour : <span data-legal-date></span></p>
+    <div id="legal-content" class="legal-content"></div>
+  </main>
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/forge-legal.js"></script>
+  <script src="/la-forge/js/legal-page.js"></script>
+  <script>
+    document.querySelector("[data-legal-date]").textContent = FORGE_LEGAL.lastUpdate;
+    initLegalPage("Mentions légales", `
+      <h2>1. Éditeur du site</h2>
+      <p>Le site <strong>${FORGE_LEGAL.site}</strong> est édité par :</p>
+      <ul>
+        <li><strong>Raison sociale / Nom :</strong> ${FORGE_LEGAL.editor.name}</li>
+        <li><strong>Forme juridique :</strong> ${FORGE_LEGAL.editor.legalForm}</li>
+        <li><strong>Adresse :</strong> ${FORGE_LEGAL.editor.address}</li>
+        <li><strong>SIRET :</strong> ${FORGE_LEGAL.editor.siret}</li>
+        <li><strong>TVA :</strong> ${FORGE_LEGAL.editor.tva}</li>
+        <li><strong>Directeur de publication :</strong> ${FORGE_LEGAL.editor.director}</li>
+        <li><strong>Contact :</strong> <a href="mailto:${FORGE_LEGAL.email}">${FORGE_LEGAL.email}</a></li>
+      </ul>
+
+      <h2>2. Hébergement</h2>
+      <ul>
+        <li><strong>Site vitrine & pages publiques :</strong> ${FORGE_LEGAL.hosting.site}</li>
+        <li><strong>Application formation (espace membre) :</strong> ${FORGE_LEGAL.hosting.app}</li>
+        <li><strong>Worker API (MT5 EA · licences · signaux) :</strong> ${FORGE_LEGAL.hosting.worker}</li>
+      </ul>
+
+      <h2>3. Activité</h2>
+      <p>TORINVEST propose :</p>
+      <ul>
+        <li>Formation trading en ligne « La Forge » (${FORGE_LEGAL.offers.formation})</li>
+        <li>Infrastructure Robot Access — EA MT5 connecté au Worker (${FORGE_LEGAL.offers.robotAccess})</li>
+        <li>Signal Public gratuit (${FORGE_LEGAL.offers.signalPublic})</li>
+        <li>Contenus éducatifs, lives, communauté Discord</li>
+      </ul>
+      <p><strong>Important :</strong> TORINVEST n'est pas un établissement de crédit, ni un conseiller en investissement agréé AMF (sauf mention contraire après immatriculation). Les contenus sont à visée éducative.</p>
+
+      <h2>4. Propriété intellectuelle</h2>
+      <p>L'ensemble des contenus (textes, vidéos, replays, modules, marque TORINVEST, logo La Forge) est protégé. Toute reproduction sans autorisation écrite est interdite.</p>
+
+      <h2>5. Données personnelles</h2>
+      <p>Voir la <a href="/la-forge/legal/confidentialite.html">Politique de confidentialité</a> et la page <a href="/la-forge/legal/cookies.html">Cookies</a>.</p>
+
+      <h2>6. Litiges</h2>
+      <p>Conformément à l'article L.612-1 du Code de la consommation, le consommateur peut recourir gratuitement à un médiateur de la consommation : [À COMPLÉTER — médiateur].</p>
+      <p>Droit applicable : droit français. Tribunaux compétents : [À COMPLÉTER — juridiction].</p>
+    `);
+  </script>
+</body>
+</html>

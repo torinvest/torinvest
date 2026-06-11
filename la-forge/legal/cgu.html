@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CGU — TORINVEST</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-header=""></header>
+  <main class="container legal-page">
+    <p class="breadcrumb"><a href="/la-forge/">Accueil</a> › <span id="legal-breadcrumb">CGU</span></p>
+    <h1>Conditions Générales d'Utilisation (CGU)</h1>
+    <p class="legal-updated">Dernière mise à jour : <span data-legal-date></span></p>
+    <div id="legal-content" class="legal-content"></div>
+  </main>
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/forge-legal.js"></script>
+  <script src="/la-forge/js/legal-page.js"></script>
+  <script>
+    document.querySelector("[data-legal-date]").textContent = FORGE_LEGAL.lastUpdate;
+    initLegalPage("CGU", `
+      <h2>1. Objet</h2>
+      <p>Les présentes CGU régissent l'accès et l'utilisation du site ${FORGE_LEGAL.site}, du dashboard, de l'espace formation, des signaux publics, de la communauté Discord et de toute interface TORINVEST.</p>
+
+      <h2>2. Acceptation</h2>
+      <p>En créant un compte ou en naviguant sur le site, vous acceptez sans réserve les CGU, les <a href="/la-forge/legal/cgv.html">CGV</a>, l'<a href="/la-forge/legal/avertissement-risques.html">Avertissement risques</a> et la <a href="/la-forge/legal/confidentialite.html">Politique de confidentialité</a>.</p>
+
+      <h2>3. Compte utilisateur</h2>
+      <ul>
+        <li>Vous êtes responsable de la confidentialité de vos identifiants.</li>
+        <li>Un compte est personnel et non transférable.</li>
+        <li>TORINVEST peut suspendre un compte en cas de fraude, partage de licence EA, ou violation des CGU.</li>
+      </ul>
+
+      <h2>4. Services</h2>
+      <p><strong>Formation :</strong> contenu éducatif — ne constitue pas un conseil personnalisé.</p>
+      <p><strong>Robot Access :</strong> licence individuelle liée à un compte — l'EA MT5 exécute des signaux émis par le Worker ; vous restez seul responsable de votre capital et de votre broker.</p>
+      <p><strong>Signal Public :</strong> aperçu hebdomadaire sans exécution automatique.</p>
+
+      <h2>5. Propriété intellectuelle</h2>
+      <p>Toute copie, revente, redistribution des modules, replays ou signaux est interdite. Interdiction de reverse-engineering du Worker ou de l'EA.</p>
+
+      <h2>6. Comportement</h2>
+      <p>Interdit : spam, harcèlement, contenu illégal sur Discord/lives, tentative d'intrusion, scraping massif, contournement des contrôles d'accès.</p>
+
+      <h2>7. Disponibilité</h2>
+      <p>TORINVEST s'efforce d'assurer la disponibilité du site et du Worker sans garantie d'uptime 100 %. Maintenance, pannes broker, ou force majeure peuvent interrompre les services.</p>
+
+      <h2>8. Limitation de responsabilité</h2>
+      <p>TORINVEST ne saurait être tenu responsable des pertes financières liées au trading, à l'utilisation de l'EA, ou à une mauvaise interprétation des contenus. Voir <a href="/la-forge/legal/avertissement-risques.html">Avertissement risques</a>.</p>
+
+      <h2>9. Modification</h2>
+      <p>Les CGU peuvent être modifiées à tout moment. La date de mise à jour est indiquée en tête de page. Poursuite d'utilisation = acceptation.</p>
+
+      <h2>10. Contact</h2>
+      <p><a href="mailto:${FORGE_LEGAL.emailLegal}">${FORGE_LEGAL.emailLegal}</a></p>
+    `);
+  </script>
+</body>
+</html>

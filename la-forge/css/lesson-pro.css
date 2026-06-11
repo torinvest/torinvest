@@ -1,0 +1,172 @@
+.lesson-pro .objectives {
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.lesson-pro .objectives h3 { color: var(--gold); font-size: 0.95rem; margin-bottom: 0.5rem; }
+.lesson-pro .objectives ul { color: var(--muted); font-size: 0.88rem; padding-left: 1.2rem; }
+.lesson-pro .level-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--aqua);
+  border: 1px solid var(--aqua);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+.lesson-pro .inst-box {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(94, 234, 212, 0.06);
+  border-left: 3px solid var(--aqua);
+  font-size: 0.85rem;
+}
+.lesson-pro .err-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(248, 113, 113, 0.08);
+  border-left: 3px solid var(--danger);
+  font-size: 0.85rem;
+  color: #fca5a5;
+}
+.lesson-pro .xau-box {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(255, 215, 0, 0.06);
+  border-left: 3px solid var(--gold);
+  font-size: 0.85rem;
+}
+.step-panel h4 { font-size: 1rem; }
+.step-panel .step-sub { color: var(--aqua); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.35rem; }
+.chart-caption { font-size: 0.78rem; color: var(--muted); margin-top: 0.5rem; font-style: italic; }
+.glossary-term { color: var(--gold); font-weight: 600; }
+
+.chart-replay-section,
+.practice-section {
+  margin: 2.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+}
+.chart-replay-section h2,
+.practice-section h2 {
+  font-size: 1.1rem;
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+}
+.replay-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0.5rem 0;
+}
+.replay-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+}
+.replay-controls .step-btn { font-size: 0.72rem; padding: 0.35rem 0.55rem; }
+.replay-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f97316;
+  border: 1px solid #f97316;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+.tv-toolbar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: #1a1a24;
+  border-bottom: 1px solid #333;
+  font-size: 0.7rem;
+  color: #888;
+}
+.tv-frame {
+  border: 1px solid #333;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0d0d14;
+}
+.practice-num {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--aqua);
+  margin-bottom: 0.35rem;
+}
+.practice-q { font-size: 0.92rem; margin-bottom: 0.65rem; }
+.practice-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.practice-item:last-child { border-bottom: none; }
+.practice-opt {
+  display: block;
+  padding: 0.45rem 0.6rem;
+  margin: 0.25rem 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  border: 1px solid transparent;
+}
+.practice-opt:hover { background: rgba(255, 255, 255, 0.04); }
+.practice-feedback {
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+.practice-feedback.ok {
+  background: rgba(74, 222, 128, 0.1);
+  border-left: 3px solid #4ade80;
+  color: #bbf7d0;
+}
+.practice-feedback.ko {
+  background: rgba(248, 113, 113, 0.1);
+  border-left: 3px solid #f87171;
+  color: #fecaca;
+}
+
+/* Logo enclume sur headers modules leçon */
+.lesson-pro .site-header .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.lesson-pro .site-header .logo::before {
+  content: "";
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background: url("/la-forge/img/forge-anvil.png") center/contain no-repeat;
+  mix-blend-mode: lighten;
+}
+.lesson-pro .site-header {
+  flex-wrap: nowrap;
+  padding: 0.55rem 1rem;
+}
+.lesson-pro .site-header nav {
+  flex-shrink: 1;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem 0.75rem;
+}
+.lesson-pro .site-header nav a { margin-left: 0; font-size: 0.85rem; }
