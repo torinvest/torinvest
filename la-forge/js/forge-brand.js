@@ -45,8 +45,11 @@ function forgeLogoHtml(size) {
   if (s === "header") {
     return (
       '<a href="/la-forge/" class="forge-logo forge-logo-header" aria-label="TORINVEST La Forge">' +
-      '<img src="' + FORGE_BRAND.logos.full + '" alt="TORINVEST La Forge" class="forge-logo-header-full" decoding="async" />' +
-      "</a>"
+      '<img src="' + FORGE_BRAND.logos.anvil + '" alt="" width="36" height="36" class="forge-logo-img" decoding="async" />' +
+      '<span class="forge-logo-text forge-logo-compact">' +
+      '<strong>TORINVEST</strong>' +
+      '<span class="forge-logo-sub">LA FORGE</span>' +
+      "</span></a>"
     );
   }
   const cls = s === "hero" ? "forge-logo forge-logo-hero" : "forge-logo forge-logo-header";
