@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CGV — TORINVEST</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-header=""></header>
+  <main class="container legal-page">
+    <p class="breadcrumb"><a href="/la-forge/">Accueil</a> › <span id="legal-breadcrumb">CGV</span></p>
+    <h1>Conditions Générales de Vente (CGV)</h1>
+    <p class="legal-updated">Dernière mise à jour : <span data-legal-date></span></p>
+    <div id="legal-content" class="legal-content"></div>
+  </main>
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/forge-legal.js"></script>
+  <script src="/la-forge/js/legal-page.js"></script>
+  <script>
+    document.querySelector("[data-legal-date]").textContent = FORGE_LEGAL.lastUpdate;
+    initLegalPage("CGV", `
+      <h2>1. Vendeur</h2>
+      <p>${FORGE_LEGAL.editor.name} — ${FORGE_LEGAL.editor.address} — SIRET : ${FORGE_LEGAL.editor.siret} — Contact : <a href="mailto:${FORGE_LEGAL.email}">${FORGE_LEGAL.email}</a></p>
+
+      <h2>2. Produits & tarifs</h2>
+      <table class="legal-table">
+        <thead><tr><th>Offre</th><th>Prix indicatif</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Signal Public</td><td>Gratuit</td><td>Signal hebdomadaire dashboard — sans EA</td></tr>
+          <tr><td>Robot Access</td><td>${FORGE_LEGAL.offers.robotAccess}</td><td>Licence individuelle · EA MT5 · Worker cloud</td></tr>
+          <tr><td>Formation La Forge</td><td>${FORGE_LEGAL.offers.formation}</td><td>37 modules · accès annuel espace membre</td></tr>
+        </tbody>
+      </table>
+      <p>Les prix TTC en vigueur sont ceux affichés sur <a href="/la-forge/pricing.html">/pricing.html</a> au moment de la commande. Promotions limitées dans le temps.</p>
+
+      <h2>3. Commande & paiement</h2>
+      <p>Paiement par carte via Stripe (ou prestataire équivalent). Abonnement Robot Access : reconduction tacite mensuelle sauf résiliation. Formation : paiement annuel unique sauf mention contraire.</p>
+
+      <h2>4. Livraison / accès</h2>
+      <ul>
+        <li><strong>Formation :</strong> accès sous 24–48 h ouvrées après paiement validé — identifiants par email.</li>
+        <li><strong>Robot Access :</strong> activation licence + instructions EA MT5 sous 24 h ouvrées.</li>
+        <li><strong>Signal Public :</strong> accès immédiat après inscription gratuite.</li>
+      </ul>
+
+      <h2>5. Droit de rétractation</h2>
+      <p>Conformément aux articles L.221-18 et suivants du Code de la consommation, le consommateur dispose de 14 jours pour se rétracter, <strong>sauf</strong> si le contenu numérique a été entièrement fourni avant la fin du délai avec accord exprès du client et renoncement au droit de rétractation (formation en ligne, accès immédiat EA/licence).</p>
+
+      <h2>6. Résiliation abonnement Robot Access</h2>
+      <p>Résiliation possible à tout moment depuis l'espace client ou par email. Effet en fin de période en cours. Aucun remboursement au prorata sauf disposition légale impérative.</p>
+
+      <h2>7. Licence EA</h2>
+      <p>Licence personnelle, non cessible, liée à un compte TORINVEST et à une instance MT5 déclarée. Partage, revente ou contournement = résiliation sans remboursement.</p>
+
+      <h2>8. Garanties</h2>
+      <p>Aucune garantie de performance financière. Obligation de moyens sur la disponibilité technique raisonnable du Worker et de l'accès formation.</p>
+
+      <h2>9. Réclamations</h2>
+      <p>Contact : <a href="mailto:${FORGE_LEGAL.emailLegal}">${FORGE_LEGAL.emailLegal}</a> — réponse sous 30 jours ouvrés.</p>
+    `);
+  </script>
+</body>
+</html>

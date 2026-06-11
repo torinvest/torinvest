@@ -1,0 +1,499 @@
+/* La Forge — illustrations chart professionnelles */
+
+.forge-chart {
+  background: #08080e;
+  border: 1px solid #2a2a38;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.forge-chart .fc-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: center;
+  padding: 0.55rem 0.85rem;
+  background: linear-gradient(180deg, #14141c 0%, #101018 100%);
+  border-bottom: 1px solid #2a2a38;
+  font-size: 0.72rem;
+  color: #7a7a92;
+}
+
+.forge-chart .fc-header strong { color: #c8c8d8; }
+.forge-chart .fc-badge {
+  margin-left: auto;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: rgba(255, 215, 0, 0.12);
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.forge-chart svg { display: block; width: 100%; height: auto; }
+
+/* Callouts numérotés */
+.fc-callout circle.co-bg { fill: #ffd700; }
+.fc-callout text.co-n { fill: #111; font-size: 11px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.fc-callout line.co-leader { stroke: #ffd700; stroke-width: 1; stroke-dasharray: 3 2; opacity: 0.8; }
+.fc-callout rect.co-label {
+  fill: rgba(18, 18, 26, 0.95);
+  stroke: #ffd700;
+  stroke-width: 1;
+  rx: 4;
+}
+.fc-callout text.co-t { fill: #e8e8ef; font-size: 10px; }
+
+/* Zones */
+.fc-zone-htf { fill: none; stroke: #666; stroke-width: 1.5; stroke-dasharray: 8 4; }
+.fc-zone-premium { fill: rgba(248, 113, 113, 0.08); stroke: rgba(248, 113, 113, 0.4); stroke-dasharray: 4 3; }
+.fc-zone-discount { fill: rgba(74, 222, 128, 0.08); stroke: rgba(74, 222, 128, 0.4); stroke-dasharray: 4 3; }
+.fc-zone-ote { fill: rgba(255, 215, 0, 0.1); stroke: #ffd700; stroke-width: 1.5; }
+.fc-zone-fvg-bull { fill: rgba(34, 197, 94, 0.18); stroke: #22c55e; stroke-width: 1; }
+.fc-zone-fvg-bear { fill: rgba(239, 68, 68, 0.18); stroke: #ef4444; stroke-width: 1; }
+.fc-zone-ob { fill: rgba(167, 139, 250, 0.22); stroke: #a78bfa; stroke-width: 1.5; }
+.fc-line-eq { stroke: #ffd700; stroke-width: 1.5; stroke-dasharray: 6 4; opacity: 0.9; }
+.fc-line-pool { stroke: #f97316; stroke-width: 2; }
+.fc-line-structure { stroke-width: 2.5; }
+
+.chart-legend-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.chart-legend-panel span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chart-legend-panel i {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Slot vidéo TradingView (future intégration) */
+.video-slot {
+  margin: 2.5rem 0;
+  padding: 1.25rem;
+  border: 1px dashed rgba(94, 234, 212, 0.35);
+  border-radius: 12px;
+  background: rgba(94, 234, 212, 0.04);
+}
+
+.video-slot h2 {
+  font-size: 1rem;
+  color: var(--aqua);
+  margin-bottom: 0.35rem;
+}
+
+.video-slot .video-meta {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.video-placeholder {
+  aspect-ratio: 16 / 9;
+  max-height: 420px;
+  background: #0a0a12;
+  border: 1px solid #2a2a38;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+}
+
+.video-placeholder .vp-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.5;
+}
+
+.video-placeholder code {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: var(--aqua);
+}
+
+/* Contenu enrichi */
+.step-detail {
+  margin-top: 0.85rem;
+  color: #b8b8c8;
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.key-box {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 215, 0, 0.07);
+  border-left: 3px solid var(--gold);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.example-box {
+  margin-top: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: rgba(59, 130, 246, 0.08);
+  border-left: 3px solid #60a5fa;
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+.reading-time {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+.course-part-block {
+  margin: 2rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.course-part-block h2 {
+  font-size: 1.15rem;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+
+.course-part-block .part-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.module-list li .mod-num {
+  display: inline-block;
+  min-width: 2rem;
+  font-weight: 700;
+  color: var(--aqua);
+  margin-right: 0.35rem;
+}
+
+.forge-hero-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--aqua);
+  border: 1px solid rgba(94, 234, 212, 0.4);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+/* ─── Annotations interactives ─── */
+.fc-callout.anno-interactive {
+  cursor: pointer;
+  pointer-events: all;
+  outline: none;
+  transition: opacity 0.2s ease;
+}
+
+.fc-callout.anno-interactive:focus-visible circle.co-bg {
+  stroke: #fff;
+  stroke-width: 2;
+}
+
+.fc-callout.anno-interactive:hover circle.co-bg {
+  filter: brightness(1.12);
+}
+
+.fc-callout.anno-step-hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.fc-callout.anno-off .co-label,
+.fc-callout.anno-off .co-t,
+.fc-callout.anno-off .co-leader {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.fc-callout.anno-off circle.co-bg {
+  fill: transparent;
+  stroke: #666;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  opacity: 0.85;
+}
+
+.fc-callout.anno-off text.co-n {
+  fill: #888;
+  font-size: 10px;
+}
+
+.fc-callout:not(.anno-off):not(.anno-step-hidden) .co-label {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85));
+}
+
+.anno-toolbar {
+  margin-top: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(255, 215, 0, 0.04);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
+}
+
+.anno-toolbar-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.anno-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.45;
+  flex: 1;
+  min-width: 200px;
+}
+
+.anno-hint strong {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.anno-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.anno-btn {
+  font-size: 0.72rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.anno-btn:hover {
+  color: var(--text);
+  border-color: var(--gold);
+}
+
+.anno-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.anno-pill {
+  font-size: 0.72rem;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  cursor: pointer;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: opacity 0.15s, border-color 0.15s;
+}
+
+.anno-pill.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(255, 215, 0, 0.08);
+}
+
+.anno-pill:not(.active) {
+  opacity: 0.5;
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.chart-replay-section .anno-toolbar {
+  margin-top: 0.5rem;
+}
+
+/* ─── ÉLITE Replay pédagogique ─── */
+.elite-replay {
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  border-radius: 14px;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.35);
+  margin: 2.5rem 0;
+}
+
+.elite-replay > h2 {
+  font-size: 1.05rem;
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+}
+
+.elite-replay-intro {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  line-height: 1.55;
+}
+
+.elite-replay-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+@media (max-width: 900px) {
+  .elite-replay-layout { grid-template-columns: 1fr; }
+}
+
+.elite-replay-guide {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.elite-replay-guide .erg-step {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--aqua);
+  margin-bottom: 0.35rem;
+}
+
+.elite-replay-guide h3 {
+  font-size: 1rem;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+  line-height: 1.35;
+}
+
+.elite-replay-guide h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.35rem;
+}
+
+.erg-block {
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.erg-block:last-child { border-bottom: none; margin-bottom: 0; }
+
+.erg-see h4 { color: #93c5fd; }
+.erg-see ul { padding-left: 1.1rem; color: #c8d0e0; }
+.erg-see li { margin-bottom: 0.35rem; }
+
+.erg-means h4 { color: var(--aqua); }
+.erg-means p { color: var(--text); }
+
+.erg-warn h4 { color: #f87171; }
+.erg-warn p { color: #fca5a5; font-size: 0.85rem; }
+
+/* Chart replay — lisibilité max */
+.replay-chart-svg .price-axis text {
+  fill: #666;
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+}
+
+.replay-highlight-box {
+  fill: rgba(255, 215, 0, 0.12);
+  stroke: #ffd700;
+  stroke-width: 2;
+  rx: 6;
+}
+
+.replay-label-big {
+  fill: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.replay-label-sub {
+  fill: #aaa;
+  font-size: 10px;
+}
+
+.replay-arrow {
+  fill: none;
+  stroke-width: 3;
+  marker-end: url(#arrowhead);
+}
+
+.replay-zone-label {
+  fill: rgba(12, 12, 18, 0.92);
+  stroke-width: 1.5;
+  rx: 4;
+}
+
+.elite-frame-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.elite-frame-tag {
+  font-size: 0.72rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.elite-frame-tag.active {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(255, 215, 0, 0.08);
+}
+
+.replay-base-candles .c-label {
+  fill: #555;
+  font-size: 9px;
+  text-anchor: middle;
+}
+
+.level-elite {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f97316;
+  border: 1px solid #f97316;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}

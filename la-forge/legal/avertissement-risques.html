@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Avertissement risques — TORINVEST</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-header=""></header>
+  <main class="container legal-page">
+    <p class="breadcrumb"><a href="/la-forge/">Accueil</a> › <span id="legal-breadcrumb">Avertissement risques</span></p>
+    <h1>Avertissement sur les risques</h1>
+    <p class="legal-updated">Dernière mise à jour : <span data-legal-date></span></p>
+    <div id="legal-content" class="legal-content"></div>
+  </main>
+  <footer data-forge-footer></footer>
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/forge-legal.js"></script>
+  <script src="/la-forge/js/legal-page.js"></script>
+  <script>
+    document.querySelector("[data-legal-date]").textContent = FORGE_LEGAL.lastUpdate;
+    initLegalPage("Avertissement risques", `
+      <div class="legal-alert">
+        <strong>Le trading de instruments financiers (Forex, CFD, futures, crypto, actions) comporte un risque élevé de perte en capital.</strong>
+        Ne tradez que de l'argent que vous pouvez vous permettre de perdre.
+      </div>
+
+      <h2>1. Nature des contenus TORINVEST</h2>
+      <p>La formation « La Forge », les lives, signaux publics et contenus Discord/Telegram sont <strong>éducatifs</strong>. Ils ne constituent pas un conseil en investissement personnalisé au sens de la réglementation AMF.</p>
+
+      <h2>2. Robot Access & EA MT5</h2>
+      <ul>
+        <li>L'EA exécute des ordres sur <strong>votre</strong> compte broker — vous restez seul responsable.</li>
+        <li>Aucune garantie de profit, de drawdown maximum, ou de performance future.</li>
+        <li>Slippage, spreads, pannes, news, bugs techniques peuvent entraîner des pertes.</li>
+        <li>Le Worker cloud peut être indisponible — l'EA ne doit pas être votre seule protection (SL obligatoire).</li>
+        <li>Licence individuelle — partage interdit.</li>
+      </ul>
+
+      <h2>3. Signaux Telegram / Discord</h2>
+      <p>Les signaux peuvent être retardés, mal interprétés ou ne pas correspondre à votre broker/spread. Ne les copiez pas aveuglément sans gestion du risque.</p>
+
+      <h2>4. Performances passées</h2>
+      <p>Tout backtest, replay, ou track record (démo ou live) est indicatif. Les conditions de marché changent. Overfitting possible.</p>
+
+      <h2>5. Effet de levier</h2>
+      <p>Le levier amplifie gains <strong>et</strong> pertes. Vous pouvez perdre plus que votre dépôt initial sur certains produits (CFD) selon réglementation broker.</p>
+
+      <h2>6. Statut réglementaire</h2>
+      <p>TORINVEST n'est pas un intermédiaire financier. Vérifiez que votre broker est régulé. Consultez module L2 (régulation) de la formation.</p>
+
+      <h2>7. Recommandations</h2>
+      <ul>
+        <li>Demo / forward test avant capital réel</li>
+        <li>Règle de risque max par trade (ex. 0,5–1 %)</li>
+        <li>Protocole tilt — arrêt après 2 pertes</li>
+        <li>Conseil fiscal/comptable selon votre pays (module L1)</li>
+      </ul>
+
+      <p>En utilisant TORINVEST, vous confirmez avoir lu et compris cet avertissement.</p>
+    `);
+  </script>
+</body>
+</html>
