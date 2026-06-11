@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Espace membre — TORINVEST La Forge</title>
-  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="icon" href="https://app.torinvest-trading.com/img/forge-anvil.png" type="image/png" />
   <link rel="stylesheet" href="/la-forge/css/main.css" />
   <link rel="stylesheet" href="/la-forge/css/legal.css" />
 </head>
@@ -17,7 +17,7 @@
     </div>
 
     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
-      <img src="/la-forge/img/forge-anvil.png" alt="" width="48" height="48" class="forge-logo-img" />
+      <img src="https://app.torinvest-trading.com/img/forge-anvil.png" alt="" width="48" height="48" class="forge-logo-img" />
       <div>
         <span class="forge-hero-tag">torinvest-trading.com</span>
         <h1 style="margin:0.15rem 0">La Forge — ÉLITE</h1>
@@ -81,7 +81,7 @@
       pills.appendChild(a);
     });
     getMe().then((me) => {
-      if (!me) { window.location.href = "https://app.torinvest-trading.com/login.html"; return; }
+      if (!me) { window.location.href = "/la-forge/login.html"; return; }
       document.getElementById("plan-text").textContent = me.subscribed
         ? "Plan Premium actif — accès La Forge débloqué."
         : "Plan gratuit — abonnez-vous pour accéder aux " + MODULES.length + " modules.";
