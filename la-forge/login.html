@@ -7,6 +7,7 @@
   <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
   <link rel="stylesheet" href="/la-forge/css/main.css" />
   <link rel="stylesheet" href="/la-forge/css/legal.css" />
+  <meta http-equiv="refresh" content="0;url=https://app.torinvest-trading.com/login.html" />
 </head>
 <body>
   <header class="site-header" data-forge-header="connexion"></header>
@@ -18,30 +19,18 @@
     </div>
     <div class="card">
       <h2>Connexion membre</h2>
-      <p class="alert alert-error" style="margin-bottom:1rem;font-size:0.9rem">
+      <p class="alert" style="margin-bottom:1rem;font-size:0.9rem;border-color:var(--gold);color:var(--text)">
         Accès réservé aux abonnés La Forge (349€/an). Identifiants envoyés par email après paiement Stripe.
         Pas encore inscrit ? <a href="/formation.html">Liste d'attente</a> ou <a href="/la-forge/pricing.html">tarifs</a>.
       </p>
-      <div id="login-alert" class="alert alert-error" hidden></div>
-      <form id="login-form">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input id="email" name="email" type="email" required autocomplete="email" />
-        </div>
-        <div class="form-group">
-          <label for="password">Mot de passe</label>
-          <input id="password" name="password" type="password" required autocomplete="current-password" />
-        </div>
-        <button class="btn btn-primary" type="submit" style="width:100%">Se connecter</button>
-      </form>
-      <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">
-        Démo Premium : abonne@torinvest-trading.com
+      <p style="margin-bottom:1rem;color:var(--muted);font-size:0.95rem">
+        Redirection vers l'espace membre sécurisé…
       </p>
+      <a class="btn btn-primary" href="https://app.torinvest-trading.com/login.html" style="width:100%;display:block;text-align:center;box-sizing:border-box">Se connecter → espace membre</a>
     </div>
   </div>
   <footer data-forge-footer></footer>
   <script src="/la-forge/js/forge-brand.js"></script>
-  <script src="/la-forge/js/auth.js"></script>
-<script src="/la-forge/js/forge-legal.js"></script>
+  <script src="/la-forge/js/forge-legal.js"></script>
 </body>
 </html>
