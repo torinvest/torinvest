@@ -33,7 +33,9 @@
 /la-forge                     /la-forge/index.html                     200
 /la-forge/                    /la-forge/index.html                     200
 
-# App formation VPS (accès après achat + mail de bienvenue)
+# Login → espace membre VPS (auth + cookies sur app.*)
+/la-forge/login.html          https://app.torinvest-trading.com/login.html                          302!
+/la-forge/login               https://app.torinvest-trading.com/login.html                          302!
 /login.html                   https://app.torinvest-trading.com/login.html                          302!
 /dashboard.html               https://app.torinvest-trading.com/dashboard.html                      302!
 /calendar.html                https://app.torinvest-trading.com/calendar.html                       302!

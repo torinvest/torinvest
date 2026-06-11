@@ -69,7 +69,7 @@ function renderForgeHeader(active, extraNav) {
     { id: "accueil", href: "/", label: "Accueil" },
     { id: "live", href: "/#live", label: "Live" },
     { id: "tarifs", href: "/la-forge/pricing.html", label: "Tarifs" },
-    { id: "connexion", href: "/la-forge/login.html", label: "Connexion" },
+    { id: "connexion", href: "https://app.torinvest-trading.com/login.html", label: "Connexion" },
   ];
   let navHtml = nav
     .map((n) => '<a href="' + n.href + '"' + (active === n.id ? ' class="active"' : "") + ">" + n.label + "</a>")
