@@ -49,9 +49,9 @@
 # CRM licences TORINVEST (API PHP sur radar — secrets serveur)
 /admin-licence                /admin-licence/index.html                                             200
 /admin-licence/               /admin-licence/index.html                                             200
-/api/admin-licence.php        https://radar.torinvest-trading.com/api/admin-licence.php           200
-/api/ai-access.php            https://radar.torinvest-trading.com/api/ai-access.php               200
+/api/admin-licence.php        https://radar.torinvest-trading.com/api/admin-licence.php           200!
+/api/ai-access.php            https://radar.torinvest-trading.com/api/ai-access.php               200!
 # Proxy RPC TorPass (POST same-origin www → radar, pas de CORS navigateur)
-/api/solana-rpc.php           https://radar.torinvest-trading.com/api/solana-rpc.php                200
-/api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  200
+/api/solana-rpc.php           https://radar.torinvest-trading.com/api/solana-rpc.php                200!
+/api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  200!
 /api/*                        https://app.torinvest-trading.com/api/:splat                          302!
