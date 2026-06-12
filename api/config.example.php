@@ -12,4 +12,17 @@ return [
 
     // Durée de validité de la session dev (en secondes) — 7 jours par défaut
     'dev_session_ttl' => 604800,
+
+    // --- CRM admin-licence (gestion licences VIP + FORGE) ---
+    // PIN d'accès à la page /admin-licence/ (distinct du dev_access_pin)
+    'licence_crm_pin' => 'CHANGEZ_MOI_CRM',
+
+    // Token admin Worker (Cloudflare → Settings → Variables → ADMIN_TOKEN)
+    'admin_token' => 'VOTRE_ADMIN_TOKEN_WORKER',
+
+    // URL du Worker (inchangé si morning-hall-d8f6)
+    'worker_url' => 'https://morning-hall-d8f6.onzerimes.workers.dev',
+
+    // Session CRM (secondes) — 12 h par défaut
+    'licence_crm_session_ttl' => 43200,
 ];

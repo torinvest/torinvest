@@ -6,3 +6,7 @@
 <Files "config.example.php">
     Require all denied
 </Files>
+
+<Files "admin-licence-lib.php">
+    Require all denied
+</Files>
