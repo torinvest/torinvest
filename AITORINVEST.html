@@ -888,7 +888,7 @@ body:not([data-terminal-view="chat"]) .input-zone{display:none}
 <div class="modal" id="archivesModal"><div class="box"><h3>Archives conversations</h3><div id="archivesList"></div><div class="actions"><button class="ghost" onclick="closeModal('archivesModal')">Fermer</button></div></div></div>
 <script>
 const WORKER_BASE_URL="https://morning-hall-d8f6.onzerimes.workers.dev";
-const AI_ACCESS_API="https://radar.torinvest-trading.com/api/ai-access.php";
+const AI_ACCESS_API="/api/ai-access.php";
 const COPY_TOKEN="default";
 
 const WORKER_AI_URL=WORKER_BASE_URL+"/ai/chat";
@@ -1933,11 +1933,12 @@ async function sendMessage(){
 
     const modelToUse=imageToSend?VISION_MODEL:state.model;
     const auth=window.TORINVEST_AI_ACCESS;
-    if(!auth||!auth.getToken())throw new Error("Session expirée — reconnecte-toi.");
+    if(!auth||!auth.session)throw new Error("Session expirée — reconnecte-toi.");
 
     const res=await fetch(AI_ACCESS_API,{
       method:"POST",
-      headers:auth.getAuthHeaders(),
+      credentials:"include",
+      headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
         action:"chat",
         model:modelToUse,

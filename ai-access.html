@@ -141,31 +141,29 @@
   </main>
 
   <script>
-    const API = "https://radar.torinvest-trading.com/api/ai-access.php";
-    const CRM_API = "https://radar.torinvest-trading.com/api/admin-licence.php";
-    const STORAGE = "torinvest_ai_access_session_v2";
-    const CRM_STORAGE = "torinvest_admin_licence_token";
+    const API = "/api/ai-access.php";
+    const CRM_API = "/api/admin-licence.php";
     const TARGET = "/AITORINVEST.html";
     const CRM_TARGET = "/admin-licence/";
+    const LEGACY_KEYS = [
+      "torinvest_ai_access_session_v2",
+      "torinvest_ai_access_session",
+      "torinvest_dev_session",
+      "torinvest_admin_licence_token",
+    ];
 
     const result = document.getElementById("result");
 
     function setResult(html) { result.innerHTML = html; }
 
-    function saveAndRedirect(data) {
-      localStorage.removeItem("torinvest_ai_access_session");
-      localStorage.removeItem("torinvest_dev_session");
-      localStorage.setItem(STORAGE, JSON.stringify({
-        token: data.token,
-        role: data.role,
-        expiresAt: data.expiresAt,
-        email: data.email || "",
-        plan: data.plan || "",
-        status: data.status || "",
-        licenseExpires: data.licenseExpires || "",
-        mt5Account: data.mt5Account || "",
-        label: data.label || "",
-      }));
+    function clearLegacyStorage() {
+      LEGACY_KEYS.forEach(function (key) {
+        try { localStorage.removeItem(key); } catch (e) {}
+      });
+    }
+
+    function saveAndRedirect() {
+      clearLegacyStorage();
       setTimeout(function () { window.location.href = TARGET; }, 700);
     }
 
@@ -193,6 +191,7 @@
       try {
         const resp = await fetch(API, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "login_client",
@@ -203,7 +202,7 @@
         const data = await resp.json();
         if (!resp.ok || !data.ok) throw new Error(data.error || "Accès refusé");
         setResult('<span class="ok">Licence active. Ouverture...</span><br>Plan : ' + (data.plan || "N/A"));
-        saveAndRedirect(data);
+        saveAndRedirect();
       } catch (err) {
         setResult('<span class="bad">' + err.message + "</span>");
         btn.disabled = false;
@@ -218,6 +217,7 @@
       try {
         const resp = await fetch(API, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "login_admin",
@@ -227,7 +227,7 @@
         const data = await resp.json();
         if (!resp.ok || !data.ok) throw new Error(data.error || "PIN incorrect");
         setResult('<span class="ok">Accès admin accordé. Ouverture...</span>');
-        saveAndRedirect(data);
+        saveAndRedirect();
       } catch (err) {
         setResult('<span class="bad">' + err.message + "</span>");
         btn.disabled = false;
@@ -242,6 +242,7 @@
       try {
         const resp = await fetch(CRM_API, {
           method: "POST",
+          credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             action: "login",
@@ -250,7 +251,7 @@
         });
         const data = await resp.json();
         if (!resp.ok || !data.ok) throw new Error(data.error || "PIN CRM incorrect");
-        localStorage.setItem(CRM_STORAGE, data.token);
+        clearLegacyStorage();
         setResult('<span class="ok">CRM ouvert. Redirection...</span>');
         setTimeout(function () { window.location.href = CRM_TARGET; }, 700);
       } catch (err) {
