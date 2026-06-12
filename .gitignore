@@ -17,3 +17,6 @@ crypto-radar/analysis_log.txt
 Thumbs.db
 *.swp
 *~
+
+# Cache Wrangler (CLI Cloudflare Workers — local uniquement)
+.wrangler/
