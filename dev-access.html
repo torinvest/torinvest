@@ -107,8 +107,10 @@
       msg.textContent = "Vérification...";
 
       try {
-        const resp = await window.TORINVEST_PHP.fetch("/api/dev-auth.php", {
+        // POST direct radar : le redirect Netlify 302 cassait le body JSON (PIN jamais reçu)
+        const resp = await fetch("https://radar.torinvest-trading.com/api/dev-auth.php", {
           method: "POST",
+          mode: "cors",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ pin })
         });
