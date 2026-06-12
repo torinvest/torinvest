@@ -742,26 +742,29 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
           accessPill.textContent = "✅ Accès autorisé • Espace premium déverrouillé.";
           premiumZone.style.display = "block";
 
-    // === Génération du code Forgeron originel via ton Worker ===
+          // Code Forgeron originel (TorPass) — route Worker /access-code, distinct de la licence AI Access / MT5
           try {
             const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/access-code", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ wallet: pubkey }),
             });
+            const text = await resp.text();
+            let data = null;
+            try { data = JSON.parse(text); } catch (e) {}
 
-            const data = await resp.json();
+            if (forgeCard) forgeCard.style.display = "block";
 
-            if (data && data.ok && data.code) {
+            if (!resp.ok) {
+              if (forgeCodeValue) forgeCodeValue.textContent = "ERREUR " + resp.status + " : " + text.slice(0, 300);
+            } else if (data && data.ok && data.code) {
               if (forgeCodeValue) forgeCodeValue.textContent = data.code;
-              if (forgeCard) forgeCard.style.display = "block";
             } else {
-              console.warn("Réponse inattendue de /access-code :", data);
-              if (forgeCard) forgeCard.style.display = "none";
+              if (forgeCodeValue) forgeCodeValue.textContent = "Réponse inattendue : " + text.slice(0, 300);
             }
           } catch (e) {
-            console.error("Erreur lors de la génération du code Forgeron :", e);
-            if (forgeCard) forgeCard.style.display = "none";
+            if (forgeCard) forgeCard.style.display = "block";
+            if (forgeCodeValue) forgeCodeValue.textContent = "Erreur : " + (e.message || String(e));
           }
 
         } else {

@@ -2,486 +2,218 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>TORINVEST AI ACCESS — Connexion licence</title>
+  <title>TORINVEST AI ACCESS — Connexion</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- TORINVEST META SEO -->
-  <meta name="description" content="Connexion licence TORINVEST AI — validez votre abonnement pour accéder au terminal." />
-  <meta name="keywords" content="TORINVEST, trading, macro, IA" />
-  <meta name="author" content="TORINVEST" />
+  <meta name="description" content="Connexion TORINVEST AI Access — licence abonné ou accès admin." />
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="canonical" href="https://www.torinvest-trading.com/ai-access.html" />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="fr_FR" />
-  <meta property="og:site_name" content="TORINVEST" />
-  <meta property="og:title" content="TORINVEST AI ACCESS — Connexion licence" />
-  <meta property="og:description" content="Connexion licence TORINVEST AI — validez votre abonnement pour accéder au terminal." />
-  <meta property="og:url" content="https://www.torinvest-trading.com/ai-access.html" />
-  <meta property="og:image" content="https://www.torinvest-trading.com/forge-logo.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="TORINVEST AI ACCESS — Connexion licence" />
-  <meta name="twitter:description" content="Connexion licence TORINVEST AI — validez votre abonnement pour accéder au terminal." />
-  <meta name="twitter:image" content="https://www.torinvest-trading.com/forge-logo.png" />
-  <meta name="theme-color" content="#040407" />
   <link rel="icon" href="/forge-logo.png" type="image/png" />
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebPage","name":"TORINVEST AI ACCESS — Connexion licence","description":"Connexion licence TORINVEST AI — validez votre abonnement pour accéder au terminal.","url":"https://www.torinvest-trading.com/ai-access.html","inLanguage":"fr-FR","isPartOf":{"@type":"WebSite","name":"TORINVEST","url":"https://www.torinvest-trading.com/"}}
-  </script>
+  <meta name="theme-color" content="#040407" />
   <style>
     :root {
-      --bg: #040407;
-      --panel: rgba(12, 10, 7, 0.88);
-      --gold: #ffb400;
-      --gold2: #ffd36a;
-      --red: #ff4b5c;
-      --green: #15d16b;
-      --text: #f6f0df;
-      --muted: #9a9aad;
-      --line: rgba(255, 180, 0, 0.24);
+      --gold: #ffb400; --gold2: #ffd36a; --red: #ff4b5c; --green: #15d16b;
+      --text: #f6f0df; --muted: #9a9aad; --line: rgba(255,180,0,.24);
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 15% 5%, rgba(255,180,0,.18), transparent 30%),
-        radial-gradient(circle at 85% 15%, rgba(255,75,92,.12), transparent 28%),
-        linear-gradient(135deg, #020201, #090704 55%, #020201);
-      display: grid;
-      place-items: center;
-      padding: 20px;
+      min-height: 100vh; font-family: system-ui, sans-serif; color: var(--text);
+      background: radial-gradient(circle at 15% 5%, rgba(255,180,0,.18), transparent 30%),
+                  linear-gradient(135deg, #020201, #090704 55%, #020201);
+      display: grid; place-items: center; padding: 20px;
     }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(rgba(255,180,0,.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,180,0,.035) 1px, transparent 1px);
-      background-size: 54px 54px;
-      mask-image: radial-gradient(circle at center, black, transparent 78%);
-    }
-
     .shell {
-      width: min(980px, 100%);
-      display: grid;
-      grid-template-columns: 1fr 430px;
-      gap: 18px;
-      position: relative;
-      z-index: 2;
+      width: min(980px, 100%); display: grid; grid-template-columns: 1fr 440px;
+      gap: 18px; position: relative; z-index: 2;
     }
-
-    .hero,
-    .card {
+    .hero, .card {
       border: 1px solid var(--line);
       background: linear-gradient(180deg, rgba(18,15,10,.92), rgba(3,3,2,.96));
-      border-radius: 28px;
-      box-shadow: 0 22px 60px rgba(0,0,0,.62);
-      overflow: hidden;
+      border-radius: 28px; box-shadow: 0 22px 60px rgba(0,0,0,.62);
     }
-
-    .hero {
-      padding: 34px;
-      min-height: 520px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+    .hero { padding: 34px; min-height: 520px; display: flex; flex-direction: column; justify-content: space-between; }
+    .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .brand img { width: 58px; height: 58px; border-radius: 16px; border: 1px solid var(--line); object-fit: cover; }
+    .brand-title { font-weight: 950; letter-spacing: .16em; font-size: 15px; }
+    .brand-sub { color: var(--muted); text-transform: uppercase; letter-spacing: .12em; font-size: 10px; margin-top: 3px; }
+    .eyebrow { color: var(--gold2); text-transform: uppercase; letter-spacing: .18em; font-size: 11px; font-weight: 900; margin-bottom: 12px; }
+    h1 { font-size: clamp(34px, 5vw, 58px); line-height: .95; margin-bottom: 18px; }
+    .grad { background: linear-gradient(115deg, var(--gold2), var(--gold), var(--red)); -webkit-background-clip: text; color: transparent; }
+    .hero p { color: var(--muted); max-width: 620px; font-size: 15px; line-height: 1.6; }
+    .steps { display: grid; gap: 10px; margin-top: 28px; }
+    .step { border: 1px solid rgba(255,180,0,.16); background: rgba(0,0,0,.22); border-radius: 16px; padding: 13px; color: var(--muted); font-size: 13px; }
+    .step b { color: var(--gold2); }
+    .card { padding: 28px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+    .tab {
+      flex: 1; border: 1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.25);
+      color: var(--muted); border-radius: 999px; padding: 10px; cursor: pointer;
+      font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 13px;
-      margin-bottom: 28px;
-    }
-
-    .logo-box {
-      width: 52px;
-      height: 52px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      color: var(--gold2);
-      font-size: 26px;
-      filter: drop-shadow(0 0 14px rgba(255,180,0,.22));
-    }
-
-    .brand-title {
-      font-weight: 950;
-      letter-spacing: .18em;
-      font-size: 15px;
-    }
-
-    .brand-sub {
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      font-size: 10px;
-      margin-top: 3px;
-    }
-
-    .eyebrow {
-      color: var(--gold2);
-      text-transform: uppercase;
-      letter-spacing: .18em;
-      font-size: 11px;
-      font-weight: 900;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      font-size: clamp(34px, 5vw, 62px);
-      line-height: .95;
-      letter-spacing: -.05em;
-      margin-bottom: 18px;
-    }
-
-    .grad {
-      background: linear-gradient(115deg, var(--gold2), var(--gold), var(--red));
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-
-    .hero p {
-      color: var(--muted);
-      max-width: 620px;
-      font-size: 15px;
-      line-height: 1.6;
-    }
-
-    .steps {
-      display: grid;
-      gap: 10px;
-      margin-top: 28px;
-    }
-
-    .step {
-      border: 1px solid rgba(255,180,0,.16);
-      background: rgba(0,0,0,.22);
-      border-radius: 16px;
-      padding: 13px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .step b {
-      color: var(--gold2);
-    }
-
-    .card {
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 1px solid rgba(21,209,107,.25);
-      color: #b9ffd8;
-      background: rgba(21,209,107,.08);
-      border-radius: 999px;
-      padding: 7px 11px;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      margin-bottom: 18px;
-      width: fit-content;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 14px var(--green);
-    }
-
-    .card h2 {
-      font-size: 26px;
-      margin-bottom: 8px;
-    }
-
-    .card .intro {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 18px;
-      line-height: 1.55;
-    }
-
-    label {
-      display: block;
-      color: var(--gold2);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .12em;
-      font-weight: 900;
-      margin: 14px 0 7px;
-    }
-
+    .tab.active { color: #1a1200; background: linear-gradient(135deg, var(--gold), var(--gold2)); border-color: transparent; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    label { display: block; color: var(--gold2); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; font-weight: 900; margin: 14px 0 7px; }
     input {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: rgba(0,0,0,.38);
-      color: var(--text);
-      border-radius: 14px;
-      padding: 13px 14px;
-      outline: none;
-      font-size: 14px;
+      width: 100%; border: 1px solid var(--line); background: rgba(0,0,0,.38);
+      color: var(--text); border-radius: 14px; padding: 13px 14px; outline: none; font-size: 14px;
     }
-
-    input:focus {
-      border-color: var(--gold2);
-      box-shadow: 0 0 18px rgba(255,180,0,.14);
-    }
-
-    .row {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
+    input:focus { border-color: var(--gold2); box-shadow: 0 0 18px rgba(255,180,0,.14); }
     button {
-      width: 100%;
-      margin-top: 18px;
-      border: none;
-      border-radius: 999px;
-      padding: 13px 16px;
-      background: linear-gradient(135deg, var(--gold), var(--red));
-      color: #1a1200;
-      font-weight: 950;
-      cursor: pointer;
-      transition: .15s ease;
+      width: 100%; margin-top: 18px; border: none; border-radius: 999px; padding: 13px 16px;
+      background: linear-gradient(135deg, var(--gold), var(--red)); color: #1a1200;
+      font-weight: 950; cursor: pointer;
     }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 34px rgba(255,180,0,.14);
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .ghost {
-      display: inline-flex;
-      justify-content: center;
-      width: 100%;
-      margin-top: 10px;
-      border: 1px solid rgba(255,255,255,.09);
-      border-radius: 999px;
-      padding: 12px 16px;
-      color: var(--muted);
-      text-decoration: none;
-      font-size: 13px;
-      background: rgba(255,255,255,.035);
-    }
-
-    .result {
-      margin-top: 16px;
-      min-height: 54px;
-      border: 1px solid rgba(255,180,0,.16);
-      background: rgba(0,0,0,.22);
-      border-radius: 16px;
-      padding: 13px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .ok { color: var(--green); }
-    .bad { color: var(--red); }
-    .warn { color: var(--gold2); }
-
-    .small {
-      color: var(--muted);
-      font-size: 11px;
-      margin-top: 13px;
-      line-height: 1.45;
-    }
-
-    @media (max-width: 920px) {
-      .shell { grid-template-columns: 1fr; }
-      .hero { min-height: auto; }
-    }
-
-    .back-home-btn {
-      position: fixed;
-      bottom: 22px;
-      right: 22px;
-      padding: 8px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      text-decoration: none;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.12);
-      color: #f5f5f7;
-      backdrop-filter: blur(4px);
-      transition: 0.2s ease;
-      z-index: 9999;
-    }
-
-    .back-home-btn:hover {
-      background: rgba(255, 180, 0, 0.25);
-      border-color: rgba(255, 180, 0, 0.6);
-      transform: translateY(-2px);
-    }
-
-    @media (max-width: 640px) {
-      .back-home-btn {
-        right: 14px;
-        bottom: 14px;
-      }
-    }
-
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .ghost { display: inline-flex; justify-content: center; width: 100%; margin-top: 10px; border: 1px solid rgba(255,255,255,.09); border-radius: 999px; padding: 12px 16px; color: var(--muted); text-decoration: none; font-size: 13px; background: rgba(255,255,255,.035); }
+    .result { margin-top: 16px; min-height: 54px; border: 1px solid rgba(255,180,0,.16); background: rgba(0,0,0,.22); border-radius: 16px; padding: 13px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .ok { color: var(--green); } .bad { color: var(--red); } .warn { color: var(--gold2); }
+    .small { color: var(--muted); font-size: 11px; margin-top: 13px; line-height: 1.45; }
+    @media (max-width: 920px) { .shell { grid-template-columns: 1fr; } .hero { min-height: auto; } }
   </style>
 </head>
-
 <body>
   <main class="shell">
     <section class="hero">
       <div>
         <div class="brand">
-          <div class="logo-box">⚒</div>
+          <img src="/forge-logo.png" alt="TORINVEST" />
           <div>
             <div class="brand-title">TORINVEST</div>
-            <div class="brand-sub">La force d’un esprit libre</div>
+            <div class="brand-sub">AI Access · Command Center</div>
           </div>
         </div>
-
         <div class="eyebrow">Private Access</div>
-        <h1><span class="grad">AI Access</span><br>réservé aux abonnés.</h1>
+        <h1><span class="grad">AI Access</span><br>terminal sécurisé.</h1>
         <p>
-          Cette zone donne accès au terminal TORINVEST AI : analyse multi-agents, dashboard marché,
-          signaux publics/privés, lecture Smart Money, validation licence et couche MT5.
+          Terminal décisionnel connecté au Worker TORINVEST : signaux, Smart Money, cockpit multi-actifs
+          et assistant IA. Les clients entrent leur licence VIP ; l’administrateur utilise son PIN personnel.
         </p>
       </div>
-
       <div class="steps">
-        <div class="step"><b>1.</b> Le client achète son abonnement.</div>
-        <div class="step"><b>2.</b> Tu génères une licence via le Worker.</div>
-        <div class="step"><b>3.</b> Le client colle sa licence ici.</div>
-        <div class="step"><b>4.</b> Si la licence est active, le terminal AI Access s’ouvre.</div>
+        <div class="step"><b>Client</b> — Licence TOR-VIP active + compte MT5 (si requis).</div>
+        <div class="step"><b>Admin</b> — PIN développeur (accès complet sans licence).</div>
+        <div class="step"><b>Sécurité</b> — Session signée côté radar, chat IA proxifié.</div>
       </div>
     </section>
 
     <section class="card">
-      <div class="status-pill"><span class="dot"></span> licence required</div>
-      <h2>Connexion AI Access</h2>
-      <p class="intro">
-        Entre ta licence TORINVEST. Si elle est active, l’accès sera ouvert sur ce navigateur.
-      </p>
-
-      <form id="loginForm">
-        <label for="licenseKey">Licence</label>
-        <input id="licenseKey" name="licenseKey" placeholder="TOR-VIP-XXXX-XXXX-XXXX" autocomplete="off" required />
-
-        <label for="mt5Account">Compte MT5 optionnel</label>
-        <input id="mt5Account" name="mt5Account" placeholder="Ex : 1159266" autocomplete="off" />
-
-        <button id="submitBtn" type="submit">Vérifier et ouvrir AI Access</button>
-      </form>
-
-      <a class="ghost" href="/">← Retour accueil</a>
-
-      <div id="result" class="result">
-        En attente de vérification.
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="client">Client · Licence</button>
+        <button type="button" class="tab" data-tab="admin">Admin · PIN</button>
       </div>
 
-      <p class="small">
-        Aucun conseil financier. L’accès peut être coupé automatiquement si la licence expire ou si l’abonnement n’est plus actif.
-      </p>
+      <div id="panel-client" class="panel active">
+        <h2 style="font-size:22px;margin-bottom:8px">Connexion abonné</h2>
+        <p class="small" style="margin-top:0;margin-bottom:12px">Licence générée via ton CRM admin-licence.</p>
+        <form id="clientForm">
+          <label for="licenseKey">Licence TOR-VIP</label>
+          <input id="licenseKey" placeholder="TOR-VIP-XXXX-XXXX-XXXX" autocomplete="off" required />
+          <label for="mt5Account">Compte MT5 (optionnel)</label>
+          <input id="mt5Account" placeholder="Ex : 1159266" autocomplete="off" />
+          <button id="clientBtn" type="submit">Ouvrir AI Access</button>
+        </form>
+      </div>
+
+      <div id="panel-admin" class="panel">
+        <h2 style="font-size:22px;margin-bottom:8px">Accès administrateur</h2>
+        <p class="small" style="margin-top:0;margin-bottom:12px">Même terminal, sans licence — réservé TORINVEST.</p>
+        <form id="adminForm">
+          <label for="adminPin">PIN admin</label>
+          <input id="adminPin" type="password" placeholder="Code personnel" autocomplete="off" required />
+          <button id="adminBtn" type="submit">Connexion admin</button>
+        </form>
+      </div>
+
+      <a class="ghost" href="/">← Retour accueil</a>
+      <div id="result" class="result">Choisis ton mode de connexion.</div>
+      <p class="small">Aucun conseil financier. Session révoquée si licence expirée ou PIN invalide.</p>
     </section>
   </main>
 
-  <a href="/" class="back-home-btn">← Retour accueil</a>
-
   <script>
-    const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
-    const AI_ACCESS_PAGE = "/AITORINVEST.html";
+    const API = "https://radar.torinvest-trading.com/api/ai-access.php";
+    const STORAGE = "torinvest_ai_access_session_v2";
+    const TARGET = "/AITORINVEST.html";
 
-    const form = document.getElementById("loginForm");
     const result = document.getElementById("result");
-    const submitBtn = document.getElementById("submitBtn");
 
-    function setResult(html) {
-      result.innerHTML = html;
-    }
+    function setResult(html) { result.innerHTML = html; }
 
-    function saveSession(data, licenseKey, mt5Account) {
-      const session = {
-        licenseKey,
-        mt5Account: mt5Account || "",
+    function saveAndRedirect(data) {
+      localStorage.removeItem("torinvest_ai_access_session");
+      localStorage.removeItem("torinvest_dev_session");
+      localStorage.setItem(STORAGE, JSON.stringify({
+        token: data.token,
+        role: data.role,
+        expiresAt: data.expiresAt,
         email: data.email || "",
         plan: data.plan || "",
         status: data.status || "",
-        expires: data.expires || "",
-        canTrade: data.canTrade === true,
-        verifiedAt: new Date().toISOString()
-      };
-
-      localStorage.setItem("torinvest_ai_access_session", JSON.stringify(session));
+        licenseExpires: data.licenseExpires || "",
+        mt5Account: data.mt5Account || "",
+        label: data.label || "",
+      }));
+      setTimeout(function () { window.location.href = TARGET; }, 700);
     }
 
-    form.addEventListener("submit", async function (e) {
+    document.querySelectorAll(".tab").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".tab").forEach(function (b) { b.classList.remove("active"); });
+        document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("active"); });
+        btn.classList.add("active");
+        document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    if (location.hash === "#admin") {
+      document.querySelector('.tab[data-tab="admin"]').click();
+    }
+
+    document.getElementById("clientForm").addEventListener("submit", async function (e) {
       e.preventDefault();
-
-      const licenseKey = document.getElementById("licenseKey").value.trim();
-      const mt5Account = document.getElementById("mt5Account").value.trim();
-
-      if (!licenseKey) {
-        setResult('<span class="bad">Licence obligatoire.</span>');
-        return;
-      }
-
-      submitBtn.disabled = true;
-      setResult('<span class="warn">Vérification de la licence en cours...</span>');
-
+      const btn = document.getElementById("clientBtn");
+      btn.disabled = true;
+      setResult('<span class="warn">Vérification licence via radar...</span>');
       try {
-        let url = WORKER + "/validate-license?key=" + encodeURIComponent(licenseKey);
-        if (mt5Account) url += "&account=" + encodeURIComponent(mt5Account);
-
-        const resp = await fetch(url, { headers: { "Accept": "application/json" } });
+        const resp = await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "login_client",
+            licenseKey: document.getElementById("licenseKey").value.trim(),
+            mt5Account: document.getElementById("mt5Account").value.trim(),
+          }),
+        });
         const data = await resp.json();
-
-        if (!resp.ok || data.ok === false || data.canTrade === false) {
-          localStorage.removeItem("torinvest_ai_access_session");
-          setResult(
-            '<span class="bad">Accès refusé.</span><br>' +
-            'Raison : ' + (data.reason || data.error || "Licence invalide ou expirée") + '<br>' +
-            'Expiration : ' + (data.expires || "N/A")
-          );
-          submitBtn.disabled = false;
-          return;
-        }
-
-        saveSession(data, licenseKey, mt5Account);
-
-        setResult(
-          '<span class="ok">Licence active. Ouverture du terminal...</span><br>' +
-          'Plan : ' + (data.plan || "N/A") + '<br>' +
-          'Expiration : ' + (data.expires || "N/A")
-        );
-
-        setTimeout(function () {
-          window.location.href = AI_ACCESS_PAGE;
-        }, 900);
-
+        if (!resp.ok || !data.ok) throw new Error(data.error || "Accès refusé");
+        setResult('<span class="ok">Licence active. Ouverture...</span><br>Plan : ' + (data.plan || "N/A"));
+        saveAndRedirect(data);
       } catch (err) {
-        setResult('<span class="bad">Erreur de connexion au Worker : ' + err.message + '</span>');
-        submitBtn.disabled = false;
+        setResult('<span class="bad">' + err.message + "</span>");
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("adminForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById("adminBtn");
+      btn.disabled = true;
+      setResult('<span class="warn">Vérification PIN admin...</span>');
+      try {
+        const resp = await fetch(API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "login_admin",
+            pin: document.getElementById("adminPin").value.trim(),
+          }),
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) throw new Error(data.error || "PIN incorrect");
+        setResult('<span class="ok">Accès admin accordé. Ouverture...</span>');
+        saveAndRedirect(data);
+      } catch (err) {
+        setResult('<span class="bad">' + err.message + "</span>");
+        btn.disabled = false;
       }
     });
   </script>

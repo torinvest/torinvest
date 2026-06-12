@@ -763,55 +763,39 @@ textarea {
   }
 }
 
+/* V11 — auth, vues, branding */
+body.auth-pending .app{visibility:hidden}
+body.auth-pending::after{
+  content:"Vérification accès sécurisé…";position:fixed;inset:0;display:grid;place-items:center;
+  z-index:99999;color:#ffce62;font-weight:800;letter-spacing:.08em;background:rgba(2,2,1,.96);
+}
+.brand-logo{width:92px;height:auto;margin:0 auto 10px;display:block;border-radius:14px;border:1px solid rgba(217,164,65,.25);box-shadow:0 0 22px rgba(255,206,98,.18)}
+.top-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
+.session-box{font-size:11px;color:#a69b86;line-height:1.4;max-width:220px;text-align:right}
+.view-nav{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 10px}
+.view-nav button{
+  border:1px solid rgba(217,164,65,.25);background:rgba(0,0,0,.28);color:#a69b86;
+  border-radius:999px;padding:8px 14px;font-size:11px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em
+}
+.view-nav button.active{color:#1a1200;background:linear-gradient(135deg,#d9a441,#ffce62);border-color:transparent}
+.view-block{display:none}
+body[data-terminal-view="chat"] .view-block.view-chat{display:contents}
+body[data-terminal-view="cockpit"] .view-block.view-cockpit{display:contents}
+body[data-terminal-view="account"] .view-block.view-account{display:block;grid-column:1/-1}
+body:not([data-terminal-view="chat"]) .input-zone{display:none}
+.ai-toggle.on{border-color:rgba(21,209,107,.45)!important;color:#9dffc8!important}
+.ai-toggle.off{border-color:rgba(255,90,95,.45)!important;color:#ffc0c2!important}
+.account-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:0 14px 14px}
+@media(max-width:900px){.account-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
-<body>
-
-<script>
-(async function protectAiAccess() {
-  const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
-  const LOGIN_PAGE = "/ai-access.html";
-
-  const raw = localStorage.getItem("torinvest_ai_access_session");
-
-  if (!raw) {
-    window.location.href = LOGIN_PAGE;
-    return;
-  }
-
-  try {
-    const session = JSON.parse(raw);
-    const key = session.licenseKey;
-    const account = session.mt5Account || "";
-
-    if (!key) {
-      localStorage.removeItem("torinvest_ai_access_session");
-      window.location.href = LOGIN_PAGE;
-      return;
-    }
-
-    let url = WORKER + "/validate-license?key=" + encodeURIComponent(key);
-    if (account) url += "&account=" + encodeURIComponent(account);
-
-    const resp = await fetch(url);
-    const data = await resp.json();
-
-    if (!resp.ok || data.ok === false || data.canTrade === false) {
-      localStorage.removeItem("torinvest_ai_access_session");
-      window.location.href = LOGIN_PAGE;
-      return;
-    }
-
-  } catch (e) {
-    localStorage.removeItem("torinvest_ai_access_session");
-    window.location.href = LOGIN_PAGE;
-  }
-})();
-</script>
+<body data-terminal-view="chat">
+<script src="/assets/aitorinvest-auth.js"></script>
 
 <div class="app">
   <aside class="sidebar" id="leftPanel"><button class="ghost panel-close-mobile" onclick="toggleLeft()">Fermer le menu</button>
-    <div class="brand"><div class="forge-logo"><div class="hammer">⚒</div><div class="anvil">⚒</div></div><div class="logo">TORINVEST</div><div class="forge">LA FORGE</div><div class="slogan">La force d’un esprit libre</div></div>
+    <div class="brand"><img src="/forge-logo.png" alt="TORINVEST" class="brand-logo" /><div class="logo">TORINVEST</div><div class="forge">AI ACCESS</div><div class="slogan">La force d’un esprit libre</div></div>
     <div class="nav"><button class="active" onclick="newChat()">＋ Nouveau chat</button><button onclick="openArchives()">▣ Archives</button><button onclick="openAgentsModal()">⚙ Agents</button><button onclick="openMemoryModal()">⬢ Mémoire</button><button onclick="checkSystemHealth()">🧠 System Health</button><button onclick="refreshCockpit()">📡 Refresh Cockpit</button><button onclick="exportData()">⬇ Exporter</button><button onclick="importDataPrompt()">⬆ Importer</button><input id="importFile" type="file" accept="application/json" class="hidden" /></div>
     <div class="side-card"><div class="small-title">Agent actif</div><div class="agent-active" id="activeAgentBox"></div></div>
     <div class="side-card"><div class="small-title">Statut</div><div class="status"><span class="dot" id="workerDot"></span><span>Worker connecté<br><small id="workerShort"></small></span></div><div class="status"><span class="dot off" id="healthDot"></span><span id="healthStatusText">Health non testé<br><small>/system/health</small></span></div><div class="status"><span class="dot off" id="volumeDot"></span><span id="volumeStatusText">Volume en attente<br><small>volumeContext</small></span></div><div class="status"><span class="dot off" id="agentContextDot"></span><span id="agentContextStatusText">Agent context non testé<br><small>/agent/context</small></span></div><div class="status"><span class="dot off" id="micDot"></span><span id="micStatusText">Micro inactif<br><small>Dictée navigateur</small></span></div></div>
@@ -819,8 +803,10 @@ textarea {
   </aside>
   <main class="main">
     <div class="mobile-toggle"><button class="ghost" onclick="toggleLeft()">☰ Menu</button><button class="ghost" onclick="toggleRight()">Panneau droit</button></div>
-    <div class="topbar"><div class="model-box"><div class="model-label">Modèle</div><select class="select" id="modelSelect"></select></div><div class="title"><h1>TORINVEST AI ACCESS</h1><p>Terminal décisionnel — macro, smart money, signaux, risque, licences et MT5.</p></div><div class="worker-card"><span class="dot" id="topWorkerDot"></span><span><b>Worker actif</b><small id="workerShortTop"></small></span><span class="gear" onclick="checkSystemHealth()">⚙</span></div></div>
+    <div class="topbar"><div class="model-box"><div class="model-label">Modèle</div><select class="select" id="modelSelect"></select></div><div class="title"><h1>TORINVEST AI ACCESS</h1><p>Terminal décisionnel sécurisé — Worker, Smart Money, cockpit &amp; assistant IA.</p></div><div class="top-actions"><div class="session-box" id="sessionBadge">Session…</div><button type="button" class="ghost" style="padding:8px 12px;font-size:11px" id="aiToggleBtn" onclick="toggleAiEnabled()">IA : ON</button><button type="button" class="ghost" style="padding:8px 12px;font-size:11px" onclick="TORINVEST_AI_ACCESS.logout()">Déconnexion</button><div class="worker-card"><span class="dot" id="topWorkerDot"></span><span><b>Worker</b><small id="workerShortTop"></small></span><span class="gear" onclick="checkSystemHealth()">⚙</span></div></div></div>
+    <nav class="view-nav" id="viewNav"><button type="button" class="active" data-view="chat" onclick="setTerminalView('chat')">Chat IA</button><button type="button" data-view="cockpit" onclick="setTerminalView('cockpit')">Cockpit marché</button><button type="button" data-view="account" onclick="setTerminalView('account')">Compte &amp; outils</button></nav>
     <section class="dashboard">
+      <div class="view-block view-cockpit">
       <section class="command-banner">
         <div class="command-left">
           <div class="command-eyebrow">TORINVEST AI ACCESS</div>
@@ -858,14 +844,25 @@ textarea {
       </section>
 
       <section class="route-panel">
-        <div class="route-pill"><b>AI Chat</b><span>/ai/chat</span></div>
+        <div class="route-pill"><b>AI Chat</b><span>radar → /ai/chat</span></div>
         <div class="route-pill"><b>Agent Context</b><span>/agent/context</span></div>
         <div class="route-pill"><b>System Health</b><span>/system/health</span></div>
         <div class="route-pill"><b>News Risk</b><span>/news/latest</span></div>
       </section>
       <section class="cockpit"><div class="kpi" id="kpiRegime"><span>Macro regime</span><b>MIXTE</b><small>En attente Worker</small></div><div class="kpi" id="kpiNews"><span>News risk</span><b>N/A</b><small>Flux news</small></div><div class="kpi" id="kpiSignal"><span>Signal actif</span><b>N/A</b><small>Multi-actifs</small></div><div class="kpi" id="kpiReadiness"><span>Readiness</span><b>N/A</b><small>Smart money</small></div><div class="kpi" id="kpiHealth"><span>System health</span><b>NON TESTÉ</b><small>Worker / KV / IA</small></div></section>
-      <section class="chat-panel"><div class="chat-head"><div class="small-title">Forge Assistant</div><span class="badge ok">LIVE</span></div><section class="chat" id="chat"></section></section>
       <section class="right-stack"><div class="panel"><div class="panel-head"><div class="small-title">Smart Money Engine</div><div class="plus" onclick="quick('Analyse le Smart Money Engine actuel : structure, liquidité, sweep, inducement, MSS/BOS/CHOCH, FVG/OB, readiness et invalidation.')">+</div></div><div id="smartMoneyPanel" style="font-size:12px;color:var(--muted);line-height:1.55">En attente du contexte Worker.</div></div><div class="panel"><div class="panel-head"><div class="small-title">Signal Center</div><div class="plus" onclick="refreshCockpit()">↻</div></div><div class="signal-list" id="signalCenter"></div></div><div class="panel"><div class="panel-head"><div class="small-title">Market Map</div><div class="plus" onclick="refreshCockpit()">↻</div></div><div class="market-list" id="marketMap"></div></div></section>
+      </div>
+      <div class="view-block view-chat">
+      <section class="chat-panel"><div class="chat-head"><div class="small-title">Assistant AI Access</div><span class="badge ok" id="chatLiveBadge">LIVE</span></div><section class="chat" id="chat"></section></section>
+      </div>
+      <div class="view-block view-account">
+        <div class="account-grid">
+          <div class="panel"><div class="panel-head"><div class="small-title">Session &amp; licence</div></div><div id="accountSessionBox" class="health-line">Chargement session…</div><button class="primary" style="width:100%;margin-top:10px" type="button" onclick="TORINVEST_AI_ACCESS.logout()">Se déconnecter</button></div>
+          <div class="panel"><div class="panel-head"><div class="small-title">Contrôle IA (coûts)</div></div><p class="hint" style="font-size:12px;color:var(--muted);line-height:1.5">Coupe l’envoi vers Mistral via le proxy radar. Le cockpit Worker reste disponible.</p><button class="primary" style="width:100%;margin-top:10px" type="button" id="aiToggleBtnAccount" onclick="toggleAiEnabled()">IA : ON</button></div>
+          <div class="panel"><div class="small-title">System Health</div><div id="healthBoxAccount" style="font-size:12px;color:var(--muted);line-height:1.5">Aucun diagnostic.</div><button class="primary" style="width:100%;margin-top:10px" onclick="checkSystemHealth()">Analyser</button></div>
+          <div class="panel"><div class="small-title">Données locales</div><div class="stats"><div class="stat"><b id="statChatsAccount">0</b><span>Archives</span></div><div class="stat"><b id="statMemAccount">0</b><span>Souvenirs</span></div></div><div class="actions" style="margin-top:10px"><button class="ghost" type="button" onclick="exportData()">Exporter</button><button class="ghost" type="button" onclick="importDataPrompt()">Importer</button></div></div>
+        </div>
+      </div>
     </section>
     <div class="input-zone"><div class="voice-debug" id="voiceDebug"></div><div class="preview" id="imagePreviewBox"><img id="imagePreview" /><div class="meta"><b style="color:var(--gold2)">Image prête</b><br><span id="imageMeta">Envoyée avec le prochain message.</span></div><button class="ghost" onclick="clearPendingImage()">Retirer</button></div><div class="input"><button class="tool-btn" title="Ajouter une image" onclick="document.getElementById('imageInput').click()">📎</button><button class="tool-btn" id="micBtn" title="Dicter vocalement" onclick="toggleVoice()">🎙️</button><textarea id="userInput" placeholder="Écris ton message…"></textarea><button class="primary" onclick="sendMessage()">ENVOYER ⚡</button><input id="imageInput" class="hidden" type="file" accept="image/*" onchange="handleImagePick(event)" /></div><div class="footer-note">Les informations fournies ne constituent pas un conseil en investissement.<br>Trade avec discipline. Gère ton risque.</div></div>
   </main>
@@ -886,6 +883,7 @@ textarea {
 <div class="modal" id="archivesModal"><div class="box"><h3>Archives conversations</h3><div id="archivesList"></div><div class="actions"><button class="ghost" onclick="closeModal('archivesModal')">Fermer</button></div></div></div>
 <script>
 const WORKER_BASE_URL="https://morning-hall-d8f6.onzerimes.workers.dev";
+const AI_ACCESS_API="https://radar.torinvest-trading.com/api/ai-access.php";
 const COPY_TOKEN="default";
 
 const WORKER_AI_URL=WORKER_BASE_URL+"/ai/chat";
@@ -1035,13 +1033,10 @@ function defaultState(){
   return{
     agentId:"macro",
     model:"mistral-large-latest",
+    aiEnabled:true,
     messages:[],
     chats:[],
-    memory:[
-      {text:"Préférence : Swing trading",ts:new Date("2025-05-15").getTime()},
-      {text:"Risque max par trade : 1%",ts:new Date("2025-05-15").getTime()},
-      {text:"Objectif mensuel : 8-12%",ts:new Date("2025-05-14").getTime()}
-    ]
+    memory:[]
   };
 }
 
@@ -1050,6 +1045,7 @@ function normalizeState(s){
   return{
     agentId:s?.agentId||d.agentId,
     model:s?.model||d.model,
+    aiEnabled:s?.aiEnabled!==false,
     messages:Array.isArray(s?.messages)?s.messages:[],
     chats:Array.isArray(s?.chats)?s.chats:[],
     memory:Array.isArray(s?.memory)?s.memory:d.memory
@@ -1083,6 +1079,7 @@ function save(){
   try{
     const clean={
       ...state,
+      aiEnabled:state.aiEnabled!==false,
       messages:state.messages.filter(m=>!m.loading).slice(-40).map(m=>compactMessage(m,12000)),
       chats:state.chats.slice(0,20).map(c=>({
         id:c.id,
@@ -1271,6 +1268,9 @@ function render(){
     `<b style="color:var(--gold2)">${agent().icon} ${agent().name}</b><br>${agent().desc}`;
 
   setMicroStatus(false);
+  renderAiToggle();
+  renderAccountSession();
+  if(window.TORINVEST_AI_ACCESS)window.TORINVEST_AI_ACCESS.renderSessionBadge();
 }
 
 function renderModels(){
@@ -1304,7 +1304,7 @@ function renderChat(){
   if(!state.messages.length){
     state.messages=[{
       role:"assistant",
-      content:"Bienvenue dans TORINVEST AI ACCESS.\n\nLe terminal est branché sur le Worker : /ai/chat, /agent/context, /copy/signal, /market/context, /news/latest, /system/health et /validate-license.\n\nDemande-moi une analyse GOLD, EURUSD, BTC, USDJPY, NASDAQ ou teste une licence dans le panneau License Check.",
+      content:"Bienvenue dans TORINVEST AI ACCESS.\n\nTerminal sécurisé via radar : chat IA proxifié, cockpit Worker (/copy/signal, /market/context, /agent/context).\n\nUtilise les onglets Chat · Cockpit · Compte. Coupe l’IA avec le bouton « IA : OFF » pour maîtriser les coûts Mistral.",
       ts:Date.now()
     }];
   }
@@ -1347,6 +1347,57 @@ function renderStats(){
   document.getElementById("statChats").textContent=state.chats.length;
   document.getElementById("statMem").textContent=state.memory.length;
   document.getElementById("statSize").textContent=(new Blob([JSON.stringify(state)]).size/1024).toFixed(1)+" KB";
+  const accC=document.getElementById("statChatsAccount");
+  const accM=document.getElementById("statMemAccount");
+  if(accC)accC.textContent=state.chats.length;
+  if(accM)accM.textContent=state.memory.length;
+}
+
+function renderAiToggle(){
+  const on=!!state.aiEnabled;
+  const label="IA : "+(on?"ON":"OFF");
+  ["aiToggleBtn","aiToggleBtnAccount"].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.textContent=label;
+    el.classList.toggle("ai-toggle",true);
+    el.classList.toggle("on",on);
+    el.classList.toggle("off",!on);
+  });
+  const badge=document.getElementById("chatLiveBadge");
+  if(badge){
+    badge.textContent=on?"LIVE":"IA OFF";
+    badge.className="badge "+(on?"ok":"warn");
+  }
+}
+
+function toggleAiEnabled(){
+  state.aiEnabled=!state.aiEnabled;
+  save();
+  renderAiToggle();
+}
+
+function setTerminalView(view){
+  document.body.dataset.terminalView=view;
+  document.querySelectorAll("#viewNav button").forEach(btn=>{
+    btn.classList.toggle("active",btn.dataset.view===view);
+  });
+}
+
+function renderAccountSession(){
+  const box=document.getElementById("accountSessionBox");
+  if(!box)return;
+  const s=window.TORINVEST_AI_ACCESS&&window.TORINVEST_AI_ACCESS.session;
+  if(!s){box.textContent="Session non chargée.";return;}
+  if(s.role==="admin"){
+    box.innerHTML="<b class=\"health-ok\">Administrateur</b><br>Accès complet sans licence.<br>Proxy chat : radar sécurisé.";
+    return;
+  }
+  box.innerHTML=
+    "<b>Client</b> · "+escapeHtml(s.plan||"VIP")+"<br>"+
+    "Email : "+escapeHtml(s.email||"—")+"<br>"+
+    "Expiration licence : "+escapeHtml((s.licenseExpires||"N/A").slice(0,10))+"<br>"+
+    "MT5 : "+escapeHtml(s.mt5Account||"non lié");
 }
 
 function renderSignalCenter(){
@@ -1628,7 +1679,7 @@ function detectSymbolFromText(text){
   if(t.includes("SILVER")||t.includes("XAG")||t.includes("ARGENT"))return"XAGUSD";
   if(t.includes("GOLD")||t.includes("XAU")||t.includes(" OR ")||t==="OR"||t.includes("L'OR"))return"XAUUSD";
 
-  return"XAUUSD";
+  return"EURUSD";
 }
 
 function detectModeFromText(text){
@@ -1637,10 +1688,7 @@ function detectModeFromText(text){
     t.includes("scalp")||
     t.includes("m1")||
     t.includes("m3")||
-    t.includes("m5")||
-    t.includes("setup")||
-    t.includes("entrée")||
-    t.includes("entree")
+    t.includes("m5")
       ?"scalping"
       :"normal";
 }
@@ -1744,7 +1792,7 @@ function buildMessages(agentContext=null){
 const workerContext = compactCtx ? JSON.stringify(compactCtx,null,2) : "Aucun contexte Worker récupéré.";
   const workerSummary=summarizeAgentContext(agentContext);
 
-  const sys=`Tu es ${agent().name}, agent de La Forge AI by TORINVEST. ${agent().prompt}
+  const sys=`Tu es ${agent().name}, agent TORINVEST AI Access. ${agent().prompt}
 
 DATE ACTUELLE :
 ${today}
@@ -1792,6 +1840,20 @@ async function sendMessage(){
   const text=input.value.trim();
   if(!text&&!pendingImage)return;
 
+  if(!state.aiEnabled){
+    state.messages.push({role:"user",content:text||"Analyse cette image.",ts:Date.now()});
+    input.value="";
+    clearPendingImage();
+    state.messages.push({
+      role:"assistant",
+      content:"⏸ Transmission IA désactivée (mode économie). Active le bouton « IA : ON » pour relancer Mistral via le proxy sécurisé radar.",
+      ts:Date.now()
+    });
+    save();
+    renderChat();
+    return;
+  }
+
   if(isRecording&&recognition){
     try{recognition.stop()}catch(e){}
   }
@@ -1813,7 +1875,7 @@ async function sendMessage(){
 
   state.messages.push({
     role:"assistant",
-    content:"Forge en cours… récupération du contexte Worker...",
+    content:"Analyse en cours… récupération du contexte Worker...",
     ts:Date.now(),
     loading:true
   });
@@ -1831,21 +1893,25 @@ async function sendMessage(){
     }
 
     const modelToUse=imageToSend?VISION_MODEL:state.model;
+    const auth=window.TORINVEST_AI_ACCESS;
+    if(!auth||!auth.getToken())throw new Error("Session expirée — reconnecte-toi.");
 
-    const res=await fetch(WORKER_AI_URL,{
+    const res=await fetch(AI_ACCESS_API,{
       method:"POST",
-      headers:{"Content-Type":"application/json"},
+      headers:auth.getAuthHeaders(),
       body:JSON.stringify({
+        action:"chat",
         model:modelToUse,
-        messages: buildMessages(null),
+        messages:buildMessages(agentContext),
         temperature:agent().temp,
         max_tokens:1800,
         top_p:.95
       })
     });
 
-    const data=await res.json().catch(()=>({error:"Réponse Worker non JSON"}));
-    if(!res.ok)throw new Error(data.error||data.message||"Erreur Worker");
+    const data=await res.json().catch(()=>({error:"Réponse proxy non JSON"}));
+    if(!res.ok)throw new Error(data.error||data.message||"Erreur proxy AI Access");
+    if(data.error)throw new Error(data.error);
 
     const reply=data.choices?.[0]?.message?.content||data.reply||"Aucune réponse.";
 
@@ -1858,7 +1924,7 @@ async function sendMessage(){
     state.messages=state.messages.filter(m=>!m.loading);
     state.messages.push({
       role:"assistant",
-      content:"⚠ Erreur : "+e.message+"\n\nVérifie /agent/context, /ai/chat et /ai/status.",
+      content:"⚠ Erreur : "+e.message+"\n\nVérifie ta session, le proxy radar et /agent/context.",
       ts:Date.now()
     });
     save();
@@ -2037,7 +2103,9 @@ async function validateLicenseFromPanel(){
 
 async function checkSystemHealth(){
   const box=document.getElementById("healthBox");
+  const boxAcc=document.getElementById("healthBoxAccount");
   if(box)box.innerHTML="Analyse en cours...";
+  if(boxAcc)boxAcc.innerHTML="Analyse en cours...";
   setHealthSidebarStatus("LOADING","Health en analyse");
 
   try{
@@ -2046,6 +2114,7 @@ async function checkSystemHealth(){
     if(!res.ok||data.ok===false)throw new Error(data.error||data.message||"Erreur /system/health");
 
     const status=String(data.status||"UNKNOWN").toUpperCase();
+    const html=renderHealthData(data);
 
     setHealthSidebarStatus(
       status,
@@ -2057,32 +2126,20 @@ async function checkSystemHealth(){
 
     const volumeCount=data.checks?.volume?.assetsWithVolumeContext??data.checks?.volume?.assets_with_volume_context??0;
     setVolumeSidebarStatus(!!data.checks?.volume?.ok,volumeCount);
-    if(box)box.innerHTML=renderHealthData(data);
-
-    state.messages.push({
-      role:"assistant",
-      content:`SYSTEM HEALTH — ${status}
-
-${(data.summary||[]).map(s=>"• "+s).join("\n")||"Diagnostic reçu."}
-
-VolumeContext : ${data.checks?.volume?.ok?"ACTIF":"EN ATTENTE"} (${volumeCount} actif(s))`,
-      ts:Date.now()
-    });
-
-    save();
-    renderChat();
+    if(box)box.innerHTML=html;
+    if(boxAcc)boxAcc.innerHTML=html;
   }catch(e){
     setHealthSidebarStatus("CRITICAL","Health erreur");
     setVolumeSidebarStatus(false,0);
-    if(box){
-      box.innerHTML=`
+    const errHtml=`
         <div class="health-line">
           <b class="health-critical">Erreur health monitor</b><br>
           ${escapeHtml(e.message||String(e))}<br><br>
           Route testée : ${escapeHtml(WORKER_HEALTH_URL)}
         </div>
       `;
-    }
+    if(box)box.innerHTML=errHtml;
+    if(boxAcc)boxAcc.innerHTML=errHtml;
   }
 }
 
@@ -2269,8 +2326,16 @@ document.getElementById("importFile").onchange=async e=>{
   }
 };
 
+function bootTerminal(){
 render();
 preloadStatus();
+};
+
+if(window.TORINVEST_AI_ACCESS&&window.TORINVEST_AI_ACCESS.session){
+  bootTerminal();
+}else{
+  window.addEventListener("torinvest-ai-access-ready",bootTerminal);
+}
 </script>
 
   <a href="/index.html" class="home-return-btn">
@@ -2310,34 +2375,6 @@ preloadStatus();
     padding:10px 14px;
     font-size:12px;
   }
-}
-</style>
-
-<a href="http://localhost:8080" class="chainwork-btn">
-  ⛓ CHAINWORK
-</a>
-
-<style>
-.chainwork-btn{
-  position:fixed;
-  left:20px;
-  bottom:20px;
-  z-index:9999;
-  padding:12px 18px;
-  border-radius:14px;
-  text-decoration:none;
-  font-weight:900;
-  letter-spacing:.6px;
-  color:#00d9ff;
-  background:linear-gradient(180deg,rgba(0,217,255,.14),rgba(0,0,0,.55));
-  border:1px solid rgba(0,217,255,.55);
-  box-shadow:0 0 22px rgba(0,217,255,.25);
-}
-
-.chainwork-btn:hover{
-  color:#ffffff;
-  border-color:#23d5ff;
-  box-shadow:0 0 30px rgba(35,213,255,.45);
 }
 </style>
   

@@ -7,11 +7,25 @@ return [
     // Clé API Helius pour le proxy RPC Solana (lecture soldes KRM/ORAX)
     'helius_api_key' => 'VOTRE_CLE_HELIUS_ICI',
 
-    // Code PIN personnel pour accéder à AITORINVEST2.html (page dev sans licence)
+    // Code PIN personnel — accès admin AI Access (onglet Admin sur ai-access.html)
     'dev_access_pin' => 'CHANGEZ_MOI',
 
-    // Durée de validité de la session dev (en secondes) — 7 jours par défaut
+    // Durée session admin (secondes) — 7 jours par défaut
     'dev_session_ttl' => 604800,
+
+    // --- AI Access sécurisé (AITORINVEST.html) ---
+    // Secret HMAC sessions (laisser vide = dérivé des PIN ci-dessus)
+    'ai_access_hmac_secret' => '',
+
+    // Session client licence (secondes) — 12 h
+    'ai_access_client_session_ttl' => 43200,
+
+    // Session admin (secondes) — reprend dev_session_ttl si absent
+    'ai_access_admin_session_ttl' => 604800,
+
+    // Limite requêtes /ai/chat via proxy (par heure)
+    'ai_access_chat_rate_client' => 80,
+    'ai_access_chat_rate_admin' => 300,
 
     // --- CRM admin-licence (gestion licences VIP + FORGE) ---
     // PIN d'accès à la page /admin-licence/ (distinct du dev_access_pin)
