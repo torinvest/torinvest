@@ -50,7 +50,7 @@ body:before{content:"";position:fixed;inset:0;background-image:linear-gradient(r
 body:after{content:"";position:fixed;inset:auto -15% -35% -15%;height:45%;background:radial-gradient(ellipse at center,rgba(255,206,98,.16),transparent 62%);pointer-events:none;z-index:0}
 .app{height:100%;display:grid;grid-template-columns:280px minmax(680px,1fr) 370px;gap:14px;padding:14px;position:relative;z-index:1}
 .sidebar,.main,.right{border:1px solid var(--line);background:linear-gradient(180deg,rgba(18,15,10,.92),rgba(3,3,2,.96));border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;min-height:0;backdrop-filter:blur(10px)}
-.sidebar,.right{display:flex;flex-direction:column}.right{padding:14px;gap:14px;overflow-y:auto}.main{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-width:0}
+.main{display:grid;grid-template-rows:auto minmax(0,1fr) auto;min-width:0;min-height:calc(100vh - 20px);max-height:calc(100vh - 20px);overflow:hidden}
 .brand{padding:20px 15px 16px;text-align:center;border-bottom:1px solid var(--line);background:radial-gradient(circle at 50% 5%,rgba(255,206,98,.22),transparent 40%)}
 .forge-logo,.hero-mark{position:relative;display:flex;align-items:center;justify-content:center;color:var(--gold2);filter:drop-shadow(0 0 18px rgba(255,206,98,.45))}.forge-logo{width:120px;height:78px;margin:0 auto 8px}.forge-logo .hammer,.hero-mark .hammer{position:absolute;transform:rotate(40deg);font-size:34px}.forge-logo .hammer{top:-6px;right:17px}.forge-logo .anvil{font-size:68px;font-weight:900}.logo{font-weight:950;font-size:31px;letter-spacing:2px;color:var(--gold2);text-shadow:0 0 18px rgba(255,206,98,.45)}.forge{font-size:13px;letter-spacing:7px;color:#fff;margin-top:5px;opacity:.92}.forge:before,.forge:after{content:"";display:inline-block;width:28px;height:1px;background:var(--gold);vertical-align:middle;margin:0 7px 3px}.slogan{font-size:11px;color:var(--gold);letter-spacing:2px;margin-top:14px;text-transform:uppercase;line-height:1.55;font-weight:800}
 .nav{padding:14px;display:flex;flex-direction:column;gap:9px}.nav button,.primary,.ghost,.tool-btn,.quick button,.mini-btn{border:1px solid var(--line);background:linear-gradient(180deg,rgba(217,164,65,.10),rgba(0,0,0,.25));color:var(--text);border-radius:13px;padding:12px 14px;cursor:pointer;text-align:left;transition:.18s;font-weight:780;font-size:13px}.nav button:hover,.primary:hover,.ghost:hover,.tool-btn:hover,.quick button:hover,.mini-btn:hover{border-color:var(--gold2);box-shadow:0 0 18px rgba(217,164,65,.22);color:var(--gold2);transform:translateY(-1px)}.nav button.active{background:linear-gradient(90deg,rgba(217,164,65,.30),rgba(0,0,0,.22));color:var(--gold2);border-color:var(--line2)}
@@ -277,6 +277,7 @@ body {
   min-height: calc(100vh - 20px);
   max-height: calc(100vh - 20px);
   overflow: hidden;
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 .dashboard {
@@ -772,16 +773,16 @@ body.auth-pending::after{
 .brand-logo{width:92px;height:auto;margin:0 auto 10px;display:block;border-radius:14px;border:1px solid rgba(217,164,65,.25);box-shadow:0 0 22px rgba(255,206,98,.18)}
 .top-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end}
 .session-box{font-size:11px;color:#a69b86;line-height:1.4;max-width:220px;text-align:right}
-.view-nav{display:flex;flex-wrap:wrap;gap:8px;padding:0 14px 10px}
+.view-nav{display:flex;flex-wrap:wrap;gap:8px;padding:0 0 10px;grid-column:1/-1;position:relative;z-index:12;flex-shrink:0}
 .view-nav button{
   border:1px solid rgba(217,164,65,.25);background:rgba(0,0,0,.28);color:#a69b86;
   border-radius:999px;padding:8px 14px;font-size:11px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:.06em
 }
 .view-nav button.active{color:#1a1200;background:linear-gradient(135deg,#d9a441,#ffce62);border-color:transparent}
-.view-block{display:none}
-body[data-terminal-view="chat"] .view-block.view-chat{display:contents}
-body[data-terminal-view="cockpit"] .view-block.view-cockpit{display:contents}
-body[data-terminal-view="account"] .view-block.view-account{display:block;grid-column:1/-1}
+.view-block{display:none!important}
+body[data-terminal-view="chat"] .view-block.view-chat{display:contents!important}
+body[data-terminal-view="cockpit"] .view-block.view-cockpit{display:contents!important}
+body[data-terminal-view="account"] .view-block.view-account{display:block!important;grid-column:1/-1}
 body:not([data-terminal-view="chat"]) .input-zone{display:none}
 .ai-toggle.on{border-color:rgba(21,209,107,.45)!important;color:#9dffc8!important}
 .ai-toggle.off{border-color:rgba(255,90,95,.45)!important;color:#ffc0c2!important}
@@ -803,9 +804,13 @@ body:not([data-terminal-view="chat"]) .input-zone{display:none}
   </aside>
   <main class="main">
     <div class="mobile-toggle"><button class="ghost" onclick="toggleLeft()">☰ Menu</button><button class="ghost" onclick="toggleRight()">Panneau droit</button></div>
-    <div class="topbar"><div class="model-box"><div class="model-label">Modèle</div><select class="select" id="modelSelect"></select></div><div class="title"><h1>TORINVEST AI ACCESS</h1><p>Terminal décisionnel sécurisé — Worker, Smart Money, cockpit &amp; assistant IA.</p></div><div class="top-actions"><div class="session-box" id="sessionBadge">Session…</div><button type="button" class="ghost" style="padding:8px 12px;font-size:11px" id="aiToggleBtn" onclick="toggleAiEnabled()">IA : ON</button><button type="button" class="ghost" style="padding:8px 12px;font-size:11px" onclick="TORINVEST_AI_ACCESS.logout()">Déconnexion</button><div class="worker-card"><span class="dot" id="topWorkerDot"></span><span><b>Worker</b><small id="workerShortTop"></small></span><span class="gear" onclick="checkSystemHealth()">⚙</span></div></div></div>
-    <nav class="view-nav" id="viewNav"><button type="button" class="active" data-view="chat" onclick="setTerminalView('chat')">Chat IA</button><button type="button" data-view="cockpit" onclick="setTerminalView('cockpit')">Cockpit marché</button><button type="button" data-view="account" onclick="setTerminalView('account')">Compte &amp; outils</button></nav>
+    <div class="topbar"><div class="model-box"><div class="model-label">Modèle</div><select class="select" id="modelSelect"></select></div><div class="title"><h1>TORINVEST AI ACCESS</h1><p>Terminal décisionnel sécurisé — Worker, Smart Money, cockpit &amp; assistant IA.</p></div><div class="top-actions"><div class="session-box" id="sessionBadge">Session…</div><button type="button" class="ghost ai-toggle on" style="padding:8px 12px;font-size:11px" id="aiToggleBtn">IA : ON</button><button type="button" class="ghost" style="padding:8px 12px;font-size:11px" id="logoutBtn">Déconnexion</button><div class="worker-card"><span class="dot" id="topWorkerDot"></span><span><b>Worker</b><small id="workerShortTop"></small></span><span class="gear" onclick="checkSystemHealth()">⚙</span></div></div></div>
     <section class="dashboard">
+      <nav class="view-nav" id="viewNav" role="tablist">
+        <button type="button" class="active" data-view="chat" role="tab">Chat IA</button>
+        <button type="button" data-view="cockpit" role="tab">Cockpit marché</button>
+        <button type="button" data-view="account" role="tab">Compte &amp; outils</button>
+      </nav>
       <div class="view-block view-cockpit">
       <section class="command-banner">
         <div class="command-left">
@@ -1378,11 +1383,45 @@ function toggleAiEnabled(){
 }
 
 function setTerminalView(view){
+  if(!view||!["chat","cockpit","account"].includes(view))return;
   document.body.dataset.terminalView=view;
   document.querySelectorAll("#viewNav button").forEach(btn=>{
     btn.classList.toggle("active",btn.dataset.view===view);
   });
+  try{localStorage.setItem("torinvest_terminal_view",view)}catch(e){}
+  if(view==="chat"){
+    const c=document.getElementById("chat");
+    if(c)setTimeout(()=>{c.scrollTop=c.scrollHeight},50);
+  }
 }
+
+function initViewTabs(){
+  const nav=document.getElementById("viewNav");
+  if(!nav)return;
+  nav.addEventListener("click",function(e){
+    const btn=e.target.closest("button[data-view]");
+    if(!btn)return;
+    e.preventDefault();
+    setTerminalView(btn.dataset.view);
+  });
+  try{
+    const saved=localStorage.getItem("torinvest_terminal_view");
+    if(saved&&["chat","cockpit","account"].includes(saved))setTerminalView(saved);
+  }catch(e){}
+}
+
+function initTopActions(){
+  const logout=document.getElementById("logoutBtn");
+  if(logout)logout.addEventListener("click",function(){
+    if(window.TORINVEST_AI_ACCESS)window.TORINVEST_AI_ACCESS.logout();
+  });
+  ["aiToggleBtn","aiToggleBtnAccount"].forEach(function(id){
+    const el=document.getElementById(id);
+    if(el)el.addEventListener("click",toggleAiEnabled);
+  });
+}
+
+window.setTerminalView=setTerminalView;
 
 function renderAccountSession(){
   const box=document.getElementById("accountSessionBox");
@@ -2327,9 +2366,11 @@ document.getElementById("importFile").onchange=async e=>{
 };
 
 function bootTerminal(){
-render();
-preloadStatus();
-};
+  initViewTabs();
+  initTopActions();
+  render();
+  preloadStatus();
+}
 
 if(window.TORINVEST_AI_ACCESS&&window.TORINVEST_AI_ACCESS.session){
   bootTerminal();
