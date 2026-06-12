@@ -383,8 +383,8 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
 <script>
   const KRM_MINT   = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
   const ORAX_MINT  = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
-  // Comme à l'origine : RPC public Solana (navigateur → mainnet, sans VPS)
-  const RPC_URL    = "https://api.mainnet-beta.solana.com";
+  // RPC via proxy Helius (clé serveur) — le RPC public Solana renvoie 403 depuis le navigateur
+  const RPC_URL    = "https://radar.torinvest-trading.com/api/solana-rpc.php";
   const PREMIUM_URL = "/premium.html"; // ou l'URL exacte de ta page premium
 
   const MIN_KRM = 40_000;
@@ -431,7 +431,7 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
         pubkey +
         "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
 
-      // 2) Connexion RPC Solana mainnet (public)
+      // 2) Lecture soldes via proxy Helius (radar)
       const connection = new solanaWeb3.Connection(RPC_URL);
 
       // 3) Récupération de tous les comptes SPL
