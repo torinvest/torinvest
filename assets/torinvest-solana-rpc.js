@@ -1,15 +1,14 @@
 /**
- * TorPass — lecture soldes SPL via /api/solana-rpc.php (proxy Netlify → radar/Helius).
- * fetch() same-origin : évite CORS et les headers extra de @solana/web3.js.
+ * TorPass — lecture soldes KRM/ORAX via proxy Helius sur radar.
+ * fetch() direct (sans @solana/web3.js) : CORS OK, headers minimaux.
  */
 window.TorinvestSolana = {
-  rpcUrl: function () {
-    return window.location.origin + "/api/solana-rpc.php";
-  },
+  RPC_URL: "https://radar.torinvest-trading.com/api/solana-rpc.php",
 
   readSplBalances: async function (walletAddress, mintAddresses) {
-    const resp = await fetch(window.TorinvestSolana.rpcUrl(), {
+    const resp = await fetch(window.TorinvestSolana.RPC_URL, {
       method: "POST",
+      mode: "cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         jsonrpc: "2.0",
@@ -23,12 +22,12 @@ window.TorinvestSolana = {
       }),
     });
     const raw = await resp.text();
-    if (!resp.ok) throw new Error(resp.status + " : " + raw);
+    if (!resp.ok) throw new Error(resp.status + " : " + raw.slice(0, 300));
     var data;
     try {
       data = JSON.parse(raw);
     } catch (e) {
-      throw new Error(raw || "Réponse RPC invalide");
+      throw new Error(raw.slice(0, 300) || "Réponse RPC invalide");
     }
     if (data.error) throw new Error(JSON.stringify(data.error));
     var out = {};
