@@ -502,12 +502,11 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
     </main>
   </div>
 
-  <!-- Solana Web3.js -->
-  <script src="https://unpkg.com/@solana/web3.js@1.98.0/lib/index.iife.min.js"></script>
+  <!-- TorPass RPC (same-origin proxy) -->
+  <script src="/assets/torinvest-solana-rpc.js?v=1"></script>
   <script>
     const KRM_MINT = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
     const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
-    const RPC_URL = "https://radar.torinvest-trading.com/api/solana-rpc.php";
 
     const MIN_KRM = 10_000;
     const MIN_ORAX = 2_000_000;
@@ -688,28 +687,9 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
           pubkey +
           "\n\nRécupération des soldes KRM & ORAX en cours...";
 
-        const connection = new solanaWeb3.Connection(RPC_URL);
-        const tokenAccounts = await connection.getTokenAccountsByOwner(
-          new solanaWeb3.PublicKey(pubkey),
-          { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") },
-          { encoding: "jsonParsed" }
-        );
-
-        let krmBalance = 0;
-        let oraxBalance = 0;
-
-        for (const { account } of tokenAccounts.value) {
-          const info = account.data.parsed.info;
-          const mint = info.mint;
-          const amount = info.tokenAmount;
-
-          if (mint === KRM_MINT) {
-            krmBalance = Number(amount.uiAmountString || amount.uiAmount || 0);
-          }
-          if (mint === ORAX_MINT) {
-            oraxBalance = Number(amount.uiAmountString || amount.uiAmount || 0);
-          }
-        }
+        const balances = await TorinvestSolana.readKrmOrax(pubkey, KRM_MINT, ORAX_MINT);
+        const krmBalance = balances.krm;
+        const oraxBalance = balances.orax;
 
         const hasAccessNow = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
         hasTorPass = hasAccessNow;

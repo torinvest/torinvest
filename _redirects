@@ -39,7 +39,7 @@
 /calendar.html                https://app.torinvest-trading.com/calendar.html                       302!
 /calendar-day.html            https://app.torinvest-trading.com/calendar-day.html                   302!
 /course/*                     https://app.torinvest-trading.com/course/:splat                       302!
-# API PHP legacy (TorPass, dev-auth) — avant le catch-all La Forge /api/*
-/api/solana-rpc.php           https://radar.torinvest-trading.com/api/solana-rpc.php                302!
+# Proxy RPC TorPass (POST same-origin www → radar, pas de CORS navigateur)
+/api/solana-rpc.php           https://radar.torinvest-trading.com/api/solana-rpc.php                200
 /api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  302!
 /api/*                        https://app.torinvest-trading.com/api/:splat                          302!
