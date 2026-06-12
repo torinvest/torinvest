@@ -690,9 +690,10 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
           "\n\nRécupération des soldes KRM & ORAX en cours...";
 
         const connection = new solanaWeb3.Connection(RPC_URL);
-        const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+        const tokenAccounts = await connection.getTokenAccountsByOwner(
           new solanaWeb3.PublicKey(pubkey),
-          { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") }
+          { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") },
+          { encoding: "jsonParsed" }
         );
 
         let krmBalance = 0;

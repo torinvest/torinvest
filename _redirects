@@ -27,8 +27,6 @@
 # Hybride Netlify + VPS — PHP sur radar.torinvest-trading.com
 /crypto-radar           https://radar.torinvest-trading.com/crypto-radar/           301
 /crypto-radar/*         https://radar.torinvest-trading.com/crypto-radar/:splat       301
-/api/solana-rpc.php     https://radar.torinvest-trading.com/api/solana-rpc.php        301
-/api/dev-auth.php       https://radar.torinvest-trading.com/api/dev-auth.php          301
 # --- La Forge (fusion auto) ---
 /la-forge                     /la-forge/index.html                     200
 /la-forge/                    /la-forge/index.html                     200
@@ -41,4 +39,7 @@
 /calendar.html                https://app.torinvest-trading.com/calendar.html                       302!
 /calendar-day.html            https://app.torinvest-trading.com/calendar-day.html                   302!
 /course/*                     https://app.torinvest-trading.com/course/:splat                       302!
+# API PHP legacy (TorPass, dev-auth) — avant le catch-all La Forge /api/*
+/api/solana-rpc.php           https://radar.torinvest-trading.com/api/solana-rpc.php                302!
+/api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  302!
 /api/*                        https://app.torinvest-trading.com/api/:splat                          302!

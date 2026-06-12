@@ -435,9 +435,10 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
       const connection = new solanaWeb3.Connection(RPC_URL);
 
       // 3) Récupération de tous les comptes SPL
-      const tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+      const tokenAccounts = await connection.getTokenAccountsByOwner(
         new solanaWeb3.PublicKey(pubkey),
-        { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") }
+        { programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") },
+        { encoding: "jsonParsed" }
       );
 
       let krmBalance = 0;
@@ -478,7 +479,7 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
       } else {
         accessPill.className = "access-pill ko";
         accessPill.textContent =
-          "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
+          "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
       }
     } catch (err) {
       if (err && err.code === 4001) {
