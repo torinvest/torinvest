@@ -42,9 +42,9 @@
     .step { border: 1px solid rgba(255,180,0,.16); background: rgba(0,0,0,.22); border-radius: 16px; padding: 13px; color: var(--muted); font-size: 13px; }
     .step b { color: var(--gold2); }
     .card { padding: 28px; }
-    .tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
     .tab {
-      flex: 1; border: 1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.25);
+      flex: 1 1 calc(33.33% - 8px); min-width: 100px; border: 1px solid rgba(255,255,255,.08); background: rgba(0,0,0,.25);
       color: var(--muted); border-radius: 999px; padding: 10px; cursor: pointer;
       font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .06em;
     }
@@ -85,13 +85,13 @@
         <h1><span class="grad">AI Access</span><br>terminal sécurisé.</h1>
         <p>
           Terminal décisionnel connecté au Worker TORINVEST : signaux, Smart Money, cockpit multi-actifs
-          et assistant IA. Les clients entrent leur licence VIP ; l’administrateur utilise son PIN personnel.
+          et assistant IA. Trois accès : client (licence), admin (terminal sans licence), CRM (génération licences).
         </p>
       </div>
       <div class="steps">
         <div class="step"><b>Client</b> — Licence TOR-VIP active + compte MT5 (si requis).</div>
-        <div class="step"><b>Admin</b> — PIN développeur (accès complet sans licence).</div>
-        <div class="step"><b>Sécurité</b> — Session signée côté radar, chat IA proxifié.</div>
+        <div class="step"><b>Admin</b> — PIN développeur → terminal AI Access complet.</div>
+        <div class="step"><b>CRM</b> — PIN admin-licence → génération VIP &amp; codes FORGE.</div>
       </div>
     </section>
 
@@ -99,6 +99,7 @@
       <div class="tabs">
         <button type="button" class="tab active" data-tab="client">Client · Licence</button>
         <button type="button" class="tab" data-tab="admin">Admin · PIN</button>
+        <button type="button" class="tab" data-tab="crm">CRM · Licences</button>
       </div>
 
       <div id="panel-client" class="panel active">
@@ -115,11 +116,21 @@
 
       <div id="panel-admin" class="panel">
         <h2 style="font-size:22px;margin-bottom:8px">Accès administrateur</h2>
-        <p class="small" style="margin-top:0;margin-bottom:12px">Même terminal, sans licence — réservé TORINVEST.</p>
+        <p class="small" style="margin-top:0;margin-bottom:12px">Terminal AI Access sans licence — réservé TORINVEST.</p>
         <form id="adminForm">
           <label for="adminPin">PIN admin</label>
           <input id="adminPin" type="password" placeholder="Code personnel" autocomplete="off" required />
-          <button id="adminBtn" type="submit">Connexion admin</button>
+          <button id="adminBtn" type="submit">Connexion admin → terminal</button>
+        </form>
+      </div>
+
+      <div id="panel-crm" class="panel">
+        <h2 style="font-size:22px;margin-bottom:8px">CRM admin-licence</h2>
+        <p class="small" style="margin-top:0;margin-bottom:12px">Génère licences VIP MT5, codes FORGE, historique et export CSV.</p>
+        <form id="crmForm">
+          <label for="crmPin">PIN CRM</label>
+          <input id="crmPin" type="password" placeholder="Code admin-licence" autocomplete="off" required />
+          <button id="crmBtn" type="submit">Ouvrir le CRM licences</button>
         </form>
       </div>
 
@@ -131,8 +142,11 @@
 
   <script>
     const API = "https://radar.torinvest-trading.com/api/ai-access.php";
+    const CRM_API = "https://radar.torinvest-trading.com/api/admin-licence.php";
     const STORAGE = "torinvest_ai_access_session_v2";
+    const CRM_STORAGE = "torinvest_admin_licence_token";
     const TARGET = "/AITORINVEST.html";
+    const CRM_TARGET = "/admin-licence/";
 
     const result = document.getElementById("result");
 
@@ -166,6 +180,9 @@
 
     if (location.hash === "#admin") {
       document.querySelector('.tab[data-tab="admin"]').click();
+    }
+    if (location.hash === "#crm") {
+      document.querySelector('.tab[data-tab="crm"]').click();
     }
 
     document.getElementById("clientForm").addEventListener("submit", async function (e) {
@@ -211,6 +228,31 @@
         if (!resp.ok || !data.ok) throw new Error(data.error || "PIN incorrect");
         setResult('<span class="ok">Accès admin accordé. Ouverture...</span>');
         saveAndRedirect(data);
+      } catch (err) {
+        setResult('<span class="bad">' + err.message + "</span>");
+        btn.disabled = false;
+      }
+    });
+
+    document.getElementById("crmForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById("crmBtn");
+      btn.disabled = true;
+      setResult('<span class="warn">Connexion CRM via radar...</span>');
+      try {
+        const resp = await fetch(CRM_API, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "login",
+            pin: document.getElementById("crmPin").value.trim(),
+          }),
+        });
+        const data = await resp.json();
+        if (!resp.ok || !data.ok) throw new Error(data.error || "PIN CRM incorrect");
+        localStorage.setItem(CRM_STORAGE, data.token);
+        setResult('<span class="ok">CRM ouvert. Redirection...</span>');
+        setTimeout(function () { window.location.href = CRM_TARGET; }, 700);
       } catch (err) {
         setResult('<span class="bad">' + err.message + "</span>");
         btn.disabled = false;
