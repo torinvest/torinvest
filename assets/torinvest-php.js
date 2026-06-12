@@ -16,7 +16,7 @@ window.TORINVEST_PHP = {
   url: function (path) {
     var base = (window.TORINVEST_CONFIG.phpBaseUrl || "").replace(/\/$/, "");
     var p = path.charAt(0) === "/" ? path : "/" + path;
-    return base ? base + p : p;
+    return base ? base + p : window.location.origin + p;
   },
 
   applyLinks: function () {
