@@ -3,7 +3,7 @@
  * fetch() direct (sans @solana/web3.js) : CORS OK, headers minimaux.
  */
 window.TorinvestSolana = {
-  RPC_URL: "https://radar.torinvest-trading.com/api/solana-rpc.php",
+  RPC_URL: "/api/solana-rpc.php",
 
   readSplBalances: async function (walletAddress, mintAddresses) {
     const resp = await fetch(window.TorinvestSolana.RPC_URL, {

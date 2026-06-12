@@ -9,15 +9,22 @@ $allowedOrigins = [
     'https://www.torinvest-trading.com',
     'https://torinvest-trading.com',
     'https://torinvest-trading.netlify.app',
+    'https://radar.torinvest-trading.com',
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $originHost = parse_url($origin, PHP_URL_HOST) ?? '';
 $isNetlifyPreview = (bool) preg_match('/\.netlify\.app$/', $originHost);
-if (in_array($origin, $allowedOrigins, true) || $isNetlifyPreview) {
+$originAllowed = ($origin === '') || in_array($origin, $allowedOrigins, true) || $isNetlifyPreview;
+
+if (!$originAllowed) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Origin non autorisée']);
+    exit;
+}
+
+if ($origin !== '') {
     header('Access-Control-Allow-Origin: ' . $origin);
     header('Vary: Origin');
-} else {
-    header('Access-Control-Allow-Origin: *');
 }
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Accept, Origin, solana-client, Solana-Client');
