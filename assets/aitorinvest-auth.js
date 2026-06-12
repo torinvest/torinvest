@@ -1,11 +1,11 @@
 /**
- * Garde d'accès TORINVEST AI Access — session HttpOnly (cookie same-origin /api).
+ * Garde d'accès TORINVEST AI Access — session HttpOnly (cookie radar + CORS credentials).
  */
 (function () {
   "use strict";
 
   var LOGIN_PAGE = "/ai-access.html";
-  var API_URL = "/api/ai-access.php";
+  var API_URL = "https://radar.torinvest-trading.com/api/ai-access.php";
   var PING_INTERVAL_MS = 10 * 60 * 1000;
   var LEGACY_KEYS = [
     "torinvest_ai_access_session_v2",

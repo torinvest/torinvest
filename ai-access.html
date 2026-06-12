@@ -141,8 +141,8 @@
   </main>
 
   <script>
-    const API = "/api/ai-access.php";
-    const CRM_API = "/api/admin-licence.php";
+    const API = "https://radar.torinvest-trading.com/api/ai-access.php";
+    const CRM_API = "https://radar.torinvest-trading.com/api/admin-licence.php";
     const TARGET = "/AITORINVEST.html";
     const CRM_TARGET = "/admin-licence/";
     const LEGACY_KEYS = [
@@ -165,6 +165,26 @@
     function saveAndRedirect() {
       clearLegacyStorage();
       setTimeout(function () { window.location.href = TARGET; }, 700);
+    }
+
+    async function verifySessionCookie() {
+      const resp = await fetch(API, {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "ping" }),
+      });
+      const text = await resp.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        throw new Error("Session cookie non reçue. Mets à jour http-session.php sur le VPS radar.");
+      }
+      if (!resp.ok || !data.ok) {
+        throw new Error(data.error || "Session cookie absente — redeploie le PHP radar (http-session.php).");
+      }
+      return data;
     }
 
     document.querySelectorAll(".tab").forEach(function (btn) {
@@ -210,6 +230,8 @@
           throw new Error(text.slice(0, 200) || "Réponse invalide");
         }
         if (!resp.ok || !data.ok) throw new Error(data.error || "Accès refusé");
+        setResult('<span class="warn">Vérification session sécurisée…</span>');
+        await verifySessionCookie();
         setResult('<span class="ok">Licence active. Ouverture...</span><br>Plan : ' + (data.plan || "N/A"));
         saveAndRedirect();
       } catch (err) {
@@ -244,6 +266,8 @@
           throw new Error(text.slice(0, 200) || "Réponse invalide");
         }
         if (!resp.ok || !data.ok) throw new Error(data.error || "PIN incorrect");
+        setResult('<span class="warn">Vérification session sécurisée…</span>');
+        await verifySessionCookie();
         setResult('<span class="ok">Accès admin accordé. Ouverture...</span>');
         saveAndRedirect();
       } catch (err) {
