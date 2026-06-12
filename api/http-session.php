@@ -17,32 +17,29 @@ function torinvestSessionCookieName(string $service): string
 
 function torinvestSessionIsSecure(): bool
 {
-    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-        return true;
-    }
-    return (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
+    return true;
+}
+
+function torinvestSessionCookieOptions(int $expiresAt): array
+{
+    return [
+        'expires' => $expiresAt,
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        // www → radar = cross-site ; None requis pour credentials: include
+        'samesite' => 'None',
+    ];
 }
 
 function torinvestSessionSetCookie(string $service, string $token, int $expiresAt): void
 {
-    setcookie(torinvestSessionCookieName($service), $token, [
-        'expires' => $expiresAt,
-        'path' => '/',
-        'secure' => torinvestSessionIsSecure(),
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
+    setcookie(torinvestSessionCookieName($service), $token, torinvestSessionCookieOptions($expiresAt));
 }
 
 function torinvestSessionClearCookie(string $service): void
 {
-    setcookie(torinvestSessionCookieName($service), '', [
-        'expires' => time() - 3600,
-        'path' => '/',
-        'secure' => torinvestSessionIsSecure(),
-        'httponly' => true,
-        'samesite' => 'Lax',
-    ]);
+    setcookie(torinvestSessionCookieName($service), '', torinvestSessionCookieOptions(time() - 3600));
 }
 
 function torinvestSessionReadCookie(string $service): string

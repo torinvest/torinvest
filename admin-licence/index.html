@@ -232,8 +232,8 @@
   </div>
 
   <script>
-    // API same-origin (Netlify proxy → radar) + cookie HttpOnly
-    const API = "/api/admin-licence.php";
+    // API radar directe + cookie HttpOnly cross-subdomain (SameSite=None)
+    const API = "https://radar.torinvest-trading.com/api/admin-licence.php";
     const LEGACY_KEY = "torinvest_admin_licence_token";
 
     function clearLegacyStorage() {
