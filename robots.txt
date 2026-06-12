@@ -7,8 +7,10 @@ Disallow: /index1.html
 Disallow: /index3.html
 Disallow: /indexx.html
 Disallow: /AITORINVEST2.html
+Disallow: /AITORINVEST.html
 Disallow: /dev-access.html
 Disallow: /ai-access.html
+Disallow: /admin-licence/
 Disallow: /accompagnement-access.html
 Disallow: /activation.html
 Disallow: /activation-accompagnement.html
