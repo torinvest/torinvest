@@ -232,20 +232,19 @@
   </div>
 
   <script>
-    // API directe radar (évite 404 Netlify si proxy absent ; fichiers PHP requis sur VPS)
-    const API = "https://radar.torinvest-trading.com/api/admin-licence.php";
-    const LS_KEY = "torinvest_admin_licence_token";
+    // API same-origin (Netlify proxy → radar) + cookie HttpOnly
+    const API = "/api/admin-licence.php";
+    const LEGACY_KEY = "torinvest_admin_licence_token";
 
-    function getToken() { return localStorage.getItem(LS_KEY) || ""; }
-    function setToken(t) { if (t) localStorage.setItem(LS_KEY, t); else localStorage.removeItem(LS_KEY); }
+    function clearLegacyStorage() {
+      try { localStorage.removeItem(LEGACY_KEY); } catch (e) {}
+    }
 
-    async function api(action, body, extraHeaders) {
-      const headers = { "Content-Type": "application/json", ...(extraHeaders || {}) };
-      const token = getToken();
-      if (token && action !== "login") headers.Authorization = "Bearer " + token;
+    async function api(action, body) {
       const resp = await fetch(API, {
         method: "POST",
-        headers,
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, ...(body || {}) }),
       });
       const text = await resp.text();
@@ -314,7 +313,7 @@
       try {
         const data = await api("login", { pin });
         if (!data.ok) throw new Error(data.error || "Échec");
-        setToken(data.token);
+        clearLegacyStorage();
         showApp(true);
         setHtml("loginResult", "");
         await loadHistory();
@@ -323,8 +322,9 @@
       }
     });
 
-    document.getElementById("logoutBtn").addEventListener("click", function () {
-      setToken("");
+    document.getElementById("logoutBtn").addEventListener("click", async function () {
+      try { await api("logout"); } catch (e) {}
+      clearLegacyStorage();
       showApp(false);
     });
 
@@ -338,10 +338,8 @@
 
     document.getElementById("exportBtn").addEventListener("click", function () {
       const type = document.getElementById("histFilter").value || "";
-      const token = getToken();
-      if (!token) return alert("Session expirée");
       const url = API + "?action=export" + (type ? "&type=" + encodeURIComponent(type) : "");
-      fetch(url, { headers: { Authorization: "Bearer " + token } })
+      fetch(url, { credentials: "include" })
         .then(function (r) { if (!r.ok) throw new Error("Export HTTP " + r.status); return r.blob(); })
         .then(function (blob) {
           const a = document.createElement("a");
@@ -432,12 +430,10 @@
       });
     });
 
-    if (getToken()) {
-      api("ping").then(function (d) {
-        if (d.ok) { showApp(true); loadHistory(); }
-        else setToken("");
-      }).catch(function () { setToken(""); });
-    }
+    clearLegacyStorage();
+    api("ping").then(function (d) {
+      if (d.ok) { showApp(true); loadHistory(); }
+    }).catch(function () {});
   </script>
   <a href="/" class="home-return-btn">← Retour accueil</a>
 </body>

@@ -4,6 +4,8 @@
  */
 declare(strict_types=1);
 
+require_once __DIR__ . '/http-session.php';
+
 function aiAccessConfig(): array
 {
     static $cfg = null;
@@ -261,9 +263,9 @@ function aiAccessLoginClient(string $licenseKey, string $mt5Account = ''): array
         'expires' => (string) ($data['expires'] ?? ''),
     ];
     $token = aiAccessGenerateToken($expiresAt, 'client', $meta, aiAccessHmacSecret());
+    torinvestSessionSetCookie('ai_access', $token, $expiresAt);
     return [
         'ok' => true,
-        'token' => $token,
         'role' => 'client',
         'expiresAt' => $expiresAt,
         'email' => $meta['email'],
@@ -282,9 +284,9 @@ function aiAccessLoginAdmin(string $pin): array
     }
     $expiresAt = time() + aiAccessAdminSessionTtl();
     $token = aiAccessGenerateToken($expiresAt, 'admin', ['label' => 'admin'], aiAccessHmacSecret());
+    torinvestSessionSetCookie('ai_access', $token, $expiresAt);
     return [
         'ok' => true,
-        'token' => $token,
         'role' => 'admin',
         'expiresAt' => $expiresAt,
         'label' => 'Administrateur TORINVEST',

@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/admin-licence-lib.php';
+require_once __DIR__ . '/http-session.php';
 
 $allowedOrigins = [
     'https://www.torinvest-trading.com',
@@ -18,6 +19,7 @@ $originHost = parse_url($origin, PHP_URL_HOST) ?? '';
 $isNetlifyPreview = (bool) preg_match('/\.netlify\.app$/', $originHost);
 if (in_array($origin, $allowedOrigins, true) || $isNetlifyPreview) {
     header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Credentials: true');
     header('Vary: Origin');
 }
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -36,17 +38,30 @@ function licenceCrmJson(array $data, int $status = 200): void
     exit;
 }
 
+function licenceCrmBearerToken(): string
+{
+    $cookie = torinvestSessionReadCookie('admin_licence');
+    if ($cookie !== '') {
+        return $cookie;
+    }
+    $auth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
+        return '';
+    }
+    return trim($m[1]);
+}
+
 function licenceCrmRequireAuth(): void
 {
     $pin = licenceCrmPin();
     if ($pin === '') {
         licenceCrmJson(['ok' => false, 'error' => 'licence_crm_pin non configuré'], 503);
     }
-    $auth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-    if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
+    $token = licenceCrmBearerToken();
+    if ($token === '') {
         licenceCrmJson(['ok' => false, 'error' => 'unauthorized'], 401);
     }
-    if (!licenceCrmVerifyToken(trim($m[1]), $pin)) {
+    if (!licenceCrmVerifyToken($token, $pin)) {
         licenceCrmJson(['ok' => false, 'error' => 'session_expired'], 401);
     }
 }
@@ -98,7 +113,13 @@ try {
         }
         $expiresAt = time() + licenceCrmSessionTtl();
         $token = licenceCrmGenerateToken($expiresAt, $pin);
-        licenceCrmJson(['ok' => true, 'token' => $token, 'expiresAt' => $expiresAt]);
+        torinvestSessionSetCookie('admin_licence', $token, $expiresAt);
+        licenceCrmJson(['ok' => true, 'expiresAt' => $expiresAt]);
+    }
+
+    if ($action === 'logout') {
+        torinvestSessionClearCookie('admin_licence');
+        licenceCrmJson(['ok' => true]);
     }
 
     licenceCrmRequireAuth();

@@ -42,6 +42,6 @@ return [
     // URL du Worker (inchangé si morning-hall-d8f6)
     'worker_url' => 'https://morning-hall-d8f6.onzerimes.workers.dev',
 
-    // Session CRM (secondes) — 12 h par défaut
+    // Session CRM (secondes) — 12 h par défaut ; cookie HttpOnly torinvest_admin_licence
     'licence_crm_session_ttl' => 43200,
 ];

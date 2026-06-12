@@ -1,42 +1,35 @@
 /**
- * Garde d'accès TORINVEST AI Access — session radar (licence client ou admin PIN).
+ * Garde d'accès TORINVEST AI Access — session HttpOnly (cookie same-origin /api).
  */
 (function () {
   "use strict";
 
   var LOGIN_PAGE = "/ai-access.html";
-  var API_URL = "https://radar.torinvest-trading.com/api/ai-access.php";
-  var STORAGE_KEY = "torinvest_ai_access_session_v2";
+  var API_URL = "/api/ai-access.php";
   var PING_INTERVAL_MS = 10 * 60 * 1000;
+  var LEGACY_KEYS = [
+    "torinvest_ai_access_session_v2",
+    "torinvest_ai_access_session",
+    "torinvest_dev_session",
+  ];
 
   function redirectLogin() {
     window.location.replace(LOGIN_PAGE);
   }
 
-  function readSession() {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-    } catch (e) {
-      return null;
-    }
+  function clearLegacyStorage() {
+    LEGACY_KEYS.forEach(function (key) {
+      try {
+        localStorage.removeItem(key);
+      } catch (e) {}
+    });
   }
 
-  function saveSession(data) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
-
-  function clearSession() {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem("torinvest_ai_access_session");
-    localStorage.removeItem("torinvest_dev_session");
-  }
-
-  async function apiCall(action, body, token) {
-    var headers = { "Content-Type": "application/json", Accept: "application/json" };
-    if (token) headers.Authorization = "Bearer " + token;
+  async function apiCall(action, body) {
     var resp = await fetch(API_URL, {
       method: "POST",
-      headers: headers,
+      credentials: "include",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(Object.assign({ action: action }, body || {})),
     });
     var text = await resp.text();
@@ -52,28 +45,20 @@
 
   window.TORINVEST_AI_ACCESS = {
     API_URL: API_URL,
-    STORAGE_KEY: STORAGE_KEY,
     session: null,
 
     api: apiCall,
-
-    getToken: function () {
-      return (this.session && this.session.token) || "";
-    },
-
-    getAuthHeaders: function () {
-      var t = this.getToken();
-      return t
-        ? { "Content-Type": "application/json", Authorization: "Bearer " + t }
-        : { "Content-Type": "application/json" };
-    },
 
     isAdmin: function () {
       return this.session && this.session.role === "admin";
     },
 
-    logout: function () {
-      clearSession();
+    logout: async function () {
+      try {
+        await apiCall("logout", {});
+      } catch (e) {}
+      clearLegacyStorage();
+      this.session = null;
       redirectLogin();
     },
 
@@ -97,46 +82,31 @@
   };
 
   async function verifySession() {
-    var stored = readSession();
-    if (!stored || !stored.token) {
-      redirectLogin();
-      return;
-    }
+    clearLegacyStorage();
 
     try {
-      var data = await apiCall("ping", {}, stored.token);
+      var data = await apiCall("ping", {});
       if (!data.ok) throw new Error(data.error || "session_expired");
-      window.TORINVEST_AI_ACCESS.session = Object.assign({}, stored, data);
-      saveSession(window.TORINVEST_AI_ACCESS.session);
+      window.TORINVEST_AI_ACCESS.session = data;
       document.body.classList.remove("auth-pending");
       window.TORINVEST_AI_ACCESS.renderSessionBadge();
       window.dispatchEvent(new CustomEvent("torinvest-ai-access-ready"));
     } catch (err) {
-      if (stored.expiresAt && stored.expiresAt * 1000 > Date.now()) {
-        window.TORINVEST_AI_ACCESS.session = stored;
-        document.body.classList.remove("auth-pending");
-        window.TORINVEST_AI_ACCESS.renderSessionBadge();
-        window.dispatchEvent(new CustomEvent("torinvest-ai-access-ready"));
-        setInterval(function () {
-          apiCall("ping", {}, stored.token).catch(function () {});
-        }, PING_INTERVAL_MS);
-        return;
-      }
-      clearSession();
+      clearLegacyStorage();
       redirectLogin();
+      return;
     }
 
     setInterval(async function () {
       var sess = window.TORINVEST_AI_ACCESS.session;
-      if (!sess || !sess.token) return;
+      if (!sess) return;
       try {
-        var ping = await apiCall("ping", {}, sess.token);
+        var ping = await apiCall("ping", {});
         if (!ping.ok) throw new Error("expired");
         window.TORINVEST_AI_ACCESS.session = Object.assign({}, sess, ping);
-        saveSession(window.TORINVEST_AI_ACCESS.session);
         window.TORINVEST_AI_ACCESS.renderSessionBadge();
       } catch (e) {
-        clearSession();
+        clearLegacyStorage();
         redirectLogin();
       }
     }, PING_INTERVAL_MS);

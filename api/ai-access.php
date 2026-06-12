@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/ai-access-lib.php';
+require_once __DIR__ . '/http-session.php';
 
 $allowedOrigins = [
     'https://www.torinvest-trading.com',
@@ -18,6 +19,7 @@ $originHost = parse_url($origin, PHP_URL_HOST) ?? '';
 $isNetlifyPreview = (bool) preg_match('/\.netlify\.app$/', $originHost);
 if (in_array($origin, $allowedOrigins, true) || $isNetlifyPreview) {
     header('Access-Control-Allow-Origin: ' . $origin);
+    header('Access-Control-Allow-Credentials: true');
     header('Vary: Origin');
 }
 header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
@@ -38,6 +40,10 @@ function aiAccessJson(array $data, int $status = 200): void
 
 function aiAccessBearerToken(): string
 {
+    $cookie = torinvestSessionReadCookie('ai_access');
+    if ($cookie !== '') {
+        return $cookie;
+    }
     $auth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $m)) {
         return '';
@@ -86,16 +92,25 @@ try {
             if ($method !== 'POST') {
                 aiAccessJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
             }
-            aiAccessJson(aiAccessLoginClient(
+            $login = aiAccessLoginClient(
                 (string) ($input['licenseKey'] ?? ''),
                 trim((string) ($input['mt5Account'] ?? ''))
-            ));
+            );
+            aiAccessJson($login);
 
         case 'login_admin':
             if ($method !== 'POST') {
                 aiAccessJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
             }
-            aiAccessJson(aiAccessLoginAdmin((string) ($input['pin'] ?? '')));
+            $login = aiAccessLoginAdmin((string) ($input['pin'] ?? ''));
+            aiAccessJson($login);
+
+        case 'logout':
+            if ($method !== 'POST') {
+                aiAccessJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
+            }
+            torinvestSessionClearCookie('ai_access');
+            aiAccessJson(['ok' => true]);
 
         case 'ping':
             $session = aiAccessRequireSession();
