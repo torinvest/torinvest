@@ -46,6 +46,18 @@ lines.append("    <changefreq>daily</changefreq>")
 lines.append("    <priority>0.85</priority>")
 lines.append("  </url>")
 
+# La Forge (vitrine Netlify — login/dashboard → app.*)
+LA_FORGE_URLS = [
+    ("/la-forge/", "weekly", "0.85"),
+    ("/la-forge/pricing.html", "monthly", "0.75"),
+]
+for path, freq, priority in LA_FORGE_URLS:
+    lines.append("  <url>")
+    lines.append(f"    <loc>{SITE_URL}{path}</loc>")
+    lines.append(f"    <changefreq>{freq}</changefreq>")
+    lines.append(f"    <priority>{priority}</priority>")
+    lines.append("  </url>")
+
 lines.append("</urlset>")
 (ROOT / "sitemap.xml").write_text("\n".join(lines) + "\n", encoding="utf-8")
 print(f"Sitemap généré : {len([l for l in lines if '<loc>' in l])} URLs")

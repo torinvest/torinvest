@@ -6,12 +6,12 @@
  *
  * Modifiez phpBaseUrl avec l'URL de votre VPS une fois le sous-domaine configuré.
  * Exemple : "https://radar.torinvest-trading.com"
- * Laisser "" pour appeler /api/... sur www (Netlify redirige vers radar via _redirects).
+ * Laisser "" pour appeler /api/... sur www (Netlify proxy 200! → radar).
  */
 window.TORINVEST_CONFIG = window.TORINVEST_CONFIG || {
   phpBaseUrl: "",
-  /** RPC Solana (TorPass) — POST direct VPS ; Netlify ne proxy pas les POST JSON-RPC */
-  solanaRpcUrl: "https://radar.torinvest-trading.com/api/solana-rpc.php",
+  /** RPC Solana (TorPass) — same-origin /api/solana-rpc.php (proxy Netlify → radar) */
+  solanaRpcUrl: "",
 };
 
 window.TORINVEST_PHP = {
@@ -21,10 +21,11 @@ window.TORINVEST_PHP = {
     return base ? base + p : window.location.origin + p;
   },
 
-  /** Endpoint RPC pour @solana/web3.js (doit être https://…, pas un redirect Netlify) */
   solanaRpcUrl: function () {
-    return window.TORINVEST_CONFIG.solanaRpcUrl ||
-      "https://radar.torinvest-trading.com/api/solana-rpc.php";
+    if (window.TORINVEST_CONFIG.solanaRpcUrl) {
+      return window.TORINVEST_CONFIG.solanaRpcUrl;
+    }
+    return window.TORINVEST_PHP.url("/api/solana-rpc.php");
   },
 
   applyLinks: function () {
