@@ -6,10 +6,10 @@
  *
  * Modifiez phpBaseUrl avec l'URL de votre VPS une fois le sous-domaine configuré.
  * Exemple : "https://radar.torinvest-trading.com"
- * Laisser "" si tout tourne sur le même serveur (VPS seul, sans Netlify).
+ * Laisser "" pour appeler /api/... sur www (Netlify redirige vers radar via _redirects).
  */
 window.TORINVEST_CONFIG = window.TORINVEST_CONFIG || {
-  phpBaseUrl: "https://radar.torinvest-trading.com"
+  phpBaseUrl: ""
 };
 
 window.TORINVEST_PHP = {
