@@ -27,6 +27,11 @@ return [
     'ai_access_chat_rate_client' => 80,
     'ai_access_chat_rate_admin' => 300,
 
+    // Secret partagé radar ↔ Worker (POST /ai/chat, /ai/research) — même valeur que wrangler secret AI_CHAT_SECRET
+    'ai_chat_secret' => 'CHANGEZ_MOI_LONG_RANDOM',
+    // Repli optionnel si ai_chat_secret vide (ex. réutiliser AI_DECISION_SECRET Worker)
+    'ai_decision_secret' => '',
+
     // --- CRM admin-licence (gestion licences VIP + FORGE) ---
     // PIN d'accès à la page /admin-licence/ (distinct du dev_access_pin)
     'licence_crm_pin' => 'CHANGEZ_MOI_CRM',

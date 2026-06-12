@@ -7,7 +7,7 @@ SITE_URL = "https://www.torinvest-trading.com"
 
 EXCLUDE = {
     "indexOLD.html", "index1.html", "index3.html", "indexx.html",
-    "AITORINVEST2.html", "dev-access.html", "ai-access.html",
+    "AITORINVEST.html", "AITORINVEST2.html", "dev-access.html", "ai-access.html",
     "accompagnement-access.html", "activation.html",
     "activation-accompagnement.html", "merci.html",
 }

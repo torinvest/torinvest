@@ -756,7 +756,8 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
             if (forgeCard) forgeCard.style.display = "block";
 
             if (!resp.ok) {
-              if (forgeCodeValue) forgeCodeValue.textContent = "ERREUR " + resp.status + " : " + text.slice(0, 300);
+              const msg = (data && (data.message || data.error)) || text.slice(0, 300);
+              if (forgeCodeValue) forgeCodeValue.textContent = "ERREUR " + resp.status + " : " + msg;
             } else if (data && data.ok && data.code) {
               if (forgeCodeValue) forgeCodeValue.textContent = data.code;
             } else {

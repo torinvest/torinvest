@@ -24,6 +24,19 @@ function aiAccessWorkerUrl(): string
     return rtrim((string) ($cfg['worker_url'] ?? 'https://morning-hall-d8f6.onzerimes.workers.dev'), '/');
 }
 
+function aiAccessWorkerChatSecret(): string
+{
+    $cfg = aiAccessConfig();
+    $secret = (string) ($cfg['ai_chat_secret'] ?? '');
+    if ($secret === '') {
+        $secret = (string) ($cfg['ai_decision_secret'] ?? '');
+    }
+    if ($secret === '') {
+        throw new RuntimeException('ai_chat_secret manquant dans config.local.php (wrangler secret put AI_CHAT_SECRET)');
+    }
+    return $secret;
+}
+
 function aiAccessHmacSecret(): string
 {
     $cfg = aiAccessConfig();
@@ -168,13 +181,17 @@ function aiAccessWorkerGet(string $path, array $query = []): array
     return $data;
 }
 
-function aiAccessWorkerPostJson(string $path, array $body): array
+function aiAccessWorkerPostJson(string $path, array $body, ?string $bearerSecret = null): array
 {
     $url = aiAccessWorkerUrl() . $path;
+    $headers = "Content-Type: application/json\r\nAccept: application/json\r\n";
+    if ($bearerSecret !== null && $bearerSecret !== '') {
+        $headers .= 'Authorization: Bearer ' . $bearerSecret . "\r\n";
+    }
     $ctx = stream_context_create([
         'http' => [
             'method' => 'POST',
-            'header' => "Content-Type: application/json\r\nAccept: application/json\r\n",
+            'header' => $headers,
             'content' => json_encode($body, JSON_UNESCAPED_UNICODE),
             'timeout' => 90,
             'ignore_errors' => true,
@@ -329,7 +346,7 @@ function aiAccessProxyChat(array $session, array $input): array
         'top_p' => (float) ($input['top_p'] ?? 0.95),
     ];
 
-    $resp = aiAccessWorkerPostJson('/ai/chat', $body);
+    $resp = aiAccessWorkerPostJson('/ai/chat', $body, aiAccessWorkerChatSecret());
     $status = (int) ($resp['_httpStatus'] ?? 500);
     if ($status >= 400 || !empty($resp['error'])) {
         $err = (string) ($resp['error'] ?? $resp['message'] ?? 'Erreur Worker /ai/chat');
