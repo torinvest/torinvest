@@ -9,7 +9,9 @@
  * Laisser "" pour appeler /api/... sur www (Netlify redirige vers radar via _redirects).
  */
 window.TORINVEST_CONFIG = window.TORINVEST_CONFIG || {
-  phpBaseUrl: ""
+  phpBaseUrl: "",
+  /** RPC Solana (TorPass) — POST direct VPS ; Netlify ne proxy pas les POST JSON-RPC */
+  solanaRpcUrl: "https://radar.torinvest-trading.com/api/solana-rpc.php",
 };
 
 window.TORINVEST_PHP = {
@@ -17,6 +19,12 @@ window.TORINVEST_PHP = {
     var base = (window.TORINVEST_CONFIG.phpBaseUrl || "").replace(/\/$/, "");
     var p = path.charAt(0) === "/" ? path : "/" + path;
     return base ? base + p : window.location.origin + p;
+  },
+
+  /** Endpoint RPC pour @solana/web3.js (doit être https://…, pas un redirect Netlify) */
+  solanaRpcUrl: function () {
+    return window.TORINVEST_CONFIG.solanaRpcUrl ||
+      "https://radar.torinvest-trading.com/api/solana-rpc.php";
   },
 
   applyLinks: function () {
