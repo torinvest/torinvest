@@ -36,8 +36,11 @@ return [
     // PIN d'accès à la page /admin-licence/ (distinct du dev_access_pin)
     'licence_crm_pin' => 'CHANGEZ_MOI_CRM',
 
-    // Token admin Worker (Cloudflare → Settings → Variables → ADMIN_TOKEN)
+    // Token admin Worker (Cloudflare → wrangler secret put ADMIN_TOKEN)
+    // Usage : /news/update, /discord/report, /telegram/test, /killswitch — PAS TradingView
     'admin_token' => 'VOTRE_ADMIN_TOKEN_WORKER',
+
+    // MARKET_SECRET = wrangler secret put MARKET_SECRET — pour webhooks TradingView (/market/update)
 
     // Token Worker (signaux / agent / health) — serveur radar uniquement, jamais dans le JS public
     // wrangler secret put COPY_TOKEN + EA MT5 CopyToken

@@ -8,9 +8,11 @@ BASE="https://raw.githubusercontent.com/torinvest/torinvest/main/api"
 
 FILES=(
   http-session.php
+  rate-limit.php
   ai-access.php
   ai-access-lib.php
   admin-licence.php
+  admin-licence-lib.php
   solana-rpc.php
 )
 

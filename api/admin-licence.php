@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/admin-licence-lib.php';
 require_once __DIR__ . '/http-session.php';
+require_once __DIR__ . '/rate-limit.php';
 
 $allowedOrigins = [
     'https://www.torinvest-trading.com',
@@ -103,12 +104,14 @@ $action = (string) ($input['action'] ?? '');
 
 try {
     if ($action === 'login') {
+        torinvestRateLimitGuard('licence_crm_login');
         $pin = licenceCrmPin();
         if ($pin === '') {
             licenceCrmJson(['ok' => false, 'error' => 'licence_crm_pin non configuré'], 503);
         }
         $submitted = trim((string) ($input['pin'] ?? ''));
         if ($submitted === '' || !hash_equals($pin, $submitted)) {
+            torinvestRateLimitHit('licence_crm_login');
             licenceCrmJson(['ok' => false, 'error' => 'Code incorrect'], 401);
         }
         $expiresAt = time() + licenceCrmSessionTtl();
@@ -154,6 +157,9 @@ try {
     }
 } catch (InvalidArgumentException $e) {
     licenceCrmJson(['ok' => false, 'error' => $e->getMessage()], 400);
+} catch (RuntimeException $e) {
+    $status = str_contains($e->getMessage(), 'Trop de tentatives') ? 429 : 500;
+    licenceCrmJson(['ok' => false, 'error' => $e->getMessage()], $status);
 } catch (Throwable $e) {
     licenceCrmJson(['ok' => false, 'error' => $e->getMessage()], 500);
 }

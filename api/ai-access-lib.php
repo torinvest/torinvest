@@ -5,6 +5,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/http-session.php';
+require_once __DIR__ . '/rate-limit.php';
 
 function aiAccessConfig(): array
 {
@@ -265,11 +266,18 @@ function aiAccessCheckRateLimit(string $token, string $role): void
 
 function aiAccessLoginClient(string $licenseKey, string $mt5Account = ''): array
 {
+    torinvestRateLimitGuard('ai_access_login_client');
     $licenseKey = trim($licenseKey);
     if ($licenseKey === '') {
+        torinvestRateLimitHit('ai_access_login_client');
         throw new InvalidArgumentException('Licence obligatoire');
     }
-    $data = aiAccessValidateLicense($licenseKey, $mt5Account);
+    try {
+        $data = aiAccessValidateLicense($licenseKey, $mt5Account);
+    } catch (Throwable $e) {
+        torinvestRateLimitHit('ai_access_login_client');
+        throw $e;
+    }
     $expiresAt = time() + aiAccessClientSessionTtl();
     $meta = [
         'licenseKey' => $licenseKey,
@@ -295,8 +303,10 @@ function aiAccessLoginClient(string $licenseKey, string $mt5Account = ''): array
 
 function aiAccessLoginAdmin(string $pin): array
 {
+    torinvestRateLimitGuard('ai_access_login_admin');
     $expected = aiAccessDevPin();
     if ($expected === '' || !hash_equals($expected, trim($pin))) {
+        torinvestRateLimitHit('ai_access_login_admin');
         throw new RuntimeException('Code admin incorrect');
     }
     $expiresAt = time() + aiAccessAdminSessionTtl();

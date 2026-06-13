@@ -155,7 +155,8 @@ try {
 } catch (InvalidArgumentException $e) {
     aiAccessJson(['ok' => false, 'error' => $e->getMessage()], 400);
 } catch (RuntimeException $e) {
-    aiAccessJson(['ok' => false, 'error' => $e->getMessage()], 403);
+    $status = str_contains($e->getMessage(), 'Trop de tentatives') ? 429 : 403;
+    aiAccessJson(['ok' => false, 'error' => $e->getMessage()], $status);
 } catch (Throwable $e) {
     aiAccessJson(['ok' => false, 'error' => $e->getMessage()], 500);
 }
