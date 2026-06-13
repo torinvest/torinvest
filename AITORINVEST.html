@@ -792,7 +792,6 @@ body:not([data-terminal-view="chat"]) .input-zone{display:none}
 </style>
 </head>
 <body data-terminal-view="chat">
-<script src="/assets/torinvest-worker-config.js"></script>
 <script src="/assets/aitorinvest-auth.js"></script>
 
 <div class="app">
@@ -888,18 +887,25 @@ body:not([data-terminal-view="chat"]) .input-zone{display:none}
 <div class="modal" id="memoryModal"><div class="box"><h3>Mémoire globale locale</h3><p class="warn">Cette mémoire reste dans le navigateur. Elle est envoyée au Worker seulement comme contexte utile dans tes requêtes.</p><div class="field"><label>Ajouter une mémoire</label><input id="memoryInput" placeholder="Ex : Risque max par trade : 1%" /></div><button class="primary" onclick="addMemory()">Ajouter</button><hr style="border-color:var(--line)"><div class="mem-list" id="memoryFull"></div><div class="actions"><button class="ghost" onclick="clearMemory()">Effacer mémoire</button><button class="ghost" onclick="closeModal('memoryModal')">Fermer</button></div></div></div>
 <div class="modal" id="archivesModal"><div class="box"><h3>Archives conversations</h3><div id="archivesList"></div><div class="actions"><button class="ghost" onclick="closeModal('archivesModal')">Fermer</button></div></div></div>
 <script>
-const WORKER_BASE_URL=(window.TORINVEST_WORKER&&window.TORINVEST_WORKER.baseUrl)||"https://morning-hall-d8f6.onzerimes.workers.dev";
+const WORKER_BASE_URL="https://morning-hall-d8f6.onzerimes.workers.dev";
 const AI_ACCESS_API="https://radar.torinvest-trading.com/api/ai-access.php";
-const COPY_TOKEN=(window.TORINVEST_WORKER&&window.TORINVEST_WORKER.copyToken)||"";
 
-const WORKER_AI_URL=WORKER_BASE_URL+"/ai/chat";
 const WORKER_STATUS_URL=WORKER_BASE_URL+"/ai/status";
-const WORKER_HEALTH_URL=WORKER_BASE_URL+"/system/health?token="+encodeURIComponent(COPY_TOKEN);
-const WORKER_AGENT_CONTEXT_URL=WORKER_BASE_URL+"/agent/context";
-const WORKER_COPY_SIGNAL_URL=WORKER_BASE_URL+"/copy/signal";
 const WORKER_MARKET_CONTEXT_URL=WORKER_BASE_URL+"/market/context";
 const WORKER_NEWS_LATEST_URL=WORKER_BASE_URL+"/news/latest";
 const WORKER_VALIDATE_LICENSE_URL=WORKER_BASE_URL+"/validate-license";
+
+async function aiAccessWorkerCall(action,extra={}){
+  const resp=await fetch(AI_ACCESS_API,{
+    method:"POST",
+    credentials:"include",
+    headers:{"Content-Type":"application/json",Accept:"application/json"},
+    body:JSON.stringify(Object.assign({action},extra))
+  });
+  const data=await resp.json().catch(()=>({ok:false,error:"Réponse proxy non JSON"}));
+  if(!resp.ok&&!data.error) data.error="HTTP "+resp.status;
+  return data;
+}
 
 const STORAGE_KEY="torinvest_forge_ai_terminal_v9_command_center";
 const LEGACY_STORAGE_KEYS=[
@@ -1266,7 +1272,7 @@ function render(){
   renderSmartMoneyPanel();
   renderAssetStrip();
 
-  const short=WORKER_AI_URL.replace("https://","").slice(0,34)+"…";
+  const short=AI_ACCESS_API.replace("https://","").slice(0,34)+"…";
   document.getElementById("workerShort").textContent=short;
   document.getElementById("workerShortTop").textContent=short;
 
@@ -1735,10 +1741,8 @@ function detectModeFromText(text){
 
 async function fetchLatestSignal(symbol){
   try{
-    const url=WORKER_COPY_SIGNAL_URL+"?token="+encodeURIComponent(COPY_TOKEN)+"&symbol="+encodeURIComponent(symbol);
-    const res=await fetch(url,{method:"GET"});
-    const data=await res.json().catch(()=>({ok:false,error:"Réponse signal non JSON"}));
-    if(!res.ok||data.ok===false)return null;
+    const data=await aiAccessWorkerCall("worker_copy_signal",{symbol});
+    if(!data.ok) return null;
     return data.signal||null;
   }catch(e){
     return null;
@@ -1749,16 +1753,8 @@ async function fetchAgentContextForMessage(text){
   const symbol=detectSymbolFromText(text);
   const mode=detectModeFromText(text);
 
-  const url=
-    WORKER_AGENT_CONTEXT_URL+
-    "?symbol="+encodeURIComponent(symbol)+
-    "&mode="+encodeURIComponent(mode)+
-    "&token="+encodeURIComponent(COPY_TOKEN);
-
-  const res=await fetch(url);
-  const data=await res.json().catch(()=>({ok:false,error:"Réponse /agent/context non JSON"}));
-
-  if(!res.ok||data.ok===false){
+  const data=await aiAccessWorkerCall("worker_agent_context",{symbol,mode});
+  if(!data.ok){
     throw new Error(data.error||data.message||"Erreur /agent/context");
   }
 
@@ -2150,9 +2146,8 @@ async function checkSystemHealth(){
   setHealthSidebarStatus("LOADING","Health en analyse");
 
   try{
-    const res=await fetch(WORKER_HEALTH_URL);
-    const data=await res.json().catch(()=>({ok:false,error:"Réponse /system/health non JSON"}));
-    if(!res.ok||data.ok===false)throw new Error(data.error||data.message||"Erreur /system/health");
+    const data=await aiAccessWorkerCall("worker_health");
+    if(!data.ok) throw new Error(data.error||data.message||"Erreur /system/health");
 
     const status=String(data.status||"UNKNOWN").toUpperCase();
     const html=renderHealthData(data);
@@ -2176,7 +2171,7 @@ async function checkSystemHealth(){
         <div class="health-line">
           <b class="health-critical">Erreur health monitor</b><br>
           ${escapeHtml(e.message||String(e))}<br><br>
-          Route testée : ${escapeHtml(WORKER_HEALTH_URL)}
+          Route : proxy radar → /system/health (session requise)
         </div>
       `;
     if(box)box.innerHTML=errHtml;
@@ -2258,9 +2253,8 @@ async function preloadStatus(){
   }
 
   try{
-    const res=await fetch(WORKER_AGENT_CONTEXT_URL+"?symbol=XAUUSD&mode=scalping&token="+encodeURIComponent(COPY_TOKEN));
-    const data=await res.json().catch(()=>({ok:false}));
-    if(res.ok&&data.ok!==false){
+    const data=await aiAccessWorkerCall("worker_agent_context",{symbol:"XAUUSD",mode:"scalping"});
+    if(data.ok!==false){
       setAgentContextSidebarStatus(true,"XAUUSD / scalping");
       lastAgentContext=data;
     }else{
