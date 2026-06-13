@@ -124,6 +124,31 @@ try {
             $input['_token'] = $session['token'];
             aiAccessJson(aiAccessProxyChat($session, $input));
 
+        case 'worker_copy_signal':
+            if ($method !== 'POST') {
+                aiAccessJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
+            }
+            $session = aiAccessRequireSession();
+            aiAccessJson(aiAccessProxyCopySignal($session, (string) ($input['symbol'] ?? 'XAUUSD')));
+
+        case 'worker_agent_context':
+            if ($method !== 'POST') {
+                aiAccessJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
+            }
+            $session = aiAccessRequireSession();
+            aiAccessJson(aiAccessProxyAgentContext(
+                $session,
+                (string) ($input['symbol'] ?? 'XAUUSD'),
+                (string) ($input['mode'] ?? 'scalping')
+            ));
+
+        case 'worker_health':
+            if ($method !== 'POST') {
+                aiAccessJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
+            }
+            $session = aiAccessRequireSession();
+            aiAccessJson(aiAccessProxySystemHealth($session));
+
         default:
             aiAccessJson(['ok' => false, 'error' => 'action_inconnue'], 400);
     }

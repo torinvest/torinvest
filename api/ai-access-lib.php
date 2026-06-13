@@ -153,16 +153,33 @@ function aiAccessVerifyToken(string $token, string $secret): ?array
     ];
 }
 
-function aiAccessWorkerGet(string $path, array $query = []): array
+function aiAccessCopyToken(): string
+{
+    $cfg = aiAccessConfig();
+    $token = trim((string) ($cfg['copy_token'] ?? ''));
+    if ($token === '' || $token === 'default') {
+        throw new RuntimeException('copy_token manquant dans config.local.php (wrangler secret put COPY_TOKEN)');
+    }
+    return $token;
+}
+
+function aiAccessWorkerGet(string $path, array $query = [], array $extraHeaders = []): array
 {
     $url = aiAccessWorkerUrl() . $path;
     if ($query) {
         $url .= '?' . http_build_query($query);
     }
+    $header = "Accept: application/json\r\n";
+    foreach ($extraHeaders as $name => $value) {
+        $v = trim((string) $value);
+        if ($v !== '') {
+            $header .= $name . ': ' . $v . "\r\n";
+        }
+    }
     $ctx = stream_context_create([
         'http' => [
             'method' => 'GET',
-            'header' => "Accept: application/json\r\n",
+            'header' => $header,
             'timeout' => 20,
             'ignore_errors' => true,
         ],
@@ -320,6 +337,76 @@ function aiAccessPing(array $session): array
         'expiresAt' => $session['expiresAt'],
         'label' => 'Administrateur TORINVEST',
     ];
+}
+
+function aiAccessRequireLicensedSession(array $session): void
+{
+    if ($session['role'] === 'client') {
+        aiAccessValidateLicense(
+            (string) ($session['meta']['licenseKey'] ?? ''),
+            (string) ($session['meta']['mt5Account'] ?? '')
+        );
+        return;
+    }
+    if ($session['role'] !== 'admin') {
+        throw new RuntimeException('Session non autorisée');
+    }
+}
+
+function aiAccessWorkerHeadersForSession(array $session): array
+{
+    $headers = [];
+    if ($session['role'] === 'client') {
+        $licenseKey = trim((string) ($session['meta']['licenseKey'] ?? ''));
+        if ($licenseKey !== '') {
+            $headers['X-License'] = $licenseKey;
+        }
+    }
+    return $headers;
+}
+
+function aiAccessProxyWorkerGet(array $session, string $path, array $query = []): array
+{
+    aiAccessRequireLicensedSession($session);
+    $query['token'] = aiAccessCopyToken();
+    $resp = aiAccessWorkerGet($path, $query, aiAccessWorkerHeadersForSession($session));
+    $status = (int) ($resp['_httpStatus'] ?? 500);
+    unset($resp['_httpStatus']);
+    if ($status >= 400 || ($resp['ok'] ?? true) === false) {
+        $err = (string) ($resp['error'] ?? $resp['message'] ?? 'Erreur Worker (HTTP ' . $status . ')');
+        throw new RuntimeException($err);
+    }
+    return $resp;
+}
+
+function aiAccessProxyCopySignal(array $session, string $symbol): array
+{
+    $symbol = strtoupper(trim($symbol));
+    if ($symbol === '') {
+        $symbol = 'XAUUSD';
+    }
+    return aiAccessProxyWorkerGet($session, '/copy/signal', ['symbol' => $symbol]);
+}
+
+function aiAccessProxyAgentContext(array $session, string $symbol, string $mode): array
+{
+    $symbol = strtoupper(trim($symbol));
+    if ($symbol === '') {
+        $symbol = 'XAUUSD';
+    }
+    $mode = trim($mode);
+    if ($mode === '') {
+        $mode = 'scalping';
+    }
+    return aiAccessProxyWorkerGet($session, '/agent/context', [
+        'symbol' => $symbol,
+        'mode' => $mode,
+    ]);
+}
+
+function aiAccessProxySystemHealth(array $session): array
+{
+    return aiAccessProxyWorkerGet($session, '/system/health', []);
 }
 
 function aiAccessProxyChat(array $session, array $input): array

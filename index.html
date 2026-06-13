@@ -1206,11 +1206,12 @@
 
             <div class="signal-panel">
               <div class="signal-title">
-                <span>Dernier signal IA public</span>
-                <span id="signal-time">--</span>
+                <span>Signaux IA — accès licencié</span>
+                <span id="signal-time"></span>
               </div>
-              <div id="signal-status" class="signal-main neutral">Connexion au Worker...</div>
-              <p id="signal-text" class="signal-text">Chargement du contexte TORINVEST AI.</p>
+              <div id="signal-status" class="signal-main neutral">Réservé aux clients TORINVEST</div>
+              <p id="signal-text" class="signal-text">Les signaux live sont disponibles dans le cockpit après connexion avec votre licence VIP.</p>
+              <p class="signal-text" style="margin-top:10px"><a href="/ai-access.html" style="color:var(--gold2);text-decoration:none;font-weight:600">→ Se connecter à AI Access</a></p>
             </div>
           </div>
         </aside>
@@ -1265,7 +1266,7 @@
             <h3 class="plan-name">Signal Public</h3>
             <p class="plan-desc">Une porte d’entrée gratuite pour découvrir la logique TORINVEST sans abonnement.</p>
             <ul class="plan-list">
-              <li>Un signal gratuit affiché dans le dashboard chaque semaine</li>
+              <li>Signaux live dans le cockpit AI Access (licence requise)</li>
               <li>Lecture simple du contexte : actif, biais, niveau de risque</li>
               <li>Aperçu de la logique IA / Smart Money</li>
               <li>Accès public sans exécution automatique MT5</li>
@@ -1456,11 +1457,8 @@
     </footer>
   </div>
 
-  <script src="/assets/torinvest-worker-config.js"></script>
   <script>
-    const WORKER = (window.TORINVEST_WORKER && window.TORINVEST_WORKER.baseUrl)
-      || "https://morning-hall-d8f6.onzerimes.workers.dev";
-    const PUBLIC_SIGNAL_TOKEN = (window.TORINVEST_WORKER && window.TORINVEST_WORKER.copyToken) || "";
+    const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
 
     document.getElementById("year").textContent = new Date().getFullYear();
 
@@ -1530,39 +1528,6 @@
       }
     }
 
-    async function loadSignal() {
-      const statusEl = document.getElementById("signal-status");
-      const textEl = document.getElementById("signal-text");
-      const timeEl = document.getElementById("signal-time");
-
-      try {
-        const resp = await fetch(WORKER + "/copy/signal?token=" + encodeURIComponent(PUBLIC_SIGNAL_TOKEN) + "&symbol=XAUUSD", {
-          headers: { "Accept": "application/json" }
-        });
-
-        if (!resp.ok) throw new Error("HTTP " + resp.status);
-        const data = await resp.json();
-        const s = data.signal || {};
-        const action = String(s.action || "NONE").toUpperCase();
-
-        statusEl.className = "signal-main " + (action === "BUY" ? "positive" : action === "SELL" ? "negative" : "neutral");
-        statusEl.textContent = action === "BUY" ? "🟢 BUY — XAUUSD" : action === "SELL" ? "🔴 SELL — XAUUSD" : "⚪ NO TRADE / WATCHLIST";
-
-        textEl.textContent =
-          "Readiness : " + (s.execution_readiness || "--") +
-          " • Confidence : " + (s.confidence ?? "--") +
-          " • Risk : " + (s.global_risk_score ?? "--") +
-          (s.reason ? " • " + String(s.reason).slice(0, 120) : "");
-
-        timeEl.textContent = s.createdAt ? new Date(s.createdAt).toLocaleTimeString("fr-FR") : "--";
-      } catch (e) {
-        statusEl.className = "signal-main neutral";
-        statusEl.textContent = "⚠️ Signal indisponible";
-        textEl.textContent = "Aucun signal public disponible pour le moment.";
-        timeEl.textContent = "--";
-      }
-    }
-
     async function loadNews() {
       const list = document.getElementById("news-list");
       const riskEl = document.getElementById("stat-news-risk");
@@ -1628,11 +1593,9 @@
     }
 
     loadMarketContext();
-    loadSignal();
     loadNews();
 
     setInterval(loadMarketContext, 30000);
-    setInterval(loadSignal, 15000);
     setInterval(loadNews, 120000);
   </script>
 
