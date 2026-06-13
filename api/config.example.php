@@ -39,6 +39,9 @@ return [
     // Token admin Worker (Cloudflare → Settings → Variables → ADMIN_TOKEN)
     'admin_token' => 'VOTRE_ADMIN_TOKEN_WORKER',
 
+    // Token public Worker (signaux / agent context) — wrangler secret COPY_TOKEN + torinvest-worker-config.js + EA MT5
+    'copy_token' => 'TOR_COPY_…',
+
     // URL du Worker (inchangé si morning-hall-d8f6)
     'worker_url' => 'https://morning-hall-d8f6.onzerimes.workers.dev',
 

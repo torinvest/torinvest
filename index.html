@@ -1456,9 +1456,11 @@
     </footer>
   </div>
 
+  <script src="/assets/torinvest-worker-config.js"></script>
   <script>
-    const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
-    const PUBLIC_SIGNAL_TOKEN = "default";
+    const WORKER = (window.TORINVEST_WORKER && window.TORINVEST_WORKER.baseUrl)
+      || "https://morning-hall-d8f6.onzerimes.workers.dev";
+    const PUBLIC_SIGNAL_TOKEN = (window.TORINVEST_WORKER && window.TORINVEST_WORKER.copyToken) || "";
 
     document.getElementById("year").textContent = new Date().getFullYear();
 

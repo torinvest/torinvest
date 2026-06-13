@@ -792,6 +792,7 @@ body:not([data-terminal-view="chat"]) .input-zone{display:none}
 </style>
 </head>
 <body data-terminal-view="chat">
+<script src="/assets/torinvest-worker-config.js"></script>
 <script src="/assets/aitorinvest-auth.js"></script>
 
 <div class="app">
@@ -887,9 +888,9 @@ body:not([data-terminal-view="chat"]) .input-zone{display:none}
 <div class="modal" id="memoryModal"><div class="box"><h3>Mémoire globale locale</h3><p class="warn">Cette mémoire reste dans le navigateur. Elle est envoyée au Worker seulement comme contexte utile dans tes requêtes.</p><div class="field"><label>Ajouter une mémoire</label><input id="memoryInput" placeholder="Ex : Risque max par trade : 1%" /></div><button class="primary" onclick="addMemory()">Ajouter</button><hr style="border-color:var(--line)"><div class="mem-list" id="memoryFull"></div><div class="actions"><button class="ghost" onclick="clearMemory()">Effacer mémoire</button><button class="ghost" onclick="closeModal('memoryModal')">Fermer</button></div></div></div>
 <div class="modal" id="archivesModal"><div class="box"><h3>Archives conversations</h3><div id="archivesList"></div><div class="actions"><button class="ghost" onclick="closeModal('archivesModal')">Fermer</button></div></div></div>
 <script>
-const WORKER_BASE_URL="https://morning-hall-d8f6.onzerimes.workers.dev";
+const WORKER_BASE_URL=(window.TORINVEST_WORKER&&window.TORINVEST_WORKER.baseUrl)||"https://morning-hall-d8f6.onzerimes.workers.dev";
 const AI_ACCESS_API="https://radar.torinvest-trading.com/api/ai-access.php";
-const COPY_TOKEN="default";
+const COPY_TOKEN=(window.TORINVEST_WORKER&&window.TORINVEST_WORKER.copyToken)||"";
 
 const WORKER_AI_URL=WORKER_BASE_URL+"/ai/chat";
 const WORKER_STATUS_URL=WORKER_BASE_URL+"/ai/status";
