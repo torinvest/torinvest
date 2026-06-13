@@ -1,6 +1,7 @@
 # Secrets et configuration locale (ne jamais versionner)
 api/config.local.php
 assets/torinvest-worker-config.js
+deploy/COPY-TOKEN-ROTATION.local.txt
 
 # Sauvegardes locales
 backups/*.tar.gz
