@@ -65,18 +65,35 @@
 
     formatConnectError: function (err) {
       var msg = err && err.message ? err.message : String(err);
+      if (this.isEdgeBrowser && this.isEdgeBrowser()) {
+        return msg + "\n\n" + this.edgeTorpassHint();
+      }
       if (/unexpected error/i.test(msg)) {
         return (
           msg +
-          "\n\nCorrectifs Phantom (dans l'ordre) :\n" +
-          "1. Ctrl+F5 pour rafraîchir la page\n" +
-          "2. Déverrouille Phantom (mot de passe extension)\n" +
-          "3. chrome://extensions → Phantom → bouton Recharger\n" +
-          "4. Désactive temporairement MetaMask / autres wallets Solana\n" +
-          "5. Ferme le panneau Phantom latéral, puis reclique sur Connecter"
+          "\n\nEssaye Opera ou Firefox. Sur Edge, Phantom échoue souvent à se connecter."
         );
       }
       return msg;
+    },
+
+    isEdgeBrowser: function () {
+      return /Edg\//.test(navigator.userAgent || "");
+    },
+
+    edgeTorpassHint: function () {
+      return (
+        "Microsoft Edge + Phantom : connexion souvent impossible (Unexpected error). " +
+        "TorPass fonctionne sur Opera et Firefox. Ouvre torinvest-trading.com/torpass dans Opera."
+      );
+    },
+
+    showEdgeBanner: function (elementId) {
+      if (!this.isEdgeBrowser()) return;
+      var el = document.getElementById(elementId);
+      if (!el) return;
+      el.style.display = "block";
+      el.textContent = "⚠ " + this.edgeTorpassHint();
     },
 
     buildSignMessage: function (wallet, timestampMs) {
