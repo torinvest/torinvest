@@ -2,452 +2,338 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Tuto – Attacher son MT5 au robot TORINVEST</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- TORINVEST META SEO -->
-  <meta name="description" content="Tutoriel — connecter MT5 au robot TORINVEST." />
-  <meta name="keywords" content="MT5, tutoriel, robot, TORINVEST" />
-  <meta name="author" content="TORINVEST" />
+  <title>Guide MT5 — Robot Access TORINVEST (EA v1.51)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Guide pas à pas : installer l'EA TORINVEST AI Executor v1.51, activer votre licence TOR-VIP et connecter MetaTrader 5 au Worker Cloudflare." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://www.torinvest-trading.com/tuto-mt5-robot-torinvest.html" />
-  <meta property="og:type" content="website" />
-  <meta property="og:locale" content="fr_FR" />
-  <meta property="og:site_name" content="TORINVEST" />
-  <meta property="og:title" content="Tuto – Attacher son MT5 au robot TORINVEST" />
-  <meta property="og:description" content="Tutoriel — connecter MT5 au robot TORINVEST." />
+  <meta property="og:title" content="Guide MT5 — Robot Access TORINVEST" />
+  <meta property="og:description" content="Installation EA v1.51, licence TOR-VIP, Worker Cloudflare — guide client Robot Access." />
   <meta property="og:url" content="https://www.torinvest-trading.com/tuto-mt5-robot-torinvest.html" />
   <meta property="og:image" content="https://www.torinvest-trading.com/forge-logo.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Tuto – Attacher son MT5 au robot TORINVEST" />
-  <meta name="twitter:description" content="Tutoriel — connecter MT5 au robot TORINVEST." />
-  <meta name="twitter:image" content="https://www.torinvest-trading.com/forge-logo.png" />
   <meta name="theme-color" content="#040407" />
   <link rel="icon" href="/forge-logo.png" type="image/png" />
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebPage","name":"Tuto – Attacher son MT5 au robot TORINVEST","description":"Tutoriel — connecter MT5 au robot TORINVEST.","url":"https://www.torinvest-trading.com/tuto-mt5-robot-torinvest.html","inLanguage":"fr-FR","isPartOf":{"@type":"WebSite","name":"TORINVEST","url":"https://www.torinvest-trading.com/"}}
-  </script>
-<style>
+  <style>
     :root {
       --bg: #050509;
       --card: #11111c;
       --accent: #ffb400;
-      --accent-soft: rgba(255, 180, 0, 0.12);
       --text: #f5f5f7;
       --muted: #9a9aad;
+      --green: #15d16b;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI";
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #151528 0, #050509 55%);
       color: var(--text);
       line-height: 1.6;
     }
-
-    .page {
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 28px 18px 70px;
-    }
-
+    .page { max-width: 980px; margin: 0 auto; padding: 28px 18px 90px; }
     .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 999px;
       border: 1px solid rgba(255,180,0,0.45);
-      background: rgba(255,180,0,0.08);
-      color: var(--accent);
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      background: rgba(255,180,0,0.08); color: var(--accent);
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
       margin-bottom: 16px;
-      margin-top: 10px;
     }
-
     .pill-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: #15d16b;
-      box-shadow: 0 0 6px #15d16b;
+      width: 7px; height: 7px; border-radius: 999px;
+      background: var(--green); box-shadow: 0 0 6px var(--green);
     }
-
     h1 {
-      font-size: 30px;
-      font-weight: 800;
+      font-size: clamp(26px, 5vw, 32px); font-weight: 800;
       background: linear-gradient(120deg, #ffb400, #ff4b5c);
-      -webkit-background-clip: text;
-      color: transparent;
+      -webkit-background-clip: text; color: transparent;
       margin-bottom: 8px;
     }
-
-    .subtitle {
-      font-size: 14px;
-      color: var(--muted);
-      max-width: 680px;
-      margin-bottom: 22px;
+    .subtitle { font-size: 14px; color: var(--muted); max-width: 720px; margin-bottom: 18px; }
+    .nav-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+    .nav-row a {
+      font-size: 12px; text-decoration: none; color: var(--accent);
+      border: 1px solid rgba(255,180,0,0.35); border-radius: 999px;
+      padding: 6px 12px; background: rgba(255,180,0,0.06);
     }
-
-    h2 {
-      font-size: 20px;
-      margin-bottom: 8px;
-      margin-top: 20px;
-    }
-
-    h3 {
-      font-size: 16px;
-      margin-bottom: 6px;
-      color: var(--accent);
-    }
-
-    p {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-
+    .nav-row a:hover { background: rgba(255,180,0,0.16); }
+    h2 { font-size: 20px; margin-bottom: 8px; margin-top: 4px; }
+    h3 { font-size: 15px; margin-bottom: 6px; color: var(--accent); }
+    p { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
     .card {
-      background: var(--card);
-      border-radius: 16px;
-      padding: 16px 16px 14px;
-      border: 1px solid rgba(255,255,255,0.05);
-      margin-bottom: 20px;
+      background: var(--card); border-radius: 16px; padding: 16px 16px 14px;
+      border: 1px solid rgba(255,255,255,0.05); margin-bottom: 18px;
     }
-
-    .step-list {
-      list-style: none;
-      padding-left: 0;
-      margin: 8px 0 4px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-
-    .step-list li {
-      margin-bottom: 8px;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    .step-num {
-      min-width: 22px;
-      height: 22px;
-      border-radius: 999px;
-      background: rgba(255,180,0,0.16);
-      border: 1px solid rgba(255,180,0,0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      color: var(--accent);
-      margin-top: 2px;
-    }
-
-    .code-inline {
-      font-family: "JetBrains Mono", "SF Mono", Menlo, Monaco, monospace;
-      font-size: 12px;
-      padding: 2px 5px;
-      border-radius: 6px;
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.06);
-      color: #f5f5f7;
-    }
-
-    .warning {
-      background: rgba(255, 75, 92, 0.1);
-      border: 1px solid rgba(255, 75, 92, 0.6);
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 13px;
-      color: #ffbcbc;
-      margin-top: 10px;
-    }
-
-    .note {
-      background: rgba(255, 180, 0, 0.08);
-      border: 1px solid rgba(255, 180, 0, 0.4);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 13px;
-      color: var(--accent);
-      margin-top: 8px;
-    }
-
     .section-label {
-      font-size: 11px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 4px;
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 4px;
     }
-
-    /* Bouton retour */
-    .btn-home {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255, 180, 0, 0.16);
-      border: 1px solid rgba(255, 180, 0, 0.4);
-      color: var(--accent);
-      font-size: 12px;
-      text-decoration: none;
-      backdrop-filter: blur(6px);
-      transition: 0.2s ease;
+    .step-list { list-style: none; padding: 0; margin: 8px 0 4px; font-size: 14px; color: var(--muted); }
+    .step-list li { margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; }
+    .step-num {
+      min-width: 22px; height: 22px; border-radius: 999px;
+      background: rgba(255,180,0,0.16); border: 1px solid rgba(255,180,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: var(--accent); margin-top: 2px; flex-shrink: 0;
     }
-
-    .btn-home:hover {
-      background: rgba(255,180,0,0.32);
-      transform: translateY(-2px);
+    .code-inline, .code-block {
+      font-family: "JetBrains Mono", "Consolas", monospace; font-size: 12px;
+      padding: 2px 6px; border-radius: 6px;
+      background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.06); color: #f5f5f7;
     }
+    .code-block {
+      display: block; padding: 12px 14px; margin: 10px 0;
+      overflow-x: auto; white-space: pre-wrap; word-break: break-all;
+    }
+    .warning {
+      background: rgba(255, 75, 92, 0.1); border: 1px solid rgba(255, 75, 92, 0.6);
+      border-radius: 12px; padding: 12px 14px; font-size: 13px; color: #ffbcbc; margin-top: 10px;
+    }
+    .note {
+      background: rgba(255, 180, 0, 0.08); border: 1px solid rgba(255, 180, 0, 0.4);
+      border-radius: 12px; padding: 10px 12px; font-size: 13px; color: var(--accent); margin-top: 8px;
+    }
+    .ok-box {
+      background: rgba(21, 209, 107, 0.08); border: 1px solid rgba(21, 209, 107, 0.35);
+      border-radius: 12px; padding: 10px 12px; font-size: 13px; color: #9ef0c0; margin-top: 8px;
+    }
+    table.params { width: 100%; border-collapse: collapse; font-size: 13px; margin: 10px 0; }
+    table.params th, table.params td {
+      text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.06);
+      color: var(--muted); vertical-align: top;
+    }
+    table.params th { color: var(--accent); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+    table.params code { font-size: 11px; }
+    .btn-float {
+      position: fixed; bottom: 20px; right: 20px;
+      padding: 8px 14px; border-radius: 999px;
+      background: rgba(255, 180, 0, 0.16); border: 1px solid rgba(255, 180, 0, 0.4);
+      color: var(--accent); font-size: 12px; text-decoration: none;
+    }
+    .btn-float.secondary { right: auto; left: 20px; }
   </style>
 </head>
-
 <body>
 <div class="page">
 
-  <div class="pill">
-    <span class="pill-dot"></span>
-    TUTO COPY TRADING – FORGE TORINVEST
+  <div class="pill"><span class="pill-dot"></span> Robot Access · MT5 · EA v1.51</div>
+
+  <h1>Guide — Connecter MetaTrader 5 au robot TORINVEST</h1>
+  <p class="subtitle">
+    Ce guide est réservé aux abonnés <strong>Robot Access</strong>. Il explique comment installer
+    l’<strong>EA TORINVEST AI Executor v1.51</strong>, activer votre licence
+    <span class="code-inline">TOR-VIP-…</span> et recevoir les signaux validés par le
+    <strong>Worker Cloudflare TORINVEST</strong>.
+  </p>
+
+  <div class="nav-row">
+    <a href="/ai-access.html">Connexion AI Access</a>
+    <a href="/#access">Offre Robot Access</a>
+    <a href="/AITORINVEST.html">Terminal cockpit</a>
+    <a href="/">Accueil</a>
   </div>
 
-  <h1>Tuto – Attacher son MT5 au robot TORINVEST</h1>
-  <p class="subtitle">
-    Ici, tu ne suis pas juste des signaux au hasard : tu branches ton compte directement
-    sur le <strong>flux des décisions de la Forge TORINVEST</strong>.  
-    Suis ce tutoriel étape par étape pour connecter ton compte MetaTrader 5 au robot
-    de copy trading TORINVEST.
-  </p>
+  <div class="card">
+    <div class="section-label">Avant de commencer</div>
+    <h2>Ce que tu dois recevoir de TORINVEST</h2>
+    <p>Après paiement ou validation de ton abonnement Robot Access, tu reçois (email ou CRM) :</p>
+    <ul class="step-list">
+      <li><span class="step-num">1</span><span>Une <strong>licence</strong> <span class="code-inline">TOR-VIP-XXXX-XXXX-XXXX</span></span></li>
+      <li><span class="step-num">2</span><span>Un <strong>code d’activation</strong> (si la licence n’est pas déjà liée à ton compte MT5)</span></li>
+      <li><span class="step-num">3</span><span>Ton <strong>CopyToken personnel</strong> (jeton Worker — ne le partage jamais)</span></li>
+      <li><span class="step-num">4</span><span>Le fichier EA <span class="code-inline">TORINVEST AI Executor v1.51.ex5</span> (ou le source <span class="code-inline">.mq5</span> à compiler)</span></li>
+    </ul>
+    <div class="warning">
+      ⚠️ Le CopyToken n’est <strong>pas public</strong> sur le site. Ne le cherche pas sur Internet :
+      il t’est transmis personnellement avec ta licence.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Étape 0</div>
+    <h2>Activer la licence sur ton compte MT5</h2>
+    <p>Si ton CRM a déjà renseigné ton numéro de compte MT5 à la création, passe à l’étape 1.</p>
+    <p>Sinon, active la licence avec ton <strong>numéro de compte MT5</strong> et le <strong>code d’activation</strong> reçu.</p>
+    <p>Tu peux aussi vérifier l’état dans le terminal <a href="/AITORINVEST.html" style="color:var(--accent)">AI Access</a> → panneau <strong>License Check</strong>.</p>
+    <div class="note">
+      💡 Connexion cockpit : <a href="/ai-access.html" style="color:var(--accent)">/ai-access</a> → onglet Client → colle ta licence TOR-VIP.
+    </div>
+  </div>
 
   <div class="card">
     <div class="section-label">Étape 1</div>
-    <h2>Préparer ton enclume : installer MetaTrader 5</h2>
+    <h2>Installer MetaTrader 5</h2>
     <ul class="step-list">
-      <li>
-        <span class="step-num">1</span>
-        <span>Ouvre un <strong>compte MT5</strong> (démo ou réel) chez ton broker.</span>
-      </li>
-      <li>
-        <span class="step-num">2</span>
-        <span>Télécharge et installe <strong>MetaTrader 5</strong> sur ton PC.</span>
-      </li>
-      <li>
-        <span class="step-num">3</span>
-        <span>
-          Connecte-toi à ton compte avec ton identifiant, ton mot de passe et le serveur MT5
-          fournis par ton broker.
-        </span>
-      </li>
+      <li><span class="step-num">1</span><span>Ouvre un compte MT5 (démo ou réel) chez ton broker.</span></li>
+      <li><span class="step-num">2</span><span>Installe <strong>MetaTrader 5</strong> sur ton PC ou VPS (recommandé pour laisser l’EA tourner 24/5).</span></li>
+      <li><span class="step-num">3</span><span>Connecte-toi avec identifiant, mot de passe et serveur broker.</span></li>
     </ul>
-    <p>
-      Ton compte MT5, c’est ton <strong>enclume</strong>. Sans lui, la Forge ne peut pas frapper.
-    </p>
   </div>
 
   <div class="card">
     <div class="section-label">Étape 2</div>
-    <h2>Récupérer le marteau : installer le robot TorinvestCopier</h2>
+    <h2>Installer l’EA TORINVEST AI Executor v1.51</h2>
     <ul class="step-list">
-      <li>
-        <span class="step-num">1</span>
-        <span>Récupère le fichier <span class="code-inline">TorinvestCopier.ex5</span>
-          (fourni par TORINVEST) et garde-le sur ton PC.</span>
-      </li>
-      <li>
-        <span class="step-num">2</span>
-        <span>Dans MetaTrader 5, clique sur <strong>Fichier → Ouvrir le dossier des données</strong>.</span>
-      </li>
-      <li>
-        <span class="step-num">3</span>
-        <span>Dans la fenêtre qui s’ouvre, va dans <span class="code-inline">MQL5 → Experts</span>.</span>
-      </li>
-      <li>
-        <span class="step-num">4</span>
-        <span>Copie <span class="code-inline">TorinvestCopier.ex5</span> dans ce dossier.</span>
-      </li>
-      <li>
-        <span class="step-num">5</span>
-        <span>Ferme complètement MetaTrader 5 puis <strong>relance-le</strong>.</span>
-      </li>
+      <li><span class="step-num">1</span><span>Dans MT5 : <strong>Fichier → Ouvrir le dossier des données</strong>.</span></li>
+      <li><span class="step-num">2</span><span>Va dans <span class="code-inline">MQL5 → Experts</span>.</span></li>
+      <li><span class="step-num">3</span><span>Copie <span class="code-inline">TORINVEST AI Executor v1.51.ex5</span> (ou compile le <span class="code-inline">.mq5</span> avec MetaEditor — F7).</span></li>
+      <li><span class="step-num">4</span><span>Ferme MT5 complètement, puis relance-le.</span></li>
     </ul>
-    <p>
-      Le robot est maintenant dans ta plateforme : il attend juste qu’on l’active.
-    </p>
+    <p>Dans le Navigateur (<span class="code-inline">Ctrl+N</span>), tu dois voir l’EA sous <strong>Conseillers Experts</strong>.</p>
   </div>
 
   <div class="card">
     <div class="section-label">Étape 3</div>
-    <h2>Poser le marteau sur le métal : attacher le robot au graphique</h2>
+    <h2>Autoriser WebRequest (obligatoire)</h2>
+    <p>MT5 bloque les appels HTTP par défaut. Autorise le Worker TORINVEST :</p>
     <ul class="step-list">
-      <li>
-        <span class="step-num">1</span>
-        <span>Ouvre un graphique (par exemple <strong>XAUUSD M1</strong> ou <strong>EURUSD M5</strong>).</span>
-      </li>
-      <li>
-        <span class="step-num">2</span>
-        <span>Ouvre le panneau <strong>Navigateur</strong> (ou raccourci <span class="code-inline">Ctrl+N</span>).</span>
-      </li>
-      <li>
-        <span class="step-num">3</span>
-        <span>
-          Dans <strong>Conseillers Experts (Expert Advisors)</strong>, repère
-          <span class="code-inline">TorinvestCopier</span>.
-        </span>
-      </li>
-      <li>
-        <span class="step-num">4</span>
-        <span>Glisse-dépose le robot sur ton graphique.</span>
-      </li>
+      <li><span class="step-num">1</span><span><strong>Outils → Options → Expert Advisors</strong></span></li>
+      <li><span class="step-num">2</span><span>Coche <strong>Autoriser le trading algorithmique</strong></span></li>
+      <li><span class="step-num">3</span><span>Coche <strong>Autoriser WebRequest pour les URL listées</strong></span></li>
+      <li><span class="step-num">4</span><span>Ajoute cette URL (une ligne) :</span></li>
     </ul>
-    <p>
-      Une fenêtre de paramètres s’ouvre : c’est le panneau de contrôle de ton accès à la Forge.
-    </p>
+    <code class="code-block">https://morning-hall-d8f6.onzerimes.workers.dev</code>
+    <p>Si tu utilises Chainwork (optionnel), ajoute aussi <span class="code-inline">https://api.chainwork-ai.com</span>.</p>
   </div>
 
   <div class="card">
     <div class="section-label">Étape 4</div>
-    <h2>Raccorder ton poste à la Forge : paramétrer le robot</h2>
-    <p>
-      Dans la fenêtre du robot (onglet <strong>“Entrées”</strong>), configure les paramètres :
-    </p>
-
+    <h2>Attacher l’EA au graphique</h2>
     <ul class="step-list">
-      <li>
-        <span class="step-num">1</span>
-        <span>
-          <span class="code-inline">InpApiBaseUrl</span> →  
-          <span class="code-inline">https://58e23d26491b.ngrok-free.app</span>
-        </span>
-      </li>
-      <li>
-        <span class="step-num">2</span>
-        <span>
-          <span class="code-inline">InpCopyToken</span> →  
-          <span class="code-inline">TokenClientTorinvest123</span>  
-          (jeton d’accès à la Forge pour ce groupe de forgerons).
-        </span>
-      </li>
-      <li>
-        <span class="step-num">3</span>
-        <span>
-          <span class="code-inline">InpLotSize</span> → par exemple <span class="code-inline">0.01</span>  
-          (taille de lot par trade – commence petit).
-        </span>
-      </li>
-      <li>
-        <span class="step-num">4</span>
-        <span>
-          <span class="code-inline">InpSlippage</span> → <span class="code-inline">50</span>  
-          (tolérance de décalage de prix).
-        </span>
-      </li>
-      <li>
-        <span class="step-num">5</span>
-        <span>
-          <span class="code-inline">InpVerboseLog</span> → <span class="code-inline">true</span>  
-          (pour voir ce que fait le robot dans l’onglet Journal).
-        </span>
-      </li>
+      <li><span class="step-num">1</span><span>Ouvre un graphique de l’actif cible (ex. <strong>XAUUSD</strong> — vérifie le nom exact chez ton broker : Gold, XAUUSD, etc.).</span></li>
+      <li><span class="step-num">2</span><span>Glisse <span class="code-inline">TORINVEST AI Executor v1.51</span> sur le graphique.</span></li>
+      <li><span class="step-num">3</span><span>Onglet <strong>Entrées</strong> : configure les paramètres ci-dessous.</span></li>
+      <li><span class="step-num">4</span><span>Onglet <strong>Autorisations</strong> : coche <strong>Autoriser le trading algorithmique</strong>.</span></li>
     </ul>
-
-    <p>Valide en cliquant sur <strong>OK</strong>.</p>
-
-    <div class="note">
-      💡 Tu pourras adapter <span class="code-inline">InpLotSize</span> et les autres paramètres selon ton capital
-      et ton confort avec le risque.
-    </div>
   </div>
 
   <div class="card">
     <div class="section-label">Étape 5</div>
-    <h2>Allumer le fourneau : autoriser le trading automatique</h2>
-    <ul class="step-list">
-      <li>
-        <span class="step-num">1</span>
-        <span>
-          Vérifie que le bouton <strong>“Algo Trading” / “AutoTrading”</strong> en haut de MT5 est
-          <strong>VERT</strong>.  
-          S’il est rouge, clique dessus pour l’activer.
-        </span>
-      </li>
-      <li>
-        <span class="step-num">2</span>
-        <span>
-          Si une fenêtre de sécurité apparaît, coche
-          <strong>“Autoriser le trading automatique”</strong> et, si nécessaire,
-          l’autorisation de <strong>WebRequest</strong> pour l’URL de l’API TORINVEST.
-        </span>
-      </li>
-    </ul>
-    <p>
-      À partir de là, ton poste est officiellement <strong>raccordé à la Forge</strong>.
-    </p>
+    <h2>Paramètres EA (production 2026)</h2>
+    <table class="params">
+      <thead>
+        <tr><th>Paramètre MT5</th><th>Valeur</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>WorkerBaseURL</code></td>
+          <td><code>https://morning-hall-d8f6.onzerimes.workers.dev/copy/signal</code></td>
+          <td>URL de polling des signaux (sans token dans l’URL — géré par l’EA).</td>
+        </tr>
+        <tr>
+          <td><code>WorkerHost</code></td>
+          <td><code>https://morning-hall-d8f6.onzerimes.workers.dev</code></td>
+          <td>Doit être dans la whitelist WebRequest MT5.</td>
+        </tr>
+        <tr>
+          <td><code>CopyToken</code></td>
+          <td><em>Fourni par TORINVEST</em></td>
+          <td>Jeton personnel — même valeur que côté Worker Cloudflare. Ne jamais publier.</td>
+        </tr>
+        <tr>
+          <td><code>LICENSE_KEY</code></td>
+          <td><code>TOR-VIP-…</code></td>
+          <td><strong>Obligatoire.</strong> Ta licence Robot Access.</td>
+        </tr>
+        <tr>
+          <td><code>FixedLot</code></td>
+          <td><code>0.01</code></td>
+          <td>Commence petit (démo ou réel). Ajuste selon ton capital.</td>
+        </tr>
+        <tr>
+          <td><code>CheckSeconds</code></td>
+          <td><code>30</code></td>
+          <td>Fréquence de lecture du Worker (secondes).</td>
+        </tr>
+        <tr>
+          <td><code>SIGNAL_SIGNING_SECRET</code></td>
+          <td><em>Vide ou fourni</em></td>
+          <td>Si TORINVEST active la signature HMAC, même secret que le Worker.</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="note">
+      💡 L’ancien robot <span class="code-inline">TorinvestCopier</span> et l’URL ngrok ne sont plus utilisés.
+      Utilise uniquement l’EA <strong>v1.51</strong> et le Worker ci-dessus.
+    </div>
   </div>
 
   <div class="card">
     <div class="section-label">Étape 6</div>
-    <h2>Laisser la Forge travailler pour toi</h2>
-    <p>
-      Tant que :
-    </p>
+    <h2>Activer Algo Trading</h2>
     <ul class="step-list">
-      <li>
-        <span class="step-num">•</span>
-        <span>MetaTrader 5 est <strong>ouvert</strong>,</span>
-      </li>
-      <li>
-        <span class="step-num">•</span>
-        <span>le robot <span class="code-inline">TorinvestCopier</span> est attaché à ton graphique,</span>
-      </li>
-      <li>
-        <span class="step-num">•</span>
-        <span><strong>AlgoTrading</strong> est en vert,</span>
-      </li>
+      <li><span class="step-num">1</span><span>Le bouton <strong>Algo Trading / AutoTrading</strong> en haut de MT5 doit être <strong>VERT</strong>.</span></li>
+      <li><span class="step-num">2</span><span>Un smiley sur le graphique (coin haut droit) — pas de croix rouge.</span></li>
+      <li><span class="step-num">3</span><span>Onglet <strong>Experts</strong> du Journal : tu dois voir <span class="code-inline">TORINVEST AI Executor v1.51 lancé</span>.</span></li>
     </ul>
-    <p>
-      alors, dès qu’un trade est validé côté Forge (via TradingView & l’infrastructure TORINVEST),
-      ton robot ouvre automatiquement le même type de trade sur ton compte :
-    </p>
-    <ul class="list">
-      <li>même sens : <strong>achat / vente</strong></li>
-      <li>même logique d’entrée (signal issu de la Forge)</li>
-      <li>SL / TP transmis via l’API</li>
-      <li>taille adaptée à ton <span class="code-inline">InpLotSize</span></li>
+    <div class="ok-box">
+      ✅ Si la licence est active et le Worker OK, l’EA poll <span class="code-inline">/copy/signal</span> toutes les ~30 s.
+      Un message « aucun signal » est normal tant qu’aucun setup n’a été validé côté Forge.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Étape 7</div>
+    <h2>Suivre le cockpit AI Access</h2>
+    <p>L’EA exécute sur MT5. Le terminal web te donne le contexte (Smart Money, news, signaux, santé système) :</p>
+    <ul class="step-list">
+      <li><span class="step-num">1</span><span><a href="/ai-access.html" style="color:var(--accent)">Connecte-toi à AI Access</a> avec ta licence TOR-VIP.</span></li>
+      <li><span class="step-num">2</span><span>Ouvre <a href="/AITORINVEST.html" style="color:var(--accent)">le terminal cockpit</a>.</span></li>
+      <li><span class="step-num">3</span><span>Vérifie <strong>Signal Center</strong>, <strong>System Health</strong> et <strong>License Check</strong>.</span></li>
     </ul>
-    <p>
-      Tu ne cliques plus compulsivement : tu observes, tu analyses, tu apprends, en restant branché
-      sur le <strong>marteau de la Forge</strong>.
-    </p>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Dépannage</div>
+    <h2>Problèmes fréquents</h2>
+    <table class="params">
+      <thead><tr><th>Symptôme</th><th>Cause probable</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>401</code> token / licence invalide</td>
+          <td>CopyToken ou LICENSE_KEY incorrect</td>
+          <td>Vérifie les valeurs reçues de TORINVEST (pas d’espace, licence active).</td>
+        </tr>
+        <tr>
+          <td><code>503</code> COPY_TOKEN</td>
+          <td>Worker non configuré</td>
+          <td>Contacte le support TORINVEST.</td>
+        </tr>
+        <tr>
+          <td><code>404</code> aucun signal</td>
+          <td>Pas de signal en cache</td>
+          <td>Normal hors session / sans setup validé — surveille le cockpit.</td>
+        </tr>
+        <tr>
+          <td>WebRequest failed</td>
+          <td>URL non autorisée</td>
+          <td>Ajoute <code>morning-hall-d8f6.onzerimes.workers.dev</code> dans Options MT5.</td>
+        </tr>
+        <tr>
+          <td>Licence pending</td>
+          <td>Activation incomplète</td>
+          <td>Active avec code + numéro compte MT5 ou contacte le CRM.</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
   <div class="card">
     <div class="section-label">Rappel</div>
-    <h2>Code de la Forge : gestion du risque</h2>
+    <h2>Risque &amp; contrôle</h2>
     <div class="warning">
-      ⚠️ Le copy trading <strong>n’annule pas le risque</strong> :  
-      tu peux perdre une partie ou la totalité de ton capital.  
-      Commence idéalement sur un <strong>compte démo</strong> et avec un
-      <strong>lot très raisonnable</strong> (0.01 par exemple).
+      ⚠️ Le trading automatisé comporte un risque de perte totale du capital.
+      Teste d’abord sur <strong>compte démo</strong> avec un lot minimal (0,01).
     </div>
-    <div class="note">
-      🔧 Tu peux arrêter le robot à tout moment :  
-      retire l’Expert du graphique ou désactive <strong>AlgoTrading</strong> (bouton rouge).
-    </div>
+    <p style="margin-top:10px">
+      Tu peux arrêter l’EA à tout moment : retire-le du graphique ou désactive Algo Trading (bouton rouge).
+    </p>
   </div>
 
 </div>
 
-<a class="btn-home" href="/copytrading">← Retour Copy Trading</a>
+<a class="btn-float secondary" href="/ai-access.html">← AI Access</a>
+<a class="btn-float" href="/#access">Offre Robot Access</a>
 
-  <script src="/assets/torinvest-rgpd.js" defer></script>
+<script src="/assets/torinvest-rgpd.js" defer></script>
 </body>
 </html>
