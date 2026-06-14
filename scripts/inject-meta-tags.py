@@ -22,6 +22,9 @@ NOINDEX_PAGES = ARCHIVE_PAGES | {
     "dev-access.html",
     "activation.html",
     "activation-accompagnement.html",
+    "formation-accompagnement.html",
+    "tuto-mt5-robot-torinvest.html",
+    "robot-access-bienvenue.html",
 }
 
 META: dict[str, dict[str, str]] = {

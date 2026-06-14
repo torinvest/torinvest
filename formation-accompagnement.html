@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>TORINVEST — Modules Accompagnement</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Espace modules — accompagnement formation TORINVEST 349€/an." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/forge-logo.png" type="image/png" />
+  <meta name="theme-color" content="#040407" />
+  <style>
+    :root{--gold:#ffb400;--gold2:#ffd36a;--red:#ff4b5c;--green:#15d16b;--text:#f6f0df;--muted:#9a9aad;--line:rgba(255,180,0,.24)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(circle at 14% 5%,rgba(255,180,0,.18),transparent 31%),linear-gradient(135deg,#020201,#090704 55%,#020201);display:grid;place-items:center;padding:20px}
+    .page{width:min(720px,100%);border:1px solid var(--line);background:linear-gradient(180deg,rgba(18,15,10,.92),rgba(3,3,2,.96));border-radius:28px;padding:32px;box-shadow:0 22px 60px rgba(0,0,0,.62)}
+    .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(21,209,107,.25);color:#b9ffd8;background:rgba(21,209,107,.08);border-radius:999px;padding:7px 11px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px}
+    h1{font-size:clamp(26px,5vw,34px);margin-bottom:10px;background:linear-gradient(115deg,var(--gold2),var(--gold));-webkit-background-clip:text;color:transparent}
+    p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:12px}
+    .steps{list-style:none;padding:0;margin:20px 0}
+    .steps li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06);color:var(--muted);font-size:14px}
+    .steps li:last-child{border-bottom:none}
+    .num{flex-shrink:0;width:26px;height:26px;border-radius:999px;background:rgba(255,180,0,.15);border:1px solid rgba(255,180,0,.4);display:grid;place-items:center;font-size:12px;color:var(--gold2);font-weight:800}
+    .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:999px;font-size:13px;font-weight:800;text-decoration:none;border:none;cursor:pointer}
+    .btn-primary{background:linear-gradient(135deg,var(--gold),var(--red));color:#1a1200}
+    .btn-ghost{border:1px solid rgba(255,255,255,.12);color:var(--muted);background:rgba(255,255,255,.04)}
+    .warn{margin-top:16px;padding:12px 14px;border-radius:14px;font-size:13px;background:rgba(255,180,0,.08);border:1px solid rgba(255,180,0,.28);color:var(--gold2)}
+    .back-home-btn{position:fixed;bottom:22px;right:22px;padding:8px 14px;font-size:12px;font-weight:700;text-decoration:none;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#f5f5f7}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="pill">Accompagnement · modules</div>
+    <h1>Ton parcours formation</h1>
+    <p>
+      L’accompagnement 349€/an donne accès au suivi privé, aux modules et à l’espace membre La Forge sur le VPS TORINVEST.
+    </p>
+
+    <ol class="steps">
+      <li><span class="num">1</span><span>Tu as reçu ta licence <strong style="color:var(--gold2)">TOR-ACCOMPAGNEMENT</strong> par email après validation de ta demande.</span></li>
+      <li><span class="num">2</span><span>Valide-la sur la page <strong style="color:var(--text)">Accès accompagnement</strong> (email Stripe + licence).</span></li>
+      <li><span class="num">3</span><span>Connecte-toi à l’espace membre avec les identifiants reçus par mail.</span></li>
+      <li><span class="num">4</span><span>Rejoins le Discord pour le suivi et pose tes questions dans les salons dédiés.</span></li>
+    </ol>
+
+    <div class="btn-row">
+      <a class="btn btn-primary" href="https://app.torinvest-trading.com/login.html">Connexion espace membre →</a>
+      <a class="btn btn-ghost" href="/accompagnement-access.html">Valider ma licence</a>
+      <a class="btn btn-ghost" href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">Discord TORINVEST</a>
+    </div>
+
+    <div class="warn">
+      Pas encore de licence ? Commence par le
+      <a href="/activation-accompagnement.html" style="color:var(--gold2)">formulaire d’activation</a>
+      après ton paiement Stripe.
+    </div>
+  </main>
+
+  <a href="/" class="back-home-btn">← Retour accueil</a>
+  <script src="/assets/torinvest-rgpd.js" defer></script>
+</body>
+</html>
