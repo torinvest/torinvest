@@ -378,11 +378,13 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
     </main>
   </div>
 
- <!-- TorPass RPC (same-origin proxy) -->
-<script src="/assets/torinvest-solana-rpc.js?v=4"></script>
-<script src="/assets/torinvest-torpass.js?v=4"></script>
+ <!-- TorPass RPC (same-origin proxy) — connexion Phantom inline (comme version stable) -->
+<script src="/assets/torinvest-solana-rpc.js?v=5"></script>
 <script>
-  const TP = window.TorinvestTorpass;
+  const KRM_MINT  = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+  const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
+  const MIN_KRM   = 40000;
+  const MIN_ORAX  = 2000000;
   const PREMIUM_URL = "/premium.html";
 
   const connectBtn   = document.getElementById("connectBtn");
@@ -391,23 +393,46 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
   const accessPill   = document.getElementById("accessPill");
   let connectInProgress = false;
 
-  function showConnectError(err) {
-    if (err && err.code === 4001) {
-      walletStatus.textContent = "Connexion refusée.";
-      walletBox.textContent = "Tu as refusé la connexion Phantom.";
-    } else {
-      walletStatus.textContent = "Erreur connexion Phantom.";
-      walletBox.textContent =
-        "Impossible de connecter Phantom : " + TP.formatConnectError(err);
+  function getPhantomProvider() {
+    var p = window.phantom && window.phantom.solana;
+    if (p && p.isPhantom) return p;
+    return null;
+  }
+
+  function pubkeyFromProvider(provider, resp) {
+    if (resp && resp.publicKey) {
+      return resp.publicKey.toString ? resp.publicKey.toString() : String(resp.publicKey);
     }
-    accessPill.className = "access-pill ko";
-    accessPill.textContent = "🔒 Accès verrouillé • Erreur.";
+    if (provider.publicKey) {
+      return provider.publicKey.toString ? provider.publicKey.toString() : String(provider.publicKey);
+    }
+    return null;
+  }
+
+  /** connect() synchrone depuis le clic ; fallback request() si Unexpected error. */
+  function connectPhantomWallet(provider) {
+    if (provider.isConnected && provider.publicKey) {
+      return Promise.resolve(pubkeyFromProvider(provider, null));
+    }
+    return provider.connect().then(function (resp) {
+      var pk = pubkeyFromProvider(provider, resp);
+      if (pk) return pk;
+      throw new Error("Connexion Phantom sans clé publique.");
+    }).catch(function (err) {
+      if (err && err.code === 4001) throw err;
+      if (typeof provider.request !== "function") throw err;
+      return provider.request({ method: "connect" }).then(function (resp) {
+        var pk = pubkeyFromProvider(provider, resp);
+        if (pk) return pk;
+        throw err;
+      });
+    });
   }
 
   function showTorpassResult(pubkey, balances) {
-    const krmBalance = balances.krm;
-    const oraxBalance = balances.orax;
-    const hasAccess = TP.hasAccess(balances);
+    var krmBalance = balances.krm;
+    var oraxBalance = balances.orax;
+    var hasAccess = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
 
     walletStatus.textContent = "Wallet Phantom connecté.";
     walletBox.textContent =
@@ -415,31 +440,36 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
       "Solde KRM : " + krmBalance + "\n" +
       "Solde ORAX : " + oraxBalance + "\n\n" +
       (hasAccess
-        ? "Conditions remplies. Sur /premium tu devras signer un message Phantom pour obtenir ton code FORGE."
+        ? "Conditions remplies. Redirection vers l'espace premium..."
         : "Conditions non remplies. Accumule plus de KRM et/ou ORAX.");
 
     if (hasAccess) {
       accessPill.className = "access-pill ok";
       accessPill.textContent = "✅ Accès autorisé • Redirection vers l'espace premium...";
-      setTimeout(function () {
-        window.location.href = PREMIUM_URL;
-      }, 2000);
+      setTimeout(function () { window.location.href = PREMIUM_URL; }, 2000);
     } else {
       accessPill.className = "access-pill ko";
-      accessPill.textContent =
-        "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
+      accessPill.textContent = "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
     }
   }
 
-  // connect() DOIT partir du clic sans await avant (sinon Phantom → Unexpected error)
+  function runTorpassCheck(pubkey) {
+    walletBox.textContent =
+      "Adresse : " + pubkey + "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
+    return window.TorinvestSolana.readKrmOrax(pubkey, KRM_MINT, ORAX_MINT).then(function (balances) {
+      showTorpassResult(pubkey, balances);
+    });
+  }
+
   connectBtn.addEventListener("click", function () {
     if (connectInProgress) return;
-
-    const provider = TP.getPhantomProvider();
+    var provider = getPhantomProvider();
     if (!provider) {
       walletStatus.textContent = "Aucun wallet Phantom détecté.";
       walletBox.textContent =
-        "Installe Phantom (extension navigateur) ou ouvre cette page dans le navigateur intégré de Phantom, puis Ctrl+F5.";
+        "Installe Phantom (extension Chrome/Brave/Firefox) puis Ctrl+F5.\n\n" +
+        "Alternative : ouvre ce lien dans le navigateur intégré Phantom (app mobile) :\n" +
+        "https://phantom.app/ul/browse/" + encodeURIComponent(window.location.href);
       accessPill.className = "access-pill ko";
       accessPill.textContent = "🔒 Accès verrouillé • Wallet Phantom non détecté.";
       return;
@@ -449,27 +479,28 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
     connectBtn.disabled = true;
     connectBtn.style.opacity = "0.7";
     walletStatus.textContent = "Connexion Phantom en cours…";
-    walletBox.textContent = "Accepte la demande dans la popup Phantom si elle s'ouvre.";
+    walletBox.textContent =
+      "Ferme le panneau Phantom latéral, puis accepte la popup « Connect » si elle apparaît.";
 
-    TP.connectWallet(provider)
-      .then(function (pubkey) {
-        walletBox.textContent =
-          "Adresse : " + pubkey + "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
-        return TP.readBalances(pubkey).then(function (balances) {
-          showTorpassResult(pubkey, balances);
-        }).catch(function (rpcErr) {
-          walletStatus.textContent = "Wallet connecté — erreur lecture soldes.";
-          walletBox.textContent =
-            "Adresse : " + pubkey + "\n\n" +
-            "Impossible de lire les soldes KRM/ORAX : " +
-            (rpcErr && rpcErr.message ? rpcErr.message : String(rpcErr)) +
-            "\n\nRéessaie (Ctrl+F5).";
-          accessPill.className = "access-pill ko";
-          accessPill.textContent = "🔒 Accès verrouillé • Erreur RPC.";
-        });
-      })
+    connectPhantomWallet(provider)
+      .then(runTorpassCheck)
       .catch(function (err) {
-        showConnectError(err);
+        if (err && err.code === 4001) {
+          walletStatus.textContent = "Connexion refusée.";
+          walletBox.textContent = "Tu as refusé la connexion Phantom.";
+        } else {
+          walletStatus.textContent = "Erreur connexion Phantom.";
+          walletBox.textContent =
+            "Impossible de connecter Phantom : " + (err && err.message ? err.message : String(err)) +
+            "\n\nSi « Unexpected error » persiste :\n" +
+            "1. Ctrl+F5 sur cette page\n" +
+            "2. chrome://extensions → Phantom → Recharger\n" +
+            "3. Ferme le panneau Phantom (icône puzzle) avant de cliquer\n" +
+            "4. Teste Firefox ou le navigateur intégré Phantom (app mobile)\n" +
+            "5. Ouvre : https://phantom.app/ul/browse/" + encodeURIComponent(window.location.href);
+        }
+        accessPill.className = "access-pill ko";
+        accessPill.textContent = "🔒 Accès verrouillé • Erreur.";
       })
       .finally(function () {
         connectInProgress = false;
@@ -478,12 +509,16 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
       });
   });
 
-  // Détection Phantom au chargement (sans connect — pas de user gesture requis)
-  TP.waitForPhantomProvider(8000).then(function () {
-    if (walletStatus.textContent === "Aucun wallet connecté.") {
-      walletStatus.textContent = "Phantom détecté — clique sur le bouton pour te connecter.";
-    }
-  }).catch(function () {});
+  // Site déjà autorisé dans Phantom → reconnexion silencieuse au chargement
+  (function eagerPhantomConnect() {
+    var provider = getPhantomProvider();
+    if (!provider) return;
+    provider.connect({ onlyIfTrusted: true }).then(function () {
+      if (provider.publicKey && walletStatus.textContent === "Aucun wallet connecté.") {
+        walletStatus.textContent = "Phantom autorisé — clique pour vérifier tes soldes KRM/ORAX.";
+      }
+    }).catch(function () {});
+  })();
 </script>
 
 
