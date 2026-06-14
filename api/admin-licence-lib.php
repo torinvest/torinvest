@@ -497,6 +497,25 @@ function licenceCrmHandleNetlifyFormWebhook(array $input, string $source = 'netl
     return $result;
 }
 
+function licenceCrmLogFormProvisionEvent(string $formName, array $input, ?array $result, ?string $error, string $source): int
+{
+    $email = strtolower(trim((string) ($input['email'] ?? '')));
+    return licenceFormSubmissionLog([
+        'form_name' => $formName,
+        'email' => $email,
+        'source' => $source,
+        'provision_ok' => $result !== null && !empty($result['ok']),
+        'license_code' => $result['license'] ?? $result['code'] ?? null,
+        'error' => $error,
+        'payload' => [
+            'form_name' => $formName,
+            'email' => $email,
+            'reused' => $result['reused'] ?? false,
+            'plan' => $input['plan'] ?? null,
+        ],
+    ]);
+}
+
 function licenceCrmCreateVip(array $input): array
 {
     $email = strtolower(trim((string) ($input['email'] ?? '')));

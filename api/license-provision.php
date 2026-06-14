@@ -97,18 +97,42 @@ try {
             provisionJson(licenceCrmHandleNetlifyFormWebhook($input));
 
         case 'provision_vip':
-            $result = licenceCrmProvisionVipFromForm($input);
-            if (!$isWebhook) {
-                torinvestRateLimitHit('license_provision');
+            try {
+                $result = licenceCrmProvisionVipFromForm($input);
+                $result['submission_id'] = licenceCrmLogFormProvisionEvent(
+                    'activation-torinvest',
+                    $input,
+                    $result,
+                    null,
+                    $isWebhook ? 'netlify_webhook' : 'browser'
+                );
+                if (!$isWebhook) {
+                    torinvestRateLimitHit('license_provision');
+                }
+                provisionJson($result);
+            } catch (Throwable $e) {
+                licenceCrmLogFormProvisionEvent('activation-torinvest', $input, null, $e->getMessage(), $isWebhook ? 'netlify_webhook' : 'browser');
+                throw $e;
             }
-            provisionJson($result);
 
         case 'provision_accompagnement':
-            $result = licenceCrmProvisionAccompagnementFromForm($input);
-            if (!$isWebhook) {
-                torinvestRateLimitHit('license_provision');
+            try {
+                $result = licenceCrmProvisionAccompagnementFromForm($input);
+                $result['submission_id'] = licenceCrmLogFormProvisionEvent(
+                    'activation-accompagnement-torinvest',
+                    $input,
+                    $result,
+                    null,
+                    $isWebhook ? 'netlify_webhook' : 'browser'
+                );
+                if (!$isWebhook) {
+                    torinvestRateLimitHit('license_provision');
+                }
+                provisionJson($result);
+            } catch (Throwable $e) {
+                licenceCrmLogFormProvisionEvent('activation-accompagnement-torinvest', $input, null, $e->getMessage(), $isWebhook ? 'netlify_webhook' : 'browser');
+                throw $e;
             }
-            provisionJson($result);
 
         default:
             provisionJson(['ok' => false, 'error' => 'action_inconnue'], 400);
