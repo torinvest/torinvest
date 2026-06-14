@@ -89,7 +89,37 @@ function licenceCrmPdo(): PDO
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_licence_records_type ON licence_records(type)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_licence_records_email ON licence_records(email)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_licence_records_created ON licence_records(created_at)');
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS licence_form_submissions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at TEXT NOT NULL,
+            form_name TEXT NOT NULL,
+            email TEXT,
+            netlify_id TEXT,
+            netlify_number INTEGER,
+            source TEXT,
+            provision_ok INTEGER NOT NULL DEFAULT 0,
+            license_code TEXT,
+            error TEXT,
+            payload_json TEXT
+        )'
+    );
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_form_submissions_created ON licence_form_submissions(created_at)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_form_submissions_form ON licence_form_submissions(form_name)');
     return $pdo;
+}
+
+function licenceCrmRecordIsUsable(array $row): bool
+{
+    $expires = trim((string) ($row['expires_at'] ?? ''));
+    if ($expires === '') {
+        return true;
+    }
+    $ts = strtotime($expires);
+    if ($ts === false) {
+        return true;
+    }
+    return $ts > time();
 }
 
 function licenceCrmGenerateToken(int $expiresAt, string $secret): string
@@ -227,7 +257,10 @@ function licenceCrmFindActiveByEmailPlan(string $email, string $type): ?array
     );
     $stmt->execute([':email' => $email, ':type' => $type]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $row ?: null;
+    if (!$row || !licenceCrmRecordIsUsable($row)) {
+        return null;
+    }
+    return $row;
 }
 
 function licenceCrmAccessLinks(): array
@@ -239,7 +272,229 @@ function licenceCrmAccessLinks(): array
         'telegramPublic' => (string) ($cfg['telegram_public_url'] ?? 'https://t.me/+2qMkEX3KnhowNTU0'),
         'telegramVip' => (string) ($cfg['telegram_vip_url'] ?? $cfg['telegram_public_url'] ?? 'https://t.me/+2qMkEX3KnhowNTU0'),
         'appLoginUrl' => (string) ($cfg['app_formation_login_url'] ?? 'https://app.torinvest-trading.com/login.html'),
+        'workerValidateUrl' => rtrim((string) ($cfg['worker_url'] ?? 'https://morning-hall-d8f6.onzerimes.workers.dev'), '/') . '/validate-license',
     ];
+}
+
+function licenceProvisionWebhookSecret(): string
+{
+    $cfg = licenceCrmConfig();
+    return trim((string) ($cfg['provision_webhook_secret'] ?? ''));
+}
+
+function licenceProvisionIsWebhookRequest(): bool
+{
+    $secret = licenceProvisionWebhookSecret();
+    if ($secret === '') {
+        return false;
+    }
+    $header = trim((string) ($_SERVER['HTTP_X_PROVISION_KEY'] ?? ''));
+    $query = trim((string) ($_GET['provision_key'] ?? ''));
+    if ($header !== '' && hash_equals($secret, $header)) {
+        return true;
+    }
+    if ($query !== '' && hash_equals($secret, $query)) {
+        return true;
+    }
+    return false;
+}
+
+function licenceProvisionParseNetlifyPayload(array $input): ?array
+{
+    $root = $input;
+    if (isset($input['payload']) && is_array($input['payload'])) {
+        $root = $input['payload'];
+    }
+    $data = $root['data'] ?? [];
+    if (!is_array($data)) {
+        $data = [];
+    }
+    $formName = (string) (
+        $root['form_name']
+        ?? $root['name']
+        ?? $data['form-name']
+        ?? $input['form_name']
+        ?? $input['form-name']
+        ?? ''
+    );
+    if ($formName === '') {
+        return null;
+    }
+    if (empty($data['email']) && !empty($root['email'])) {
+        $data['email'] = $root['email'];
+    }
+    return [
+        'form_name' => $formName,
+        'data' => $data,
+        'netlify_id' => (string) ($root['id'] ?? $input['netlify_id'] ?? ''),
+        'netlify_number' => isset($root['number']) ? (int) $root['number'] : (isset($input['netlify_number']) ? (int) $input['netlify_number'] : null),
+    ];
+}
+
+function licenceFormSubmissionFindByNetlifyId(string $netlifyId): ?array
+{
+    $netlifyId = trim($netlifyId);
+    if ($netlifyId === '') {
+        return null;
+    }
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare('SELECT * FROM licence_form_submissions WHERE netlify_id = :id LIMIT 1');
+    $stmt->execute([':id' => $netlifyId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ?: null;
+}
+
+function licenceFormSubmissionLog(array $entry): int
+{
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare(
+        'INSERT INTO licence_form_submissions
+         (created_at, form_name, email, netlify_id, netlify_number, source, provision_ok, license_code, error, payload_json)
+         VALUES (:created_at, :form_name, :email, :netlify_id, :netlify_number, :source, :provision_ok, :license_code, :error, :payload_json)'
+    );
+    $stmt->execute([
+        ':created_at' => gmdate('c'),
+        ':form_name' => (string) ($entry['form_name'] ?? ''),
+        ':email' => (string) ($entry['email'] ?? ''),
+        ':netlify_id' => ($entry['netlify_id'] ?? '') !== '' ? (string) $entry['netlify_id'] : null,
+        ':netlify_number' => isset($entry['netlify_number']) ? (int) $entry['netlify_number'] : null,
+        ':source' => (string) ($entry['source'] ?? 'webhook'),
+        ':provision_ok' => !empty($entry['provision_ok']) ? 1 : 0,
+        ':license_code' => ($entry['license_code'] ?? '') !== '' ? (string) $entry['license_code'] : null,
+        ':error' => ($entry['error'] ?? '') !== '' ? (string) $entry['error'] : null,
+        ':payload_json' => json_encode($entry['payload'] ?? [], JSON_UNESCAPED_UNICODE),
+    ]);
+    return (int) $pdo->lastInsertId();
+}
+
+function licenceCrmListFormSubmissions(?string $formName = null, int $limit = 100): array
+{
+    $pdo = licenceCrmPdo();
+    $limit = max(1, min(500, $limit));
+    if ($formName !== null && $formName !== '') {
+        $stmt = $pdo->prepare(
+            'SELECT * FROM licence_form_submissions WHERE form_name = :form ORDER BY id DESC LIMIT ' . $limit
+        );
+        $stmt->execute([':form' => $formName]);
+    } else {
+        $stmt = $pdo->query('SELECT * FROM licence_form_submissions ORDER BY id DESC LIMIT ' . $limit);
+    }
+    return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
+
+function licenceCrmNotifyProvisionDiscord(array $event): void
+{
+    $cfg = licenceCrmConfig();
+    $url = trim((string) ($cfg['provision_notify_discord_webhook'] ?? ''));
+    if ($url === '') {
+        return;
+    }
+    $ok = !empty($event['provision_ok']);
+    $form = (string) ($event['form_name'] ?? '?');
+    $email = (string) ($event['email'] ?? '—');
+    $license = (string) ($event['license_code'] ?? '');
+    $error = (string) ($event['error'] ?? '');
+    $source = (string) ($event['source'] ?? 'webhook');
+    $color = $ok ? 5763719 : 15548997;
+    $title = $ok ? 'Formulaire Netlify — licence OK' : 'Formulaire Netlify — échec provision';
+    $fields = [
+        ['name' => 'Formulaire', 'value' => $form, 'inline' => true],
+        ['name' => 'Email', 'value' => $email, 'inline' => true],
+        ['name' => 'Source', 'value' => $source, 'inline' => true],
+    ];
+    if ($license !== '') {
+        $fields[] = ['name' => 'Licence', 'value' => '`' . $license . '`', 'inline' => false];
+    }
+    if ($error !== '') {
+        $fields[] = ['name' => 'Erreur', 'value' => substr($error, 0, 900), 'inline' => false];
+    }
+    $body = json_encode([
+        'embeds' => [[
+            'title' => $title,
+            'color' => $color,
+            'fields' => $fields,
+            'timestamp' => gmdate('c'),
+        ]],
+    ], JSON_UNESCAPED_UNICODE);
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\n",
+            'content' => $body,
+            'timeout' => 8,
+            'ignore_errors' => true,
+        ],
+    ]);
+    @file_get_contents($url, false, $ctx);
+}
+
+function licenceCrmHandleNetlifyFormWebhook(array $input, string $source = 'netlify_webhook'): array
+{
+    $parsed = licenceProvisionParseNetlifyPayload($input);
+    if ($parsed === null) {
+        throw new InvalidArgumentException('payload_netlify_invalide');
+    }
+    $formName = $parsed['form_name'];
+    $data = $parsed['data'];
+    $netlifyId = $parsed['netlify_id'];
+    $email = strtolower(trim((string) ($data['email'] ?? '')));
+
+    if ($netlifyId !== '') {
+        $existing = licenceFormSubmissionFindByNetlifyId($netlifyId);
+        if ($existing && (int) ($existing['provision_ok'] ?? 0) === 1 && !empty($existing['license_code'])) {
+            return [
+                'ok' => true,
+                'reused' => true,
+                'deduped' => true,
+                'form_name' => $formName,
+                'email' => $email,
+                'license' => (string) $existing['license_code'],
+                'submission_id' => (int) $existing['id'],
+            ];
+        }
+    }
+
+    $result = null;
+    $error = null;
+    try {
+        if ($formName === 'activation-accompagnement-torinvest') {
+            $result = licenceCrmProvisionAccompagnementFromForm($data);
+        } elseif ($formName === 'activation-torinvest') {
+            $result = licenceCrmProvisionVipFromForm($data);
+        } else {
+            throw new InvalidArgumentException('form_inconnu: ' . $formName);
+        }
+    } catch (Throwable $e) {
+        $error = $e->getMessage();
+    }
+
+    $logId = licenceFormSubmissionLog([
+        'form_name' => $formName,
+        'email' => $email,
+        'netlify_id' => $netlifyId,
+        'netlify_number' => $parsed['netlify_number'],
+        'source' => $source,
+        'provision_ok' => $result && !empty($result['ok']),
+        'license_code' => $result['license'] ?? $result['code'] ?? null,
+        'error' => $error,
+        'payload' => ['form_name' => $formName, 'data' => $data, 'netlify_id' => $netlifyId],
+    ]);
+
+    licenceCrmNotifyProvisionDiscord([
+        'form_name' => $formName,
+        'email' => $email,
+        'provision_ok' => $result && !empty($result['ok']),
+        'license_code' => $result['license'] ?? $result['code'] ?? '',
+        'error' => $error ?? '',
+        'source' => $source,
+    ]);
+
+    if ($error !== null) {
+        throw new RuntimeException($error);
+    }
+    $result['submission_id'] = $logId;
+    $result['form_name'] = $formName;
+    return $result;
 }
 
 function licenceCrmCreateVip(array $input): array

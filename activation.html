@@ -64,7 +64,7 @@
         <div class="step"><b>1.</b> Tu règles ton accès via Stripe.</div>
         <div class="step"><b>2.</b> Tu remplis ce formulaire avec le même email.</div>
         <div class="step"><b>3.</b> Ta licence TOR-VIP est générée automatiquement.</div>
-        <div class="step"><b>4.</b> Connecte-toi sur AI Access avec ta licence (+ code MT5 si fourni).</div>
+        <div class="step"><b>4.</b> Connecte-toi sur AI Access — active MT5 avec le code reçu si besoin.</div>
       </div>
     </section>
 
@@ -118,14 +118,15 @@
     function setResult(html){result.innerHTML=html}
     form.addEventListener("submit",async function(e){
       e.preventDefault();
-      const data=new FormData(form);
       submitBtn.disabled=true;
       setResult('<span class="warn">Envoi et génération de licence…</span>');
       try{
-        await fetch("/",{method:"POST",body:data});
+        const netlify=await window.TORINVEST_ACTIVATION.submitNetlifyForm(form);
         const prov=await window.TORINVEST_ACTIVATION.provisionAfterForm("activation-torinvest",form);
-        if(!prov.ok){
-          setResult('<span class="warn">Demande enregistrée.</span><br>Génération automatique indisponible : '+(prov.error||"réessaie dans quelques minutes")+'.<br>Ta demande reste transmise à TORINVEST.');
+        if(!netlify.ok){
+          setResult('<span class="warn">Formulaire Netlify non confirmé (HTTP '+netlify.status+').</span><br>'+(prov.ok?window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov,"vip"):'Génération : '+(prov.error||"indisponible")));
+        }else if(!prov.ok){
+          setResult('<span class="warn">Demande enregistrée.</span><br>Génération automatique indisponible : '+(prov.error||"réessaie dans quelques minutes")+'.<br>La function Netlify créera ta licence sous peu si configurée.');
         }else{
           setResult('<span class="ok">Demande envoyée.</span>'+window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov,"vip"));
         }

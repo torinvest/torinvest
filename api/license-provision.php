@@ -1,6 +1,6 @@
 <?php
 /**
- * Provision automatique licences (formulaires activation + webhook Netlify optionnel).
+ * Provision automatique licences (formulaires activation + webhook Netlify).
  */
 declare(strict_types=1);
 
@@ -37,10 +37,18 @@ function provisionJson(array $data, int $status = 200): void
     exit;
 }
 
+function provisionPublicError(Throwable $e, bool $isWebhook): void
+{
+    if ($isWebhook) {
+        provisionJson(['ok' => false, 'error' => $e->getMessage()], $e instanceof InvalidArgumentException ? 400 : 500);
+    }
+    provisionJson(['ok' => false, 'error' => 'provision_failed'], $e instanceof InvalidArgumentException ? 400 : 500);
+}
+
 try {
     licenceCrmConfig();
 } catch (Throwable $e) {
-    provisionJson(['ok' => false, 'error' => $e->getMessage()], 503);
+    provisionJson(['ok' => false, 'error' => 'service_unavailable'], 503);
 }
 
 $cfg = licenceCrmConfig();
@@ -54,46 +62,53 @@ if ($method !== 'POST') {
     provisionJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
 }
 
-$input = json_decode(file_get_contents('php://input') ?: '{}', true);
+$rawBody = file_get_contents('php://input') ?: '{}';
+$input = json_decode($rawBody, true);
 if (!is_array($input)) {
     $input = $_POST;
 }
 
+$isWebhook = licenceProvisionIsWebhookRequest();
 $action = (string) ($input['action'] ?? '');
-$webhookSecret = (string) ($cfg['provision_webhook_secret'] ?? '');
-$headerSecret = trim((string) ($_SERVER['HTTP_X_PROVISION_KEY'] ?? ''));
-$isWebhook = $webhookSecret !== '' && hash_equals($webhookSecret, $headerSecret);
+$netlifyPayload = licenceProvisionParseNetlifyPayload($input);
+
+if ($isWebhook && ($action === '' || $action === 'netlify_webhook') && $netlifyPayload !== null) {
+    $action = 'netlify_webhook';
+}
 
 if (!$isWebhook) {
-    if (empty($cfg['allow_form_provision'])) {
+    $requireWebhook = !empty($cfg['require_webhook_provision']) && licenceProvisionWebhookSecret() !== '';
+    if ($requireWebhook || empty($cfg['allow_form_provision'])) {
         provisionJson(['ok' => false, 'error' => 'form_provision_disabled'], 403);
     }
-    torinvestRateLimitGuard('license_provision', 12, 3600);
+    try {
+        torinvestRateLimitGuard('license_provision', 12, 3600);
+    } catch (Throwable $e) {
+        provisionJson(['ok' => false, 'error' => 'rate_limited'], 429);
+    }
 }
 
 try {
     switch ($action) {
-        case 'provision_vip':
-            $result = licenceCrmProvisionVipFromForm($input);
-            provisionJson($result);
-
-        case 'provision_accompagnement':
-            $result = licenceCrmProvisionAccompagnementFromForm($input);
-            provisionJson($result);
-
         case 'netlify_webhook':
             if (!$isWebhook) {
                 provisionJson(['ok' => false, 'error' => 'unauthorized'], 401);
             }
-            $formName = (string) ($input['form_name'] ?? $input['form-name'] ?? '');
-            $data = $input['data'] ?? $input;
-            if ($formName === 'activation-accompagnement-torinvest') {
-                provisionJson(licenceCrmProvisionAccompagnementFromForm($data));
+            provisionJson(licenceCrmHandleNetlifyFormWebhook($input));
+
+        case 'provision_vip':
+            $result = licenceCrmProvisionVipFromForm($input);
+            if (!$isWebhook) {
+                torinvestRateLimitHit('license_provision');
             }
-            if ($formName === 'activation-torinvest') {
-                provisionJson(licenceCrmProvisionVipFromForm($data));
+            provisionJson($result);
+
+        case 'provision_accompagnement':
+            $result = licenceCrmProvisionAccompagnementFromForm($input);
+            if (!$isWebhook) {
+                torinvestRateLimitHit('license_provision');
             }
-            provisionJson(['ok' => false, 'error' => 'form_inconnu'], 400);
+            provisionJson($result);
 
         default:
             provisionJson(['ok' => false, 'error' => 'action_inconnue'], 400);
@@ -102,9 +117,9 @@ try {
     if (!$isWebhook) {
         torinvestRateLimitHit('license_provision');
     }
-    provisionJson(['ok' => false, 'error' => $e->getMessage()], 400);
+    provisionPublicError($e, $isWebhook);
 } catch (RuntimeException $e) {
-    provisionJson(['ok' => false, 'error' => $e->getMessage()], 500);
+    provisionPublicError($e, $isWebhook);
 } catch (Throwable $e) {
-    provisionJson(['ok' => false, 'error' => $e->getMessage()], 500);
+    provisionPublicError($e, $isWebhook);
 }

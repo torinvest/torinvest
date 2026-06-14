@@ -57,6 +57,12 @@ return [
     // Secret optionnel pour webhook Netlify (header X-Provision-Key)
     'provision_webhook_secret' => '',
 
+    // Webhook Discord admin — alerte à chaque formulaire activation traité
+    'provision_notify_discord_webhook' => '',
+
+    // Si true + secret défini : seul le webhook Netlify peut provisionner (navigateur bloqué)
+    'require_webhook_provision' => false,
+
     // Liens accès accompagnement (publics — affichés après validation licence)
     'discord_public_url' => 'https://discord.gg/5mSC8gFsT7',
     'discord_accompagnement_url' => 'https://discord.gg/5mSC8gFsT7',

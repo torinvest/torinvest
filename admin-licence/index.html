@@ -161,6 +161,7 @@
           <button class="tab" data-tab="forge" type="button">TorPass FORGE (tokens)</button>
           <button class="tab" data-tab="activate" type="button">Activer VIP</button>
           <button class="tab" data-tab="history" type="button">Historique</button>
+          <button class="tab" data-tab="watch" type="button">Surveillance Netlify</button>
         </div>
 
         <div id="panel-vip" class="panel active">
@@ -246,6 +247,29 @@
             </table>
           </div>
         </div>
+
+        <div id="panel-watch" class="panel">
+          <p class="hint">Journal automatique des formulaires Netlify (function <span class="mono">submission-created</span> → radar). Plus besoin de consulter le dashboard Netlify.</p>
+          <div class="toolbar">
+            <label style="margin:0">Formulaire</label>
+            <select id="watchFilter">
+              <option value="">Tous</option>
+              <option value="activation-torinvest">Robot Access VIP</option>
+              <option value="activation-accompagnement-torinvest">Accompagnement 349€</option>
+            </select>
+            <button class="btn secondary" type="button" id="watchRefreshBtn">Rafraîchir</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th><th>Formulaire</th><th>Email</th><th>Licence</th><th>OK</th><th>Source</th><th>Erreur</th>
+                </tr>
+              </thead>
+              <tbody id="watchBody"><tr><td colspan="7">Chargement…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
   </div>
@@ -316,6 +340,28 @@
       }).join("");
     }
 
+    async function loadWatch() {
+      const formName = document.getElementById("watchFilter").value || null;
+      const data = await api("list_submissions", formName ? { form_name: formName } : {});
+      const tbody = document.getElementById("watchBody");
+      if (!data.ok || !data.submissions || !data.submissions.length) {
+        tbody.innerHTML = "<tr><td colspan='7'>Aucune soumission enregistrée.</td></tr>";
+        return;
+      }
+      tbody.innerHTML = data.submissions.map(function (s) {
+        const ok = Number(s.provision_ok) === 1;
+        return "<tr>" +
+          "<td>" + esc((s.created_at || "").replace("T", " ").slice(0, 19)) + "</td>" +
+          "<td class='mono'>" + esc(s.form_name) + "</td>" +
+          "<td>" + esc(s.email || "—") + "</td>" +
+          "<td class='mono'>" + esc(s.license_code || "—") + "</td>" +
+          "<td>" + (ok ? "<span class='ok'>oui</span>" : "<span class='bad'>non</span>") + "</td>" +
+          "<td>" + esc(s.source || "—") + "</td>" +
+          "<td>" + esc(s.error || "—") + "</td>" +
+        "</tr>";
+      }).join("");
+    }
+
     document.querySelectorAll(".tab").forEach(function (btn) {
       btn.addEventListener("click", function () {
         document.querySelectorAll(".tab").forEach(function (b) { b.classList.remove("active"); });
@@ -323,7 +369,16 @@
         btn.classList.add("active");
         document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
         if (btn.dataset.tab === "history") loadHistory().catch(function (e) { alert(e.message); });
+        if (btn.dataset.tab === "watch") loadWatch().catch(function (e) { alert(e.message); });
       });
+    });
+
+    document.getElementById("watchRefreshBtn").addEventListener("click", function () {
+      loadWatch().catch(function (e) { alert(e.message); });
+    });
+
+    document.getElementById("watchFilter").addEventListener("change", function () {
+      loadWatch().catch(function (e) { alert(e.message); });
     });
 
     document.getElementById("loginBtn").addEventListener("click", async function () {

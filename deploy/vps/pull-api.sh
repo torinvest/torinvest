@@ -13,6 +13,8 @@ FILES=(
   ai-access-lib.php
   admin-licence.php
   admin-licence-lib.php
+  license-provision.php
+  access-config.php
   solana-rpc.php
 )
 
