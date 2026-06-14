@@ -40,6 +40,17 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+require_once __DIR__ . '/rate-limit.php';
+try {
+    // TorPass ≈ 2–4 appels RPC par connexion ; limite abus Helius
+    torinvestRateLimitGuard('solana_rpc', 90, 60);
+} catch (RuntimeException $e) {
+    http_response_code(429);
+    echo json_encode(['error' => $e->getMessage()]);
+    exit;
+}
+torinvestRateLimitHit('solana_rpc');
+
 $configFile = __DIR__ . '/config.local.php';
 if (!file_exists($configFile)) {
     http_response_code(503);
