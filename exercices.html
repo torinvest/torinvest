@@ -438,7 +438,7 @@
         </div>
 
         <div class="connect-row">
-          <button id="connectBtn" class="btn-main" onclick="verifyTorPass()">
+          <button id="connectBtn" class="btn-main">
             🔗 Vérifier mon TorPass
           </button>
           <div class="hint">
@@ -504,7 +504,7 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
 
   <!-- TorPass RPC (same-origin proxy) -->
   <script src="/assets/torinvest-solana-rpc.js?v=4"></script>
-  <script src="/assets/torinvest-torpass.js?v=3"></script>
+  <script src="/assets/torinvest-torpass.js?v=4"></script>
   <script>
     const TP = window.TorinvestTorpass;
     const MIN_KRM = 10_000;
@@ -651,7 +651,8 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
       ]
     };
 
-    async function verifyTorPass() {
+    function verifyTorPass() {
+      if (verifyTorPass._busy) return;
       const provider = TP.getPhantomProvider();
 
       if (!provider) {
@@ -664,66 +665,69 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
         return;
       }
 
-      try {
-        const resp = await provider.connect();
-        const pubkey = resp.publicKey.toString();
-        currentWallet = pubkey;
+      verifyTorPass._busy = true;
+      walletStatus.textContent = "Connexion Phantom en cours…";
+      walletBox.textContent = "Accepte la demande dans la popup Phantom si elle s'ouvre.";
 
-        walletStatus.textContent = "Wallet Phantom connecté.";
-        walletBox.textContent =
-          "Adresse : " +
-          pubkey +
-          "\n\nRécupération des soldes KRM & ORAX en cours...";
+      TP.connectWallet(provider)
+        .then(function (pubkey) {
+          currentWallet = pubkey;
+          walletBox.textContent =
+            "Adresse : " + pubkey + "\n\nRécupération des soldes KRM & ORAX en cours...";
+          return TP.readBalances(pubkey);
+        })
+        .then(function (balances) {
+          const krmBalance = balances.krm;
+          const oraxBalance = balances.orax;
+          const hasAccessNow = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
+          hasTorPass = hasAccessNow;
 
-        const balances = await TP.readBalances(pubkey);
-        const krmBalance = balances.krm;
-        const oraxBalance = balances.orax;
+          walletStatus.textContent = "Wallet Phantom connecté.";
+          walletBox.textContent =
+            "Adresse : " + currentWallet + "\n" +
+            "Solde KRM : " + krmBalance + "\n" +
+            "Solde ORAX : " + oraxBalance + "\n\n" +
+            (hasAccessNow
+              ? "TorPass valide. Les modules d'exercices sont déverrouillés."
+              : "TorPass insuffisant. Tu peux accumuler plus de KRM et/ou ORAX pour débloquer tous les modules.");
 
-        const hasAccessNow = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
-        hasTorPass = hasAccessNow;
-
-        walletBox.textContent =
-          "Adresse : " + pubkey + "\n" +
-          "Solde KRM : " + krmBalance + "\n" +
-          "Solde ORAX : " + oraxBalance + "\n\n" +
-          (hasAccessNow
-            ? "TorPass valide. Les modules d'exercices sont déverrouillés."
-            : "TorPass insuffisant. Tu peux accumuler plus de KRM et/ou ORAX pour débloquer tous les modules.");
-
-        if (hasAccessNow) {
-          accessPill.className = "access-pill ok";
-          accessPill.textContent = "✅ Accès autorisé • Exercices déverrouillés.";
-          exerciseZone.style.display = "block";
-          currentModule = "price";
-          currentIndex = 0;
-          scores = {
-            price: { correct: 0, total: 0 },
-            macro: { correct: 0, total: 0 },
-            psycho: { correct: 0, total: 0 },
-          };
-          updateModuleTabs();
-          renderCurrentQuestion();
-        } else {
+          if (hasAccessNow) {
+            accessPill.className = "access-pill ok";
+            accessPill.textContent = "✅ Accès autorisé • Exercices déverrouillés.";
+            exerciseZone.style.display = "block";
+            currentModule = "price";
+            currentIndex = 0;
+            scores = {
+              price: { correct: 0, total: 0 },
+              macro: { correct: 0, total: 0 },
+              psycho: { correct: 0, total: 0 },
+            };
+            updateModuleTabs();
+            renderCurrentQuestion();
+          } else {
+            accessPill.className = "access-pill ko";
+            accessPill.textContent =
+              "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
+            exerciseZone.style.display = "none";
+          }
+        })
+        .catch(function (err) {
+          if (err && err.code === 4001) {
+            walletStatus.textContent = "Connexion refusée.";
+            walletBox.textContent =
+              "Tu as refusé la connexion de Phantom. Tu pourras réessayer plus tard en cliquant sur le bouton ci-dessus.";
+          } else {
+            walletStatus.textContent = "Erreur lors de la connexion ou de la vérification.";
+            walletBox.textContent =
+              "Un problème est survenu : " + TP.formatConnectError(err);
+          }
           accessPill.className = "access-pill ko";
-          accessPill.textContent =
-            "🔒 Accès verrouillé • Seuils requis : 10 000 KRM et 2 000 000 ORAX.";
+          accessPill.textContent = "🔒 Accès verrouillé • Erreur de connexion/vérification.";
           exerciseZone.style.display = "none";
-        }
-      } catch (err) {
-        if (err && err.code === 4001) {
-          walletStatus.textContent = "Connexion refusée.";
-          walletBox.textContent =
-            "Tu as refusé la connexion de Phantom. Tu pourras réessayer plus tard en cliquant sur le bouton ci-dessus.";
-        } else {
-          walletStatus.textContent = "Erreur lors de la connexion ou de la vérification.";
-          walletBox.textContent =
-            "Un problème est survenu lors de la connexion ou de la récupération des soldes. Détails : " +
-            (err && err.message ? err.message : String(err));
-        }
-        accessPill.className = "access-pill ko";
-        accessPill.textContent = "🔒 Accès verrouillé • Erreur de connexion/vérification.";
-        exerciseZone.style.display = "none";
-      }
+        })
+        .finally(function () {
+          verifyTorPass._busy = false;
+        });
     }
 
     function updateModuleTabs() {
