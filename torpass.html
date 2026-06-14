@@ -380,7 +380,7 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
 
  <!-- TorPass RPC (same-origin proxy) -->
 <script src="/assets/torinvest-solana-rpc.js?v=4"></script>
-<script src="/assets/torinvest-torpass.js?v=3"></script>
+<script src="/assets/torinvest-torpass.js?v=4"></script>
 <script>
   const TP = window.TorinvestTorpass;
   const PREMIUM_URL = "/premium.html";
@@ -391,96 +391,99 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
   const accessPill   = document.getElementById("accessPill");
   let connectInProgress = false;
 
-  async function connectPhantom() {
-    if (connectInProgress) return;
-    connectInProgress = true;
-    connectBtn.disabled = true;
-    connectBtn.style.opacity = "0.7";
-
-    let provider;
-    try {
-      provider = await TP.waitForPhantomProvider(5000);
-    } catch (waitErr) {
-      walletStatus.textContent = "Aucun wallet Phantom détecté.";
+  function showConnectError(err) {
+    if (err && err.code === 4001) {
+      walletStatus.textContent = "Connexion refusée.";
+      walletBox.textContent = "Tu as refusé la connexion Phantom.";
+    } else {
+      walletStatus.textContent = "Erreur connexion Phantom.";
       walletBox.textContent =
-        (waitErr && waitErr.message ? waitErr.message : "Phantom introuvable.") +
-        "\n\nInstalle Phantom ou ouvre cette page dans le navigateur intégré de Phantom.";
-      accessPill.className = "access-pill ko";
-      accessPill.textContent = "🔒 Accès verrouillé • Wallet Phantom non détecté.";
-      connectInProgress = false;
-      connectBtn.disabled = false;
-      connectBtn.style.opacity = "";
-      return;
+        "Impossible de connecter Phantom : " + TP.formatConnectError(err);
     }
+    accessPill.className = "access-pill ko";
+    accessPill.textContent = "🔒 Accès verrouillé • Erreur.";
+  }
 
-    let pubkey;
-    try {
-      walletStatus.textContent = "Connexion Phantom en cours…";
-      walletBox.textContent = "Accepte la demande dans la popup Phantom si elle s'ouvre.";
-      pubkey = await TP.connectWallet(provider);
-    } catch (connectErr) {
-      if (connectErr && connectErr.code === 4001) {
-        walletStatus.textContent = "Connexion refusée.";
-        walletBox.textContent = "Tu as refusé la connexion Phantom.";
-      } else {
-        walletStatus.textContent = "Erreur connexion Phantom.";
-        walletBox.textContent =
-          "Impossible de connecter Phantom : " + TP.formatConnectError(connectErr);
-      }
-      accessPill.className = "access-pill ko";
-      accessPill.textContent = "🔒 Accès verrouillé • Erreur.";
-      connectInProgress = false;
-      connectBtn.disabled = false;
-      connectBtn.style.opacity = "";
-      return;
-    }
+  function showTorpassResult(pubkey, balances) {
+    const krmBalance = balances.krm;
+    const oraxBalance = balances.orax;
+    const hasAccess = TP.hasAccess(balances);
 
     walletStatus.textContent = "Wallet Phantom connecté.";
     walletBox.textContent =
-      "Adresse : " + pubkey + "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
+      "Adresse : " + pubkey + "\n" +
+      "Solde KRM : " + krmBalance + "\n" +
+      "Solde ORAX : " + oraxBalance + "\n\n" +
+      (hasAccess
+        ? "Conditions remplies. Sur /premium tu devras signer un message Phantom pour obtenir ton code FORGE."
+        : "Conditions non remplies. Accumule plus de KRM et/ou ORAX.");
 
-    try {
-      const balances = await TP.readBalances(pubkey);
-      const krmBalance = balances.krm;
-      const oraxBalance = balances.orax;
-      const hasAccess = TP.hasAccess(balances);
-
-      walletBox.textContent =
-        "Adresse : " + pubkey + "\n" +
-        "Solde KRM : " + krmBalance + "\n" +
-        "Solde ORAX : " + oraxBalance + "\n\n" +
-        (hasAccess
-          ? "Conditions remplies. Sur /premium tu devras signer un message Phantom pour obtenir ton code FORGE."
-          : "Conditions non remplies. Accumule plus de KRM et/ou ORAX.");
-
-      if (hasAccess) {
-        accessPill.className = "access-pill ok";
-        accessPill.textContent = "✅ Accès autorisé • Redirection vers l'espace premium...";
-        setTimeout(function () {
-          window.location.href = PREMIUM_URL;
-        }, 2000);
-      } else {
-        accessPill.className = "access-pill ko";
-        accessPill.textContent =
-          "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
-      }
-    } catch (rpcErr) {
-      walletStatus.textContent = "Wallet connecté — erreur lecture soldes.";
-      walletBox.textContent =
-        "Adresse : " + pubkey + "\n\n" +
-        "Impossible de lire les soldes KRM/ORAX : " +
-        (rpcErr && rpcErr.message ? rpcErr.message : String(rpcErr)) +
-        "\n\nRéessaie dans quelques secondes (Ctrl+F5).";
+    if (hasAccess) {
+      accessPill.className = "access-pill ok";
+      accessPill.textContent = "✅ Accès autorisé • Redirection vers l'espace premium...";
+      setTimeout(function () {
+        window.location.href = PREMIUM_URL;
+      }, 2000);
+    } else {
       accessPill.className = "access-pill ko";
-      accessPill.textContent = "🔒 Accès verrouillé • Erreur RPC.";
+      accessPill.textContent =
+        "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
     }
-
-    connectInProgress = false;
-    connectBtn.disabled = false;
-    connectBtn.style.opacity = "";
   }
 
-  connectBtn.addEventListener("click", connectPhantom);
+  // connect() DOIT partir du clic sans await avant (sinon Phantom → Unexpected error)
+  connectBtn.addEventListener("click", function () {
+    if (connectInProgress) return;
+
+    const provider = TP.getPhantomProvider();
+    if (!provider) {
+      walletStatus.textContent = "Aucun wallet Phantom détecté.";
+      walletBox.textContent =
+        "Installe Phantom (extension navigateur) ou ouvre cette page dans le navigateur intégré de Phantom, puis Ctrl+F5.";
+      accessPill.className = "access-pill ko";
+      accessPill.textContent = "🔒 Accès verrouillé • Wallet Phantom non détecté.";
+      return;
+    }
+
+    connectInProgress = true;
+    connectBtn.disabled = true;
+    connectBtn.style.opacity = "0.7";
+    walletStatus.textContent = "Connexion Phantom en cours…";
+    walletBox.textContent = "Accepte la demande dans la popup Phantom si elle s'ouvre.";
+
+    TP.connectWallet(provider)
+      .then(function (pubkey) {
+        walletBox.textContent =
+          "Adresse : " + pubkey + "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
+        return TP.readBalances(pubkey).then(function (balances) {
+          showTorpassResult(pubkey, balances);
+        }).catch(function (rpcErr) {
+          walletStatus.textContent = "Wallet connecté — erreur lecture soldes.";
+          walletBox.textContent =
+            "Adresse : " + pubkey + "\n\n" +
+            "Impossible de lire les soldes KRM/ORAX : " +
+            (rpcErr && rpcErr.message ? rpcErr.message : String(rpcErr)) +
+            "\n\nRéessaie (Ctrl+F5).";
+          accessPill.className = "access-pill ko";
+          accessPill.textContent = "🔒 Accès verrouillé • Erreur RPC.";
+        });
+      })
+      .catch(function (err) {
+        showConnectError(err);
+      })
+      .finally(function () {
+        connectInProgress = false;
+        connectBtn.disabled = false;
+        connectBtn.style.opacity = "";
+      });
+  });
+
+  // Détection Phantom au chargement (sans connect — pas de user gesture requis)
+  TP.waitForPhantomProvider(8000).then(function () {
+    if (walletStatus.textContent === "Aucun wallet connecté.") {
+      walletStatus.textContent = "Phantom détecté — clique sur le bouton pour te connecter.";
+    }
+  }).catch(function () {});
 </script>
 
 
