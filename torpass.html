@@ -380,34 +380,18 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
 
  <!-- TorPass RPC (same-origin proxy) -->
 <script src="/assets/torinvest-solana-rpc.js?v=3"></script>
+<script src="/assets/torinvest-torpass.js?v=1"></script>
 <script>
-  const KRM_MINT   = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
-  const ORAX_MINT  = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
-  const PREMIUM_URL = "/premium.html"; // ou l'URL exacte de ta page premium
-
-  const MIN_KRM = 40_000;
-  const MIN_ORAX = 2_000_000;
+  const TP = window.TorinvestTorpass;
+  const PREMIUM_URL = "/premium.html";
 
   const connectBtn   = document.getElementById("connectBtn");
   const walletStatus = document.getElementById("walletStatus");
   const walletBox    = document.getElementById("walletBox");
   const accessPill   = document.getElementById("accessPill");
 
-  function getPhantomProvider() {
-    // Méthode moderne Phantom
-    if ("phantom" in window) {
-      const provider = window.phantom?.solana;
-      if (provider?.isPhantom) return provider;
-    }
-    // Compat ancienne
-    if (window.solana && window.solana.isPhantom) {
-      return window.solana;
-    }
-    return null;
-  }
-
   async function connectPhantom() {
-    const provider = getPhantomProvider();
+    const provider = TP.getPhantomProvider();
 
     if (!provider) {
       walletStatus.textContent = "Aucun wallet Phantom détecté.";
@@ -419,38 +403,30 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
     }
 
     try {
-      // 1) Connexion au wallet → pop-up Phantom
       const resp = await provider.connect();
       const pubkey = resp.publicKey.toString();
 
       walletStatus.textContent = "Wallet Phantom connecté.";
       walletBox.textContent =
-        "Adresse : " +
-        pubkey +
-        "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
+        "Adresse : " + pubkey + "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
 
-      // 2) Soldes KRM & ORAX (proxy same-origin /api/solana-rpc.php)
-      const balances = await TorinvestSolana.readKrmOrax(pubkey, KRM_MINT, ORAX_MINT);
+      const balances = await TP.readBalances(pubkey);
       const krmBalance = balances.krm;
       const oraxBalance = balances.orax;
+      const hasAccess = TP.hasAccess(balances);
 
-      const hasAccess = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
-
-      // 4) Affichage info + gestion accès
       walletBox.textContent =
         "Adresse : " + pubkey + "\n" +
         "Solde KRM : " + krmBalance + "\n" +
         "Solde ORAX : " + oraxBalance + "\n\n" +
         (hasAccess
-          ? "Toutes les conditions sont remplies. Redirection vers l'espace premium de la Forge TorInvest..."
-          : "Les conditions ne sont pas encore remplies. Accumule plus de KRM et/ou ORAX pour débloquer la Forge.");
+          ? "Conditions remplies. Sur /premium tu devras signer un message Phantom pour obtenir ton code FORGE."
+          : "Conditions non remplies. Accumule plus de KRM et/ou ORAX.");
 
       if (hasAccess) {
         accessPill.className = "access-pill ok";
         accessPill.textContent = "✅ Accès autorisé • Redirection vers l'espace premium...";
-
-        // ⬇ Redirection automatique après 2 secondes
-        setTimeout(() => {
+        setTimeout(function () {
           window.location.href = PREMIUM_URL;
         }, 2000);
       } else {
@@ -461,16 +437,14 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
     } catch (err) {
       if (err && err.code === 4001) {
         walletStatus.textContent = "Connexion refusée.";
-        walletBox.textContent =
-          "Tu as refusé la connexion de Phantom. Tu pourras réessayer plus tard en cliquant sur le bouton ci-dessus.";
+        walletBox.textContent = "Tu as refusé la connexion Phantom.";
       } else {
-        walletStatus.textContent = "Erreur lors de la connexion ou de la récupération des soldes.";
+        walletStatus.textContent = "Erreur lors de la connexion.";
         walletBox.textContent =
-          "Un problème est survenu lors de la connexion ou de la récupération des soldes. Détails : " +
-          (err && err.message ? err.message : String(err));
+          "Problème connexion ou soldes : " + (err && err.message ? err.message : String(err));
       }
       accessPill.className = "access-pill ko";
-      accessPill.textContent = "🔒 Accès verrouillé • Erreur de connexion/vérification.";
+      accessPill.textContent = "🔒 Accès verrouillé • Erreur.";
     }
   }
 
