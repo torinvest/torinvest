@@ -110,7 +110,7 @@
     </section>
   </main>
   <a href="/" class="back-home-btn">← Retour accueil</a>
-  <script src="/assets/activation-provision.js"></script>
+  <script src="/assets/activation-provision.js?v=2"></script>
   <script>
     const form=document.getElementById("activationForm");
     const result=document.getElementById("result");
@@ -118,21 +118,24 @@
     function setResult(html){result.innerHTML=html}
     form.addEventListener("submit",async function(e){
       e.preventDefault();
+      if(!window.TORINVEST_ACTIVATION){
+        setResult('<span class="bad">Script activation indisponible.</span><br>Recharge la page (Ctrl+F5).');
+        return;
+      }
       submitBtn.disabled=true;
       setResult('<span class="warn">Envoi et génération de licence…</span>');
-      try{
-        const netlify=await window.TORINVEST_ACTIVATION.submitNetlifyForm(form);
-        const prov=await window.TORINVEST_ACTIVATION.provisionAfterForm("activation-torinvest",form);
-        if(!netlify.ok){
-          setResult('<span class="warn">Formulaire Netlify non confirmé (HTTP '+netlify.status+').</span><br>'+(prov.ok?window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov,"vip"):'Génération : '+(prov.error||"indisponible")));
-        }else if(!prov.ok){
-          setResult('<span class="warn">Demande enregistrée.</span><br>Génération automatique indisponible : '+(prov.error||"réessaie dans quelques minutes")+'.<br>La function Netlify créera ta licence sous peu si configurée.');
-        }else{
-          setResult('<span class="ok">Demande envoyée.</span>'+window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov,"vip"));
-        }
+      const fields=window.TORINVEST_ACTIVATION.snapshotForm(form);
+      const prov=await window.TORINVEST_ACTIVATION.provisionFromPayload("activation-torinvest",fields);
+      const netlify=await window.TORINVEST_ACTIVATION.submitNetlifyForm(form);
+      if(prov.ok){
+        setResult('<span class="ok">Demande traitée.</span>'+window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov,"vip")+
+          (!netlify.ok?'<br><span class="warn">Note : Netlify HTTP '+(netlify.status||"?")+' — licence ci-dessus valide.</span>':""));
         form.reset();
-      }catch(err){
-        setResult('<span class="bad">Erreur pendant l’envoi.</span><br>Si le problème persiste, contacte TORINVEST avec ton email de paiement.');
+      }else if(!netlify.ok){
+        setResult('<span class="bad">Échec.</span><br>Provision : '+(prov.error||"?")+'<br>Netlify : HTTP '+(netlify.status||"?"));
+      }else{
+        setResult('<span class="warn">Demande enregistrée.</span><br>Génération : '+(prov.error||"indisponible")+'. Function Netlify peut compléter sous peu.');
+        form.reset();
       }
       submitBtn.disabled=false;
     });

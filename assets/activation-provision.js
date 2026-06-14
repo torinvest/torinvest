@@ -6,33 +6,58 @@
 
   var API = "/api/license-provision.php";
 
-  function provisionAfterForm(formName, form) {
+  function snapshotForm(form) {
     var fd = new FormData(form);
+    var payload = {};
+    fd.forEach(function (value, key) {
+      if (key === "bot-field") return;
+      payload[key] = value;
+    });
+    return payload;
+  }
+
+  function provisionFromPayload(formName, fields) {
     var payload = { action: "provision_vip" };
     if (formName === "activation-accompagnement-torinvest") {
       payload.action = "provision_accompagnement";
     }
-    fd.forEach(function (value, key) {
+    Object.keys(fields || {}).forEach(function (key) {
       if (key === "form-name" || key === "bot-field") return;
-      payload[key] = value;
+      payload[key] = fields[key];
     });
     return fetch(API, {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(payload),
-    }).then(function (r) {
-      return r.json().catch(function () {
-        return { ok: false, error: "invalid_response" };
+    })
+      .then(function (r) {
+        return r.text().then(function (text) {
+          try {
+            return JSON.parse(text);
+          } catch (e) {
+            return { ok: false, error: "invalid_response", httpStatus: r.status, raw: text.slice(0, 120) };
+          }
+        });
+      })
+      .catch(function () {
+        return { ok: false, error: "network_error" };
       });
-    });
+  }
+
+  function provisionAfterForm(formName, form) {
+    return provisionFromPayload(formName, snapshotForm(form));
   }
 
   function submitNetlifyForm(form) {
     var data = new FormData(form);
-    return fetch("/", { method: "POST", body: data }).then(function (r) {
-      return { ok: r.ok, status: r.status };
-    });
+    return fetch("/", { method: "POST", body: data })
+      .then(function (r) {
+        return { ok: r.ok, status: r.status };
+      })
+      .catch(function () {
+        return { ok: false, status: 0, error: "network_error" };
+      });
   }
 
   function formatProvisionSuccess(data, kind) {
@@ -71,6 +96,8 @@
   }
 
   window.TORINVEST_ACTIVATION = {
+    snapshotForm: snapshotForm,
+    provisionFromPayload: provisionFromPayload,
     provisionAfterForm: provisionAfterForm,
     formatProvisionSuccess: formatProvisionSuccess,
     submitNetlifyForm: submitNetlifyForm,
