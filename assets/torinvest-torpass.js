@@ -19,29 +19,7 @@
     getPhantomProvider: function () {
       var p = window.phantom && window.phantom.solana;
       if (p && p.isPhantom) return p;
-      if (window.solana && window.solana.isPhantom) return window.solana;
       return null;
-    },
-
-    /** Attend que Phantom injecte window.phantom (évite connect trop tôt). */
-    waitForPhantomProvider: function (timeoutMs) {
-      var self = this;
-      timeoutMs = timeoutMs || 5000;
-      return new Promise(function (resolve, reject) {
-        var start = Date.now();
-        (function poll() {
-          var p = self.getPhantomProvider();
-          if (p) return resolve(p);
-          if (Date.now() - start >= timeoutMs) {
-            return reject(
-              new Error(
-                "Phantom non détecté. Installe l'extension, déverrouille-la, puis Ctrl+F5."
-              )
-            );
-          }
-          setTimeout(poll, 150);
-        })();
-      });
     },
 
     pubkeyFromConnectResult: function (provider, resp) {
@@ -58,18 +36,25 @@
       return null;
     },
 
-    /** Connexion Phantom — connect() doit être appelé sans await préalable (user gesture). */
+    /** Connexion Phantom — connect() puis fallback request(). */
     connectWallet: function (provider) {
       if (provider.isConnected && provider.publicKey) {
         return Promise.resolve(this.pubkeyFromConnectResult(provider, null));
       }
-      return provider.connect().then(
-        function (resp) {
-          var pubkey = window.TorinvestTorpass.pubkeyFromConnectResult(provider, resp);
-          if (pubkey) return pubkey;
-          throw new Error("Connexion Phantom sans clé publique.");
-        }
-      );
+      var self = this;
+      return provider.connect().then(function (resp) {
+        var pk = self.pubkeyFromConnectResult(provider, resp);
+        if (pk) return pk;
+        throw new Error("Connexion Phantom sans clé publique.");
+      }).catch(function (err) {
+        if (err && err.code === 4001) throw err;
+        if (typeof provider.request !== "function") throw err;
+        return provider.request({ method: "connect" }).then(function (resp) {
+          var pk = self.pubkeyFromConnectResult(provider, resp);
+          if (pk) return pk;
+          throw err;
+        });
+      });
     },
 
     /** Après connect réussi : soldes (helper optionnel). */
