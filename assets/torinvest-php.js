@@ -12,6 +12,8 @@ window.TORINVEST_CONFIG = window.TORINVEST_CONFIG || {
   phpBaseUrl: "",
   /** RPC Solana (TorPass) — same-origin /api/solana-rpc.php (proxy Netlify → radar) */
   solanaRpcUrl: "",
+  /** UI Chainwork (laisser "" pour masquer le bouton flottant) */
+  chainworkUrl: "",
 };
 
 window.TORINVEST_PHP = {
@@ -36,6 +38,16 @@ window.TORINVEST_PHP = {
         el.href = window.TORINVEST_PHP.url(path);
       }
     });
+    var chainBtn = document.getElementById("chainworkBtn");
+    var chainUrl = (window.TORINVEST_CONFIG.chainworkUrl || "").trim();
+    if (chainBtn) {
+      if (chainUrl) {
+        chainBtn.href = chainUrl;
+        chainBtn.style.display = "";
+      } else {
+        chainBtn.style.display = "none";
+      }
+    }
   },
 
   fetch: function (path, options) {
