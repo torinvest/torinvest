@@ -17,31 +17,117 @@
     MIN_ORAX: 2000000,
 
     getPhantomProvider: function () {
-      if ("phantom" in window) {
-        var p = window.phantom && window.phantom.solana;
-        if (p && p.isPhantom) return p;
-      }
+      var p = window.phantom && window.phantom.solana;
+      if (p && p.isPhantom) return p;
       if (window.solana && window.solana.isPhantom) return window.solana;
       return null;
     },
 
-    /** Connexion Phantom robuste (déjà connecté, popup fermée, etc.). */
+    /** Attend que Phantom injecte window.phantom (évite connect trop tôt). */
+    waitForPhantomProvider: function (timeoutMs) {
+      var self = this;
+      timeoutMs = timeoutMs || 5000;
+      return new Promise(function (resolve, reject) {
+        var start = Date.now();
+        (function poll() {
+          var p = self.getPhantomProvider();
+          if (p) return resolve(p);
+          if (Date.now() - start >= timeoutMs) {
+            return reject(
+              new Error(
+                "Phantom non détecté. Installe l'extension, déverrouille-la, puis Ctrl+F5."
+              )
+            );
+          }
+          setTimeout(poll, 150);
+        })();
+      });
+    },
+
+    pubkeyFromConnectResult: function (provider, resp) {
+      if (resp && resp.publicKey) {
+        return resp.publicKey.toString
+          ? resp.publicKey.toString()
+          : String(resp.publicKey);
+      }
+      if (provider.publicKey) {
+        return provider.publicKey.toString
+          ? provider.publicKey.toString()
+          : String(provider.publicKey);
+      }
+      return null;
+    },
+
+    /** Connexion Phantom : eager → popup → request() → disconnect/retry. */
     connectWallet: async function (provider) {
       if (provider.isConnected && provider.publicKey) {
-        return provider.publicKey.toString();
+        return this.pubkeyFromConnectResult(provider, null);
       }
+
+      var pubkey = null;
+
+      try {
+        var eager = await provider.connect({ onlyIfTrusted: true });
+        pubkey = this.pubkeyFromConnectResult(provider, eager);
+        if (pubkey) return pubkey;
+      } catch (eagerErr) {
+        if (eagerErr && eagerErr.code === 4001) throw eagerErr;
+      }
+
       try {
         var resp = await provider.connect();
-        if (resp && resp.publicKey) return resp.publicKey.toString();
-        if (provider.publicKey) return provider.publicKey.toString();
-        throw new Error("Connexion Phantom sans clé publique.");
-      } catch (err) {
-        if (err && err.code === 4001) throw err;
-        if (provider.isConnected && provider.publicKey) {
-          return provider.publicKey.toString();
+        pubkey = this.pubkeyFromConnectResult(provider, resp);
+        if (pubkey) return pubkey;
+      } catch (err1) {
+        if (err1 && err1.code === 4001) throw err1;
+
+        if (typeof provider.request === "function") {
+          try {
+            var reqResp = await provider.request({ method: "connect" });
+            pubkey = this.pubkeyFromConnectResult(provider, reqResp);
+            if (pubkey) return pubkey;
+          } catch (err2) {
+            if (err2 && err2.code === 4001) throw err2;
+          }
         }
-        throw err;
+
+        if (typeof provider.disconnect === "function") {
+          try {
+            await provider.disconnect();
+          } catch (ignore) {}
+          await new Promise(function (r) {
+            setTimeout(r, 500);
+          });
+          try {
+            var retry = await provider.connect();
+            pubkey = this.pubkeyFromConnectResult(provider, retry);
+            if (pubkey) return pubkey;
+          } catch (err3) {
+            if (err3 && err3.code === 4001) throw err3;
+            throw err3 || err1;
+          }
+        }
+
+        throw err1;
       }
+
+      throw new Error("Connexion Phantom sans clé publique.");
+    },
+
+    formatConnectError: function (err) {
+      var msg = err && err.message ? err.message : String(err);
+      if (/unexpected error/i.test(msg)) {
+        return (
+          msg +
+          "\n\nCorrectifs Phantom (dans l'ordre) :\n" +
+          "1. Ctrl+F5 pour rafraîchir la page\n" +
+          "2. Déverrouille Phantom (mot de passe extension)\n" +
+          "3. chrome://extensions → Phantom → bouton Recharger\n" +
+          "4. Désactive temporairement MetaMask / autres wallets Solana\n" +
+          "5. Réessaie dans Brave ou Firefox si Chrome bloque"
+        );
+      }
+      return msg;
     },
 
     buildSignMessage: function (wallet, timestampMs) {
