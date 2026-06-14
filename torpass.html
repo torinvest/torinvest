@@ -379,8 +379,8 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
   </div>
 
  <!-- TorPass RPC (same-origin proxy) -->
-<script src="/assets/torinvest-solana-rpc.js?v=3"></script>
-<script src="/assets/torinvest-torpass.js?v=1"></script>
+<script src="/assets/torinvest-solana-rpc.js?v=4"></script>
+<script src="/assets/torinvest-torpass.js?v=2"></script>
 <script>
   const TP = window.TorinvestTorpass;
   const PREMIUM_URL = "/premium.html";
@@ -402,14 +402,30 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
       return;
     }
 
+    let pubkey;
     try {
-      const resp = await provider.connect();
-      const pubkey = resp.publicKey.toString();
+      pubkey = await TP.connectWallet(provider);
+    } catch (connectErr) {
+      if (connectErr && connectErr.code === 4001) {
+        walletStatus.textContent = "Connexion refusée.";
+        walletBox.textContent = "Tu as refusé la connexion Phantom.";
+      } else {
+        walletStatus.textContent = "Erreur connexion Phantom.";
+        walletBox.textContent =
+          "Impossible de connecter Phantom : " +
+          (connectErr && connectErr.message ? connectErr.message : String(connectErr)) +
+          "\n\nVérifie que Phantom est déverrouillé et réessaie (Ctrl+F5).";
+      }
+      accessPill.className = "access-pill ko";
+      accessPill.textContent = "🔒 Accès verrouillé • Erreur.";
+      return;
+    }
 
-      walletStatus.textContent = "Wallet Phantom connecté.";
-      walletBox.textContent =
-        "Adresse : " + pubkey + "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
+    walletStatus.textContent = "Wallet Phantom connecté.";
+    walletBox.textContent =
+      "Adresse : " + pubkey + "\n\nRécupération des soldes KRM & ORAX en cours sur Solana...";
 
+    try {
       const balances = await TP.readBalances(pubkey);
       const krmBalance = balances.krm;
       const oraxBalance = balances.orax;
@@ -434,17 +450,15 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
         accessPill.textContent =
           "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
       }
-    } catch (err) {
-      if (err && err.code === 4001) {
-        walletStatus.textContent = "Connexion refusée.";
-        walletBox.textContent = "Tu as refusé la connexion Phantom.";
-      } else {
-        walletStatus.textContent = "Erreur lors de la connexion.";
-        walletBox.textContent =
-          "Problème connexion ou soldes : " + (err && err.message ? err.message : String(err));
-      }
+    } catch (rpcErr) {
+      walletStatus.textContent = "Wallet connecté — erreur lecture soldes.";
+      walletBox.textContent =
+        "Adresse : " + pubkey + "\n\n" +
+        "Impossible de lire les soldes KRM/ORAX : " +
+        (rpcErr && rpcErr.message ? rpcErr.message : String(rpcErr)) +
+        "\n\nRéessaie dans quelques secondes (Ctrl+F5).";
       accessPill.className = "access-pill ko";
-      accessPill.textContent = "🔒 Accès verrouillé • Erreur.";
+      accessPill.textContent = "🔒 Accès verrouillé • Erreur RPC.";
     }
   }
 
