@@ -22,7 +22,16 @@
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify(payload),
     }).then(function (r) {
-      return r.json();
+      return r.json().catch(function () {
+        return { ok: false, error: "invalid_response" };
+      });
+    });
+  }
+
+  function submitNetlifyForm(form) {
+    var data = new FormData(form);
+    return fetch("/", { method: "POST", body: data }).then(function (r) {
+      return { ok: r.ok, status: r.status };
     });
   }
 
@@ -54,6 +63,9 @@
       (data.activationCode
         ? '<br><b>Code activation MT5 :</b> ' + data.activationCode
         : "") +
+      (data.status === "pending_activation"
+        ? '<br><span class="warn">Étape MT5 :</span> lie ta licence à ton compte MT5 avec ce code (EA ou page admin).'
+        : "") +
       '<br><a href="/ai-access.html" style="color:var(--gold2)">Connexion AI Access →</a>'
     );
   }
@@ -61,5 +73,6 @@
   window.TORINVEST_ACTIVATION = {
     provisionAfterForm: provisionAfterForm,
     formatProvisionSuccess: formatProvisionSuccess,
+    submitNetlifyForm: submitNetlifyForm,
   };
 })();

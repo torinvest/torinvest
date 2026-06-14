@@ -130,11 +130,16 @@ try {
     switch ($action) {
         case 'list':
             $type = $input['type'] ?? null;
-            if ($type !== null && $type !== '' && !in_array($type, ['VIP', 'FORGE'], true)) {
+            if ($type !== null && $type !== '' && !in_array($type, ['VIP', 'FORGE', 'ACCOMPAGNEMENT'], true)) {
                 $type = null;
             }
             $rows = licenceCrmListRecords($type ?: null, (int) ($input['limit'] ?? 200));
             licenceCrmJson(['ok' => true, 'count' => count($rows), 'records' => $rows]);
+
+        case 'list_submissions':
+            $form = $input['form_name'] ?? null;
+            $rows = licenceCrmListFormSubmissions($form ?: null, (int) ($input['limit'] ?? 100));
+            licenceCrmJson(['ok' => true, 'count' => count($rows), 'submissions' => $rows]);
 
         case 'create_vip':
             licenceCrmJson(licenceCrmCreateVip($input));

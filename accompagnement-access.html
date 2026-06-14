@@ -190,7 +190,6 @@
   <a href="/" class="back-home-btn">← Retour accueil</a>
 
   <script>
-    const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
     const ACCESS_CFG = "/api/access-config.php";
 
     const form = document.getElementById("accessForm");
@@ -206,11 +205,15 @@
       telegramVip: "https://t.me/+2qMkEX3KnhowNTU0",
       appLoginUrl: "https://app.torinvest-trading.com/login.html",
     };
+    let workerValidate = "https://morning-hall-d8f6.onzerimes.workers.dev/validate-license";
 
     fetch(ACCESS_CFG, { credentials: "include" })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (d.ok && d.links) accessLinks = Object.assign(accessLinks, d.links);
+        if (d.ok && d.links) {
+          accessLinks = Object.assign(accessLinks, d.links);
+          if (d.links.workerValidateUrl) workerValidate = d.links.workerValidateUrl;
+        }
       })
       .catch(function () {});
 
@@ -229,8 +232,8 @@
       setResult('<span class="warn">Vérification de la licence en cours...</span>');
 
       try {
-        const url = WORKER
-          + "/validate-license?email=" + encodeURIComponent(email)
+        const url = workerValidate
+          + "?email=" + encodeURIComponent(email)
           + "&license=" + encodeURIComponent(license);
 
         const resp = await fetch(url, {

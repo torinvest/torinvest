@@ -186,18 +186,22 @@
     form.addEventListener("submit", async function(e) {
       e.preventDefault();
 
-      const data = new FormData(form);
       submitBtn.disabled = true;
       setResult('<span class="warn">Envoi et génération de licence…</span>');
 
       try {
-        await fetch("/", { method: "POST", body: data });
+        const netlify = await window.TORINVEST_ACTIVATION.submitNetlifyForm(form);
         const prov = await window.TORINVEST_ACTIVATION.provisionAfterForm("activation-accompagnement-torinvest", form);
-        if (!prov.ok) {
+        if (!netlify.ok) {
+          setResult(
+            '<span class="warn">Formulaire Netlify non confirmé (HTTP ' + netlify.status + ').</span><br>' +
+            (prov.ok ? window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov, "accompagnement") : 'Génération : ' + (prov.error || "indisponible"))
+          );
+        } else if (!prov.ok) {
           setResult(
             '<span class="warn">Demande enregistrée.</span><br>Génération automatique indisponible : ' +
             (prov.error || "réessaie dans quelques minutes") +
-            '.<br>Ta demande reste transmise à TORINVEST.'
+            '.<br>La function Netlify créera ta licence sous peu si configurée.'
           );
         } else {
           setResult(
