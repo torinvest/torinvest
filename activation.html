@@ -46,6 +46,7 @@
     button{width:100%;margin-top:18px;border:none;border-radius:999px;padding:13px 16px;background:linear-gradient(135deg,var(--gold),var(--red));color:#1a1200;font-weight:950;cursor:pointer;transition:.15s ease}button:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(255,180,0,.14)}button:disabled{opacity:.55;cursor:not-allowed;transform:none}
     .ghost{display:inline-flex;justify-content:center;width:100%;margin-top:10px;border:1px solid rgba(255,255,255,.09);border-radius:999px;padding:12px 16px;color:var(--muted);text-decoration:none;font-size:13px;background:rgba(255,255,255,.035)}
     .result{margin-top:16px;min-height:54px;border:1px solid rgba(255,180,0,.16);background:rgba(0,0,0,.22);border-radius:16px;padding:13px;color:var(--muted);font-size:13px;line-height:1.5}.ok{color:var(--green)}.bad{color:var(--red)}.warn{color:var(--gold2)}.small{color:var(--muted);font-size:11px;margin-top:13px;line-height:1.45}
+    .next-steps{margin-top:20px;border:1px solid rgba(255,180,0,.14);background:rgba(0,0,0,.18);border-radius:16px;padding:16px}.next-steps h3{font-size:14px;color:var(--gold2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.1em}.next-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.next-links a{display:inline-flex;padding:8px 12px;border-radius:999px;border:1px solid rgba(255,180,0,.28);color:var(--gold2);text-decoration:none;font-size:12px;background:rgba(255,180,0,.06)}
     .back-home-btn{position:fixed;bottom:22px;right:22px;padding:8px 14px;font-size:12px;font-weight:700;text-decoration:none;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#f5f5f7;backdrop-filter:blur(4px);transition:.2s ease;z-index:9999}.back-home-btn:hover{background:rgba(255,180,0,.25);border-color:rgba(255,180,0,.6);transform:translateY(-2px)}
     @media(max-width:920px){.shell{grid-template-columns:1fr}.hero{min-height:auto}}
   </style>
@@ -93,6 +94,19 @@
       <a class="ghost" href="/ai-access.html">J’ai déjà une licence</a>
       <div id="result" class="result">En attente d’envoi.</div>
       <p class="small">Conserve bien ta licence. Elle pourra être demandée sur un nouvel appareil, un autre navigateur ou après expiration de session.</p>
+      <div class="next-steps">
+        <h3>Après réception de ta licence</h3>
+        <p class="small" style="margin-top:0">Tu recevras ta clé TOR-VIP, ton CopyToken et l’EA MT5 par email (sous 24 h ouvrées).</p>
+        <div class="next-links">
+          <a href="/ai-access.html">AI Access</a>
+          <a href="/tuto-mt5-robot-torinvest.html">Guide MT5 v1.51</a>
+          <a href="/AITORINVEST.html">Terminal cockpit</a>
+        </div>
+        <p class="small" style="margin-top:10px">
+          Tu as payé la <strong>Formation 349€/an</strong> ?
+          <a href="/activation-accompagnement.html" style="color:var(--gold2)">Formulaire accompagnement →</a>
+        </p>
+      </div>
     </section>
   </main>
   <a href="/" class="back-home-btn">← Retour accueil</a>
@@ -108,7 +122,7 @@
       setResult('<span class="warn">Envoi de la demande en cours...</span>');
       try{
         await fetch("/",{method:"POST",body:data});
-        setResult('<span class="ok">Demande envoyée.</span><br>Ta demande d’activation a été transmise. Ta licence sera créée avec l’email indiqué.');
+        setResult('<span class="ok">Demande envoyée.</span><br>Ta demande d’activation a été transmise. Ta licence sera créée avec l’email indiqué.<br><br><span class="warn">Prochaine étape :</span> surveille ta boîte mail (et les spams). Puis connecte-toi sur <a href="/ai-access.html" style="color:var(--gold2)">AI Access</a> avec ta licence TOR-VIP.');
         form.reset();
       }catch(err){
         setResult('<span class="bad">Erreur pendant l’envoi.</span><br>Si le problème persiste, contacte TORINVEST directement avec ton email de paiement.');

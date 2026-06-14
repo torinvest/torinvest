@@ -5,7 +5,7 @@
   <title>Guide MT5 — Robot Access TORINVEST (EA v1.51)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Guide pas à pas : installer l'EA TORINVEST AI Executor v1.51, activer votre licence TOR-VIP et connecter MetaTrader 5 au Worker Cloudflare." />
-  <meta name="robots" content="index, follow" />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="canonical" href="https://www.torinvest-trading.com/tuto-mt5-robot-torinvest.html" />
   <meta property="og:title" content="Guide MT5 — Robot Access TORINVEST" />
   <meta property="og:description" content="Installation EA v1.51, licence TOR-VIP, Worker Cloudflare — guide client Robot Access." />
@@ -110,6 +110,12 @@
       color: var(--accent); font-size: 12px; text-decoration: none;
     }
     .btn-float.secondary { right: auto; left: 20px; }
+    body.auth-pending .page { visibility: hidden; }
+    body.auth-pending::after {
+      content: "Vérification de ta licence…";
+      position: fixed; inset: 0; display: grid; place-items: center;
+      color: var(--muted); font-size: 14px; letter-spacing: 0.06em;
+    }
   </style>
 </head>
 <body>
@@ -332,8 +338,8 @@
 </div>
 
 <a class="btn-float secondary" href="/ai-access.html">← AI Access</a>
-<a class="btn-float" href="/#access">Offre Robot Access</a>
 
+<script src="/assets/aitorinvest-auth.js"></script>
 <script src="/assets/torinvest-rgpd.js" defer></script>
 </body>
 </html>
