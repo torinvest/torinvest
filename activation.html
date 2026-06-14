@@ -63,8 +63,8 @@
       <div class="steps">
         <div class="step"><b>1.</b> Tu règles ton accès via Stripe.</div>
         <div class="step"><b>2.</b> Tu remplis ce formulaire avec le même email.</div>
-        <div class="step"><b>3.</b> Ta licence est créée et liée à ton email.</div>
-        <div class="step"><b>4.</b> Tu peux ensuite accéder à la page AI Access avec ta licence.</div>
+        <div class="step"><b>3.</b> Ta licence TOR-VIP est générée automatiquement.</div>
+        <div class="step"><b>4.</b> Connecte-toi sur AI Access avec ta licence (+ code MT5 si fourni).</div>
       </div>
     </section>
 
@@ -82,8 +82,7 @@
         <label for="plan">Offre achetée</label>
         <select id="plan" name="plan" required>
           <option value="Robot Access 79€">Robot Access — 79€ promo</option>
-          <option value="Accompagnement VIP">Accompagnement VIP</option>
-          <option value="Autre">Autre</option>
+          <option value="Autre">Autre offre VIP / bundle</option>
         </select>
         <label for="stripeRef">Référence Stripe optionnelle</label>
         <input id="stripeRef" name="stripeRef" placeholder="ID paiement / email Stripe / reçu" />
@@ -96,7 +95,7 @@
       <p class="small">Conserve bien ta licence. Elle pourra être demandée sur un nouvel appareil, un autre navigateur ou après expiration de session.</p>
       <div class="next-steps">
         <h3>Après réception de ta licence</h3>
-        <p class="small" style="margin-top:0">Tu recevras ta clé TOR-VIP, ton CopyToken et l’EA MT5 par email (sous 24 h ouvrées).</p>
+        <p class="small" style="margin-top:0">Ta licence TOR-VIP s’affiche juste après l’envoi. L’EA MT5 et le CopyToken peuvent aussi arriver par email (sous 24 h ouvrées).</p>
         <div class="next-links">
           <a href="/ai-access.html">AI Access</a>
           <a href="/tuto-mt5-robot-torinvest.html" title="Connexion licence requise">Guide MT5 v1.51</a>
@@ -111,6 +110,7 @@
     </section>
   </main>
   <a href="/" class="back-home-btn">← Retour accueil</a>
+  <script src="/assets/activation-provision.js"></script>
   <script>
     const form=document.getElementById("activationForm");
     const result=document.getElementById("result");
@@ -120,13 +120,18 @@
       e.preventDefault();
       const data=new FormData(form);
       submitBtn.disabled=true;
-      setResult('<span class="warn">Envoi de la demande en cours...</span>');
+      setResult('<span class="warn">Envoi et génération de licence…</span>');
       try{
         await fetch("/",{method:"POST",body:data});
-        setResult('<span class="ok">Demande envoyée.</span><br>Ta demande d’activation a été transmise. Ta licence sera créée avec l’email indiqué.<br><br><span class="warn">Prochaine étape :</span> surveille ta boîte mail (et les spams). Puis connecte-toi sur <a href="/ai-access.html" style="color:var(--gold2)">AI Access</a> avec ta licence TOR-VIP.');
+        const prov=await window.TORINVEST_ACTIVATION.provisionAfterForm("activation-torinvest",form);
+        if(!prov.ok){
+          setResult('<span class="warn">Demande enregistrée.</span><br>Génération automatique indisponible : '+(prov.error||"réessaie dans quelques minutes")+'.<br>Ta demande reste transmise à TORINVEST.');
+        }else{
+          setResult('<span class="ok">Demande envoyée.</span>'+window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov,"vip"));
+        }
         form.reset();
       }catch(err){
-        setResult('<span class="bad">Erreur pendant l’envoi.</span><br>Si le problème persiste, contacte TORINVEST directement avec ton email de paiement.');
+        setResult('<span class="bad">Erreur pendant l’envoi.</span><br>Si le problème persiste, contacte TORINVEST avec ton email de paiement.');
       }
       submitBtn.disabled=false;
     });

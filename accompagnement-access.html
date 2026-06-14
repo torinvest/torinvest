@@ -160,12 +160,20 @@
           <li>Le trading comporte des risques : l’objectif est d’apprendre, pas de promettre des gains.</li>
         </ul>
 
-        <a id="discordBtn" class="btn" href="https://discord.gg/5mSC8gFsT7" target="_blank" rel="noopener">
-          Rejoindre le Discord privé
+        <a id="discordBtn" class="btn" href="#" target="_blank" rel="noopener">
+          Rejoindre le Discord privé accompagnement
         </a>
 
-        <a id="modulesBtn" class="ghost" href="/formation-accompagnement.html">
-          Accéder aux modules de formation
+        <a id="telegramBtn" class="ghost" href="#" target="_blank" rel="noopener" style="margin-top:10px">
+          Rejoindre Telegram VIP
+        </a>
+
+        <a id="appBtn" class="ghost" href="https://app.torinvest-trading.com/login.html" target="_blank" rel="noopener">
+          Espace formation (login app)
+        </a>
+
+        <a class="ghost" href="/formation-accompagnement.html" style="margin-top:10px">
+          Parcours modules accompagnement
         </a>
 
         <p class="small">
@@ -183,11 +191,28 @@
 
   <script>
     const WORKER = "https://morning-hall-d8f6.onzerimes.workers.dev";
+    const ACCESS_CFG = "/api/access-config.php";
 
     const form = document.getElementById("accessForm");
     const result = document.getElementById("result");
     const submitBtn = document.getElementById("submitBtn");
     const accessBox = document.getElementById("accessBox");
+    const discordBtn = document.getElementById("discordBtn");
+    const telegramBtn = document.getElementById("telegramBtn");
+    const appBtn = document.getElementById("appBtn");
+
+    let accessLinks = {
+      discordAccompagnement: "https://discord.gg/5mSC8gFsT7",
+      telegramVip: "https://t.me/+2qMkEX3KnhowNTU0",
+      appLoginUrl: "https://app.torinvest-trading.com/login.html",
+    };
+
+    fetch(ACCESS_CFG, { credentials: "include" })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.ok && d.links) accessLinks = Object.assign(accessLinks, d.links);
+      })
+      .catch(function () {});
 
     function setResult(html) {
       result.innerHTML = html;
@@ -216,7 +241,11 @@
         const data = await resp.json();
 
         if (!data.ok) {
-          setResult('<span class="bad">Licence refusée.</span><br>' + (data.error || "Vérifie ton email et ta licence."));
+          const reason = data.reason || data.error || "";
+          let hint = "Vérifie ton email et ta licence.";
+          if (reason === "email_mismatch") hint = "L’email ne correspond pas à celui de la licence.";
+          if (reason === "license_not_found") hint = "Licence introuvable. As-tu rempli le formulaire d’activation ?";
+          setResult('<span class="bad">Licence refusée.</span><br>' + hint);
           submitBtn.disabled = false;
           return;
         }
@@ -228,6 +257,10 @@
           submitBtn.disabled = false;
           return;
         }
+
+        discordBtn.href = accessLinks.discordAccompagnement || accessLinks.discordPublic || "#";
+        telegramBtn.href = accessLinks.telegramVip || accessLinks.telegramPublic || "#";
+        appBtn.href = accessLinks.appLoginUrl || "https://app.torinvest-trading.com/login.html";
 
         setResult('<span class="ok">Licence validée.</span><br>Ton accès accompagnement est débloqué.');
         accessBox.style.display = "block";

@@ -193,13 +193,53 @@ function licenceCrmListRecords(?string $type = null, int $limit = 200): array
 {
     $pdo = licenceCrmPdo();
     $limit = max(1, min(500, $limit));
-    if ($type && in_array($type, ['VIP', 'FORGE'], true)) {
+    $allowed = ['VIP', 'FORGE', 'ACCOMPAGNEMENT'];
+    if ($type && in_array($type, $allowed, true)) {
         $stmt = $pdo->prepare('SELECT * FROM licence_records WHERE type = :type ORDER BY id DESC LIMIT ' . $limit);
         $stmt->execute([':type' => $type]);
     } else {
         $stmt = $pdo->query('SELECT * FROM licence_records ORDER BY id DESC LIMIT ' . $limit);
     }
     return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
+
+function licenceCrmSplitName(string $full): array
+{
+    $full = trim($full);
+    if ($full === '') {
+        return ['', ''];
+    }
+    $parts = preg_split('/\s+/', $full, 2);
+    return [$parts[0] ?? '', $parts[1] ?? ''];
+}
+
+function licenceCrmFindActiveByEmailPlan(string $email, string $type): ?array
+{
+    $email = strtolower(trim($email));
+    if ($email === '') {
+        return null;
+    }
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare(
+        'SELECT * FROM licence_records WHERE lower(email) = :email AND type = :type
+         AND status IN ("active", "reused", "pending_activation")
+         ORDER BY id DESC LIMIT 1'
+    );
+    $stmt->execute([':email' => $email, ':type' => $type]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ?: null;
+}
+
+function licenceCrmAccessLinks(): array
+{
+    $cfg = licenceCrmConfig();
+    return [
+        'discordPublic' => (string) ($cfg['discord_public_url'] ?? 'https://discord.gg/5mSC8gFsT7'),
+        'discordAccompagnement' => (string) ($cfg['discord_accompagnement_url'] ?? $cfg['discord_public_url'] ?? 'https://discord.gg/5mSC8gFsT7'),
+        'telegramPublic' => (string) ($cfg['telegram_public_url'] ?? 'https://t.me/+2qMkEX3KnhowNTU0'),
+        'telegramVip' => (string) ($cfg['telegram_vip_url'] ?? $cfg['telegram_public_url'] ?? 'https://t.me/+2qMkEX3KnhowNTU0'),
+        'appLoginUrl' => (string) ($cfg['app_formation_login_url'] ?? 'https://app.torinvest-trading.com/login.html'),
+    ];
 }
 
 function licenceCrmCreateVip(array $input): array
@@ -374,6 +414,160 @@ function licenceCrmCreateForge(array $input): array
         'status' => $status,
         'reused' => !empty($resp['reused']),
     ];
+}
+
+function licenceCrmCreateAccompagnement(array $input): array
+{
+    $email = strtolower(trim((string) ($input['email'] ?? '')));
+    $days = (int) ($input['days'] ?? 365);
+    $firstName = trim((string) ($input['first_name'] ?? ''));
+    $lastName = trim((string) ($input['last_name'] ?? ''));
+    $stripeRef = trim((string) ($input['stripe_ref'] ?? ''));
+    $notes = trim((string) ($input['notes'] ?? ''));
+    $discord = trim((string) ($input['discord'] ?? ''));
+    $level = trim((string) ($input['level'] ?? ''));
+    $message = trim((string) ($input['message'] ?? ''));
+    $source = trim((string) ($input['source'] ?? 'crm'));
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('Email client invalide');
+    }
+    if ($days < 30 || $days > 3650) {
+        $days = 365;
+    }
+
+    $existing = licenceCrmFindActiveByEmailPlan($email, 'ACCOMPAGNEMENT');
+    if ($existing && !empty($existing['license_code'])) {
+        return [
+            'ok' => true,
+            'reused' => true,
+            'id' => (int) $existing['id'],
+            'type' => 'ACCOMPAGNEMENT',
+            'license' => (string) $existing['license_code'],
+            'email' => $email,
+            'expires' => (string) ($existing['expires_at'] ?? ''),
+            'status' => (string) ($existing['status'] ?? 'active'),
+            'plan' => 'ACCOMPAGNEMENT',
+            'days' => (int) ($existing['days'] ?? $days),
+            'accessLinks' => licenceCrmAccessLinks(),
+        ];
+    }
+
+    $noteParts = array_filter([
+        $notes !== '' ? $notes : null,
+        $discord !== '' ? 'Discord: ' . $discord : null,
+        $level !== '' ? 'Niveau: ' . $level : null,
+        $message !== '' ? 'Message: ' . $message : null,
+        'Source: ' . $source,
+    ]);
+    $notesMerged = implode("\n", $noteParts);
+
+    $create = licenceCrmWorkerPost('/license/create', [
+        'email' => $email,
+        'plan' => 'ACCOMPAGNEMENT',
+        'days' => $days,
+        'autoActivate' => true,
+    ], true);
+
+    if (empty($create['ok']) || empty($create['license'])) {
+        $err = $create['error'] ?? ('HTTP ' . ($create['_httpStatus'] ?? '?'));
+        throw new RuntimeException('Création accompagnement échouée : ' . $err);
+    }
+
+    $license = (string) $create['license'];
+    $expires = (string) ($create['expires'] ?? '');
+    $status = (string) ($create['status'] ?? 'active');
+
+    $id = licenceCrmInsertRecord([
+        'type' => 'ACCOMPAGNEMENT',
+        'first_name' => $firstName,
+        'last_name' => $lastName,
+        'email' => $email,
+        'license_code' => $license,
+        'plan' => 'ACCOMPAGNEMENT',
+        'days' => $days,
+        'expires_at' => $expires,
+        'activation_code' => null,
+        'mt5_account' => null,
+        'stripe_ref' => $stripeRef !== '' ? $stripeRef : null,
+        'status' => $status,
+        'notes' => $notesMerged !== '' ? $notesMerged : null,
+        'worker_response' => json_encode(['create' => $create], JSON_UNESCAPED_UNICODE),
+    ]);
+
+    return [
+        'ok' => true,
+        'reused' => false,
+        'id' => $id,
+        'type' => 'ACCOMPAGNEMENT',
+        'license' => $license,
+        'email' => $email,
+        'expires' => $expires,
+        'status' => $status,
+        'plan' => 'ACCOMPAGNEMENT',
+        'days' => $days,
+        'accessLinks' => licenceCrmAccessLinks(),
+    ];
+}
+
+function licenceCrmProvisionVipFromForm(array $input): array
+{
+    $email = strtolower(trim((string) ($input['email'] ?? '')));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('Email invalide');
+    }
+
+    $existing = licenceCrmFindActiveByEmailPlan($email, 'VIP');
+    if ($existing && !empty($existing['license_code'])) {
+        return [
+            'ok' => true,
+            'reused' => true,
+            'type' => 'VIP',
+            'license' => (string) $existing['license_code'],
+            'activationCode' => (string) ($existing['activation_code'] ?? ''),
+            'email' => $email,
+            'expires' => (string) ($existing['expires_at'] ?? ''),
+            'status' => (string) ($existing['status'] ?? 'pending_activation'),
+        ];
+    }
+
+    [$firstName, $lastName] = licenceCrmSplitName((string) ($input['name'] ?? ''));
+    $notes = trim((string) ($input['message'] ?? ''));
+    if ($notes === '' && !empty($input['plan'])) {
+        $notes = 'Offre formulaire: ' . trim((string) $input['plan']);
+    }
+
+    return licenceCrmCreateVip([
+        'email' => $email,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
+        'stripe_ref' => trim((string) ($input['stripeRef'] ?? $input['stripe_ref'] ?? '')),
+        'plan' => 'VIP',
+        'days' => (int) ($input['days'] ?? 30),
+        'mt5_account' => trim((string) ($input['mt5_account'] ?? '')),
+        'notes' => ($notes !== '' ? $notes : 'Source: formulaire activation') . "\nSource: auto-provision",
+    ]);
+}
+
+function licenceCrmProvisionAccompagnementFromForm(array $input): array
+{
+    $email = strtolower(trim((string) ($input['email'] ?? '')));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('Email invalide');
+    }
+
+    [$firstName, $lastName] = licenceCrmSplitName((string) ($input['name'] ?? ''));
+    return licenceCrmCreateAccompagnement([
+        'email' => $email,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
+        'stripe_ref' => trim((string) ($input['stripeRef'] ?? $input['stripe_ref'] ?? '')),
+        'discord' => trim((string) ($input['discord'] ?? '')),
+        'level' => trim((string) ($input['level'] ?? '')),
+        'message' => trim((string) ($input['message'] ?? '')),
+        'days' => 365,
+        'source' => 'formulaire activation',
+    ]);
 }
 
 function licenceCrmExportCsv(?string $type = null): string

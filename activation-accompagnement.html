@@ -99,8 +99,8 @@
       <div class="steps">
         <div class="step"><b>1.</b> Tu règles ton accompagnement via Stripe.</div>
         <div class="step"><b>2.</b> Tu remplis ce formulaire avec le même email.</div>
-        <div class="step"><b>3.</b> Ton accès privé TORINVEST est validé.</div>
-        <div class="step"><b>4.</b> Tu reçois les informations de suivi, formation et communauté.</div>
+        <div class="step"><b>3.</b> Ta licence TOR-ACCOMPAGNEMENT est générée automatiquement.</div>
+        <div class="step"><b>4.</b> Valide ton accès sur la page dédiée (Discord privé + formation).</div>
       </div>
     </section>
 
@@ -158,8 +158,8 @@
       <div id="result" class="result">En attente d’envoi.</div>
 
       <p class="small">
-        Après validation, les accès et les instructions seront envoyés sur l’email indiqué.
-        Pense à vérifier tes spams si tu ne reçois rien.
+        Ta licence s’affiche juste après l’envoi. Conserve-la : elle sera demandée sur
+        <a href="/accompagnement-access.html" style="color:var(--gold2)">la page d’accès accompagnement</a>.
       </p>
       <p class="small" style="margin-top:10px">
         Déjà ta licence ? <a href="/accompagnement-access.html" style="color:var(--gold2)">Débloquer mon accès accompagnement →</a>
@@ -173,6 +173,7 @@
 
   <a href="/" class="back-home-btn">← Retour accueil</a>
 
+  <script src="/assets/activation-provision.js"></script>
   <script>
     const form = document.getElementById("activationForm");
     const result = document.getElementById("result");
@@ -187,22 +188,27 @@
 
       const data = new FormData(form);
       submitBtn.disabled = true;
-      setResult('<span class="warn">Envoi de la demande en cours...</span>');
+      setResult('<span class="warn">Envoi et génération de licence…</span>');
 
       try {
-        await fetch("/", {
-          method: "POST",
-          body: data
-        });
-
-        setResult(
-          '<span class="ok">Demande envoyée.</span><br>Ton accompagnement TORINVEST a bien été demandé. Les accès seront envoyés sur l’email indiqué.<br><br>Quand tu reçois ta licence : <a href="/accompagnement-access.html" style="color:var(--gold2)">valider mon accès →</a>'
-        );
-
+        await fetch("/", { method: "POST", body: data });
+        const prov = await window.TORINVEST_ACTIVATION.provisionAfterForm("activation-accompagnement-torinvest", form);
+        if (!prov.ok) {
+          setResult(
+            '<span class="warn">Demande enregistrée.</span><br>Génération automatique indisponible : ' +
+            (prov.error || "réessaie dans quelques minutes") +
+            '.<br>Ta demande reste transmise à TORINVEST.'
+          );
+        } else {
+          setResult(
+            '<span class="ok">Demande envoyée.</span>' +
+            window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov, "accompagnement")
+          );
+        }
         form.reset();
       } catch (err) {
         setResult(
-          '<span class="bad">Erreur pendant l’envoi.</span><br>Si le problème persiste, contacte TORINVEST directement avec ton email de paiement.'
+          '<span class="bad">Erreur pendant l’envoi.</span><br>Si le problème persiste, contacte TORINVEST avec ton email de paiement.'
         );
       }
 

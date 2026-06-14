@@ -5,7 +5,7 @@
   <title>TORINVEST — admin-licence CRM</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <meta name="description" content="CRM interne TORINVEST — gestion licences VIP et FORGE." />
+  <meta name="description" content="CRM interne TORINVEST — licences VIP, accompagnement et TorPass FORGE." />
   <link rel="icon" href="/forge-logo.png" type="image/png" />
   <style>
     :root {
@@ -88,6 +88,7 @@
     }
     .badge.vip { background: rgba(255,180,0,.15); color: var(--gold2); }
     .badge.forge { background: rgba(21,209,107,.12); color: #9dffc8; }
+    .badge.accomp { background: rgba(255,75,92,.12); color: #ffb8c0; }
     .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
     .hint { color: var(--muted); font-size: 11px; line-height: 1.45; margin-top: 10px; }
     .copy-sm {
@@ -124,7 +125,7 @@
         <div class="brand-icon">⚒</div>
         <div>
           <h1>admin-licence</h1>
-          <p>CRM interne — licences VIP &amp; FORGE</p>
+          <p>CRM interne — licences VIP, accompagnement &amp; TorPass</p>
         </div>
       </div>
       <label for="loginPin">Code d'accès CRM</label>
@@ -156,7 +157,8 @@
       <div class="card">
         <div class="tabs">
           <button class="tab active" data-tab="vip" type="button">Licence VIP MT5</button>
-          <button class="tab" data-tab="forge" type="button">Code FORGE TorPass</button>
+          <button class="tab" data-tab="accomp" type="button">Accompagnement 349€</button>
+          <button class="tab" data-tab="forge" type="button">TorPass FORGE (tokens)</button>
           <button class="tab" data-tab="activate" type="button">Activer VIP</button>
           <button class="tab" data-tab="history" type="button">Historique</button>
         </div>
@@ -179,8 +181,24 @@
           <div id="vipResult" class="result">—</div>
         </div>
 
+        <div id="panel-accomp" class="panel">
+          <p class="hint">Crée une licence <span class="mono">TOR-ACCOMPAGNEMENT-…</span> (365 j par défaut). Activation immédiate — pas de MT5. Accès formation + Discord privé accompagnement.</p>
+          <div class="grid" style="margin-top:14px">
+            <div><label>Prénom</label><input id="accompFirst" placeholder="Jean" /></div>
+            <div><label>Nom</label><input id="accompLast" placeholder="Dupont" /></div>
+            <div><label>Email client *</label><input id="accompEmail" type="email" placeholder="client@gmail.com" required /></div>
+            <div><label>Réf. Stripe</label><input id="accompStripe" placeholder="pi_… ou reçu" /></div>
+            <div><label>Durée (jours)</label><input id="accompDays" type="number" value="365" min="30" max="3650" /></div>
+            <div><label>Notes internes</label><input id="accompNotes" placeholder="Contexte, Discord…" /></div>
+          </div>
+          <div class="actions">
+            <button class="btn" id="accompCreateBtn" type="button">Générer licence accompagnement</button>
+          </div>
+          <div id="accompResult" class="result">—</div>
+        </div>
+
         <div id="panel-forge" class="panel">
-          <p class="hint">Génère un code <span class="mono">TOR-FORGE-…</span> pour Discord / TorPass. Même wallet = même code (réutilisation).</p>
+          <p class="hint">Génère un code <span class="mono">TOR-FORGE-…</span> pour la communauté forgerons (/premium) via wallet KRM/ORAX — <strong>≠</strong> Discord accompagnement payant 349€.</p>
           <div class="grid" style="margin-top:14px">
             <div><label>Prénom</label><input id="forgeFirst" placeholder="Optionnel" /></div>
             <div><label>Nom</label><input id="forgeLast" placeholder="Optionnel" /></div>
@@ -212,7 +230,8 @@
             <select id="histFilter">
               <option value="">Tous</option>
               <option value="VIP">VIP seulement</option>
-              <option value="FORGE">FORGE seulement</option>
+              <option value="ACCOMPAGNEMENT">Accompagnement seulement</option>
+              <option value="FORGE">TorPass FORGE seulement</option>
             </select>
           </div>
           <div style="overflow-x:auto">
@@ -282,7 +301,7 @@
       }
       tbody.innerHTML = data.records.map(function (r) {
         const name = [r.first_name, r.last_name].filter(Boolean).join(" ") || (r.email || r.wallet || "—");
-        const badge = r.type === "VIP" ? "vip" : "forge";
+        const badge = r.type === "VIP" ? "vip" : (r.type === "ACCOMPAGNEMENT" ? "accomp" : "forge");
         return "<tr>" +
           "<td>" + esc((r.created_at || "").replace("T", " ").slice(0, 19)) + "</td>" +
           "<td><span class='badge " + badge + "'>" + esc(r.type) + "</span></td>" +
@@ -377,6 +396,33 @@
         await loadHistory();
       } catch (e) {
         setHtml("vipResult", '<span class="bad">' + esc(e.message) + "</span>");
+      }
+      btn.disabled = false;
+    });
+
+    document.getElementById("accompCreateBtn").addEventListener("click", async function () {
+      const btn = document.getElementById("accompCreateBtn");
+      btn.disabled = true;
+      setHtml("accompResult", '<span class="warn">Génération…</span>');
+      try {
+        const data = await api("create_accompagnement", {
+          first_name: document.getElementById("accompFirst").value.trim(),
+          last_name: document.getElementById("accompLast").value.trim(),
+          email: document.getElementById("accompEmail").value.trim(),
+          stripe_ref: document.getElementById("accompStripe").value.trim(),
+          days: Number(document.getElementById("accompDays").value) || 365,
+          notes: document.getElementById("accompNotes").value.trim(),
+        });
+        if (!data.ok) throw new Error(data.error || "Échec");
+        setHtml("accompResult",
+          '<span class="ok">Licence ' + (data.reused ? "(existante)" : "créée") + '.</span><br>' +
+          '<b>Licence :</b> <span class="mono">' + esc(data.license) + '</span> <button type="button" class="copy-sm" data-copy="' + esc(data.license) + '">copier</button><br>' +
+          '<b>Statut :</b> ' + esc(data.status) + '<br>' +
+          '<b>Expiration :</b> ' + esc((data.expires || "").slice(0, 10))
+        );
+        await loadHistory();
+      } catch (e) {
+        setHtml("accompResult", '<span class="bad">' + esc(e.message) + "</span>");
       }
       btn.disabled = false;
     });
