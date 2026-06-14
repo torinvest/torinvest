@@ -25,6 +25,25 @@
       return null;
     },
 
+    /** Connexion Phantom robuste (déjà connecté, popup fermée, etc.). */
+    connectWallet: async function (provider) {
+      if (provider.isConnected && provider.publicKey) {
+        return provider.publicKey.toString();
+      }
+      try {
+        var resp = await provider.connect();
+        if (resp && resp.publicKey) return resp.publicKey.toString();
+        if (provider.publicKey) return provider.publicKey.toString();
+        throw new Error("Connexion Phantom sans clé publique.");
+      } catch (err) {
+        if (err && err.code === 4001) throw err;
+        if (provider.isConnected && provider.publicKey) {
+          return provider.publicKey.toString();
+        }
+        throw err;
+      }
+    },
+
     buildSignMessage: function (wallet, timestampMs) {
       return (
         "TORINVEST TorPass Verification V1\nWallet: " +
@@ -62,11 +81,24 @@
       var timestamp = Date.now();
       var message = this.buildSignMessage(wallet, timestamp);
       var encoded = new TextEncoder().encode(message);
-      var result = await provider.signMessage(encoded, "utf8");
+      var result;
+      try {
+        result = await provider.signMessage(encoded, "utf8");
+      } catch (e1) {
+        try {
+          result = await provider.signMessage(encoded, { display: "utf8" });
+        } catch (e2) {
+          result = await provider.signMessage(message, "utf8");
+        }
+      }
+      var sig = result && (result.signature || result);
+      if (!sig || typeof sig.length !== "number") {
+        throw new Error("Signature Phantom invalide.");
+      }
       return {
         wallet: wallet,
         timestamp: timestamp,
-        signature: this.signatureToHex(result.signature),
+        signature: this.signatureToHex(sig),
       };
     },
 
@@ -96,8 +128,7 @@
 
     /** Connecte Phantom, vérifie soldes, signe et récupère le code FORGE. */
     verifyAndRequestForgeCode: async function (provider) {
-      var connect = await provider.connect();
-      var wallet = connect.publicKey.toString();
+      var wallet = await this.connectWallet(provider);
       var balances = await this.readBalances(wallet);
       if (!this.hasAccess(balances)) {
         return {
