@@ -11,18 +11,17 @@
 define('ROOT_DIR', dirname(__FILE__));
 define('DB_FILE', ROOT_DIR . '/crypto_cache.db');
 define('LOG_FILE', ROOT_DIR . '/analysis_log.txt');
-define('MISTRAL_API_KEYS', [
-    '5qaRTj Rake',
-    'o3rG tu',
-    'vEzQM kF'
-]);
+require_once ROOT_DIR . '/config.php';
 
 function logMessage($message) {
     file_put_contents(LOG_FILE, '['.date('Y-m-d H:i:s')."] $message\n", FILE_APPEND);
 }
 
 function callMistral($messages, $model = 'mistral-small-2603', $maxTokens = 250) {
-    $keys = MISTRAL_API_KEYS;
+    $keys = array_values(array_filter(DEFAULT_MISTRAL_API_KEYS));
+    if ($keys === []) {
+        return null;
+    }
     foreach ($keys as $apiKey) {
         for ($retry = 0; $retry < 3; $retry++) {
             $ch = curl_init('https://api.mistral.ai/v1/chat/completions');

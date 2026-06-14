@@ -47,18 +47,11 @@ if (!defined('CONFIG_LOADED')) {
     }
 
 // ============================================================================
-// CLÉS API MISTRAL - À REMPLACER PAR VOS VRAIES CLÉS
-// Format: Clés complètes du Mistral Free Tier Développeur
-// Chaque clé offre 1 milliard de tokens/mois
+// CLÉS API — ajoute les tiennes ici quand tu es prêt (tableau vide = IA radar off)
 // ============================================================================
 
 define('DEFAULT_MISTRAL_API_KEYS', [
-    // Clés API Mistral Free Tier Développeur
-    // Chaque clé offre 1 milliard de tokens/mois
-    // Format: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    'sk-5qaRTjWEP5ZbH8Rake',
-    'sk-o3rG1zvHXRShytu',
-    'sk-vEzQDjFruXkF'
+    // 'ta-cle-ici',
 ]);
 
 // Endpoint API Mistral
