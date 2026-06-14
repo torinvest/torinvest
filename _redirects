@@ -25,6 +25,8 @@
 /mentions-legales /mentions-legales.html 200
 /aitorinvest     /AITORINVEST.html     200
 /ai-access       /ai-access.html       200
+/robot-access-bienvenue  /robot-access-bienvenue.html  200
+/bienvenue-robot   /robot-access-bienvenue.html  301
 /AITORINVEST2.html  /ai-access.html    301
 /dev-access.html    /ai-access.html#admin  301
 
