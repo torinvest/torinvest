@@ -106,6 +106,22 @@ function licenceCrmPdo(): PDO
     );
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_form_submissions_created ON licence_form_submissions(created_at)');
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_form_submissions_form ON licence_form_submissions(form_name)');
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS stripe_webhook_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id TEXT NOT NULL UNIQUE,
+            event_type TEXT NOT NULL,
+            stripe_ref TEXT,
+            email TEXT,
+            plan_type TEXT,
+            created_at TEXT NOT NULL,
+            provision_ok INTEGER NOT NULL DEFAULT 0,
+            license_code TEXT,
+            error TEXT,
+            payload_json TEXT
+        )'
+    );
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_stripe_events_ref ON stripe_webhook_events(stripe_ref)');
     return $pdo;
 }
 
@@ -842,6 +858,372 @@ function licenceCrmProvisionAccompagnementFromForm(array $input): array
         'days' => 365,
         'source' => 'formulaire activation',
     ]);
+}
+
+function licenceCrmStripeWebhookSecret(): string
+{
+    $cfg = licenceCrmConfig();
+    return trim((string) ($cfg['stripe_webhook_secret'] ?? ''));
+}
+
+function licenceCrmFindByStripeRef(string $stripeRef): ?array
+{
+    $stripeRef = trim($stripeRef);
+    if ($stripeRef === '') {
+        return null;
+    }
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare(
+        'SELECT * FROM licence_records WHERE stripe_ref = :ref ORDER BY id DESC LIMIT 1'
+    );
+    $stmt->execute([':ref' => $stripeRef]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ?: null;
+}
+
+function licenceStripeEventFind(string $eventId): ?array
+{
+    $eventId = trim($eventId);
+    if ($eventId === '') {
+        return null;
+    }
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare('SELECT * FROM stripe_webhook_events WHERE event_id = :id LIMIT 1');
+    $stmt->execute([':id' => $eventId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ?: null;
+}
+
+function licenceStripeEventLog(array $entry): int
+{
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare(
+        'INSERT INTO stripe_webhook_events
+         (event_id, event_type, stripe_ref, email, plan_type, created_at, provision_ok, license_code, error, payload_json)
+         VALUES (:event_id, :event_type, :stripe_ref, :email, :plan_type, :created_at, :provision_ok, :license_code, :error, :payload_json)'
+    );
+    $stmt->execute([
+        ':event_id' => (string) ($entry['event_id'] ?? ''),
+        ':event_type' => (string) ($entry['event_type'] ?? ''),
+        ':stripe_ref' => ($entry['stripe_ref'] ?? '') !== '' ? (string) $entry['stripe_ref'] : null,
+        ':email' => ($entry['email'] ?? '') !== '' ? (string) $entry['email'] : null,
+        ':plan_type' => ($entry['plan_type'] ?? '') !== '' ? (string) $entry['plan_type'] : null,
+        ':created_at' => gmdate('c'),
+        ':provision_ok' => !empty($entry['provision_ok']) ? 1 : 0,
+        ':license_code' => ($entry['license_code'] ?? '') !== '' ? (string) $entry['license_code'] : null,
+        ':error' => ($entry['error'] ?? '') !== '' ? (string) $entry['error'] : null,
+        ':payload_json' => json_encode($entry['payload'] ?? [], JSON_UNESCAPED_UNICODE),
+    ]);
+    return (int) $pdo->lastInsertId();
+}
+
+function licenceCrmStripePlanDefinitions(): array
+{
+    $cfg = licenceCrmConfig();
+    return [
+        'VIP' => [
+            'type' => 'VIP',
+            'days' => (int) ($cfg['stripe_vip_days'] ?? 30),
+            'amounts' => array_values(array_filter(array_map('intval', (array) ($cfg['stripe_vip_amounts'] ?? [7900])))),
+            'payment_link_ids' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_vip_ids'] ?? [])))),
+            'payment_link_slugs' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_vip_slugs'] ?? ['28E28rbhpdqn5si827d7q00'])))),
+            'price_ids' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_price_vip_ids'] ?? [])))),
+            'metadata_values' => ['vip', 'robot', 'robot_access'],
+        ],
+        'ACCOMPAGNEMENT' => [
+            'type' => 'ACCOMPAGNEMENT',
+            'days' => (int) ($cfg['stripe_accompagnement_days'] ?? 365),
+            'amounts' => array_values(array_filter(array_map('intval', (array) ($cfg['stripe_accompagnement_amounts'] ?? [34900])))),
+            'payment_link_ids' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_accompagnement_ids'] ?? [])))),
+            'payment_link_slugs' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_accompagnement_slugs'] ?? ['aFabJ10CLeurf2S827d7q01'])))),
+            'price_ids' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_price_accompagnement_ids'] ?? [])))),
+            'metadata_values' => ['accompagnement', 'formation', 'accompagnement_349'],
+        ],
+    ];
+}
+
+function licenceCrmResolveStripePlan(array $session): ?array
+{
+    $definitions = licenceCrmStripePlanDefinitions();
+    $metadata = is_array($session['metadata'] ?? null) ? $session['metadata'] : [];
+    $metaPlan = strtolower(trim((string) ($metadata['torinvest_plan'] ?? $metadata['plan'] ?? '')));
+
+    if ($metaPlan !== '') {
+        foreach ($definitions as $key => $def) {
+            if (in_array($metaPlan, $def['metadata_values'], true) || strtolower($key) === $metaPlan) {
+                return $def + ['plan_key' => $key];
+            }
+        }
+    }
+
+    $paymentLink = trim((string) ($session['payment_link'] ?? ''));
+    if ($paymentLink !== '') {
+        foreach ($definitions as $key => $def) {
+            if (in_array($paymentLink, $def['payment_link_ids'], true)) {
+                return $def + ['plan_key' => $key];
+            }
+        }
+    }
+
+    $haystack = json_encode($session, JSON_UNESCAPED_UNICODE) ?: '';
+    foreach ($definitions as $key => $def) {
+        foreach ($def['payment_link_slugs'] as $slug) {
+            if ($slug !== '' && str_contains($haystack, $slug)) {
+                return $def + ['plan_key' => $key];
+            }
+        }
+    }
+
+    $lineItems = $session['line_items']['data'] ?? [];
+    if (is_array($lineItems)) {
+        foreach ($lineItems as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $priceId = trim((string) ($item['price']['id'] ?? $item['price'] ?? ''));
+            if ($priceId === '') {
+                continue;
+            }
+            foreach ($definitions as $key => $def) {
+                if (in_array($priceId, $def['price_ids'], true)) {
+                    return $def + ['plan_key' => $key];
+                }
+            }
+        }
+    }
+
+    $amount = (int) ($session['amount_total'] ?? 0);
+    if ($amount > 0) {
+        foreach ($definitions as $key => $def) {
+            if (in_array($amount, $def['amounts'], true)) {
+                return $def + ['plan_key' => $key];
+            }
+        }
+    }
+
+    return null;
+}
+
+function licenceCrmExtractStripeCheckoutContext(array $session): array
+{
+    $customer = is_array($session['customer_details'] ?? null) ? $session['customer_details'] : [];
+    $email = strtolower(trim((string) ($customer['email'] ?? $session['customer_email'] ?? '')));
+    [$firstName, $lastName] = licenceCrmSplitName((string) ($customer['name'] ?? ''));
+
+    $stripeRef = trim((string) ($session['payment_intent'] ?? ''));
+    if ($stripeRef === '') {
+        $stripeRef = trim((string) ($session['subscription'] ?? ''));
+    }
+    if ($stripeRef === '') {
+        $stripeRef = trim((string) ($session['id'] ?? ''));
+    }
+
+    return [
+        'email' => $email,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
+        'stripe_ref' => $stripeRef,
+        'session_id' => trim((string) ($session['id'] ?? '')),
+    ];
+}
+
+function licenceCrmProvisionFromStripeCheckout(array $session): array
+{
+    if (($session['payment_status'] ?? '') !== 'paid' && empty($session['subscription'])) {
+        throw new InvalidArgumentException('paiement_non_confirme');
+    }
+
+    $plan = licenceCrmResolveStripePlan($session);
+    if ($plan === null) {
+        throw new InvalidArgumentException('produit_stripe_inconnu');
+    }
+
+    $ctx = licenceCrmExtractStripeCheckoutContext($session);
+    if (!filter_var($ctx['email'], FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('email_stripe_manquant');
+    }
+
+    foreach ([$ctx['stripe_ref'], $ctx['session_id']] as $ref) {
+        if ($ref === '') {
+            continue;
+        }
+        $existingByRef = licenceCrmFindByStripeRef($ref);
+        if ($existingByRef && !empty($existingByRef['license_code'])) {
+            return [
+                'ok' => true,
+                'reused' => true,
+                'deduped' => true,
+                'dedupe_reason' => 'stripe_ref',
+                'type' => (string) ($existingByRef['type'] ?? $plan['type']),
+                'license' => (string) $existingByRef['license_code'],
+                'activationCode' => (string) ($existingByRef['activation_code'] ?? ''),
+                'email' => $ctx['email'],
+                'expires' => (string) ($existingByRef['expires_at'] ?? ''),
+                'status' => (string) ($existingByRef['status'] ?? 'active'),
+                'stripe_ref' => $ref,
+                'plan_key' => $plan['plan_key'],
+            ];
+        }
+    }
+
+    if ($plan['type'] === 'ACCOMPAGNEMENT') {
+        $result = licenceCrmCreateAccompagnement([
+            'email' => $ctx['email'],
+            'first_name' => $ctx['first_name'],
+            'last_name' => $ctx['last_name'],
+            'stripe_ref' => $ctx['stripe_ref'],
+            'days' => (int) $plan['days'],
+            'source' => 'stripe webhook',
+            'notes' => 'Stripe session ' . $ctx['session_id'],
+        ]);
+    } else {
+        $result = licenceCrmCreateVip([
+            'email' => $ctx['email'],
+            'first_name' => $ctx['first_name'],
+            'last_name' => $ctx['last_name'],
+            'stripe_ref' => $ctx['stripe_ref'],
+            'plan' => 'VIP',
+            'days' => (int) $plan['days'],
+            'notes' => 'Stripe session ' . $ctx['session_id'] . "\nSource: stripe webhook",
+        ]);
+    }
+
+    $result['stripe_ref'] = $ctx['stripe_ref'];
+    $result['plan_key'] = $plan['plan_key'];
+    $result['first_name'] = $ctx['first_name'];
+    $result['last_name'] = $ctx['last_name'];
+    return $result;
+}
+
+function licenceCrmNotifyStripeDiscord(array $event): void
+{
+    $cfg = licenceCrmConfig();
+    $url = trim((string) ($cfg['provision_notify_discord_webhook'] ?? ''));
+    if ($url === '') {
+        return;
+    }
+
+    $ok = !empty($event['provision_ok']);
+    $email = (string) ($event['email'] ?? '—');
+    $license = (string) ($event['license_code'] ?? '');
+    $error = (string) ($event['error'] ?? '');
+    $plan = (string) ($event['plan_type'] ?? '?');
+    $stripeRef = (string) ($event['stripe_ref'] ?? '');
+    $color = $ok ? 5763719 : 15548997;
+    $title = $ok ? 'Stripe — licence OK' : 'Stripe — échec provision';
+
+    $fields = [
+        ['name' => 'Plan', 'value' => $plan, 'inline' => true],
+        ['name' => 'Email', 'value' => $email, 'inline' => true],
+    ];
+    if ($stripeRef !== '') {
+        $fields[] = ['name' => 'Réf. Stripe', 'value' => '`' . $stripeRef . '`', 'inline' => false];
+    }
+    if ($license !== '') {
+        $fields[] = ['name' => 'Licence', 'value' => '`' . $license . '`', 'inline' => false];
+    }
+    if ($error !== '') {
+        $fields[] = ['name' => 'Erreur', 'value' => substr($error, 0, 900), 'inline' => false];
+    }
+
+    $body = json_encode([
+        'embeds' => [[
+            'title' => $title,
+            'color' => $color,
+            'fields' => $fields,
+            'timestamp' => gmdate('c'),
+        ]],
+    ], JSON_UNESCAPED_UNICODE);
+
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\n",
+            'content' => $body,
+            'timeout' => 8,
+            'ignore_errors' => true,
+        ],
+    ]);
+    @file_get_contents($url, false, $ctx);
+}
+
+function licenceCrmHandleStripeEvent(array $event): array
+{
+    $eventId = (string) ($event['id'] ?? '');
+    $eventType = (string) ($event['type'] ?? '');
+
+    $existing = licenceStripeEventFind($eventId);
+    if ($existing && (int) ($existing['provision_ok'] ?? 0) === 1 && !empty($existing['license_code'])) {
+        return [
+            'ok' => true,
+            'reused' => true,
+            'deduped' => true,
+            'event_id' => $eventId,
+            'license' => (string) $existing['license_code'],
+        ];
+    }
+
+    $result = null;
+    $error = null;
+    $planType = null;
+    $email = null;
+    $stripeRef = null;
+
+    try {
+        if ($eventType === 'checkout.session.completed') {
+            $session = is_array($event['data']['object'] ?? null) ? $event['data']['object'] : [];
+            $result = licenceCrmProvisionFromStripeCheckout($session);
+            $planType = (string) ($result['type'] ?? $result['plan_key'] ?? '');
+            $email = (string) ($result['email'] ?? '');
+            $stripeRef = (string) ($result['stripe_ref'] ?? '');
+
+            if (trim((string) (licenceCrmConfig()['brevo_api_key'] ?? '')) !== '') {
+                require_once __DIR__ . '/brevo-lib.php';
+                $result['brevo'] = brevoSyncAfterProvision($planType, $result);
+            }
+        } else {
+            return [
+                'ok' => true,
+                'ignored' => true,
+                'event_type' => $eventType,
+            ];
+        }
+    } catch (Throwable $e) {
+        $error = $e->getMessage();
+    }
+
+    licenceStripeEventLog([
+        'event_id' => $eventId,
+        'event_type' => $eventType,
+        'stripe_ref' => $stripeRef,
+        'email' => $email,
+        'plan_type' => $planType,
+        'provision_ok' => $result && !empty($result['ok']),
+        'license_code' => $result['license'] ?? $result['code'] ?? null,
+        'error' => $error,
+        'payload' => [
+            'type' => $eventType,
+            'email' => $email,
+            'plan_type' => $planType,
+            'stripe_ref' => $stripeRef,
+        ],
+    ]);
+
+    licenceCrmNotifyStripeDiscord([
+        'provision_ok' => $result && !empty($result['ok']),
+        'email' => $email ?? '',
+        'license_code' => $result['license'] ?? $result['code'] ?? '',
+        'error' => $error ?? '',
+        'plan_type' => $planType ?? '',
+        'stripe_ref' => $stripeRef ?? '',
+    ]);
+
+    if ($error !== null) {
+        throw new RuntimeException($error);
+    }
+
+    $result['event_id'] = $eventId;
+    return $result;
 }
 
 function licenceCrmExportCsv(?string $type = null): string

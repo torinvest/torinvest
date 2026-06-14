@@ -10,3 +10,11 @@
 <Files "admin-licence-lib.php">
     Require all denied
 </Files>
+
+<Files "brevo-lib.php">
+    Require all denied
+</Files>
+
+<Files "stripe-lib.php">
+    Require all denied
+</Files>

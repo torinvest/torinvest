@@ -69,4 +69,39 @@ return [
     'telegram_public_url' => 'https://t.me/+2qMkEX3KnhowNTU0',
     'telegram_vip_url' => 'https://t.me/+2qMkEX3KnhowNTU0',
     'app_formation_login_url' => 'https://app.torinvest-trading.com/login.html',
+
+    // --- Stripe webhook (paiement confirmé → licence) ---
+    // Dashboard Stripe → Developers → Webhooks → signing secret (whsec_…)
+    'stripe_webhook_secret' => '',
+
+    // Slugs Payment Links (buy.stripe.com/XXXX) — repli si metadata absente
+    'stripe_payment_link_vip_slugs' => ['28E28rbhpdqn5si827d7q00'],
+    'stripe_payment_link_accompagnement_slugs' => ['aFabJ10CLeurf2S827d7q01'],
+
+    // IDs Payment Link Stripe (plink_…) — prioritaire si renseignés
+    'stripe_payment_link_vip_ids' => [],
+    'stripe_payment_link_accompagnement_ids' => [],
+
+    // IDs Price Stripe (price_…) — si line_items présents dans le webhook
+    'stripe_price_vip_ids' => [],
+    'stripe_price_accompagnement_ids' => [],
+
+    // Montants en centimes EUR (repli ultime)
+    'stripe_vip_amounts' => [7900],
+    'stripe_accompagnement_amounts' => [34900],
+    'stripe_vip_days' => 30,
+    'stripe_accompagnement_days' => 365,
+
+    // Metadata Payment Link recommandée : torinvest_plan = vip | accompagnement
+
+    // --- Brevo (contacts + emails transactionnels) ---
+    'brevo_api_key' => '',
+    'brevo_list_accompagnement' => 9,
+    'brevo_list_vip' => 10,
+    'brevo_list_waitlist' => 5,
+    'brevo_sender_email' => 'contact@torinvest-trading.com',
+    'brevo_sender_name' => 'TORINVEST',
+    // 0 = email HTML intégré ; sinon ID template Brevo transactionnel
+    'brevo_template_vip' => 0,
+    'brevo_template_accompagnement' => 0,
 ];
