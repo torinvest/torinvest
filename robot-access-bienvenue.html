@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Paiement reçu — Robot Access TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Merci pour votre abonnement Robot Access. Prochaines étapes : licence, EA MT5 et cockpit AI Access." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/forge-logo.png" type="image/png" />
+  <meta name="theme-color" content="#040407" />
+  <style>
+    :root {
+      --bg: #050509; --card: #11111c; --accent: #ffb400; --accent2: #15d16b;
+      --text: #f5f5f7; --muted: #9a9aad;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #152515 0, #050509 55%);
+      color: var(--text); line-height: 1.6; min-height: 100vh;
+    }
+    .page { max-width: 720px; margin: 0 auto; padding: 32px 18px 80px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 5px 12px; border-radius: 999px;
+      border: 1px solid rgba(21,209,107,0.45); background: rgba(21,209,107,0.1);
+      color: var(--accent2); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: clamp(26px, 5vw, 34px); font-weight: 800; margin-bottom: 10px;
+      background: linear-gradient(120deg, #15d16b, #ffb400);
+      -webkit-background-clip: text; color: transparent;
+    }
+    .lead { color: var(--muted); font-size: 15px; margin-bottom: 24px; max-width: 560px; }
+    .card {
+      background: var(--card); border-radius: 16px; padding: 18px;
+      border: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px;
+    }
+    .card h2 { font-size: 17px; margin-bottom: 8px; color: var(--accent); }
+    .card p, .card li { color: var(--muted); font-size: 14px; margin-bottom: 8px; }
+    .steps { list-style: none; padding: 0; }
+    .steps li {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .steps li:last-child { border-bottom: none; }
+    .num {
+      flex-shrink: 0; width: 28px; height: 28px; border-radius: 999px;
+      background: rgba(255,180,0,0.15); border: 1px solid rgba(255,180,0,0.4);
+      display: grid; place-items: center; font-size: 12px; font-weight: 800; color: var(--accent);
+    }
+    .steps strong { color: var(--text); display: block; margin-bottom: 2px; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 11px 18px; border-radius: 999px; font-size: 13px; font-weight: 700;
+      text-decoration: none; border: 1px solid transparent;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ffb400, #ff8c00); color: #1a1200;
+    }
+    .btn-ghost {
+      border-color: rgba(255,180,0,0.35); color: var(--accent); background: rgba(255,180,0,0.08);
+    }
+    .warn {
+      margin-top: 16px; padding: 12px 14px; border-radius: 12px; font-size: 13px;
+      background: rgba(255,180,0,0.08); border: 1px solid rgba(255,180,0,0.35); color: var(--accent);
+    }
+    .footer-note { font-size: 12px; color: var(--muted); margin-top: 20px; text-align: center; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="pill">✓ Paiement Stripe enregistré</div>
+  <h1>Bienvenue dans Robot Access</h1>
+  <p class="lead">
+    Merci pour ton abonnement TORINVEST. Voici exactement quoi faire ensuite pour activer
+    ta licence, installer l’EA MT5 et ouvrir le cockpit AI Access.
+  </p>
+
+  <div class="card">
+    <h2>Ce que tu reçois par email (sous 24 h ouvrées)</h2>
+    <ul class="steps">
+      <li>
+        <span class="num">📧</span>
+        <div>
+          <strong>Licence TOR-VIP</strong>
+          Clé personnelle liée à ton abonnement.
+        </div>
+      </li>
+      <li>
+        <span class="num">🔑</span>
+        <div>
+          <strong>CopyToken + code d’activation</strong>
+          Jetons privés — ne jamais les partager publiquement.
+        </div>
+      </li>
+      <li>
+        <span class="num">📦</span>
+        <div>
+          <strong>Fichier EA MT5 v1.51</strong>
+          Expert Advisor à installer sur MetaTrader 5.
+        </div>
+      </li>
+    </ul>
+    <div class="warn">
+      Pas d’email après 24 h ouvrées ? Contacte-nous via Discord ou le formulaire contact du site
+      en indiquant l’adresse email utilisée sur Stripe.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Ton parcours en 4 étapes</h2>
+    <ul class="steps">
+      <li>
+        <span class="num">1</span>
+        <div>
+          <strong>Connexion AI Access</strong>
+          Colle ta licence TOR-VIP sur la page de connexion client.
+          <div class="btn-row">
+            <a class="btn btn-primary" href="/ai-access.html">Ouvrir AI Access →</a>
+          </div>
+        </div>
+      </li>
+      <li>
+        <span class="num">2</span>
+        <div>
+          <strong>Installer l’EA sur MT5</strong>
+          Guide pas à pas : WebRequest, paramètres Worker, licence.
+          <div class="btn-row">
+            <a class="btn btn-ghost" href="/tuto-mt5-robot-torinvest.html">Guide MT5 v1.51 →</a>
+          </div>
+        </div>
+      </li>
+      <li>
+        <span class="num">3</span>
+        <div>
+          <strong>Terminal cockpit</strong>
+          Suivi signaux, Smart Money, santé système.
+          <div class="btn-row">
+            <a class="btn btn-ghost" href="/AITORINVEST.html">Ouvrir le terminal →</a>
+          </div>
+        </div>
+      </li>
+      <li>
+        <span class="num">4</span>
+        <div>
+          <strong>Test en démo d’abord</strong>
+          Commence sur compte MT5 démo, lot 0,01, marché ouvert.
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Rappel important</h2>
+    <p>
+      Le trading comporte un risque de perte. Robot Access n’est pas un conseil en investissement.
+      Tu restes seul responsable de ton capital et de la configuration de l’EA.
+    </p>
+    <div class="btn-row">
+      <a class="btn btn-ghost" href="/">Retour accueil</a>
+      <a class="btn btn-ghost" href="/#contact">Contact support</a>
+    </div>
+  </div>
+
+  <p class="footer-note">TORINVEST · Robot Access · Infrastructure Worker + MT5</p>
+</div>
+<script src="/assets/torinvest-rgpd.js" defer></script>
+</body>
+</html>
