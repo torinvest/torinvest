@@ -380,7 +380,7 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
 
  <!-- TorPass RPC (same-origin proxy) -->
 <script src="/assets/torinvest-solana-rpc.js?v=4"></script>
-<script src="/assets/torinvest-torpass.js?v=2"></script>
+<script src="/assets/torinvest-torpass.js?v=3"></script>
 <script>
   const TP = window.TorinvestTorpass;
   const PREMIUM_URL = "/premium.html";
@@ -389,21 +389,34 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
   const walletStatus = document.getElementById("walletStatus");
   const walletBox    = document.getElementById("walletBox");
   const accessPill   = document.getElementById("accessPill");
+  let connectInProgress = false;
 
   async function connectPhantom() {
-    const provider = TP.getPhantomProvider();
+    if (connectInProgress) return;
+    connectInProgress = true;
+    connectBtn.disabled = true;
+    connectBtn.style.opacity = "0.7";
 
-    if (!provider) {
+    let provider;
+    try {
+      provider = await TP.waitForPhantomProvider(5000);
+    } catch (waitErr) {
       walletStatus.textContent = "Aucun wallet Phantom détecté.";
       walletBox.textContent =
-        "Installe Phantom (extension navigateur) ou ouvre cette page dans le navigateur intégré de Phantom, puis réessaie.";
+        (waitErr && waitErr.message ? waitErr.message : "Phantom introuvable.") +
+        "\n\nInstalle Phantom ou ouvre cette page dans le navigateur intégré de Phantom.";
       accessPill.className = "access-pill ko";
       accessPill.textContent = "🔒 Accès verrouillé • Wallet Phantom non détecté.";
+      connectInProgress = false;
+      connectBtn.disabled = false;
+      connectBtn.style.opacity = "";
       return;
     }
 
     let pubkey;
     try {
+      walletStatus.textContent = "Connexion Phantom en cours…";
+      walletBox.textContent = "Accepte la demande dans la popup Phantom si elle s'ouvre.";
       pubkey = await TP.connectWallet(provider);
     } catch (connectErr) {
       if (connectErr && connectErr.code === 4001) {
@@ -412,12 +425,13 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
       } else {
         walletStatus.textContent = "Erreur connexion Phantom.";
         walletBox.textContent =
-          "Impossible de connecter Phantom : " +
-          (connectErr && connectErr.message ? connectErr.message : String(connectErr)) +
-          "\n\nVérifie que Phantom est déverrouillé et réessaie (Ctrl+F5).";
+          "Impossible de connecter Phantom : " + TP.formatConnectError(connectErr);
       }
       accessPill.className = "access-pill ko";
       accessPill.textContent = "🔒 Accès verrouillé • Erreur.";
+      connectInProgress = false;
+      connectBtn.disabled = false;
+      connectBtn.style.opacity = "";
       return;
     }
 
@@ -460,6 +474,10 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
       accessPill.className = "access-pill ko";
       accessPill.textContent = "🔒 Accès verrouillé • Erreur RPC.";
     }
+
+    connectInProgress = false;
+    connectBtn.disabled = false;
+    connectBtn.style.opacity = "";
   }
 
   connectBtn.addEventListener("click", connectPhantom);
