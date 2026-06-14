@@ -8,14 +8,13 @@
 
 define('ROOT_DIR', dirname(__FILE__));
 define('DB_FILE', ROOT_DIR . '/crypto_cache.db');
-define('MISTRAL_API_KEYS', [
-    '5qa H8Rake',
-    'o3rG1z ytu',
-    'vEzQM FruXkF'
-]);
+require_once ROOT_DIR . '/config.php';
 
 function callMistral($messages, $model='mistral-small-2603', $maxTokens=600) {
-    $keys = MISTRAL_API_KEYS;
+    $keys = array_values(array_filter(DEFAULT_MISTRAL_API_KEYS));
+    if ($keys === []) {
+        return null;
+    }
     foreach ($keys as $apiKey) {
         $ch = curl_init('https://api.mistral.ai/v1/chat/completions');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
