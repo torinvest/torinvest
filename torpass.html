@@ -283,6 +283,17 @@
       color: #9ca3af;
       background: rgba(15, 23, 42, 0.9);
     }
+    .edge-hint {
+      display: none;
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(251, 191, 36, 0.55);
+      background: rgba(120, 53, 15, 0.35);
+      color: #fde68a;
+      font-size: 12px;
+      line-height: 1.5;
+    }
     .orb {
       position: absolute;
       width: 120px;
@@ -338,6 +349,7 @@
           <span class="dot"></span>
           <span>Lecture seule : aucun token ne sera déplacé sans ta signature.</span>
         </div>
+        <div id="edgeHint" class="edge-hint" role="note"></div>
       </section>
 
       <aside class="card">
@@ -392,6 +404,17 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
   const walletBox    = document.getElementById("walletBox");
   const accessPill   = document.getElementById("accessPill");
   let connectInProgress = false;
+  var IS_EDGE = /Edg\//.test(navigator.userAgent || "");
+  var EDGE_HINT =
+    "Microsoft Edge bloque souvent Phantom (« Unexpected error »). TorPass fonctionne sur Opera et Firefox. Ouvre cette page dans Opera, ou installe Phantom depuis le Microsoft Edge Add-ons store puis recharge l'extension.";
+
+  if (IS_EDGE) {
+    var edgeEl = document.getElementById("edgeHint");
+    if (edgeEl) {
+      edgeEl.style.display = "block";
+      edgeEl.textContent = "⚠ " + EDGE_HINT;
+    }
+  }
 
   function getPhantomProvider() {
     var p = window.phantom && window.phantom.solana;
@@ -492,12 +515,7 @@ Connecte ton wallet Phantom pour vérifier ton éligibilité à l’espace premi
           walletStatus.textContent = "Erreur connexion Phantom.";
           walletBox.textContent =
             "Impossible de connecter Phantom : " + (err && err.message ? err.message : String(err)) +
-            "\n\nSi « Unexpected error » persiste :\n" +
-            "1. Ctrl+F5 sur cette page\n" +
-            "2. chrome://extensions → Phantom → Recharger\n" +
-            "3. Ferme le panneau Phantom (icône puzzle) avant de cliquer\n" +
-            "4. Teste Firefox ou le navigateur intégré Phantom (app mobile)\n" +
-            "5. Ouvre : https://phantom.app/ul/browse/" + encodeURIComponent(window.location.href);
+            (IS_EDGE ? "\n\n" + EDGE_HINT : "\n\nSi « Unexpected error » persiste : Ctrl+F5, recharge Phantom (chrome://extensions), ou teste Opera/Firefox.");
         }
         accessPill.className = "access-pill ko";
         accessPill.textContent = "🔒 Accès verrouillé • Erreur.";

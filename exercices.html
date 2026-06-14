@@ -444,6 +444,7 @@
           <div class="hint">
             Si ton TorPass est valide, les modules d'exercices se déverrouillent automatiquement.
           </div>
+          <div id="edgeHint" style="display:none;margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid rgba(251,191,36,.55);background:rgba(120,53,15,.35);color:#fde68a;font-size:12px;line-height:1.5" role="note"></div>
         </div>
 
         <section id="exerciseZone" class="exercise-section" style="display:none;">
@@ -504,7 +505,7 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
 
   <!-- TorPass RPC (same-origin proxy) -->
   <script src="/assets/torinvest-solana-rpc.js?v=4"></script>
-  <script src="/assets/torinvest-torpass.js?v=5"></script>
+  <script src="/assets/torinvest-torpass.js?v=6"></script>
   <script>
     const TP = window.TorinvestTorpass;
     const MIN_KRM = 10_000;
@@ -828,6 +829,7 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
     if (connectBtn) {
       connectBtn.addEventListener("click", verifyTorPass);
     }
+    TP.showEdgeBanner("edgeHint");
   </script>
 
   <a href="/" class="back-home-btn">← Retour accueil</a>
