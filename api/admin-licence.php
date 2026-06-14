@@ -80,7 +80,7 @@ if ($method === 'GET') {
     if ($action === 'export') {
         licenceCrmRequireAuth();
         $type = $_GET['type'] ?? null;
-        if ($type !== null && $type !== '' && !in_array($type, ['VIP', 'FORGE'], true)) {
+        if ($type !== null && $type !== '' && !in_array($type, ['VIP', 'FORGE', 'ACCOMPAGNEMENT'], true)) {
             $type = null;
         }
         $csv = licenceCrmExportCsv($type ?: null);
@@ -144,6 +144,9 @@ try {
 
         case 'create_forge':
             licenceCrmJson(licenceCrmCreateForge($input));
+
+        case 'create_accompagnement':
+            licenceCrmJson(licenceCrmCreateAccompagnement($input));
 
         case 'ping':
             licenceCrmJson([

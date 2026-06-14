@@ -51,4 +51,16 @@ return [
 
     // Session CRM (secondes) — 12 h par défaut ; cookie HttpOnly torinvest_admin_licence
     'licence_crm_session_ttl' => 43200,
+
+    // --- Provision automatique (formulaires activation) ---
+    'allow_form_provision' => true,
+    // Secret optionnel pour webhook Netlify (header X-Provision-Key)
+    'provision_webhook_secret' => '',
+
+    // Liens accès accompagnement (publics — affichés après validation licence)
+    'discord_public_url' => 'https://discord.gg/5mSC8gFsT7',
+    'discord_accompagnement_url' => 'https://discord.gg/5mSC8gFsT7',
+    'telegram_public_url' => 'https://t.me/+2qMkEX3KnhowNTU0',
+    'telegram_vip_url' => 'https://t.me/+2qMkEX3KnhowNTU0',
+    'app_formation_login_url' => 'https://app.torinvest-trading.com/login.html',
 ];
