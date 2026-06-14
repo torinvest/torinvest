@@ -344,7 +344,7 @@ function licenceCrmCreateForge(array $input): array
         throw new InvalidArgumentException('Adresse wallet Solana invalide');
     }
 
-    $resp = licenceCrmWorkerPost('/access-code', ['wallet' => $wallet], false);
+    $resp = licenceCrmWorkerPost('/access-code', ['wallet' => $wallet], true);
     if (empty($resp['ok']) || empty($resp['code'])) {
         $err = $resp['error'] ?? ('HTTP ' . ($resp['_httpStatus'] ?? '?'));
         throw new RuntimeException('Génération FORGE échouée : ' . $err);

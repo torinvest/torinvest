@@ -504,10 +504,9 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
 
   <!-- TorPass RPC (same-origin proxy) -->
   <script src="/assets/torinvest-solana-rpc.js?v=3"></script>
+  <script src="/assets/torinvest-torpass.js?v=1"></script>
   <script>
-    const KRM_MINT = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
-    const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
-
+    const TP = window.TorinvestTorpass;
     const MIN_KRM = 10_000;
     const MIN_ORAX = 2_000_000;
 
@@ -652,19 +651,8 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
       ]
     };
 
-    function getPhantomProvider() {
-      if ("phantom" in window) {
-        const provider = window.phantom?.solana;
-        if (provider?.isPhantom) return provider;
-      }
-      if (window.solana && window.solana.isPhantom) {
-        return window.solana;
-      }
-      return null;
-    }
-
     async function verifyTorPass() {
-      const provider = getPhantomProvider();
+      const provider = TP.getPhantomProvider();
 
       if (!provider) {
         walletStatus.textContent = "Aucun wallet Phantom détecté.";
@@ -687,7 +675,7 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour débloquer les exercice
           pubkey +
           "\n\nRécupération des soldes KRM & ORAX en cours...";
 
-        const balances = await TorinvestSolana.readKrmOrax(pubkey, KRM_MINT, ORAX_MINT);
+        const balances = await TP.readBalances(pubkey);
         const krmBalance = balances.krm;
         const oraxBalance = balances.orax;
 

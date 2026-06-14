@@ -519,6 +519,9 @@
           <button id="connectBtn" class="btn-main" onclick="verifyTorPass()">
             🔗 Vérifier mon TorPass
           </button>
+          <p class="hint" style="margin-top:10px;font-size:12px;color:#a69b86">
+            Phantom te demandera de <strong>signer un message</strong> (gratuit, pas de transaction) pour prouver que tu possèdes le wallet.
+          </p>
           <div class="hint">
             Si tu es déjà connecté sur la page <span>/torpass</span>, Phantom confirmera simplement ton accès.
           </div>
@@ -657,15 +660,11 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
     </main>
   </div>
 
-  <!-- TorPass RPC (same-origin proxy) -->
+  <!-- TorPass RPC (same-origin proxy) + wallet signé -->
   <script src="/assets/torinvest-solana-rpc.js?v=3"></script>
+  <script src="/assets/torinvest-torpass.js?v=1"></script>
   <script>
-    const KRM_MINT = "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
-    const ORAX_MINT = "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump";
-
-    const MIN_KRM = 40_000;
-    const MIN_ORAX = 2_000_000;
-
+    const TP = window.TorinvestTorpass;
     const connectBtn   = document.getElementById("connectBtn");
     const walletStatus = document.getElementById("walletStatus");
     const walletBox    = document.getElementById("walletBox");
@@ -674,19 +673,8 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
     const forgeCard    = document.getElementById("forgeCard");
     const forgeCodeValue = document.getElementById("forgeCodeValue");
 
-    function getPhantomProvider() {
-      if ("phantom" in window) {
-        const provider = window.phantom?.solana;
-        if (provider?.isPhantom) return provider;
-      }
-      if (window.solana && window.solana.isPhantom) {
-        return window.solana;
-      }
-      return null;
-    }
-
     async function verifyTorPass() {
-      const provider = getPhantomProvider();
+      const provider = TP.getPhantomProvider();
 
       if (!provider) {
         walletStatus.textContent = "Aucun wallet Phantom détecté.";
@@ -700,94 +688,71 @@ Connecte ton wallet Phantom et vérifie ton TorPass pour déverrouiller l'espace
       }
 
       try {
-        const resp = await provider.connect();
-        const pubkey = resp.publicKey.toString();
+        walletStatus.textContent = "Connexion Phantom…";
+        walletBox.textContent = "Connecte ton wallet et accepte la signature de vérification TorPass.";
 
-        walletStatus.textContent = "Wallet Phantom connecté.";
-        walletBox.textContent =
-          "Adresse : " +
-          pubkey +
-          "\n\nRécupération des soldes KRM & ORAX en cours...";
+        const result = await TP.verifyAndRequestForgeCode(provider);
+        const pubkey = result.wallet;
+        const krmBalance = result.balances ? result.balances.krm : 0;
+        const oraxBalance = result.balances ? result.balances.orax : 0;
+        const hasAccess = result.balances && TP.hasAccess(result.balances);
 
-        const balances = await TorinvestSolana.readKrmOrax(pubkey, KRM_MINT, ORAX_MINT);
-        const krmBalance = balances.krm;
-        const oraxBalance = balances.orax;
-
-        const hasAccess = krmBalance >= MIN_KRM && oraxBalance >= MIN_ORAX;
-
-        // Mise à jour carte TorPass
         const tpAddressEl = document.getElementById("torpassAddress");
         const tpKrmEl     = document.getElementById("torpassKrm");
         const tpOraxEl    = document.getElementById("torpassOrax");
         const tpChipEl    = document.getElementById("torpassStatusChip");
 
-        if (tpAddressEl) tpAddressEl.textContent = pubkey;
+        if (tpAddressEl) tpAddressEl.textContent = pubkey || "—";
         if (tpKrmEl)     tpKrmEl.textContent     = krmBalance.toLocaleString("fr-FR") + " KRM";
         if (tpOraxEl)    tpOraxEl.textContent    = oraxBalance.toLocaleString("fr-FR") + " ORAX";
-
         if (tpChipEl) {
           tpChipEl.textContent = hasAccess ? "✅ TorPass actif" : "🔒 TorPass inactif";
         }
 
-        walletBox.textContent =
-          "Adresse : " + pubkey + "\n" +
-          "Solde KRM : " + krmBalance + "\n" +
-          "Solde ORAX : " + oraxBalance + "\n\n" +
-          (hasAccess
-            ? "TorPass valide. L'espace premium est déverrouillé."
-            : "TorPass insuffisant. Tu peux accumuler plus de KRM et/ou ORAX pour obtenir l'accès complet.");
-
-        if (hasAccess) {
-          accessPill.className = "access-pill ok";
-          accessPill.textContent = "✅ Accès autorisé • Espace premium déverrouillé.";
-          premiumZone.style.display = "block";
-
-          // Code Forgeron originel (TorPass) — route Worker /access-code, distinct de la licence AI Access / MT5
-          try {
-            const resp = await fetch("https://morning-hall-d8f6.onzerimes.workers.dev/access-code", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ wallet: pubkey }),
-            });
-            const text = await resp.text();
-            let data = null;
-            try { data = JSON.parse(text); } catch (e) {}
-
-            if (forgeCard) forgeCard.style.display = "block";
-
-            if (!resp.ok) {
-              const msg = (data && (data.message || data.error)) || text.slice(0, 300);
-              if (forgeCodeValue) forgeCodeValue.textContent = "ERREUR " + resp.status + " : " + msg;
-            } else if (data && data.ok && data.code) {
-              if (forgeCodeValue) forgeCodeValue.textContent = data.code;
-            } else {
-              if (forgeCodeValue) forgeCodeValue.textContent = "Réponse inattendue : " + text.slice(0, 300);
-            }
-          } catch (e) {
-            if (forgeCard) forgeCard.style.display = "block";
-            if (forgeCodeValue) forgeCodeValue.textContent = "Erreur : " + (e.message || String(e));
-          }
-
-        } else {
+        if (!hasAccess) {
+          walletBox.textContent =
+            "Adresse : " + pubkey + "\n" +
+            "Solde KRM : " + krmBalance + "\n" +
+            "Solde ORAX : " + oraxBalance + "\n\n" +
+            "TorPass insuffisant. Seuils : 40 000 KRM et 2 000 000 ORAX.";
           accessPill.className = "access-pill ko";
           accessPill.textContent =
             "🔒 Accès verrouillé • Seuils requis : 40 000 KRM et 2 000 000 ORAX.";
           premiumZone.style.display = "none";
           if (forgeCard) forgeCard.style.display = "none";
+          return;
+        }
+
+        walletStatus.textContent = "Wallet Phantom vérifié.";
+        walletBox.textContent =
+          "Adresse : " + pubkey + "\n" +
+          "Solde KRM : " + krmBalance + "\n" +
+          "Solde ORAX : " + oraxBalance + "\n\n" +
+          "TorPass valide. Espace premium déverrouillé.";
+        accessPill.className = "access-pill ok";
+        accessPill.textContent = "✅ Accès autorisé • Espace premium déverrouillé.";
+        premiumZone.style.display = "block";
+        if (forgeCard) forgeCard.style.display = "block";
+
+        if (result.ok && result.code) {
+          if (forgeCodeValue) forgeCodeValue.textContent = result.code;
+        } else {
+          const msg = result.message || result.error || ("HTTP " + (result._httpStatus || "?"));
+          if (forgeCodeValue) forgeCodeValue.textContent = "ERREUR : " + msg;
         }
       } catch (err) {
         if (err && err.code === 4001) {
-          walletStatus.textContent = "Connexion refusée.";
+          walletStatus.textContent = "Connexion ou signature refusée.";
           walletBox.textContent =
-            "Tu as refusé la connexion de Phantom. Tu pourras réessayer plus tard en cliquant sur le bouton ci-dessus.";
+            "Tu as refusé Phantom. Réessaie en acceptant la connexion et la signature TorPass.";
         } else {
-          walletStatus.textContent = "Erreur lors de la connexion ou de la vérification.";
+          walletStatus.textContent = "Erreur lors de la vérification.";
           walletBox.textContent =
-            "Un problème est survenu lors de la connexion ou de la récupération des soldes. Détails : " +
+            "Problème connexion, soldes ou signature : " +
             (err && err.message ? err.message : String(err));
         }
         accessPill.className = "access-pill ko";
-        accessPill.textContent = "🔒 Accès verrouillé • Erreur de connexion/vérification.";
+        accessPill.textContent = "🔒 Accès verrouillé • Erreur de vérification.";
         premiumZone.style.display = "none";
         if (forgeCard) forgeCard.style.display = "none";
       }
