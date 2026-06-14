@@ -10,6 +10,8 @@ EXCLUDE = {
     "AITORINVEST.html", "AITORINVEST2.html", "dev-access.html", "ai-access.html",
     "accompagnement-access.html", "activation.html",
     "activation-accompagnement.html", "merci.html",
+    "formation-accompagnement.html", "tuto-mt5-robot-torinvest.html",
+    "robot-access-bienvenue.html",
 }
 
 PRIORITY = {
