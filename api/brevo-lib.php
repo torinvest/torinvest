@@ -159,15 +159,25 @@ function brevoSendLicenseEmail(string $planType, array $context): array
     $activationUrl = $planType === 'ACCOMPAGNEMENT'
         ? 'https://www.torinvest-trading.com/activation-accompagnement.html'
         : 'https://www.torinvest-trading.com/activation.html';
+    $successUrl = $planType === 'ACCOMPAGNEMENT'
+        ? 'https://www.torinvest-trading.com/payment-success.html?plan=accompagnement'
+        : 'https://www.torinvest-trading.com/payment-success.html?plan=vip';
 
-    $html = '<p>Bonjour' . ($firstName !== '' ? ' ' . htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') : '') . ',</p>';
+    $html = '<div style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">';
+    $html .= '<div style="background:linear-gradient(135deg,#ffb400,#ff4b5c);padding:18px 22px;border-radius:12px 12px 0 0;">';
+    $html .= '<strong style="color:#1a1200;font-size:18px;">TORINVEST</strong></div>';
+    $html .= '<div style="border:1px solid #eee;border-top:none;padding:22px;border-radius:0 0 12px 12px;">';
+    $html .= '<p>Bonjour' . ($firstName !== '' ? ' <strong>' . htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') . '</strong>' : '') . ',</p>';
     $html .= '<p>Merci pour votre achat <strong>' . htmlspecialchars($productLabel, ENT_QUOTES, 'UTF-8') . '</strong>.</p>';
-    $html .= '<p><strong>Votre clé de licence :</strong><br><code style="font-size:16px;">' . htmlspecialchars($license, ENT_QUOTES, 'UTF-8') . '</code></p>';
+    $html .= '<p style="background:#fff8e6;border:1px solid #ffd36a;border-radius:10px;padding:14px;"><strong>Votre clé de licence</strong><br>';
+    $html .= '<code style="font-size:17px;letter-spacing:.04em;">' . htmlspecialchars($license, ENT_QUOTES, 'UTF-8') . '</code></p>';
     if ($activationCode !== '') {
-        $html .= '<p><strong>Code d’activation MT5 :</strong><br><code>' . htmlspecialchars($activationCode, ENT_QUOTES, 'UTF-8') . '</code></p>';
+        $html .= '<p><strong>Code d’activation MT5 :</strong><br><code style="font-size:15px;">' . htmlspecialchars($activationCode, ENT_QUOTES, 'UTF-8') . '</code></p>';
     }
-    $html .= '<p>Activez votre accès ici : <a href="' . htmlspecialchars($activationUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($activationUrl, ENT_QUOTES, 'UTF-8') . '</a></p>';
-    $html .= '<p>Utilisez le même email que celui utilisé pour le paiement Stripe.</p>';
+    $html .= '<p><a href="' . htmlspecialchars($successUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Voir les prochaines étapes</a></p>';
+    $html .= '<p style="font-size:13px;color:#666;">Complète ensuite ton profil : <a href="' . htmlspecialchars($activationUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($activationUrl, ENT_QUOTES, 'UTF-8') . '</a></p>';
+    $html .= '<p style="font-size:12px;color:#888;">Utilise le même email que celui utilisé pour le paiement Stripe. Pense à vérifier les spams.</p>';
+    $html .= '</div></div>';
 
     return brevoApiRequest('POST', '/smtp/email', [
         'sender' => ['name' => $senderName, 'email' => $senderEmail],
@@ -222,4 +232,72 @@ function brevoSyncAfterProvision(string $planType, array $provisionResult): arra
     }
 
     return $out;
+}
+
+function brevoSyncWaitlistContact(string $email, string $firstName = '', string $lastName = '', array $fields = []): array
+{
+    if (!brevoIsConfigured()) {
+        return ['skipped' => true, 'reason' => 'not_configured'];
+    }
+
+    $listId = brevoListId('waitlist');
+    $out = [];
+    try {
+        $out['contact'] = brevoAddContactToList($email, $listId, $firstName, $lastName, [
+            'SOURCE' => 'torinvest-trading.com',
+            'INTERET' => trim((string) ($fields['interet'] ?? $fields['message'] ?? '')),
+        ]);
+    } catch (Throwable $e) {
+        $out['contact_error'] = $e->getMessage();
+    }
+
+    try {
+        $out['email'] = brevoSendWaitlistWelcomeEmail($email, $firstName);
+    } catch (Throwable $e) {
+        $out['email_error'] = $e->getMessage();
+    }
+
+    return $out;
+}
+
+function brevoSendWaitlistWelcomeEmail(string $email, string $firstName = ''): array
+{
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+    $html = '<p>Bonjour' . ($firstName !== '' ? ' ' . htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') : '') . ',</p>';
+    $html .= '<p>Merci pour ton inscription à la liste d’attente TORINVEST.</p>';
+    $html .= '<p>Tu seras informé des ouvertures, offres et actualités trading IA / Smart Money.</p>';
+    $html .= '<p><a href="https://www.torinvest-trading.com/#pricing">Découvrir les offres TORINVEST</a></p>';
+
+    return brevoApiRequest('POST', '/smtp/email', [
+        'sender' => ['name' => $senderName, 'email' => $senderEmail],
+        'to' => [['email' => strtolower(trim($email)), 'name' => $firstName !== '' ? $firstName : $email]],
+        'subject' => 'TORINVEST — Bienvenue sur la liste d’attente',
+        'htmlContent' => $html,
+    ]);
+}
+
+function brevoSendRenewalEmail(string $planType, array $context): array
+{
+    $email = strtolower(trim((string) ($context['email'] ?? '')));
+    $license = trim((string) ($context['license'] ?? ''));
+    $expires = trim((string) ($context['expires'] ?? ''));
+    $firstName = trim((string) ($context['first_name'] ?? ''));
+    $label = $planType === 'ACCOMPAGNEMENT' ? 'Accompagnement' : 'Robot Access VIP';
+
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+    $html = '<p>Bonjour' . ($firstName !== '' ? ' ' . htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') : '') . ',</p>';
+    $html .= '<p>Ton renouvellement <strong>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</strong> est confirmé.</p>';
+    $html .= '<p>Licence : <code>' . htmlspecialchars($license, ENT_QUOTES, 'UTF-8') . '</code></p>';
+    if ($expires !== '') {
+        $html .= '<p>Nouvelle expiration : <strong>' . htmlspecialchars(substr($expires, 0, 10), ENT_QUOTES, 'UTF-8') . '</strong></p>';
+    }
+
+    return brevoApiRequest('POST', '/smtp/email', [
+        'sender' => ['name' => $senderName, 'email' => $senderEmail],
+        'to' => [['email' => $email, 'name' => $firstName !== '' ? $firstName : $email]],
+        'subject' => 'TORINVEST — Renouvellement confirmé',
+        'htmlContent' => $html,
+    ]);
 }

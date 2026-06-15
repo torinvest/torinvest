@@ -153,6 +153,16 @@ try {
         case 'create_accompagnement':
             licenceCrmJson(licenceCrmCreateAccompagnement($input));
 
+        case 'list_stripe_events':
+            $rows = licenceCrmListStripeEvents((int) ($input['limit'] ?? 100));
+            licenceCrmJson(['ok' => true, 'count' => count($rows), 'events' => $rows]);
+
+        case 'resend_brevo':
+            licenceCrmJson(licenceCrmResendBrevoLicenseEmail(
+                (string) ($input['email'] ?? ''),
+                isset($input['type']) ? (string) $input['type'] : null
+            ));
+
         case 'ping':
             licenceCrmJson([
                 'ok' => true,

@@ -27,7 +27,7 @@ exports.handler = async function (event) {
     (payload.data && payload.data["form-name"]) ||
     "";
 
-  var allowed = ["activation-torinvest", "activation-accompagnement-torinvest"];
+  var allowed = ["activation-torinvest", "activation-accompagnement-torinvest", "liste-attente-torinvest"];
   if (allowed.indexOf(formName) === -1) {
     return {
       statusCode: 200,

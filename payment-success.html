@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>TORINVEST — Paiement confirmé</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/forge-logo.png" type="image/png" />
+  <style>
+    :root{--gold:#ffb400;--gold2:#ffd36a;--red:#ff4b5c;--green:#15d16b;--text:#f6f0df;--muted:#9a9aad;--line:rgba(255,180,0,.24)}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;font-family:system-ui,sans-serif;color:var(--text);background:radial-gradient(circle at 14% 5%,rgba(255,180,0,.18),transparent 31%),linear-gradient(135deg,#020201,#090704 55%,#020201);display:grid;place-items:center;padding:20px}
+    .card{width:min(720px,100%);border:1px solid var(--line);background:linear-gradient(180deg,rgba(18,15,10,.92),rgba(3,3,2,.96));border-radius:28px;padding:34px;box-shadow:0 22px 60px rgba(0,0,0,.62)}
+    .pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(21,209,107,.25);color:#b9ffd8;background:rgba(21,209,107,.08);border-radius:999px;padding:7px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;margin-bottom:16px}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}
+    h1{font-size:clamp(28px,4vw,42px);line-height:1.05;margin-bottom:12px}
+    .grad{background:linear-gradient(115deg,var(--gold2),var(--gold),var(--red));-webkit-background-clip:text;color:transparent}
+    p{color:var(--muted);line-height:1.6;font-size:15px;margin-bottom:14px}
+    .steps{display:grid;gap:10px;margin:22px 0}
+    .step{border:1px solid rgba(255,180,0,.16);background:rgba(0,0,0,.22);border-radius:16px;padding:14px;color:var(--muted);font-size:14px}
+    .step b{color:var(--gold2)}
+    .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border-radius:999px;text-decoration:none;font-weight:800;font-size:14px}
+    .btn-primary{background:linear-gradient(135deg,var(--gold),var(--red));color:#1a1200}
+    .btn-ghost{border:1px solid rgba(255,255,255,.12);color:var(--text);background:rgba(255,255,255,.04)}
+    .back-home-btn{position:fixed;bottom:22px;right:22px;padding:8px 14px;font-size:12px;font-weight:700;text-decoration:none;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#f5f5f7}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="pill"><span class="dot"></span> Paiement Stripe enregistré</div>
+    <h1><span class="grad">Merci !</span> Ton accès est en route.</h1>
+    <p id="intro">Tu recevras ta clé de licence par email sous quelques minutes (vérifie aussi les spams). Utilise le même email que sur Stripe.</p>
+    <div class="steps" id="steps">
+      <div class="step"><b>1.</b> Ouvre ta boîte mail — sujet « TORINVEST — Votre clé de licence ».</div>
+      <div class="step"><b>2.</b> Complète ton profil (Discord, niveau, MT5 si besoin).</div>
+      <div class="step"><b>3.</b> Connecte-toi à ton espace TORINVEST avec ta licence.</div>
+    </div>
+    <div class="actions">
+      <a class="btn btn-primary" id="ctaProfile" href="/activation.html">Compléter mon profil</a>
+      <a class="btn btn-ghost" id="ctaAccess" href="/ai-access.html">Accéder à mon espace</a>
+      <a class="btn btn-ghost" href="/">Retour accueil</a>
+    </div>
+  </main>
+  <a href="/" class="back-home-btn">← Accueil</a>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var plan = (params.get("plan") || "vip").toLowerCase();
+      var isAccomp = plan === "accompagnement" || plan === "formation" || plan === "349";
+      document.getElementById("ctaProfile").href = isAccomp
+        ? "/activation-accompagnement.html"
+        : "/activation.html";
+      document.getElementById("ctaAccess").href = isAccomp
+        ? "/accompagnement-access.html"
+        : "/ai-access.html";
+      if (isAccomp) {
+        document.getElementById("intro").textContent =
+          "Ton accompagnement 349€/an est confirmé. Ta licence TOR-ACCOMPAGNEMENT arrive par email. Utilise le même email que sur Stripe.";
+        document.getElementById("steps").innerHTML =
+          '<div class="step"><b>1.</b> Email avec ta clé TOR-ACCOMPAGNEMENT (vérifie les spams).</div>' +
+          '<div class="step"><b>2.</b> Complète le formulaire accompagnement (Discord, niveau).</div>' +
+          '<div class="step"><b>3.</b> Valide ton accès formation + espace privé.</div>';
+      }
+    })();
+  </script>
+</body>
+</html>

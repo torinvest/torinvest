@@ -53,7 +53,8 @@ return [
     'licence_crm_session_ttl' => 43200,
 
     // --- Provision automatique (formulaires activation) ---
-    'allow_form_provision' => true,
+    // false en prod : licence créée uniquement par webhook Stripe
+    'allow_form_provision' => false,
     // Secret optionnel pour webhook Netlify (header X-Provision-Key)
     'provision_webhook_secret' => '',
 
@@ -61,7 +62,7 @@ return [
     'provision_notify_discord_webhook' => '',
 
     // Si true + secret défini : seul le webhook Netlify peut provisionner (navigateur bloqué)
-    'require_webhook_provision' => false,
+    'require_webhook_provision' => true,
 
     // Liens accès accompagnement (publics — affichés après validation licence)
     'discord_public_url' => 'https://discord.gg/5mSC8gFsT7',

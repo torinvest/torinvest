@@ -451,6 +451,16 @@ function licenceCrmHandleNetlifyFormWebhook(array $input, string $source = 'netl
         throw new InvalidArgumentException('payload_netlify_invalide');
     }
     $formName = $parsed['form_name'];
+
+    if ($formName === 'liste-attente-torinvest') {
+        return licenceCrmHandleWaitlistForm($parsed, $source);
+    }
+
+    $cfg = licenceCrmConfig();
+    if (empty($cfg['allow_form_provision'])) {
+        return licenceCrmHandleNetlifyFormMetadata($input, $source);
+    }
+
     $data = $parsed['data'];
     $netlifyId = $parsed['netlify_id'];
     $email = strtolower(trim((string) ($data['email'] ?? '')));
@@ -1147,6 +1157,321 @@ function licenceCrmNotifyStripeDiscord(array $event): void
     @file_get_contents($url, false, $ctx);
 }
 
+function licenceCrmAppendRecordNotes(int $recordId, string $append): void
+{
+    if ($append === '') {
+        return;
+    }
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare('SELECT notes FROM licence_records WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $recordId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        return;
+    }
+    $existing = trim((string) ($row['notes'] ?? ''));
+    $merged = $existing !== '' ? $existing . "\n---\n" . $append : $append;
+    $upd = $pdo->prepare('UPDATE licence_records SET notes = :notes WHERE id = :id');
+    $upd->execute([':notes' => $merged, ':id' => $recordId]);
+}
+
+function licenceCrmExtendLicenseDays(string $licenseCode, int $days, ?string $stripeRef = null): array
+{
+    $licenseCode = trim($licenseCode);
+    if ($licenseCode === '') {
+        throw new InvalidArgumentException('licence_manquante');
+    }
+    if ($days < 1) {
+        $days = 30;
+    }
+
+    $extend = licenceCrmWorkerPost('/license/extend', [
+        'license' => $licenseCode,
+        'days' => $days,
+    ], true);
+
+    if (empty($extend['ok'])) {
+        $err = $extend['error'] ?? ('HTTP ' . ($extend['_httpStatus'] ?? '?'));
+        throw new RuntimeException('Prolongation licence échouée : ' . $err);
+    }
+
+    $pdo = licenceCrmPdo();
+    $sql = 'UPDATE licence_records SET expires_at = :expires, status = :status';
+    $params = [
+        ':expires' => (string) ($extend['expires'] ?? ''),
+        ':status' => (string) ($extend['status'] ?? 'active'),
+        ':license' => $licenseCode,
+    ];
+    if ($stripeRef !== null && $stripeRef !== '') {
+        $sql .= ', stripe_ref = :stripe_ref';
+        $params[':stripe_ref'] = $stripeRef;
+    }
+    $sql .= ' WHERE license_code = :license';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+
+    return [
+        'ok' => true,
+        'extended' => true,
+        'license' => $licenseCode,
+        'expires' => (string) ($extend['expires'] ?? ''),
+        'days' => $days,
+    ];
+}
+
+function licenceCrmResolveRenewalFromInvoice(array $invoice): ?array
+{
+    $amount = (int) ($invoice['amount_paid'] ?? $invoice['total'] ?? 0);
+    $definitions = licenceCrmStripePlanDefinitions();
+    foreach ($definitions as $key => $def) {
+        if (in_array($amount, $def['amounts'], true)) {
+            return $def + ['plan_key' => $key];
+        }
+    }
+    return null;
+}
+
+function licenceCrmHandleStripeInvoiceRenewal(array $invoice): array
+{
+    $billingReason = (string) ($invoice['billing_reason'] ?? '');
+    if ($billingReason === 'subscription_create') {
+        return ['ok' => true, 'ignored' => true, 'reason' => 'first_invoice_via_checkout'];
+    }
+
+    $email = strtolower(trim((string) ($invoice['customer_email'] ?? '')));
+    if ($email === '' && !empty($invoice['customer_details']['email'])) {
+        $email = strtolower(trim((string) $invoice['customer_details']['email']));
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('email_stripe_manquant');
+    }
+
+    $plan = licenceCrmResolveRenewalFromInvoice($invoice);
+    if ($plan === null) {
+        throw new InvalidArgumentException('montant_facture_inconnu');
+    }
+
+    $type = (string) $plan['type'];
+    $existing = licenceCrmFindActiveByEmailPlan($email, $type);
+    if (!$existing || empty($existing['license_code'])) {
+        throw new RuntimeException('licence_introuvable_pour_renouvellement');
+    }
+
+    $stripeRef = trim((string) ($invoice['payment_intent'] ?? $invoice['id'] ?? ''));
+    $extended = licenceCrmExtendLicenseDays((string) $existing['license_code'], (int) $plan['days'], $stripeRef);
+
+    $extended['email'] = $email;
+    $extended['type'] = $type;
+    $extended['reused'] = true;
+    $extended['renewal'] = true;
+
+    if (trim((string) (licenceCrmConfig()['brevo_api_key'] ?? '')) !== '') {
+        require_once __DIR__ . '/brevo-lib.php';
+        brevoSendRenewalEmail($type, [
+            'email' => $email,
+            'first_name' => (string) ($existing['first_name'] ?? ''),
+            'license' => (string) $existing['license_code'],
+            'expires' => (string) ($extended['expires'] ?? ''),
+        ]);
+    }
+
+    return $extended;
+}
+
+function licenceCrmHandleWaitlistForm(array $parsed, string $source = 'netlify_webhook'): array
+{
+    $data = $parsed['data'];
+    $email = strtolower(trim((string) ($data['email'] ?? '')));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('email_waitlist_invalide');
+    }
+
+    [$firstName, $lastName] = licenceCrmSplitName((string) ($data['name'] ?? $data['nom'] ?? ''));
+    $brevoResult = null;
+    if (trim((string) (licenceCrmConfig()['brevo_api_key'] ?? '')) !== '') {
+        require_once __DIR__ . '/brevo-lib.php';
+        $brevoResult = brevoSyncWaitlistContact($email, $firstName, $lastName, $data);
+    }
+
+    $logId = licenceFormSubmissionLog([
+        'form_name' => 'liste-attente-torinvest',
+        'email' => $email,
+        'netlify_id' => $parsed['netlify_id'] ?? '',
+        'netlify_number' => $parsed['netlify_number'] ?? null,
+        'source' => $source,
+        'provision_ok' => 1,
+        'license_code' => null,
+        'error' => null,
+        'payload' => ['form_name' => 'liste-attente-torinvest', 'data' => $data],
+    ]);
+
+    return [
+        'ok' => true,
+        'waitlist' => true,
+        'email' => $email,
+        'submission_id' => $logId,
+        'brevo' => $brevoResult,
+    ];
+}
+
+function licenceCrmHandleNetlifyFormMetadata(array $input, string $source = 'netlify_webhook'): array
+{
+    $parsed = licenceProvisionParseNetlifyPayload($input);
+    if ($parsed === null) {
+        throw new InvalidArgumentException('payload_netlify_invalide');
+    }
+
+    $formName = $parsed['form_name'];
+    $data = $parsed['data'];
+    $email = strtolower(trim((string) ($data['email'] ?? '')));
+    $netlifyId = $parsed['netlify_id'];
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('email_invalide');
+    }
+
+    $type = $formName === 'activation-accompagnement-torinvest' ? 'ACCOMPAGNEMENT' : 'VIP';
+    $existing = licenceCrmFindActiveByEmailPlan($email, $type);
+    $error = null;
+
+    if ($existing) {
+        $noteParts = array_filter([
+            'Formulaire metadata ' . gmdate('Y-m-d H:i') . ' UTC',
+            !empty($data['discord']) ? 'Discord: ' . trim((string) $data['discord']) : null,
+            !empty($data['level']) ? 'Niveau: ' . trim((string) $data['level']) : null,
+            !empty($data['message']) ? 'Message: ' . trim((string) $data['message']) : null,
+            !empty($data['plan']) ? 'Offre: ' . trim((string) $data['plan']) : null,
+        ]);
+        licenceCrmAppendRecordNotes((int) $existing['id'], implode("\n", $noteParts));
+    } else {
+        $error = 'licence_introuvable_verifie_email_paiement';
+    }
+
+    $logId = licenceFormSubmissionLog([
+        'form_name' => $formName,
+        'email' => $email,
+        'netlify_id' => $netlifyId,
+        'netlify_number' => $parsed['netlify_number'],
+        'source' => $source,
+        'provision_ok' => $existing ? 1 : 0,
+        'license_code' => $existing['license_code'] ?? null,
+        'error' => $error,
+        'payload' => ['form_name' => $formName, 'data' => $data, 'metadata_only' => true],
+    ]);
+
+    licenceCrmNotifyProvisionDiscord([
+        'form_name' => $formName,
+        'email' => $email,
+        'provision_ok' => (bool) $existing,
+        'license_code' => $existing['license_code'] ?? '',
+        'error' => $error ?? '',
+        'source' => $source . '_metadata',
+    ]);
+
+    return [
+        'ok' => true,
+        'metadata_only' => true,
+        'email' => $email,
+        'type' => $type,
+        'license' => $existing['license_code'] ?? null,
+        'submission_id' => $logId,
+        'message' => $existing
+            ? 'Profil complété — licence déjà envoyée par email après paiement.'
+            : 'Profil enregistré — aucune licence trouvée pour cet email (vérifie le paiement Stripe).',
+    ];
+}
+
+function licenceCrmListStripeEvents(int $limit = 100): array
+{
+    $pdo = licenceCrmPdo();
+    $limit = max(1, min(500, $limit));
+    $stmt = $pdo->query('SELECT * FROM stripe_webhook_events ORDER BY id DESC LIMIT ' . $limit);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
+
+function licenceCrmResendBrevoLicenseEmail(string $email, ?string $type = null): array
+{
+    $email = strtolower(trim($email));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('Email invalide');
+    }
+
+    $types = $type && in_array($type, ['VIP', 'ACCOMPAGNEMENT'], true)
+        ? [$type]
+        : ['VIP', 'ACCOMPAGNEMENT'];
+
+    $record = null;
+    foreach ($types as $t) {
+        $record = licenceCrmFindActiveByEmailPlan($email, $t);
+        if ($record) {
+            $type = $t;
+            break;
+        }
+    }
+
+    if (!$record || empty($record['license_code'])) {
+        throw new RuntimeException('Aucune licence active pour cet email');
+    }
+
+    if (trim((string) (licenceCrmConfig()['brevo_api_key'] ?? '')) === '') {
+        throw new RuntimeException('brevo_api_key manquant');
+    }
+
+    require_once __DIR__ . '/brevo-lib.php';
+    $sent = brevoSendLicenseEmail((string) $type, [
+        'email' => $email,
+        'first_name' => (string) ($record['first_name'] ?? ''),
+        'last_name' => (string) ($record['last_name'] ?? ''),
+        'license' => (string) $record['license_code'],
+        'activation_code' => (string) ($record['activation_code'] ?? ''),
+        'access_links' => licenceCrmAccessLinks(),
+    ]);
+
+    return [
+        'ok' => true,
+        'resent' => true,
+        'email' => $email,
+        'type' => $type,
+        'license' => (string) $record['license_code'],
+        'brevo' => $sent,
+    ];
+}
+
+function licenceCrmNotifyStripePaymentFailed(array $invoice): void
+{
+    $cfg = licenceCrmConfig();
+    $url = trim((string) ($cfg['provision_notify_discord_webhook'] ?? ''));
+    if ($url === '') {
+        return;
+    }
+
+    $email = (string) ($invoice['customer_email'] ?? '—');
+    $amount = (int) ($invoice['amount_due'] ?? 0);
+    $body = json_encode([
+        'embeds' => [[
+            'title' => 'Stripe — échec paiement / renouvellement',
+            'color' => 15548997,
+            'fields' => [
+                ['name' => 'Email', 'value' => $email, 'inline' => true],
+                ['name' => 'Montant dû', 'value' => number_format($amount / 100, 2, ',', ' ') . ' €', 'inline' => true],
+                ['name' => 'Facture', 'value' => '`' . (string) ($invoice['id'] ?? '') . '`', 'inline' => false],
+            ],
+            'timestamp' => gmdate('c'),
+        ]],
+    ], JSON_UNESCAPED_UNICODE);
+
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\n",
+            'content' => $body,
+            'timeout' => 8,
+            'ignore_errors' => true,
+        ],
+    ]);
+    @file_get_contents($url, false, $ctx);
+}
+
 function licenceCrmHandleStripeEvent(array $event): array
 {
     $eventId = (string) ($event['id'] ?? '');
@@ -1163,11 +1488,17 @@ function licenceCrmHandleStripeEvent(array $event): array
         ];
     }
 
+    $ignoredTypes = ['checkout.session.async_payment_failed', 'checkout.session.expired'];
+    if (in_array($eventType, $ignoredTypes, true)) {
+        return ['ok' => true, 'ignored' => true, 'event_type' => $eventType];
+    }
+
     $result = null;
     $error = null;
     $planType = null;
     $email = null;
     $stripeRef = null;
+    $logOk = false;
 
     try {
         if ($eventType === 'checkout.session.completed') {
@@ -1176,11 +1507,29 @@ function licenceCrmHandleStripeEvent(array $event): array
             $planType = (string) ($result['type'] ?? $result['plan_key'] ?? '');
             $email = (string) ($result['email'] ?? '');
             $stripeRef = (string) ($result['stripe_ref'] ?? '');
+            $logOk = !empty($result['ok']);
 
             if (trim((string) (licenceCrmConfig()['brevo_api_key'] ?? '')) !== '') {
                 require_once __DIR__ . '/brevo-lib.php';
                 $result['brevo'] = brevoSyncAfterProvision($planType, $result);
             }
+        } elseif ($eventType === 'invoice.paid') {
+            $invoice = is_array($event['data']['object'] ?? null) ? $event['data']['object'] : [];
+            $result = licenceCrmHandleStripeInvoiceRenewal($invoice);
+            if (!empty($result['ignored'])) {
+                return ['ok' => true, 'ignored' => true, 'event_type' => $eventType, 'reason' => $result['reason'] ?? ''];
+            }
+            $planType = (string) ($result['type'] ?? '');
+            $email = (string) ($result['email'] ?? '');
+            $stripeRef = trim((string) ($invoice['payment_intent'] ?? $invoice['id'] ?? ''));
+            $logOk = !empty($result['ok']);
+        } elseif ($eventType === 'invoice.payment_failed') {
+            $invoice = is_array($event['data']['object'] ?? null) ? $event['data']['object'] : [];
+            licenceCrmNotifyStripePaymentFailed($invoice);
+            $email = (string) ($invoice['customer_email'] ?? '');
+            $stripeRef = (string) ($invoice['id'] ?? '');
+            $logOk = true;
+            $result = ['ok' => true, 'notified' => true, 'event_type' => $eventType];
         } else {
             return [
                 'ok' => true,
@@ -1198,7 +1547,7 @@ function licenceCrmHandleStripeEvent(array $event): array
         'stripe_ref' => $stripeRef,
         'email' => $email,
         'plan_type' => $planType,
-        'provision_ok' => $result && !empty($result['ok']),
+        'provision_ok' => $logOk && $error === null,
         'license_code' => $result['license'] ?? $result['code'] ?? null,
         'error' => $error,
         'payload' => [
@@ -1209,14 +1558,16 @@ function licenceCrmHandleStripeEvent(array $event): array
         ],
     ]);
 
-    licenceCrmNotifyStripeDiscord([
-        'provision_ok' => $result && !empty($result['ok']),
-        'email' => $email ?? '',
-        'license_code' => $result['license'] ?? $result['code'] ?? '',
-        'error' => $error ?? '',
-        'plan_type' => $planType ?? '',
-        'stripe_ref' => $stripeRef ?? '',
-    ]);
+    if ($eventType !== 'invoice.payment_failed') {
+        licenceCrmNotifyStripeDiscord([
+            'provision_ok' => $logOk && $error === null,
+            'email' => $email ?? '',
+            'license_code' => $result['license'] ?? $result['code'] ?? '',
+            'error' => $error ?? '',
+            'plan_type' => $planType ?? ($eventType === 'invoice.paid' ? 'renewal' : ''),
+            'stripe_ref' => $stripeRef ?? '',
+        ]);
+    }
 
     if ($error !== null) {
         throw new RuntimeException($error);

@@ -84,10 +84,11 @@ curl -s -X POST https://radar.torinvest-trading.com/api/license-provision.php \
 
 | `form_name` | Produit | Licence |
 |-------------|---------|---------|
-| `activation-torinvest` | Robot Access 79€ | `TOR-VIP-…` |
-| `activation-accompagnement-torinvest` | Accompagnement 349€ | `TOR-ACCOMPAGNEMENT-…` |
+| `activation-torinvest` | Robot Access 79€ | Profil client (licence via Stripe) |
+| `activation-accompagnement-torinvest` | Accompagnement 349€ | Profil client (licence via Stripe) |
+| `liste-attente-torinvest` | Waitlist site | Brevo liste #5 + email bienvenue |
 
-Les autres formulaires Netlify (waitlist, formation…) sont ignorés par la function.
+Les formulaires activation **n’ créent plus** de licence si `allow_form_provision => false` — seul le webhook Stripe provisionne.
 
 ---
 

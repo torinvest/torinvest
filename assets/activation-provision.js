@@ -1,5 +1,5 @@
 /**
- * Provision automatique licence après formulaire d'activation Netlify.
+ * Formulaires activation — envoi metadata Netlify (licence via Stripe + email Brevo).
  */
 (function () {
   "use strict";
@@ -16,39 +16,6 @@
     return payload;
   }
 
-  function provisionFromPayload(formName, fields) {
-    var payload = { action: "provision_vip" };
-    if (formName === "activation-accompagnement-torinvest") {
-      payload.action = "provision_accompagnement";
-    }
-    Object.keys(fields || {}).forEach(function (key) {
-      if (key === "form-name" || key === "bot-field") return;
-      payload[key] = fields[key];
-    });
-    return fetch(API, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then(function (r) {
-        return r.text().then(function (text) {
-          try {
-            return JSON.parse(text);
-          } catch (e) {
-            return { ok: false, error: "invalid_response", httpStatus: r.status, raw: text.slice(0, 120) };
-          }
-        });
-      })
-      .catch(function () {
-        return { ok: false, error: "network_error" };
-      });
-  }
-
-  function provisionAfterForm(formName, form) {
-    return provisionFromPayload(formName, snapshotForm(form));
-  }
-
   function submitNetlifyForm(form) {
     var data = new FormData(form);
     return fetch("/", { method: "POST", body: data })
@@ -58,6 +25,28 @@
       .catch(function () {
         return { ok: false, status: 0, error: "network_error" };
       });
+  }
+
+  function formatMetadataSuccess(kind) {
+    var activationUrl =
+      kind === "accompagnement"
+        ? "/activation-accompagnement.html"
+        : "/activation.html";
+    var accessUrl =
+      kind === "accompagnement"
+        ? "/accompagnement-access.html"
+        : "/ai-access.html";
+    return (
+      '<br><br><span class="ok">Profil enregistré.</span><br>' +
+      '<span class="warn">Rappel :</span> ta licence est envoyée par email après paiement Stripe (vérifie les spams).<br>' +
+      'Utilise le même email que sur Stripe.<br><br>' +
+      '<a href="' +
+      accessUrl +
+      '" style="color:var(--gold2)">Accéder à mon espace →</a><br>' +
+      '<a href="/payment-success.html?plan=' +
+      (kind === "accompagnement" ? "accompagnement" : "vip") +
+      '" style="color:var(--gold2)">Voir le parcours après paiement →</a>'
+    );
   }
 
   function formatProvisionSuccess(data, kind) {
@@ -95,11 +84,38 @@
     );
   }
 
+  function submitActivationForm(formName, form, kind) {
+    submitBtnSafe(form, true);
+    return submitNetlifyForm(form).then(function (netlify) {
+      submitBtnSafe(form, false);
+      if (!netlify.ok) {
+        return {
+          ok: false,
+          html:
+            '<span class="bad">Échec envoi.</span><br>Netlify HTTP ' +
+            (netlify.status || "?") +
+            ". Réessaie ou contacte TORINVEST avec ton email de paiement.",
+        };
+      }
+      return {
+        ok: true,
+        html:
+          '<span class="ok">Merci — informations reçues.</span>' +
+          formatMetadataSuccess(kind),
+      };
+    });
+  }
+
+  function submitBtnSafe(form, disabled) {
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = disabled;
+  }
+
   window.TORINVEST_ACTIVATION = {
     snapshotForm: snapshotForm,
-    provisionFromPayload: provisionFromPayload,
-    provisionAfterForm: provisionAfterForm,
-    formatProvisionSuccess: formatProvisionSuccess,
     submitNetlifyForm: submitNetlifyForm,
+    submitActivationForm: submitActivationForm,
+    formatMetadataSuccess: formatMetadataSuccess,
+    formatProvisionSuccess: formatProvisionSuccess,
   };
 })();

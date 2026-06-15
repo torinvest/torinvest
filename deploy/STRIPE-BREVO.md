@@ -16,7 +16,7 @@ Depuis le VPS (ou curl GitHub après push `main`) :
 ```bash
 API_DIR="/var/www/torinvest/api"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/main/api"
-for f in admin-licence-lib.php brevo-lib.php stripe-lib.php stripe-webhook.php; do
+for f in admin-licence-lib.php brevo-lib.php stripe-lib.php stripe-webhook.php admin-licence.php license-provision.php; do
   sudo curl -fsSL -o "/tmp/$f" "$BASE/$f" && sudo mv "/tmp/$f" "$API_DIR/$f"
 done
 sudo chown www-data:www-data "$API_DIR"/*.php
@@ -52,6 +52,8 @@ sudo php -l "$API_DIR/stripe-webhook.php"
 2. **URL** : `https://radar.torinvest-trading.com/api/stripe-webhook.php`
 3. **Événements** :
    - `checkout.session.completed`
+   - `invoice.paid` (renouvellements VIP / accompagnement)
+   - `invoice.payment_failed` (alerte admin)
 4. Copier le **Signing secret** (`whsec_…`) → `stripe_webhook_secret` sur le VPS
 
 > Si tu as déjà un webhook Stripe ailleurs, tu peux **ajouter cette URL** en parallèle ou remplacer l’ancienne — pas besoin de tout refaire, seulement pointer vers le radar.
@@ -108,7 +110,17 @@ sudo sqlite3 /var/www/torinvest/api/data/licence-crm.sqlite \
 
 ---
 
-## Mapping produits
+## Worker Cloudflare — renouvellements
+
+Déploie aussi le Worker (`wrangler deploy`) pour activer `POST /license/extend` (prolongation VIP / accompagnement sur renouvellement Stripe).
+
+---
+
+## Payment Links — URL après paiement
+
+Voir `deploy/PAYMENT-LINKS.md`.
+
+---
 
 | Payment Link | Plan | Liste Brevo | Jours licence |
 |--------------|------|-------------|---------------|
