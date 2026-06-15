@@ -563,6 +563,24 @@ function licenceCrmCreateVip(array $input): array
         $plan = 'VIP';
     }
 
+    $existing = licenceCrmFindActiveByEmailPlan($email, 'VIP');
+    if ($existing && !empty($existing['license_code'])) {
+        return [
+            'ok' => true,
+            'reused' => true,
+            'id' => (int) $existing['id'],
+            'type' => 'VIP',
+            'license' => (string) $existing['license_code'],
+            'activationCode' => (string) ($existing['activation_code'] ?? ''),
+            'expires' => (string) ($existing['expires_at'] ?? ''),
+            'status' => (string) ($existing['status'] ?? 'pending_activation'),
+            'mt5Account' => !empty($existing['mt5_account']) ? (string) $existing['mt5_account'] : null,
+            'email' => $email,
+            'plan' => $plan,
+            'days' => (int) ($existing['days'] ?? $days),
+        ];
+    }
+
     $create = licenceCrmWorkerPost('/license/create', [
         'email' => $email,
         'plan' => $plan,
@@ -936,7 +954,7 @@ function licenceCrmStripePlanDefinitions(): array
             'days' => (int) ($cfg['stripe_vip_days'] ?? 30),
             'amounts' => array_values(array_filter(array_map('intval', (array) ($cfg['stripe_vip_amounts'] ?? [7900])))),
             'payment_link_ids' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_vip_ids'] ?? [])))),
-            'payment_link_slugs' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_vip_slugs'] ?? ['eVq14nclt5XV3ka0zFd7q02', '28E28rbhpdqn5si827d7q00'])))),
+            'payment_link_slugs' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_vip_slugs'] ?? ['eVq14nclt5XV3ka0zFd7q02'])))),
             'price_ids' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_price_vip_ids'] ?? [])))),
             'metadata_values' => ['vip', 'robot', 'robot_access'],
         ],
@@ -1074,6 +1092,35 @@ function licenceCrmProvisionFromStripeCheckout(array $session): array
                 'plan_key' => $plan['plan_key'],
             ];
         }
+    }
+
+    $existingByEmail = licenceCrmFindActiveByEmailPlan($ctx['email'], (string) $plan['type']);
+    if ($existingByEmail && !empty($existingByEmail['license_code'])) {
+        $extended = licenceCrmExtendLicenseDays(
+            (string) $existingByEmail['license_code'],
+            (int) $plan['days'],
+            $ctx['stripe_ref'] !== '' ? $ctx['stripe_ref'] : null
+        );
+        $result = array_merge($extended, [
+            'reused' => true,
+            'extended' => true,
+            'dedupe_reason' => 'email_active_checkout',
+            'email' => $ctx['email'],
+            'type' => (string) $plan['type'],
+            'plan_key' => $plan['plan_key'],
+            'first_name' => $ctx['first_name'],
+            'last_name' => $ctx['last_name'],
+            'stripe_ref' => $ctx['stripe_ref'],
+            'license' => (string) $existingByEmail['license_code'],
+        ]);
+        if ($plan['type'] === 'VIP') {
+            $result['activationCode'] = (string) ($existingByEmail['activation_code'] ?? '');
+            $result['status'] = (string) ($existingByEmail['status'] ?? 'pending_activation');
+        }
+        if ($plan['type'] === 'ACCOMPAGNEMENT') {
+            $result['accessLinks'] = licenceCrmAccessLinks();
+        }
+        return $result;
     }
 
     if ($plan['type'] === 'ACCOMPAGNEMENT') {

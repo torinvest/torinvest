@@ -14,6 +14,12 @@ Formulaire activation → metadata seulement (pas de nouvelle licence si déjà 
 Depuis le VPS (ou curl GitHub après push `main`) :
 
 ```bash
+bash /var/www/torinvest/deploy/vps/pull-api.sh
+```
+
+Ou manuellement :
+
+```bash
 API_DIR="/var/www/torinvest/api"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/main/api"
 for f in admin-licence-lib.php brevo-lib.php stripe-lib.php stripe-webhook.php admin-licence.php license-provision.php; do

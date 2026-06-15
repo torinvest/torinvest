@@ -1,107 +1,86 @@
-# Automatisation formulaires Netlify → licences TORINVEST
+# Automatisation formulaires Netlify → radar TORINVEST
 
-## Principe
+## Principe (production)
 
-1. L’utilisateur envoie le formulaire Netlify (comme aujourd’hui).
-2. **Netlify Function** `submission-created` appelle automatiquement le radar.
-3. Le radar génère la licence, **loggue** la soumission en SQLite et envoie une **alerte Discord** (optionnel).
-4. Le navigateur peut toujours afficher la licence immédiatement (double sécurité).
-
-Plus besoin de surveiller manuellement le dashboard Netlify Forms.
+1. **Paiement Stripe** → webhook radar → licence Worker + email Brevo.
+2. **Formulaire activation** → metadata profil seulement (Discord, niveau) — **pas** de nouvelle licence.
+3. **Netlify Function** `submission-created` appelle le radar à chaque soumission (waitlist + profils).
 
 ---
 
-## 1. Générer un secret partagé
-
-Sur ton PC ou le VPS :
+## 1. Secret partagé Netlify ↔ radar
 
 ```bash
 openssl rand -hex 32
 ```
 
-Copie la valeur (ex. `a1b2c3…`).
-
 ---
 
-## 2. Configurer le VPS radar (`config.local.php`)
-
-Ajoute ou mets à jour :
+## 2. VPS radar (`config.local.php`)
 
 ```php
 'provision_webhook_secret' => 'COLLE_TON_SECRET_ICI',
-'allow_form_provision' => true,
-// Optionnel : désactive la provision directe navigateur (webhook seulement)
-// 'require_webhook_provision' => false,
-
-// Alertes admin Discord (webhook serveur privé admin)
+'allow_form_provision' => false,
+'require_webhook_provision' => true,
+'stripe_webhook_secret' => 'whsec_…',
+// Alertes admin Discord (optionnel)
 'provision_notify_discord_webhook' => 'https://discord.com/api/webhooks/…',
 ```
 
-Puis redéploie les fichiers PHP (`pull-api.sh` ou curl GitHub).
+Puis : `bash deploy/vps/pull-api.sh` (ou curl GitHub).
 
 ---
 
-## 3. Variables d’environnement Netlify
-
-Site Netlify → **Site configuration** → **Environment variables** :
+## 3. Variables Netlify
 
 | Variable | Valeur |
 |----------|--------|
-| `PROVISION_WEBHOOK_SECRET` | **Même secret** que `provision_webhook_secret` radar |
+| `PROVISION_WEBHOOK_SECRET` | Même secret que `provision_webhook_secret` |
 | `PROVISION_RADAR_URL` | `https://radar.torinvest-trading.com/api/license-provision.php` (optionnel) |
 
 ---
 
-## 4. Déployer le site (Netlify)
+## 4. Déployer
 
-Push `main` sur GitHub → Netlify rebuild.
-
-Le fichier `netlify/functions/submission-created.js` est déclenché **automatiquement** à chaque soumission de formulaire.
+Push `main` → Netlify rebuild. La Function `netlify/functions/submission-created.js` tourne à chaque soumission.
 
 ---
 
 ## 5. Vérifier
 
-1. Envoie un formulaire test sur `/activation-accompagnement.html`
-2. Vérifie :
-   - licence affichée à l’écran
-   - entrée dans **CRM → Surveillance formulaires**
-   - message Discord admin (si webhook configuré)
-3. Logs Netlify : **Functions** → `submission-created`
+1. Paiement test Stripe → licence dans CRM + email Brevo.
+2. Formulaire `/activation-accompagnement.html` → entrée **Surveillance Netlify** (metadata), pas de nouvelle clé.
+3. Waitlist → contact Brevo liste #5.
 
-Test manuel webhook (VPS) :
+Test webhook radar :
 
 ```bash
 curl -s -X POST https://radar.torinvest-trading.com/api/license-provision.php \
   -H "Content-Type: application/json" \
   -H "X-Provision-Key: TON_SECRET" \
-  -d '{"form_name":"activation-accompagnement-torinvest","data":{"email":"test2@example.com","name":"Test","form-name":"activation-accompagnement-torinvest"}}'
+  -d '{"form_name":"activation-accompagnement-torinvest","data":{"email":"test@example.com","name":"Test","form-name":"activation-accompagnement-torinvest"}}'
 ```
+
+Réponse attendue : `metadata_only` ou log profil — **pas** de nouvelle licence si `allow_form_provision` est `false`.
 
 ---
 
 ## Formulaires surveillés
 
-| `form_name` | Produit | Licence |
-|-------------|---------|---------|
-| `activation-torinvest` | Robot Access 79€ | Profil client (licence via Stripe) |
-| `activation-accompagnement-torinvest` | Accompagnement 349€ | Profil client (licence via Stripe) |
-| `liste-attente-torinvest` | Waitlist site | Brevo liste #5 + email bienvenue |
-
-Les formulaires activation **n’ créent plus** de licence si `allow_form_provision => false` — seul le webhook Stripe provisionne.
+| `form_name` | Rôle |
+|-------------|------|
+| `activation-torinvest` | Profil VIP (licence via Stripe) |
+| `activation-accompagnement-torinvest` | Profil accompagnement (licence via Stripe) |
+| `liste-attente-torinvest` | Brevo liste #5 + email bienvenue |
 
 ---
 
-## Fallback : webhook Netlify UI (sans Function)
+## Fallback sans Function
 
-Si la Function ne tourne pas, tu peux ajouter un **Outgoing webhook** dans Netlify :
-
-**Forms → Form notifications → Outgoing webhook**
-
-URL :
+Netlify → **Forms** → **Outgoing webhook** :
 
 ```
 https://radar.torinvest-trading.com/api/license-provision.php?provision_key=TON_SECRET
 ```
 
-Le radar accepte le secret en query string ou header `X-Provision-Key`.
+Secret aussi accepté en header `X-Provision-Key`.
