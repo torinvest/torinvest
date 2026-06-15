@@ -1,0 +1,116 @@
+<!--
+  TORINVEST — Template Brevo Accompagnement (349€/an)
+  Brevo → Campagnes → Transactionnel → Modèles → Coller le HTML
+  Objet : TORINVEST — Votre clé Accompagnement Trading
+  Variables : {{ params.PRENOM }} {{ params.LICENCE }} {{ params.ACTIVATION_URL }}
+              {{ params.FORMATION_URL }} {{ params.DISCORD_URL }}
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TORINVEST — Accompagnement</title>
+</head>
+<body style="margin:0;padding:0;background-color:#030303;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#030303;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#1a1408 0%,#120a06 50%,#0a0a0a 100%);border:1px solid #3d3010;border-radius:16px 16px 0 0;padding:0;text-align:center;overflow:hidden;">
+              <img src="https://www.torinvest-trading.com/forge-logo.png" alt="TORINVEST La Forge" width="600" style="display:block;width:100%;max-width:600px;height:auto;opacity:0.95;" />
+              <div style="padding:20px 32px 28px;">
+                <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#ffd36a;font-weight:bold;">La Forge · Accompagnement</p>
+                <h1 style="margin:0;font-size:24px;line-height:1.2;color:#ffb400;">Formation &amp; suivi trading</h1>
+                <p style="margin:10px 0 0;font-size:13px;color:#9a9080;">349€/an · Smart Money · ICT · Macro</p>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Corps -->
+          <tr>
+            <td style="background-color:#0c0b09;border-left:1px solid #3d3010;border-right:1px solid #3d3010;padding:32px 32px 24px;">
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#f6f0df;">
+                Bonjour <strong style="color:#ffd36a;">{{ params.PRENOM }}</strong>,
+              </p>
+              <p style="margin:0 0 20px;font-size:15px;line-height:1.65;color:#c8c0b0;">
+                Bienvenue dans l'<strong style="color:#f6f0df;">Accompagnement TORINVEST</strong>.
+                Ton paiement est confirmé — voici ta clé d'accès à la formation, au suivi privé et à l'espace accompagnement.
+              </p>
+
+              <!-- Licence -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
+                <tr>
+                  <td style="background:linear-gradient(180deg,#1a1608,#0f0e0a);border:1px solid #ffb400;border-radius:12px;padding:22px;text-align:center;">
+                    <p style="margin:0 0 8px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#ffd36a;font-weight:bold;">Clé TOR-ACCOMPAGNEMENT</p>
+                    <p style="margin:0;font-size:18px;line-height:1.45;color:#ffffff;font-family:Consolas,Monaco,monospace;letter-spacing:0.03em;word-break:break-all;">{{ params.LICENCE }}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Étapes -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
+                <tr>
+                  <td style="padding:12px 0;border-bottom:1px solid #2a2518;">
+                    <span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:#ffb400;color:#1a1200;border-radius:50%;font-size:12px;font-weight:bold;margin-right:10px;">1</span>
+                    <span style="font-size:14px;color:#f6f0df;">Conserve cette clé — elle sera demandée pour te connecter.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 0;border-bottom:1px solid #2a2518;">
+                    <span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:#ffb400;color:#1a1200;border-radius:50%;font-size:12px;font-weight:bold;margin-right:10px;">2</span>
+                    <span style="font-size:14px;color:#c8c0b0;">Complète ton profil (Discord, niveau) → <a href="{{ params.ACTIVATION_URL }}" style="color:#ffb400;">formulaire accompagnement</a></span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 0;">
+                    <span style="display:inline-block;width:24px;height:24px;line-height:24px;text-align:center;background:#ffb400;color:#1a1200;border-radius:50%;font-size:12px;font-weight:bold;margin-right:10px;">3</span>
+                    <span style="font-size:14px;color:#c8c0b0;">Accède à la formation → <a href="{{ params.FORMATION_URL }}" style="color:#ffb400;">espace La Forge</a></span>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto 20px;">
+                <tr>
+                  <td style="border-radius:999px;background:linear-gradient(135deg,#ffb400,#c0392b);">
+                    <a href="https://www.torinvest-trading.com/payment-success.html?plan=accompagnement" style="display:inline-block;padding:14px 28px;font-size:14px;font-weight:bold;color:#1a1200;text-decoration:none;">Commencer mon parcours →</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-size:13px;line-height:1.55;color:#888;">
+                Même email que Stripe · Vérifie les spams si tu ne vois pas ce message.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Pilier values -->
+          <tr>
+            <td style="background-color:#080807;border-left:1px solid #3d3010;border-right:1px solid #3d3010;padding:16px 24px;text-align:center;">
+              <p style="margin:0 0 8px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#666;">Stratégie · Analyse · Risque · Discipline · Excellence</p>
+              <p style="margin:0;font-size:13px;">
+                <a href="{{ params.DISCORD_URL }}" style="color:#ffb400;text-decoration:none;">Discord accompagnement</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#030303;border:1px solid #2a2518;border-top:none;border-radius:0 0 16px 16px;padding:20px 32px;text-align:center;">
+              <p style="margin:0 0 8px;font-size:11px;color:#666;">TORINVEST — Trader · Investir · Forger ton avenir</p>
+              <p style="margin:0;font-size:10px;color:#555;">
+                <a href="https://www.torinvest-trading.com/" style="color:#888;text-decoration:none;">torinvest-trading.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
