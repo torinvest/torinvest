@@ -1,5 +1,12 @@
 # Payment Links Stripe — URLs de succès TORINVEST
 
+## Liens d'achat (site)
+
+| Produit | Payment Link |
+|---------|----------------|
+| **Robot Access 79€/mois** | `https://buy.stripe.com/eVq14nclt5XV3ka0zFd7q02` |
+| **Accompagnement 349€/an** | `https://buy.stripe.com/aFabJ10CLeurf2S827d7q01` |
+
 Configure ces URLs dans **Stripe → Payment Links → Modifier** (redirection après paiement).
 
 | Produit | URL après paiement |

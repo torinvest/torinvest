@@ -936,7 +936,7 @@ function licenceCrmStripePlanDefinitions(): array
             'days' => (int) ($cfg['stripe_vip_days'] ?? 30),
             'amounts' => array_values(array_filter(array_map('intval', (array) ($cfg['stripe_vip_amounts'] ?? [7900])))),
             'payment_link_ids' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_vip_ids'] ?? [])))),
-            'payment_link_slugs' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_vip_slugs'] ?? ['28E28rbhpdqn5si827d7q00'])))),
+            'payment_link_slugs' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_payment_link_vip_slugs'] ?? ['eVq14nclt5XV3ka0zFd7q02', '28E28rbhpdqn5si827d7q00'])))),
             'price_ids' => array_values(array_filter(array_map('trim', (array) ($cfg['stripe_price_vip_ids'] ?? [])))),
             'metadata_values' => ['vip', 'robot', 'robot_access'],
         ],

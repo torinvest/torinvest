@@ -70,7 +70,7 @@ Sur chaque Payment Link Stripe, ajoute une metadata :
 | Accompagnement 349€ | `torinvest_plan` = `accompagnement` |
 
 Sans metadata, le radar reconnaît aussi :
-- le slug du lien (`28E28rbhpdqn5si827d7q00` / `aFabJ10CLeurf2S827d7q01`)
+- le slug du lien (`eVq14nclt5XV3ka0zFd7q02` VIP mensuel / `aFabJ10CLeurf2S827d7q01`)
 - le montant (7900 / 34900 centimes EUR)
 
 ---
@@ -124,7 +124,7 @@ Voir `deploy/PAYMENT-LINKS.md`.
 
 | Payment Link | Plan | Liste Brevo | Jours licence |
 |--------------|------|-------------|---------------|
-| `28E28rbhpdqn5si827d7q00` | VIP | #10 | 30 |
+| `eVq14nclt5XV3ka0zFd7q02` | VIP (79€/mois) | #10 | 30 |
 | `aFabJ10CLeurf2S827d7q01` | ACCOMPAGNEMENT | #9 | 365 |
 
 ---
