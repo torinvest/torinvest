@@ -14,6 +14,9 @@ FILES=(
   admin-licence.php
   admin-licence-lib.php
   license-provision.php
+  stripe-webhook.php
+  stripe-lib.php
+  brevo-lib.php
   access-config.php
   solana-rpc.php
 )

@@ -3,7 +3,7 @@
  * Webhook Stripe → provision licence + Brevo.
  *
  * URL : https://radar.torinvest-trading.com/api/stripe-webhook.php
- * Événement : checkout.session.completed
+ * Événements : checkout.session.completed, invoice.paid, invoice.payment_failed
  */
 declare(strict_types=1);
 
