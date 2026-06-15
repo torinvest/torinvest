@@ -1,266 +1,268 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <!-- Pages prioritaires (business actuel) -->
   <url>
-    <loc>https://www.torinvest-trading.com/</loc>
-    <lastmod>2026-06-15</lastmod>
+    <loc>https://www.torinvest-trading.com/actualites.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/airdrop.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/bootcamp.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/chronique1.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/chronique2.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/chronique3.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/chronique4.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/chronique5.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/chronique6.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/chronique7.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/chroniques.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/confidentialite.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/cookies.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/copytrading.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/crypto-blockchain.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/crypto.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/dashboard-iron.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/disclaimer.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/equipe.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/exercices.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/factory-ia.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/faq.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/forge-page.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/formation.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/formationprice.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/googlef50213d069be8045.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/histoire.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/index.html</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.torinvest-trading.com/robot-trading-torinvest.html</loc>
-    <lastmod>2026-06-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/la-forge/</loc>
-    <lastmod>2026-06-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.92</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/la-forge/pricing.html</loc>
-    <lastmod>2026-06-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/faq.html</loc>
-    <lastmod>2026-06-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.88</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/formation.html</loc>
-    <lastmod>2026-06-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/forge-page.html</loc>
-    <lastmod>2026-06-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.85</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/chroniques.html</loc>
-    <lastmod>2026-06-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.82</priority>
-  </url>
-
-  <!-- Pages secondaires (indexées, crawl réduit) -->
-  <url>
-    <loc>https://www.torinvest-trading.com/crypto.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.55</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/torpass.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.55</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/roadmap.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.50</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/premium.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.50</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/AITORINVEST.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.48</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/actualites.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.45</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/copytrading.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.45</priority>
-  </url>
-
-  <!-- Pages historiques / archives (conservées, priorité basse) -->
-  <url>
-    <loc>https://www.torinvest-trading.com/airdrop.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/bootcamp.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/chronique1.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.38</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/chronique2.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.38</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/chronique3.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.38</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/chronique4.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.38</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/chronique5.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.38</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/chronique6.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.38</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/confidentialite.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.30</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/cookies.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.30</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/crypto-blockchain.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/dashboard-iron.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/disclaimer.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.30</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/equipe.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.40</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/exercices.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/factory-ia.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/formationprice.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/histoire.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.40</priority>
-  </url>
-  <url>
     <loc>https://www.torinvest-trading.com/indicateur.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/ironfish.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/liens.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/mentions-legales.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.30</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/metaverse.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/minage.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/mindset.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/module-or-cycles.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/nft.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/partenaires.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/payment-success.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/portfolio.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/premium.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/projets.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/roadmap.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/robot-trading-torinvest.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/salle-des-marches.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/tormission.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/tormission2.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/torpass.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/video.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.40</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/whitepaper.html</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.35</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/crypto-radar/</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/la-forge/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://www.torinvest-trading.com/la-forge/pricing.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
   </url>
 </urlset>
