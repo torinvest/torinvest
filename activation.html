@@ -56,22 +56,22 @@
     <section class="hero">
       <div>
         <div class="brand"><div class="logo-box">⚒</div><div><div class="brand-title">TORINVEST</div><div class="brand-sub">La force d’un esprit libre</div></div></div>
-        <div class="eyebrow">Activation après paiement</div>
-        <h1><span class="grad">Demande ta licence</span><br>TORINVEST AI.</h1>
-        <p>Après paiement, cette page permet de transmettre les informations nécessaires pour créer ta licence et activer ton accès au terminal TORINVEST AI.</p>
+        <div class="eyebrow">Étape 2 — compléter ton profil</div>
+        <h1><span class="grad">Complète ton profil</span><br>Robot Access VIP.</h1>
+        <p>Ta licence est envoyée par email après paiement Stripe. Ce formulaire sert à transmettre Discord, MT5 et tes infos pour le support TORINVEST.</p>
       </div>
       <div class="steps">
-        <div class="step"><b>1.</b> Tu règles ton accès via Stripe.</div>
-        <div class="step"><b>2.</b> Tu remplis ce formulaire avec le même email.</div>
-        <div class="step"><b>3.</b> Ta licence TOR-VIP est générée automatiquement.</div>
-        <div class="step"><b>4.</b> Connecte-toi sur AI Access — active MT5 avec le code reçu si besoin.</div>
+        <div class="step"><b>1.</b> Paie via Stripe (79€/mois).</div>
+        <div class="step"><b>2.</b> Reçois ta clé TOR-VIP par email (2 min, vérifie les spams).</div>
+        <div class="step"><b>3.</b> Complète ce formulaire avec le même email.</div>
+        <div class="step"><b>4.</b> Connecte-toi sur AI Access — active MT5 si besoin.</div>
       </div>
     </section>
 
     <section class="card">
-      <div class="status-pill"><span class="dot"></span> activation request</div>
-      <h2>Activation licence</h2>
-      <p class="intro">Utilise le même email que celui utilisé pour le paiement. Cela permet de retrouver ta licence en cas d’oubli.</p>
+      <div class="status-pill"><span class="dot"></span> profil client</div>
+      <h2>Compléter mon profil VIP</h2>
+      <p class="intro"><strong>Licence par email après paiement.</strong> Utilise le même email que Stripe. Ce formulaire enregistre tes infos (support + MT5) — il ne crée pas une nouvelle licence.</p>
       <form id="activationForm" method="POST" name="activation-torinvest" data-netlify="true" netlify>
         <input type="hidden" name="form-name" value="activation-torinvest" />
         <p style="display:none"><label>Ne pas remplir : <input name="bot-field" /></label></p>
@@ -88,14 +88,15 @@
         <input id="stripeRef" name="stripeRef" placeholder="ID paiement / email Stripe / reçu" />
         <label for="message">Message optionnel</label>
         <textarea id="message" name="message" placeholder="Ex : Je viens de payer, voici mon email Stripe..."></textarea>
-        <button id="submitBtn" type="submit">Envoyer ma demande de licence</button>
+        <button id="submitBtn" type="submit">Envoyer mon profil</button>
       </form>
-      <a class="ghost" href="/ai-access.html">J’ai déjà une licence</a>
+      <a class="ghost" href="/payment-success.html?plan=vip">Je viens de payer — étapes suivantes</a>
+      <a class="ghost" href="/ai-access.html">J’ai déjà ma licence</a>
       <div id="result" class="result">En attente d’envoi.</div>
-      <p class="small">Conserve bien ta licence. Elle pourra être demandée sur un nouvel appareil, un autre navigateur ou après expiration de session.</p>
+      <p class="small">Pas reçu l’email ? Attends 2–5 min, vérifie les spams, ou contacte le support avec ton email Stripe.</p>
       <div class="next-steps">
-        <h3>Après réception de ta licence</h3>
-        <p class="small" style="margin-top:0">Ta licence TOR-VIP s’affiche juste après l’envoi. L’EA MT5 et le CopyToken peuvent aussi arriver par email (sous 24 h ouvrées).</p>
+        <h3>Après réception de ta licence (email)</h3>
+        <p class="small" style="margin-top:0">Connecte-toi avec ta clé TOR-VIP. L’EA MT5 et le CopyToken peuvent aussi arriver par email (sous 24 h ouvrées).</p>
         <div class="next-links">
           <a href="/ai-access.html">AI Access</a>
           <a href="/tuto-mt5-robot-torinvest.html" title="Connexion licence requise">Guide MT5 v1.51</a>
@@ -110,7 +111,7 @@
     </section>
   </main>
   <a href="/" class="back-home-btn">← Retour accueil</a>
-  <script src="/assets/activation-provision.js?v=2"></script>
+  <script src="/assets/activation-provision.js?v=3"></script>
   <script>
     const form=document.getElementById("activationForm");
     const result=document.getElementById("result");
@@ -123,20 +124,10 @@
         return;
       }
       submitBtn.disabled=true;
-      setResult('<span class="warn">Envoi et génération de licence…</span>');
-      const fields=window.TORINVEST_ACTIVATION.snapshotForm(form);
-      const prov=await window.TORINVEST_ACTIVATION.provisionFromPayload("activation-torinvest",fields);
-      const netlify=await window.TORINVEST_ACTIVATION.submitNetlifyForm(form);
-      if(prov.ok){
-        setResult('<span class="ok">Demande traitée.</span>'+window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov,"vip")+
-          (!netlify.ok?'<br><span class="warn">Note : Netlify HTTP '+(netlify.status||"?")+' — licence ci-dessus valide.</span>':""));
-        form.reset();
-      }else if(!netlify.ok){
-        setResult('<span class="bad">Échec.</span><br>Provision : '+(prov.error||"?")+'<br>Netlify : HTTP '+(netlify.status||"?"));
-      }else{
-        setResult('<span class="warn">Demande enregistrée.</span><br>Génération : '+(prov.error||"indisponible")+'. Function Netlify peut compléter sous peu.');
-        form.reset();
-      }
+      setResult('<span class="warn">Envoi en cours…</span>');
+      const out=await window.TORINVEST_ACTIVATION.submitActivationForm("activation-torinvest",form,"vip");
+      setResult(out.html||'<span class="bad">Erreur inattendue.</span>');
+      if(out.ok)form.reset();
       submitBtn.disabled=false;
     });
   </script>

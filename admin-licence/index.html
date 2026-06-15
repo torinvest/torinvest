@@ -162,6 +162,7 @@
           <button class="tab" data-tab="activate" type="button">Activer VIP</button>
           <button class="tab" data-tab="history" type="button">Historique</button>
           <button class="tab" data-tab="watch" type="button">Surveillance Netlify</button>
+          <button class="tab" data-tab="stripe" type="button">Stripe / Brevo</button>
         </div>
 
         <div id="panel-vip" class="panel active">
@@ -249,13 +250,14 @@
         </div>
 
         <div id="panel-watch" class="panel">
-          <p class="hint">Journal des soumissions formulaires (source <span class="mono">browser</span> = page activation, <span class="mono">netlify_webhook</span> = function Netlify). L’onglet Historique liste les licences créées.</p>
+          <p class="hint">Journal des soumissions formulaires (metadata profil + waitlist). La licence est créée par webhook Stripe + email Brevo.</p>
           <div class="toolbar">
             <label style="margin:0">Formulaire</label>
             <select id="watchFilter">
               <option value="">Tous</option>
               <option value="activation-torinvest">Robot Access VIP</option>
               <option value="activation-accompagnement-torinvest">Accompagnement 349€</option>
+              <option value="liste-attente-torinvest">Waitlist</option>
             </select>
             <button class="btn secondary" type="button" id="watchRefreshBtn">Rafraîchir</button>
           </div>
@@ -267,6 +269,29 @@
                 </tr>
               </thead>
               <tbody id="watchBody"><tr><td colspan="7">Chargement…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="panel-stripe" class="panel">
+          <p class="hint">Événements webhook Stripe (checkout, renouvellements, échecs). Renvoi email Brevo si le client n’a pas reçu sa clé.</p>
+          <div class="grid" style="margin-top:14px;margin-bottom:14px">
+            <div><label>Email client</label><input id="resendEmail" type="email" placeholder="client@gmail.com" /></div>
+            <div><label>Type (optionnel)</label><select id="resendType"><option value="">Auto</option><option value="VIP">VIP</option><option value="ACCOMPAGNEMENT">Accompagnement</option></select></div>
+          </div>
+          <div class="actions" style="margin-top:0">
+            <button class="btn" type="button" id="resendBrevoBtn">Renvoyer email licence (Brevo)</button>
+            <button class="btn secondary" type="button" id="stripeRefreshBtn">Rafraîchir événements</button>
+          </div>
+          <div id="resendResult" class="result">—</div>
+          <div style="overflow-x:auto;margin-top:16px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th><th>Événement</th><th>Plan</th><th>Email</th><th>Licence</th><th>OK</th><th>Erreur</th>
+                </tr>
+              </thead>
+              <tbody id="stripeBody"><tr><td colspan="7">Chargement…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -362,6 +387,27 @@
       }).join("");
     }
 
+    async function loadStripeEvents() {
+      const data = await api("list_stripe_events", { limit: 120 });
+      const tbody = document.getElementById("stripeBody");
+      if (!data.ok || !data.events || !data.events.length) {
+        tbody.innerHTML = "<tr><td colspan='7'>Aucun événement Stripe.</td></tr>";
+        return;
+      }
+      tbody.innerHTML = data.events.map(function (e) {
+        const ok = Number(e.provision_ok) === 1;
+        return "<tr>" +
+          "<td>" + esc((e.created_at || "").replace("T", " ").slice(0, 19)) + "</td>" +
+          "<td class='mono'>" + esc(e.event_type || "—") + "</td>" +
+          "<td>" + esc(e.plan_type || "—") + "</td>" +
+          "<td>" + esc(e.email || "—") + "</td>" +
+          "<td class='mono'>" + esc(e.license_code || "—") + "</td>" +
+          "<td>" + (ok ? "<span class='ok'>oui</span>" : "<span class='bad'>non</span>") + "</td>" +
+          "<td>" + esc(e.error || "—") + "</td>" +
+        "</tr>";
+      }).join("");
+    }
+
     document.querySelectorAll(".tab").forEach(function (btn) {
       btn.addEventListener("click", function () {
         document.querySelectorAll(".tab").forEach(function (b) { b.classList.remove("active"); });
@@ -370,7 +416,25 @@
         document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
         if (btn.dataset.tab === "history") loadHistory().catch(function (e) { alert(e.message); });
         if (btn.dataset.tab === "watch") loadWatch().catch(function (e) { alert(e.message); });
+        if (btn.dataset.tab === "stripe") loadStripeEvents().catch(function (e) { alert(e.message); });
       });
+    });
+
+    document.getElementById("stripeRefreshBtn").addEventListener("click", function () {
+      loadStripeEvents().catch(function (e) { alert(e.message); });
+    });
+
+    document.getElementById("resendBrevoBtn").addEventListener("click", async function () {
+      const email = document.getElementById("resendEmail").value.trim();
+      const type = document.getElementById("resendType").value || null;
+      setHtml("resendResult", '<span class="warn">Envoi Brevo…</span>');
+      try {
+        const data = await api("resend_brevo", { email: email, type: type });
+        if (!data.ok) throw new Error(data.error || "Échec");
+        setHtml("resendResult", '<span class="ok">Email renvoyé à ' + esc(email) + ' — licence ' + esc(data.license) + "</span>");
+      } catch (e) {
+        setHtml("resendResult", '<span class="bad">' + esc(e.message) + "</span>");
+      }
     });
 
     document.getElementById("watchRefreshBtn").addEventListener("click", function () {

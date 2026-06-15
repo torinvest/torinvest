@@ -82,36 +82,35 @@
           </div>
         </div>
 
-        <div class="eyebrow">Activation après paiement</div>
+        <div class="eyebrow">Étape 2 — compléter ton profil</div>
 
         <h1>
-          <span class="grad">Activation</span><br>
+          <span class="grad">Complète ton profil</span><br>
           Accompagnement Trading.
         </h1>
 
         <p>
-          Après paiement, cette page permet de transmettre les informations nécessaires
-          pour activer ton accompagnement TORINVEST, rejoindre l’espace privé de suivi
-          et préparer ton accès à la formation.
+          Ta licence TOR-ACCOMPAGNEMENT est envoyée par email après paiement Stripe.
+          Ce formulaire enregistre Discord, niveau et objectifs pour personnaliser ton suivi.
         </p>
       </div>
 
       <div class="steps">
-        <div class="step"><b>1.</b> Tu règles ton accompagnement via Stripe.</div>
-        <div class="step"><b>2.</b> Tu remplis ce formulaire avec le même email.</div>
-        <div class="step"><b>3.</b> Ta licence TOR-ACCOMPAGNEMENT est générée automatiquement.</div>
-        <div class="step"><b>4.</b> Valide ton accès sur la page dédiée (Discord privé + formation).</div>
+        <div class="step"><b>1.</b> Paie l’accompagnement via Stripe (349€/an).</div>
+        <div class="step"><b>2.</b> Reçois ta clé par email (2 min, vérifie les spams).</div>
+        <div class="step"><b>3.</b> Complète ce formulaire avec le même email.</div>
+        <div class="step"><b>4.</b> Valide ton accès formation + Discord privé.</div>
       </div>
     </section>
 
     <section class="card">
-      <div class="status-pill"><span class="dot"></span> accompagnement request</div>
+      <div class="status-pill"><span class="dot"></span> profil accompagnement</div>
 
-      <h2>Activation accompagnement</h2>
+      <h2>Compléter mon profil</h2>
 
       <p class="intro">
-        Utilise le même email que celui utilisé pour le paiement Stripe.
-        Cela permet de retrouver ta commande et de préparer ton accès correctement.
+        <strong>Licence par email après paiement.</strong> Utilise le même email que Stripe.
+        Ce formulaire ne crée pas une nouvelle licence — il complète ton dossier accompagnement.
       </p>
 
       <form id="activationForm" method="POST" name="activation-accompagnement-torinvest" data-netlify="true" netlify>
@@ -150,15 +149,16 @@
         <label for="message">Objectif / message optionnel</label>
         <textarea id="message" name="message" placeholder="Ex : Je veux apprendre à trader l’or, mieux comprendre la macro, construire une routine..."></textarea>
 
-        <button id="submitBtn" type="submit">Activer mon accompagnement</button>
+        <button id="submitBtn" type="submit">Envoyer mon profil</button>
       </form>
 
+      <a class="ghost" href="/payment-success.html?plan=accompagnement">Je viens de payer — étapes suivantes</a>
       <a class="ghost" href="/">Retour au site TORINVEST</a>
 
       <div id="result" class="result">En attente d’envoi.</div>
 
       <p class="small">
-        Ta licence s’affiche juste après l’envoi. Conserve-la : elle sera demandée sur
+        Pas reçu l’email ? Attends 2–5 min, vérifie les spams. Conserve ta licence reçue par email pour
         <a href="/accompagnement-access.html" style="color:var(--gold2)">la page d’accès accompagnement</a>.
       </p>
       <p class="small" style="margin-top:10px">
@@ -173,7 +173,7 @@
 
   <a href="/" class="back-home-btn">← Retour accueil</a>
 
-  <script src="/assets/activation-provision.js?v=2"></script>
+  <script src="/assets/activation-provision.js?v=3"></script>
   <script>
     const form = document.getElementById("activationForm");
     const result = document.getElementById("result");
@@ -187,42 +187,20 @@
       e.preventDefault();
 
       if (!window.TORINVEST_ACTIVATION) {
-        setResult('<span class="bad">Script activation indisponible.</span><br>Recharge la page (Ctrl+F5) ou désactive le bloqueur de pub.');
+        setResult('<span class="bad">Script activation indisponible.</span><br>Recharge la page (Ctrl+F5).');
         return;
       }
 
       submitBtn.disabled = true;
-      setResult('<span class="warn">Envoi et génération de licence…</span>');
+      setResult('<span class="warn">Envoi en cours…</span>');
 
-      const fields = window.TORINVEST_ACTIVATION.snapshotForm(form);
-      const prov = await window.TORINVEST_ACTIVATION.provisionFromPayload("activation-accompagnement-torinvest", fields);
-      const netlify = await window.TORINVEST_ACTIVATION.submitNetlifyForm(form);
-
-      if (prov.ok) {
-        setResult(
-          '<span class="ok">Demande traitée.</span>' +
-          window.TORINVEST_ACTIVATION.formatProvisionSuccess(prov, "accompagnement") +
-          (!netlify.ok ? '<br><span class="warn">Note : enregistrement Netlify non confirmé (HTTP ' + (netlify.status || "?") + '). La licence ci-dessus reste valide.</span>' : "")
-        );
-        form.reset();
-      } else if (!netlify.ok) {
-        setResult(
-          '<span class="bad">Échec envoi et génération.</span><br>' +
-          'Provision : ' + (prov.error || "indisponible") +
-          (prov.httpStatus ? " (HTTP " + prov.httpStatus + ")" : "") +
-          '<br>Netlify : HTTP ' + (netlify.status || "?") +
-          (netlify.error ? " (" + netlify.error + ")" : "") +
-          '<br>Réessaie ou contacte TORINVEST avec ton email de paiement.'
-        );
-      } else {
-        setResult(
-          '<span class="warn">Demande enregistrée sur Netlify.</span><br>Génération automatique indisponible : ' +
-          (prov.error || "réessaie dans quelques minutes") +
-          '.<br>La function Netlify créera ta licence sous peu si configurée.'
-        );
-        form.reset();
-      }
-
+      const out = await window.TORINVEST_ACTIVATION.submitActivationForm(
+        "activation-accompagnement-torinvest",
+        form,
+        "accompagnement"
+      );
+      setResult(out.html || '<span class="bad">Erreur inattendue.</span>');
+      if (out.ok) form.reset();
       submitBtn.disabled = false;
     });
   </script>
