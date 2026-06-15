@@ -76,7 +76,7 @@ return [
     'stripe_webhook_secret' => '',
 
     // Slugs Payment Links (buy.stripe.com/XXXX) — repli si metadata absente
-    'stripe_payment_link_vip_slugs' => ['28E28rbhpdqn5si827d7q00'],
+    'stripe_payment_link_vip_slugs' => ['eVq14nclt5XV3ka0zFd7q02', '28E28rbhpdqn5si827d7q00'],
     'stripe_payment_link_accompagnement_slugs' => ['aFabJ10CLeurf2S827d7q01'],
 
     // IDs Payment Link Stripe (plink_…) — prioritaire si renseignés
@@ -84,7 +84,7 @@ return [
     'stripe_payment_link_accompagnement_ids' => [],
 
     // IDs Price Stripe (price_…) — si line_items présents dans le webhook
-    'stripe_price_vip_ids' => [],
+    'stripe_price_vip_ids' => ['price_1TidocGg84cUBNtzjvbNaGTL'],
     'stripe_price_accompagnement_ids' => [],
 
     // Montants en centimes EUR (repli ultime)
