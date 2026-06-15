@@ -1,0 +1,113 @@
+<!--
+  TORINVEST — Template Brevo VIP (Robot Access 79€)
+  Brevo → Campagnes → Transactionnel → Modèles → Coller le HTML
+  Objet : TORINVEST — Votre clé Robot Access VIP
+  Variables : {{ params.PRENOM }} {{ params.LICENCE }} {{ params.ACTIVATION_CODE }}
+              {{ params.ACTIVATION_URL }} {{ params.TELEGRAM_URL }} {{ params.DISCORD_URL }}
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TORINVEST — Licence VIP</title>
+</head>
+<body style="margin:0;padding:0;background-color:#030303;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#030303;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;width:100%;">
+
+          <!-- Header bandeau -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#1a1408 0%,#0a0a0a 100%);border:1px solid #3d3010;border-radius:16px 16px 0 0;padding:28px 32px;text-align:center;">
+              <img src="https://www.torinvest-trading.com/forge-logo.png" alt="TORINVEST" width="64" height="64" style="display:block;margin:0 auto 16px;border-radius:14px;" />
+              <p style="margin:0 0 6px;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#ffd36a;font-weight:bold;">La force d'un esprit libre</p>
+              <h1 style="margin:0;font-size:26px;line-height:1.15;color:#ffb400;letter-spacing:0.06em;">TORINVEST</h1>
+              <p style="margin:10px 0 0;font-size:13px;color:#9a9080;letter-spacing:0.12em;text-transform:uppercase;">Robot Access VIP</p>
+            </td>
+          </tr>
+
+          <!-- Corps -->
+          <tr>
+            <td style="background-color:#0c0b09;border-left:1px solid #3d3010;border-right:1px solid #3d3010;padding:32px 32px 24px;">
+              <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#f6f0df;">
+                Bonjour <strong style="color:#ffd36a;">{{ params.PRENOM }}</strong>,
+              </p>
+              <p style="margin:0 0 20px;font-size:15px;line-height:1.65;color:#c8c0b0;">
+                Merci pour votre achat <strong style="color:#f6f0df;">Robot Access VIP</strong>.
+                Votre paiement Stripe est confirmé — voici votre clé personnelle pour activer l'EA MT5 et l'accès AI TORINVEST.
+              </p>
+
+              <!-- Bloc licence -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 20px;">
+                <tr>
+                  <td style="background:linear-gradient(180deg,#1a1608,#0f0e0a);border:1px solid #ffb400;border-radius:12px;padding:20px 22px;text-align:center;">
+                    <p style="margin:0 0 8px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#ffd36a;font-weight:bold;">Votre clé de licence</p>
+                    <p style="margin:0;font-size:20px;line-height:1.4;color:#ffffff;font-family:Consolas,Monaco,monospace;letter-spacing:0.04em;word-break:break-all;">{{ params.LICENCE }}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Code MT5 -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
+                <tr>
+                  <td style="background-color:#111;border:1px solid #2a2518;border-radius:10px;padding:14px 18px;">
+                    <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#9a9080;">Code activation MT5</p>
+                    <p style="margin:0;font-size:17px;color:#ffb400;font-family:Consolas,Monaco,monospace;">{{ params.ACTIVATION_CODE }}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:0 auto 24px;">
+                <tr>
+                  <td style="border-radius:999px;background:linear-gradient(135deg,#ffb400,#e85d04);">
+                    <a href="https://www.torinvest-trading.com/payment-success.html?plan=vip" style="display:inline-block;padding:14px 28px;font-size:14px;font-weight:bold;color:#1a1200;text-decoration:none;letter-spacing:0.04em;">Voir les prochaines étapes →</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 12px;font-size:14px;line-height:1.6;color:#c8c0b0;">
+                <strong style="color:#f6f0df;">Étape 2 :</strong> complète ton profil (MT5, support) sur
+                <a href="{{ params.ACTIVATION_URL }}" style="color:#ffb400;">le formulaire d'activation</a>.
+              </p>
+              <p style="margin:0;font-size:13px;line-height:1.55;color:#888;">
+                Utilise le <strong>même email</strong> que sur Stripe. Pense à vérifier les spams.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Liens communauté -->
+          <tr>
+            <td style="background-color:#080807;border:1px solid #3d3010;border-top:none;padding:20px 32px;text-align:center;">
+              <p style="margin:0 0 12px;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#9a9080;">Rejoins la communauté</p>
+              <p style="margin:0;font-size:13px;line-height:1.8;">
+                <a href="{{ params.TELEGRAM_URL }}" style="color:#ffb400;text-decoration:none;margin:0 8px;">Telegram</a>
+                <span style="color:#444;">|</span>
+                <a href="{{ params.DISCORD_URL }}" style="color:#ffb400;text-decoration:none;margin:0 8px;">Discord</a>
+                <span style="color:#444;">|</span>
+                <a href="https://www.torinvest-trading.com/ai-access.html" style="color:#ffb400;text-decoration:none;margin:0 8px;">AI Access</a>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#030303;border:1px solid #2a2518;border-top:none;border-radius:0 0 16px 16px;padding:20px 32px;text-align:center;">
+              <p style="margin:0 0 8px;font-size:11px;line-height:1.5;color:#666;">
+                TORINVEST — Trader · Investir · Forger ton avenir
+              </p>
+              <p style="margin:0;font-size:10px;line-height:1.5;color:#555;">
+                Outil éducatif et analytique — aucun conseil financier.<br />
+                <a href="https://www.torinvest-trading.com/" style="color:#888;text-decoration:none;">torinvest-trading.com</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
