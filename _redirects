@@ -1,8 +1,9 @@
 # Redirections archives → accueil principal (Netlify)
-/indexOLD.html   /index.html   301
-/index1.html     /index.html   301
-/index3.html     /index.html   301
-/indexx.html     /index.html   301
+/index.html      /   301
+/indexOLD.html   /   301
+/index1.html     /   301
+/index3.html     /   301
+/indexx.html     /   301
 
 # URLs propres (optionnel)
 /forge-page      /forge-page.html      200
