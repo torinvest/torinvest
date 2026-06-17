@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/accompagnement-gate.php';
 $id = (int)($_GET['id'] ?? 0);
 $dbFile = 'crypto_cache.db';
 $pdo = new PDO("sqlite:$dbFile");

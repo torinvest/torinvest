@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/accompagnement-gate.php';
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: *"); 
 

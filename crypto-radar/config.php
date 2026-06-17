@@ -47,11 +47,20 @@ if (!defined('CONFIG_LOADED')) {
     }
 
 // ============================================================================
-// CLÉS API — ajoute les tiennes ici quand tu es prêt (tableau vide = IA radar off)
+// CLÉS API — config.local.php (VPS) ou tableau ci-dessous en secours
 // ============================================================================
 
-define('DEFAULT_MISTRAL_API_KEYS', [
-    // 'ta-cle-ici',
+$_radarLocalKeys = [];
+$_radarLocalFile = ROOT_DIR . '/config.local.php';
+if (is_file($_radarLocalFile)) {
+    $_radarCfg = require $_radarLocalFile;
+    if (is_array($_radarCfg['mistral_api_keys'] ?? null)) {
+        $_radarLocalKeys = array_values(array_filter(array_map('trim', $_radarCfg['mistral_api_keys'])));
+    }
+}
+
+define('DEFAULT_MISTRAL_API_KEYS', !empty($_radarLocalKeys) ? $_radarLocalKeys : [
+    // 'ta-cle-mistral-ici',
 ]);
 
 // Endpoint API Mistral
@@ -518,6 +527,8 @@ if (!defined('SKIP_CONFIG_AUTOLOAD')) {
     appLog('Database: ' . DB_FILE);
     appLog('═══════════════════════════════════════════════════════');
 }
+
+require_once ROOT_DIR . '/accompagnement-gate.php';
 
 } // Fin du bloc CONFIG_LOADED
 

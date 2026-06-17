@@ -90,6 +90,11 @@
     .small{color:var(--muted);font-size:11px;margin-top:13px;line-height:1.45}
     .back-home-btn{position:fixed;bottom:22px;right:22px;padding:8px 14px;font-size:12px;font-weight:700;text-decoration:none;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#f5f5f7;backdrop-filter:blur(4px);transition:.2s ease;z-index:9999}
     .back-home-btn:hover{background:rgba(255,180,0,.25);border-color:rgba(255,180,0,.6);transform:translateY(-2px)}
+    .tabs{display:flex;gap:8px;margin-bottom:16px}
+    .tab{flex:1;border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.25);color:var(--muted);border-radius:999px;padding:9px;cursor:pointer;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+    .tab.active{color:#1a1200;background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:transparent}
+    .panel{display:none}
+    .panel.active{display:block}
     @media(max-width:920px){.shell{grid-template-columns:1fr}.hero{min-height:auto}}
   </style>
 </head>
@@ -111,7 +116,7 @@
 
         <p>
           Entre ton email de paiement et ta licence accompagnement. Une fois validée,
-          la page débloque les consignes, le lien Discord privé et l’accès à l’espace modules.
+          la page débloque les consignes, le lien Discord privé, le Crypto Radar IA et l’espace modules.
         </p>
       </div>
 
@@ -119,12 +124,18 @@
         <div class="step"><b>1.</b> Tu entres ton email de paiement.</div>
         <div class="step"><b>2.</b> Tu colles ta licence TOR-ACCOMPAGNEMENT.</div>
         <div class="step"><b>3.</b> Le Worker TORINVEST vérifie ton accès.</div>
-        <div class="step"><b>4.</b> Tu rejoins l’espace privé et les modules.</div>
+        <div class="step"><b>4.</b> Tu accèdes au Crypto Radar, aux modules et à l’espace privé.</div>
       </div>
     </section>
 
     <section class="card">
       <div class="status-pill"><span class="dot"></span> licence check</div>
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="client">Client · Licence</button>
+        <button type="button" class="tab" data-tab="admin">Admin · PIN</button>
+      </div>
+
+      <div id="panel-client" class="panel active">
       <h2>Accès accompagnement</h2>
       <p class="intro">
         Utilise exactement le même email que celui utilisé lors du paiement Stripe.
@@ -141,6 +152,17 @@
       </form>
 
       <a class="ghost" href="/activation-accompagnement.html">Je dois encore activer mon accompagnement</a>
+      </div>
+
+      <div id="panel-admin" class="panel">
+        <h2>Accès admin Crypto Radar</h2>
+        <p class="intro">PIN développeur TORINVEST — sans licence accompagnement. Session 7 jours.</p>
+        <form id="adminForm">
+          <label for="adminPin">PIN admin</label>
+          <input id="adminPin" type="password" placeholder="Code personnel" autocomplete="off" required />
+          <button id="adminBtn" type="submit">Ouvrir Crypto Radar admin</button>
+        </form>
+      </div>
 
       <div id="result" class="result">En attente de vérification.</div>
 
@@ -160,7 +182,11 @@
           <li>Le trading comporte des risques : l’objectif est d’apprendre, pas de promettre des gains.</li>
         </ul>
 
-        <a id="discordBtn" class="btn" href="#" target="_blank" rel="noopener">
+        <a id="cryptoRadarBtn" class="btn" href="https://radar.torinvest-trading.com/crypto-radar/" style="margin-top:10px">
+          Ouvrir Crypto Radar (dashboard IA top 100)
+        </a>
+
+        <a id="discordBtn" class="ghost" href="#" target="_blank" rel="noopener" style="margin-top:10px">
           Rejoindre le Discord privé accompagnement
         </a>
 
@@ -191,14 +217,21 @@
 
   <script>
     const ACCESS_CFG = "/api/access-config.php";
+    const SESSION_API = "https://radar.torinvest-trading.com/api/accompagnement-access.php";
+    const CRYPTO_RADAR_URL = "https://radar.torinvest-trading.com/crypto-radar/";
+    const params = new URLSearchParams(window.location.search);
+    const returnUrl = params.get("return") || "";
 
     const form = document.getElementById("accessForm");
+    const adminForm = document.getElementById("adminForm");
     const result = document.getElementById("result");
     const submitBtn = document.getElementById("submitBtn");
+    const adminBtn = document.getElementById("adminBtn");
     const accessBox = document.getElementById("accessBox");
     const discordBtn = document.getElementById("discordBtn");
     const telegramBtn = document.getElementById("telegramBtn");
     const appBtn = document.getElementById("appBtn");
+    const cryptoRadarBtn = document.getElementById("cryptoRadarBtn");
 
     let accessLinks = {
       discordAccompagnement: "https://discord.gg/5mSC8gFsT7",
@@ -221,6 +254,76 @@
       result.innerHTML = html;
     }
 
+    function showAccessBox() {
+      discordBtn.href = accessLinks.discordAccompagnement || accessLinks.discordPublic || "#";
+      telegramBtn.href = accessLinks.telegramVip || accessLinks.telegramPublic || "#";
+      appBtn.href = accessLinks.appLoginUrl || "https://app.torinvest-trading.com/login.html";
+      cryptoRadarBtn.href = CRYPTO_RADAR_URL;
+      accessBox.style.display = "block";
+    }
+
+    function goToCryptoRadar(message) {
+      if (!returnUrl) return;
+      setResult(message || '<span class="ok">Accès OK.</span><br>Redirection vers Crypto Radar…');
+      window.setTimeout(function () {
+        window.location.replace(returnUrl);
+      }, 600);
+    }
+
+    function mapSessionError(error) {
+      const e = String(error || "").toLowerCase();
+      if (e.indexOf("email_mismatch") >= 0) return "L’email ne correspond pas à celui de la licence.";
+      if (e.indexOf("license_not_found") >= 0) return "Licence introuvable.";
+      if (e.indexOf("subscription_expired") >= 0 || e.indexOf("expir") >= 0) return "Licence expirée.";
+      if (e.indexOf("accompagnement") >= 0) return "Cette licence n’est pas un accompagnement.";
+      return "Vérifie ton email et ta licence, puis réessaie.";
+    }
+
+    document.querySelectorAll(".tab").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".tab").forEach(function (b) { b.classList.remove("active"); });
+        document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("active"); });
+        btn.classList.add("active");
+        document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    adminForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      accessBox.style.display = "none";
+      adminBtn.disabled = true;
+      setResult('<span class="warn">Connexion admin...</span>');
+      try {
+        const session = await sessionApi("login_admin", { pin: document.getElementById("adminPin").value });
+        if (!session.ok) throw new Error(session.error || "admin_failed");
+        setResult('<span class="ok">Admin connecté.</span><br>Redirection vers Crypto Radar…');
+        window.setTimeout(function () {
+          window.location.replace(returnUrl || CRYPTO_RADAR_URL);
+        }, 600);
+      } catch (err) {
+        setResult('<span class="bad">PIN admin refusé.</span>');
+      }
+      adminBtn.disabled = false;
+    });
+
+    async function sessionApi(action, body) {
+      const opts = {
+        method: action === "ping" ? "GET" : "POST",
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      };
+      if (action === "ping") {
+        const resp = await fetch(SESSION_API + "?action=ping", opts);
+        return resp.json();
+      }
+      opts.headers["Content-Type"] = "application/json";
+      opts.body = JSON.stringify(Object.assign({ action: action }, body || {}));
+      const resp = await fetch(SESSION_API, opts);
+      const data = await resp.json();
+      if (!data.ok && !data.error) data.error = "HTTP " + resp.status;
+      return data;
+    }
+
     form.addEventListener("submit", async function(e) {
       e.preventDefault();
 
@@ -229,51 +332,52 @@
 
       accessBox.style.display = "none";
       submitBtn.disabled = true;
-      setResult('<span class="warn">Vérification de la licence en cours...</span>');
+      setResult('<span class="warn">Connexion accompagnement + Crypto Radar…</span>');
 
       try {
-        const url = workerValidate
-          + "?email=" + encodeURIComponent(email)
-          + "&license=" + encodeURIComponent(license);
-
-        const resp = await fetch(url, {
-          method: "GET",
-          headers: { "Accept": "application/json" }
+        const session = await sessionApi("login_client", {
+          email: email,
+          licenseKey: license,
         });
 
-        const data = await resp.json();
-
-        if (!data.ok) {
-          const reason = data.reason || data.error || "";
-          let hint = "Vérifie ton email et ta licence.";
-          if (reason === "email_mismatch") hint = "L’email ne correspond pas à celui de la licence.";
-          if (reason === "license_not_found") hint = "Licence introuvable. As-tu rempli le formulaire d’activation ?";
-          setResult('<span class="bad">Licence refusée.</span><br>' + hint);
+        if (!session.ok) {
+          setResult('<span class="bad">Accès refusé.</span><br>' + mapSessionError(session.error));
           submitBtn.disabled = false;
           return;
         }
 
-        const plan = String(data.plan || "").toUpperCase();
-
-        if (plan !== "ACCOMPAGNEMENT") {
-          setResult('<span class="bad">Licence valide, mais elle ne correspond pas à l’accompagnement.</span><br>Plan détecté : ' + (data.plan || "inconnu"));
-          submitBtn.disabled = false;
-          return;
+        showAccessBox();
+        if (returnUrl) {
+          goToCryptoRadar('<span class="ok">Licence validée.</span><br>Ouverture du Crypto Radar…');
+        } else {
+          setResult('<span class="ok">Licence validée.</span><br>Choisis ton prochain pas : Discord, formation ou Crypto Radar ci-dessous.');
         }
-
-        discordBtn.href = accessLinks.discordAccompagnement || accessLinks.discordPublic || "#";
-        telegramBtn.href = accessLinks.telegramVip || accessLinks.telegramPublic || "#";
-        appBtn.href = accessLinks.appLoginUrl || "https://app.torinvest-trading.com/login.html";
-
-        setResult('<span class="ok">Licence validée.</span><br>Ton accès accompagnement est débloqué.');
-        accessBox.style.display = "block";
 
       } catch (err) {
-        setResult('<span class="bad">Erreur de connexion au Worker.</span><br>Réessaie dans quelques instants.');
+        setResult('<span class="bad">Impossible de joindre le serveur radar.</span><br>Vérifie ta connexion et réessaie.');
       }
 
       submitBtn.disabled = false;
     });
+
+    (async function restoreSession() {
+      try {
+        const session = await sessionApi("ping");
+        if (!session.ok) return;
+        showAccessBox();
+        if (session.role === "admin") {
+          if (returnUrl) goToCryptoRadar('<span class="ok">Session admin active.</span><br>Redirection…');
+          else setResult('<span class="ok">Session admin active.</span><br>Ouvre le Crypto Radar ci-dessous.');
+          return;
+        }
+        if (returnUrl) {
+          goToCryptoRadar('<span class="ok">Session active.</span><br>Redirection vers Crypto Radar…');
+        } else {
+          showAccessBox();
+          setResult('<span class="ok">Session active.</span><br>Tu peux accéder au Crypto Radar et aux modules.');
+        }
+      } catch (err) {}
+    })();
   </script>
   <script src="/assets/torinvest-rgpd.js" defer></script>
 </body>
