@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/accompagnement-gate.php';
 // stats.php - Historique des prix, market cap, volume avec évaluation des tendances IA et trades virtuels
 $dbFile = 'crypto_cache.db';
 $pdo = new PDO("sqlite:$dbFile");

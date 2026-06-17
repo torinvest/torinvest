@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/accompagnement-gate.php';
 // portfolio.php - État du portefeuille virtuel 1M€
 $dbFile = 'crypto_cache.db';
 $pdo = new PDO("sqlite:$dbFile");

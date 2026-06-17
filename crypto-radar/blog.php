@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/accompagnement-gate.php';
 // blog.php - Liste des articles automatiques générés par Mistral
 $dbFile = 'crypto_cache.db';
 $pdo = new PDO("sqlite:$dbFile");

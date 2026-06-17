@@ -11,6 +11,8 @@ FILES=(
   rate-limit.php
   ai-access.php
   ai-access-lib.php
+  accompagnement-access.php
+  accompagnement-access-lib.php
   admin-licence.php
   admin-licence-lib.php
   license-provision.php

@@ -12,6 +12,9 @@ function torinvestSessionCookieName(string $service): string
     if ($service === 'admin_licence') {
         return 'torinvest_admin_licence';
     }
+    if ($service === 'accompagnement_access') {
+        return 'torinvest_accompagnement';
+    }
     throw new InvalidArgumentException('Service session inconnu');
 }
 

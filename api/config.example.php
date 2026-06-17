@@ -13,6 +13,12 @@ return [
     // Durée session admin (secondes) — 7 jours par défaut
     'dev_session_ttl' => 604800,
 
+    // Session admin accompagnement / Crypto Radar (secondes) — 7 j par défaut
+    'accompagnement_access_admin_session_ttl' => 604800,
+
+    // Session client accompagnement (secondes) — 12 h
+    'accompagnement_access_session_ttl' => 43200,
+
     // --- AI Access sécurisé (AITORINVEST.html) ---
     // Secret HMAC sessions (laisser vide = dérivé des PIN ci-dessus)
     'ai_access_hmac_secret' => '',

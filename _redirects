@@ -57,6 +57,7 @@
 /admin-licence/               /admin-licence/index.html                                             200
 /api/admin-licence.php        https://radar.torinvest-trading.com/api/admin-licence.php           200!
 /api/ai-access.php            https://radar.torinvest-trading.com/api/ai-access.php               200!
+/api/accompagnement-access.php https://radar.torinvest-trading.com/api/accompagnement-access.php 200!
 # Proxy RPC TorPass (POST same-origin www → radar, pas de CORS navigateur)
 /api/solana-rpc.php           https://radar.torinvest-trading.com/api/solana-rpc.php                200!
 /api/license-provision.php    https://radar.torinvest-trading.com/api/license-provision.php    200!

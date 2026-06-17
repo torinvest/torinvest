@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/accompagnement-gate.php';
 /**
  * portfolio_manager.php
  * - Gère 1 000 000 € virtuels

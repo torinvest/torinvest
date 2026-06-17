@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/accompagnement-gate.php';
 /**
  * update.php
  * Récupère les 1000 cryptos via CoinGecko (cURL),
