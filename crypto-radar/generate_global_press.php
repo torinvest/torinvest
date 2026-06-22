@@ -8,6 +8,7 @@
 
 define('ROOT_DIR', dirname(__FILE__));
 require_once ROOT_DIR . '/config.php';
+require_once ROOT_DIR . '/mistral-prompt.php';
 ensureDatabaseInitialized();
 
 /**
@@ -51,7 +52,7 @@ function generateGlobalAnalysis($pdo) {
                       ->fetch(PDO::FETCH_ASSOC);
         
         // Construire le résumé détaillé des données
-        $marketSummary = "DONNÉES DE MARCHÉ ACTUELLES - Top 10 Cryptos par Score IA:\n\n";
+        $marketSummary = radarMistralDateContext() . "DONNÉES DE MARCHÉ ACTUELLES - Top 10 Cryptos par Score IA:\n\n";
         foreach ($top as $t) {
             $marketSummary .= "• {$t['name']} ({$t['symbol']}) - Prix: " . number_format($t['current_price'], 2, ',', ' ') . "€ | ";
             $marketSummary .= "Score IA: {$t['score']}/100 | ";
@@ -116,7 +117,7 @@ STYLE ET FORMAT:
 TERMINE PAR UNE PHRASE DE CONSEIL ULTRA-PRÉCISE commençant par 'RECOMMANDATION:' qui résume l'action principale à mener.";
 
         $messages = [
-            ['role' => 'system', 'content' => 'Tu es un directeur de recherche chez Goldman Sachs Crypto Division. Tu produces des analyses institutionnelles de haute qualité pour des family offices et fonds d\'investissement. Tes recommandations sont précises, argumentées et basées exclusivement sur des données. Style: Bloomberg Terminal meets institutional research.'],
+            ['role' => 'system', 'content' => radarMistralSystem('Tu es un directeur de recherche crypto institutionnel. Analyses factuelles basees exclusivement sur les donnees fournies.')],
             ['role' => 'user', 'content' => $prompt]
         ];
         

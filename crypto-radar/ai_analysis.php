@@ -15,6 +15,7 @@ header('Content-Type: application/json; charset=utf-8');
 
 define('ROOT_DIR', dirname(__FILE__));
 require_once ROOT_DIR . '/config.php';
+require_once ROOT_DIR . '/mistral-prompt.php';
 ensureDatabaseInitialized();
 
 try {
@@ -119,7 +120,7 @@ try {
         $momentumText = $indic['macd'] > $indic['signal'] ? 'Haussier' : 'Baissier';
         
         // Prompt enrichi et détaillé pour décision précise
-        $prompt = "Tu es un analyste financier crypto expert avec 15 ans d'expérience chez Goldman Sachs et Binance Capital. Ta mission est de fournir une recommandation d'investissement précise et argumentée.
+        $prompt = radarMistralDateContext() . "Tu es un analyste financier crypto expert avec 15 ans d'expérience chez Goldman Sachs et Binance Capital. Ta mission est de fournir une recommandation d'investissement précise et argumentée.
 
 CONTEXTE DE MARCHÉ ACTUEL:
 - Cryptomonnaie: $name ($symbol)
@@ -146,7 +147,7 @@ FORMAT DE RÉPONSE ATTENDU:
 [RECOMMANDATION] - [Justification technique concise]. Confiance: [niveau]. Action: [conseil pratique].";
 
         $messages = [
-            ['role' => 'system', 'content' => 'Tu es un trader professionnel spécialisé en analyse technique crypto. Tu fournis des recommandations précises, factuelles et actionnables. Tu utilises un langage clair et direct. Tes analyses sont basées sur des données concrètes, pas sur des spéculations.'],
+            ['role' => 'system', 'content' => radarMistralSystem('Tu es un trader professionnel specialise en analyse technique crypto. Recommandations precises, factuelles et actionnables.')],
             ['role' => 'user', 'content' => $prompt]
         ];
         

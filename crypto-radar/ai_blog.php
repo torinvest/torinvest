@@ -9,6 +9,7 @@
 define('ROOT_DIR', dirname(__FILE__));
 define('DB_FILE', ROOT_DIR . '/crypto_cache.db');
 require_once ROOT_DIR . '/config.php';
+require_once ROOT_DIR . '/mistral-prompt.php';
 
 function callMistral($messages, $model='mistral-small-2603', $maxTokens=600) {
     $keys = array_values(array_filter(DEFAULT_MISTRAL_API_KEYS));
@@ -56,14 +57,14 @@ try {
     $buyScore = $thresholds['buy_score'] ?? 65;
     $sellScore = $thresholds['sell_score'] ?? 35;
     
-    $prompt = "Rédige un article de blog pour investisseurs crypto. Sujet : 'Performances du portefeuille NEO DASH et évolution des stratégies IA'. 
+    $prompt = radarMistralDateContext() . "Rédige un article de blog pour investisseurs crypto. Sujet : 'Performances du portefeuille TORINVEST Crypto Radar et évolution des stratégies IA'.
 Portefeuille actuel : $totalPortfolio € (performance $perf% depuis l'origine). 
 Seuils d'achat/vente actuels : achat si score >= $buyScore, vente si score <= $sellScore. 
 Explique comment l'auto‑apprentissage par renforcement a ajusté ces seuils, et donne des conseils pédagogiques. 
 Style engageant, 300-400 mots. Titre accrocheur.";
     
     $messages = [
-        ['role' => 'system', 'content' => 'Tu es un blogueur financier spécialisé IA et crypto. Écris en français.'],
+        ['role' => 'system', 'content' => radarMistralSystem('Tu es un blogueur financier specialise IA et crypto.')],
         ['role' => 'user', 'content' => $prompt]
     ];
     

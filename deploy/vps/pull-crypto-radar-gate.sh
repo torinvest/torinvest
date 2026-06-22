@@ -8,7 +8,6 @@ BASE="https://raw.githubusercontent.com/torinvest/torinvest/main/crypto-radar"
 
 FILES=(
   accompagnement-gate.php
-  config.php
   update.php
   portfolio.php
   blog.php

@@ -12,6 +12,7 @@ define('ROOT_DIR', dirname(__FILE__));
 define('DB_FILE', ROOT_DIR . '/crypto_cache.db');
 define('LOG_FILE', ROOT_DIR . '/analysis_log.txt');
 require_once ROOT_DIR . '/config.php';
+require_once ROOT_DIR . '/mistral-prompt.php';
 
 function logMessage($message) {
     file_put_contents(LOG_FILE, '['.date('Y-m-d H:i:s')."] $message\n", FILE_APPEND);
@@ -179,7 +180,7 @@ try {
         if (!$indic) continue;
         
         // Prompt professionnel pour conseil d'investissement
-        $prompt = "Tu es un analyste financier spécialisé en cryptomonnaies. Voici les données pour {$coin['name']} (symbole {$coin['symbol']}) :
+        $prompt = radarMistralDateContext() . "Tu es un analyste financier spécialisé en cryptomonnaies. Voici les données pour {$coin['name']} (symbole {$coin['symbol']}) :
 - Prix actuel : {$coin['current_price']} €
 - Variation 24h : {$coin['price_change_percentage_24h']}%
 - Tendance 7j (prix final vs initial) : {$indic['trend_pct']}%
@@ -190,7 +191,7 @@ try {
 Donne un conseil d'investissement PRÉCIS sous la forme \"Achat fort / Achat / Neutre / Vente / Vente forte\" puis en une phrase (max 25 mots) justifie avec chiffres clés. Sois professionnel et factuel.";
         
         $messages = [
-            ['role' => 'system', 'content' => 'Tu es un trader crypto expérimenté. Réponds en français.'],
+            ['role' => 'system', 'content' => radarMistralSystem('Tu es un trader crypto experimente.')],
             ['role' => 'user', 'content' => $prompt]
         ];
         
