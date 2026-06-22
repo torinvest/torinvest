@@ -1,5 +1,5 @@
 # Deploie la garde accompagnement + Crypto Radar sur le VPS (depuis ton PC).
-# Usage PowerShell :
+# INTERDIT : config.php (cles Mistral sur le VPS — ne jamais ecraser).# Usage PowerShell :
 #   cd "...\torinvest-main-git\deploy\vps"
 #   .\deploy-accompagnement-gate.ps1
 
@@ -16,7 +16,6 @@ $apiFiles = @(
 
 $radarFiles = @(
     "crypto-radar\accompagnement-gate.php",
-    "crypto-radar\config.php",
     "crypto-radar\update.php",
     "crypto-radar\portfolio.php",
     "crypto-radar\blog.php",

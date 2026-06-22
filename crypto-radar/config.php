@@ -59,9 +59,7 @@ if (is_file($_radarLocalFile)) {
     }
 }
 
-define('DEFAULT_MISTRAL_API_KEYS', !empty($_radarLocalKeys) ? $_radarLocalKeys : [
-    // 'ta-cle-mistral-ici',
-]);
+define('DEFAULT_MISTRAL_API_KEYS', !empty($_radarLocalKeys) ? $_radarLocalKeys : []);
 
 // Endpoint API Mistral
 define('MISTRAL_API_ENDPOINT', 'https://api.mistral.ai/v1/chat/completions');
