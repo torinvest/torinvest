@@ -56,6 +56,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.torinvest-trading.com/chronique9.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.torinvest-trading.com/chroniques.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -191,6 +196,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.torinvest-trading.com/oauth-callback.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.torinvest-trading.com/partenaires.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
@@ -227,11 +237,6 @@
   </url>
   <url>
     <loc>https://www.torinvest-trading.com/salle-des-marches.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://www.torinvest-trading.com/oauth-callback.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
