@@ -226,6 +226,11 @@
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://www.torinvest-trading.com/recap-2026-07.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://www.torinvest-trading.com/roadmap.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
