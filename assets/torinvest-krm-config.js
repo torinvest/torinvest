@@ -29,7 +29,7 @@
    * Laisser "" jusqu'à validation du wallet de réception.
    * Renseigner ici ET dans api/config.local.php → krm_services_treasury
    */
-  var KRM_SERVICES_TREASURY = "";
+  var KRM_SERVICES_TREASURY = "HVh9oAtjQ9fghqB8mLCauJKqFgjJMorwg8216vQQCzNs";
 
   function amountKrmToRaw(amountKrm) {
     var n = Number(amountKrm);
