@@ -244,6 +244,12 @@
     if (code === "PIN_NOT_CONFIGURED") {
       return "Aucun PIN admin configuré côté serveur (licence_crm_pin / dev_access_pin).";
     }
+    if (code === "PURCHASE_FEED_FAILED") {
+      return (
+        data.message ||
+        "Impossible de lire les achats KRM via Helius (clé API / quota)."
+      );
+    }
     return code || "Erreur API";
   }
 
@@ -537,6 +543,27 @@
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ action: "admin_list", pin: pin }),
+      });
+      return await parsePaymentApiResponse(resp);
+    } catch (e) {
+      return {
+        ok: false,
+        error: "NETWORK_ERROR",
+        message: "Impossible de joindre l'API services KRM.",
+      };
+    }
+  }
+
+  async function adminListPurchases(pin, limit) {
+    try {
+      var resp = await fetch(apiPaymentUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          action: "admin_list_purchases",
+          pin: pin,
+          limit: limit || 50,
+        }),
       });
       return await parsePaymentApiResponse(resp);
     } catch (e) {
@@ -937,6 +964,7 @@
     registerPaidPayment: registerPaidPayment,
     listMyRequests: listMyRequests,
     adminListRequests: adminListRequests,
+    adminListPurchases: adminListPurchases,
     adminUpdateStatus: adminUpdateStatus,
     fetchPaymentApiConfig: fetchPaymentApiConfig,
     humanizeAdminError: humanizeAdminError,

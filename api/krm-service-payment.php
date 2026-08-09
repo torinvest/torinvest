@@ -124,6 +124,23 @@ try {
         exit;
     }
 
+    if ($action === 'admin_list_purchases') {
+        $limit = (int) ($payload['limit'] ?? 50);
+        $result = krmServicesAdminListPurchases((string) ($payload['pin'] ?? ''), $limit);
+        if (empty($result['ok'])) {
+            $err = (string) ($result['error'] ?? '');
+            if ($err === 'UNAUTHORIZED') {
+                http_response_code(401);
+            } elseif ($err === 'PIN_NOT_CONFIGURED') {
+                http_response_code(503);
+            } else {
+                http_response_code(400);
+            }
+        }
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     if ($action === 'admin_update_status') {
         $result = krmServicesAdminUpdateStatus($payload);
         if (empty($result['ok'])) {

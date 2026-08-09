@@ -81,10 +81,11 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>DEMANDES SERVICES KRM</h1>
+    <h1>SUIVI KRM — SERVICES &amp; ACHATS</h1>
     <p class="sub">
-      Admin TORINVEST · suivi des <strong>paiements de services</strong> TorPass (KRM envoyés à la treasury),
-      pas des achats de KRM sur Jupiter/DEX.<br />
+      Admin TORINVEST · deux listes :
+      <strong>1)</strong> demandes de services payées (treasury) ·
+      <strong>2)</strong> achats / réceptions KRM on-chain (Jupiter/DEX via Helius).<br />
       PIN = <code>licence_crm_pin</code> (sinon <code>dev_access_pin</code>) dans <code>api/config.local.php</code>
       · pas le mot de passe SSH
     </p>
@@ -93,7 +94,7 @@
       <label>PIN admin</label>
       <div class="row">
         <input id="adminPin" type="password" placeholder="PIN" autocomplete="current-password" />
-        <button id="loginBtn" type="button">Charger les demandes</button>
+        <button id="loginBtn" type="button">Charger le suivi</button>
       </div>
       <p class="msg" id="loginMsg">Vérification de l’API…</p>
     </div>
@@ -103,14 +104,23 @@
         <button id="refreshBtn" class="secondary" type="button">Rafraîchir</button>
         <button id="logoutBtn" class="secondary" type="button">Oublier le PIN (session)</button>
       </div>
+
+      <h2 style="font-size:16px;margin:18px 0 6px;color:var(--amber)">Achats / réceptions KRM (on-chain)</h2>
+      <p class="meta" style="margin:0 0 8px">
+        Swaps et transferts entrants ≥ 1 KRM. Les paiements vers la treasury (services) sont exclus.
+      </p>
+      <div id="purchases"></div>
+      <p class="msg" id="purchasesMsg"></p>
+
+      <h2 style="font-size:16px;margin:22px 0 6px;color:var(--amber)">Demandes de services (post-paiement)</h2>
       <div id="requests"></div>
       <p class="msg" id="listMsg"></p>
     </div>
   </div>
 
   <script src="/assets/torinvest-php.js"></script>
-  <script src="/assets/torinvest-krm-config.js?v=4"></script>
-  <script src="/assets/torinvest-krm-pay.js?v=4"></script>
+  <script src="/assets/torinvest-krm-config.js?v=5"></script>
+  <script src="/assets/torinvest-krm-pay.js?v=5"></script>
   <script>
     (function () {
       var PAY = window.TorinvestKrmPay;
@@ -118,14 +128,24 @@
       var loginBtn = document.getElementById("loginBtn");
       var loginMsg = document.getElementById("loginMsg");
       var listMsg = document.getElementById("listMsg");
+      var purchasesMsg = document.getElementById("purchasesMsg");
       var listPanel = document.getElementById("listPanel");
       var requestsEl = document.getElementById("requests");
+      var purchasesEl = document.getElementById("purchases");
       var pin = sessionStorage.getItem("torinvest_krm_admin_pin") || "";
       var apiReady = false;
 
       function truncate(s) {
         if (!s || s.length < 12) return s || "—";
         return s.slice(0, 6) + "…" + s.slice(-6);
+      }
+
+      function fmtKrm(n) {
+        try {
+          return Number(n).toLocaleString("fr-FR", { maximumFractionDigits: 4 });
+        } catch (e) {
+          return String(n);
+        }
       }
 
       function setMsg(el, text, ok) {
@@ -143,16 +163,53 @@
         return [];
       }
 
+      function renderPurchases(rows) {
+        purchasesEl.innerHTML = "";
+        if (!rows.length) {
+          purchasesEl.innerHTML =
+            "<p class='meta'>Aucun achat / transfert récent détecté sur le mint KRM (fenêtre Helius).</p>";
+          return;
+        }
+        rows.forEach(function (r) {
+          var card = document.createElement("div");
+          card.className = "card";
+          var explorer =
+            (window.TORINVEST_KRM.EXPLORER_TX_BASE || "https://explorer.solana.com/tx/") +
+            (r.signature || "");
+          var when = (r.at || "").slice(0, 19).replace("T", " ");
+          card.innerHTML =
+            "<div><span class='status'></span></div>" +
+            "<div class='meta' style='margin-top:8px'></div>" +
+            "<div class='meta mono' style='margin-top:8px'></div>" +
+            "<div class='meta' style='margin-top:8px'></div>";
+          card.querySelector(".status").textContent =
+            (r.kind || "IN") + (r.source ? " · " + r.source : "");
+          card.querySelectorAll(".meta")[0].textContent =
+            (when || "—") +
+            " UTC · +" +
+            fmtKrm(r.amountKrm) +
+            " KRM";
+          card.querySelectorAll(".meta")[1].innerHTML =
+            "Wallet : " +
+            truncate(r.wallet) +
+            "<br/>Signature : " +
+            truncate(r.signature) +
+            ' · <a href="' +
+            explorer +
+            '" target="_blank" rel="noopener">Explorer</a>';
+          card.querySelectorAll(".meta")[2].textContent =
+            r.description || (r.from ? "De " + truncate(r.from) : "");
+          purchasesEl.appendChild(card);
+        });
+      }
+
       function render(rows) {
         requestsEl.innerHTML = "";
         if (!rows.length) {
           requestsEl.innerHTML =
             "<p class='meta'><strong>Aucune demande de service.</strong></p>" +
-            "<p class='meta'>Cette liste se remplit quand un membre paie un service sur " +
-            "<a href='/torpass'>TorPass</a> (analyse, coaching, etc.) avec KRM, " +
-            "puis envoie le formulaire post-paiement.<br/>" +
-            "Acheter des KRM sur Jupiter / un DEX n’apparaît <em>pas</em> ici — " +
-            "ça augmente seulement le solde du wallet (niveaux TorPass / accès Fondamental).</p>";
+            "<p class='meta'>Se remplit quand un membre paie un service sur " +
+            "<a href='/torpass'>TorPass</a> puis envoie le formulaire post-paiement.</p>";
           return;
         }
         rows.forEach(function (r) {
@@ -223,13 +280,26 @@
           return;
         }
         setMsg(loginMsg, "Connexion…", true);
-        setMsg(listMsg, "Chargement…", true);
+        setMsg(listMsg, "Chargement demandes…", true);
+        setMsg(purchasesMsg, "Chargement achats on-chain…", true);
         loginBtn.disabled = true;
-        PAY.adminListRequests(pin)
-          .then(function (data) {
+        Promise.all([
+          PAY.adminListRequests(pin),
+          PAY.adminListPurchases
+            ? PAY.adminListPurchases(pin, 50)
+            : Promise.resolve({
+                ok: false,
+                error: "API_NOT_DEPLOYED",
+                message: "Mets à jour torinvest-krm-pay.js (adminListPurchases).",
+              }),
+        ])
+          .then(function (results) {
+            var data = results[0];
+            var buys = results[1];
             if (!data || !data.ok) {
               setMsg(loginMsg, errText(data), false);
               setMsg(listMsg, "", true);
+              setMsg(purchasesMsg, "", true);
               listPanel.hidden = true;
               if (data && data.error === "API_NOT_DEPLOYED") {
                 apiReady = false;
@@ -240,8 +310,21 @@
             sessionStorage.setItem("torinvest_krm_admin_pin", pin);
             listPanel.hidden = false;
             setMsg(loginMsg, "Connecté", true);
-            setMsg(listMsg, data.requests.length + " demande(s)", true);
+            setMsg(listMsg, (data.requests || []).length + " demande(s) service", true);
             render(data.requests || []);
+
+            if (buys && buys.ok) {
+              setMsg(
+                purchasesMsg,
+                (buys.count != null ? buys.count : (buys.purchases || []).length) +
+                  " mouvement(s) KRM",
+                true
+              );
+              renderPurchases(buys.purchases || []);
+            } else {
+              setMsg(purchasesMsg, errText(buys) || "Achats indisponibles", false);
+              purchasesEl.innerHTML = "";
+            }
           })
           .catch(function (e) {
             setMsg(loginMsg, (e && e.message) || "Erreur inattendue", false);
