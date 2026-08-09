@@ -70,19 +70,18 @@
     },
   };
 
-  /** Services ponctuels (paiement on-chain en étape 2 — UI + check solde uniquement). */
-  var TORPASS_SERVICES = [
-    {
-      id: "trade-idea-review",
-      name: "Revue pédagogique d'une idée de trade",
-      priceKrm: 50,
-    },
-    {
-      id: "trade-debrief",
-      name: "Débrief pédagogique d'un trade",
-      priceKrm: 100,
-    },
-  ];
+  /**
+   * Services ponctuels — montants centralisés dans TORINVEST_KRM.KRM_SERVICES
+   * (assets/torinvest-krm-config.js). Pas de duplication des prix.
+   */
+  function listTorpassServices() {
+    if (window.TORINVEST_KRM && typeof window.TORINVEST_KRM.listServices === "function") {
+      return window.TORINVEST_KRM.listServices().map(function (s) {
+        return { id: s.id, name: s.name, priceKrm: s.amountKrm };
+      });
+    }
+    return [];
+  }
 
   window.TorinvestTorpass = {
     WORKER_ACCESS_URL: WORKER_ACCESS_URL,
@@ -93,7 +92,9 @@
     TORPASS_LEVELS: TORPASS_LEVELS,
     LEVEL_ORDER: LEVEL_ORDER,
     LEVEL_META: LEVEL_META,
-    TORPASS_SERVICES: TORPASS_SERVICES,
+    get TORPASS_SERVICES() {
+      return listTorpassServices();
+    },
 
     /** Legacy forge / premium — ne pas utiliser pour les niveaux TorPass V1. */
     MIN_KRM: 40000,
@@ -266,16 +267,20 @@
     },
 
     getServiceById: function (serviceId) {
+      if (window.TORINVEST_KRM && window.TORINVEST_KRM.getService) {
+        var s = window.TORINVEST_KRM.getService(serviceId);
+        if (!s) return null;
+        return { id: serviceId, name: s.name, priceKrm: s.amountKrm };
+      }
+      var list = listTorpassServices();
       var i;
-      for (i = 0; i < this.TORPASS_SERVICES.length; i++) {
-        if (this.TORPASS_SERVICES[i].id === serviceId) {
-          return this.TORPASS_SERVICES[i];
-        }
+      for (i = 0; i < list.length; i++) {
+        if (list[i].id === serviceId) return list[i];
       }
       return null;
     },
 
-    /** Vérifie le solde pour un service (pas de transfert on-chain en V1). */
+    /** Vérifie le solde UI pour un service. */
     canAffordService: function (krmBalance, serviceId) {
       var service = this.getServiceById(serviceId);
       if (!service) return false;
