@@ -747,6 +747,20 @@
       <div id="edgeHint" class="edge-hint" role="note"></div>
     </section>
 
+    <!-- Comment fonctionne KRM -->
+    <section class="panel" aria-labelledby="howKrmTitle">
+      <div class="panel-title" id="howKrmTitle">Comment fonctionne KRM ?</div>
+      <ol id="howKrmList" style="margin:0;padding-left:1.2rem;color:var(--muted);font-size:14px;line-height:1.55">
+        <li>Détiens des KRM → débloque ton niveau TorPass</li>
+        <li>Achète les produits principaux en euros</li>
+        <li>Utilise des KRM pour certains services ponctuels</li>
+      </ol>
+      <p class="disclaimer" style="margin-top:12px" id="torpassDisclaimer">
+        Les niveaux TorPass donnent des droits et avantages dans l’écosystème TORINVEST.
+        Ils ne remplacent pas l’achat des produits payants.
+      </p>
+    </section>
+
     <!-- Carte des niveaux TorPass -->
     <section class="panel" aria-labelledby="levelsTitle">
       <div class="panel-title" id="levelsTitle">TORPASS BETA V1</div>
@@ -766,20 +780,53 @@
         <article class="level-tile" data-level="ACADEMY">
           <div class="level-name">ACADEMY</div>
           <div class="level-threshold">250 KRM</div>
-          <div class="level-perks">Discord + formations</div>
+          <div class="level-perks">Discord privé · Statut membre Formation · Avantages / tarifs Academy</div>
           <div class="level-active-badge">Niveau actif</div>
         </article>
-        <article class="level-tile" data-level="COACHING">
-          <div class="level-name">COACHING</div>
+        <article class="level-tile" data-level="PRO">
+          <div class="level-name">PRO</div>
           <div class="level-threshold">500 KRM</div>
-          <div class="level-perks">Discord + formations + accompagnement</div>
+          <div class="level-perks">Discord · Statut Academy · Avantages Robot Access · Accompagnement / avantages Pro</div>
           <div class="level-active-badge">Niveau actif</div>
         </article>
       </div>
       <p class="disclaimer">
-        Les seuils TorPass correspondent à des droits d’accès dans l’écosystème TORINVEST.
-        Les KRM détenus pour obtenir un niveau ne sont pas consommés.
+        KRM détenus = statut TorPass. KRM dépensés = services ponctuels.
+        Les KRM détenus pour un niveau ne sont pas consommés.
       </p>
+    </section>
+
+    <!-- Offres € -->
+    <section class="panel" aria-labelledby="offersTitle">
+      <div class="panel-title" id="offersTitle">Produits TORINVEST (euros)</div>
+      <p class="subtitle" style="margin-bottom:14px;font-size:13px;">
+        Robot Access et Formation Trading sont deux produits distincts, payés en euros.
+        KRM = statut membre / avantages — pas un remplacement du paiement €.
+      </p>
+      <div class="levels-grid" id="euroOffersGrid">
+        <article class="level-tile" data-offer="ROBOT">
+          <div class="level-name">ROBOT ACCESS</div>
+          <div class="level-threshold" id="offerRobotPrice">79€/mois</div>
+          <div class="level-perks" id="offerRobotCompare">149€/mois barré</div>
+          <p class="disclaimer" id="offerRobotAdvantage" style="margin-top:10px">
+            Offre de lancement : aucun KRM requis.
+          </p>
+          <a id="offerRobotLink" class="btn-buy" href="https://buy.stripe.com/eVq14nclt5XV3ka0zFd7q02" target="_blank" rel="noopener" style="margin-top:10px;display:inline-flex">
+            Voir l’offre Robot
+          </a>
+        </article>
+        <article class="level-tile" data-offer="FORMATION">
+          <div class="level-name">FORMATION TRADING</div>
+          <div class="level-threshold" id="offerFormationPrice">349€/an</div>
+          <div class="level-perks" id="offerFormationCompare">499€/an barré</div>
+          <p class="disclaimer" id="offerFormationAdvantage" style="margin-top:10px">
+            Offre de lancement : aucun KRM requis.
+          </p>
+          <a id="offerFormationLink" class="btn-buy" href="https://buy.stripe.com/aFabJ10CLeurf2S827d7q01" target="_blank" rel="noopener" style="margin-top:10px;display:inline-flex">
+            Voir l’offre Formation
+          </a>
+        </article>
+      </div>
     </section>
 
     <!-- Statut wallet / niveau -->
@@ -810,11 +857,11 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
             <span class="stat-value" id="statDiscord">—</span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">Formations</span>
+            <span class="stat-label">Avantage Formation</span>
             <span class="stat-value" id="statFormations">—</span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">Coaching</span>
+            <span class="stat-label">Avantage Robot / Pro</span>
             <span class="stat-value" id="statCoaching">—</span>
           </div>
           <div id="nextBox" class="next-box" hidden>
@@ -889,9 +936,10 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
 
   <script src="/assets/torinvest-php.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+  <script src="/assets/torinvest-offers-config.js?v=1"></script>
   <script src="/assets/torinvest-krm-config.js?v=7"></script>
   <script src="/assets/torinvest-solana-rpc.js?v=6"></script>
-  <script src="/assets/torinvest-torpass.js?v=8"></script>
+  <script src="/assets/torinvest-torpass.js?v=9"></script>
   <script src="/assets/torinvest-krm-pay.js?v=3"></script>
   <script>
     (function () {
@@ -932,8 +980,39 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       }
 
       function highlightLevel(levelKey) {
-        document.querySelectorAll(".level-tile").forEach(function (tile) {
-          tile.classList.toggle("active", tile.getAttribute("data-level") === levelKey);
+        var key = levelKey === "COACHING" ? "PRO" : levelKey;
+        document.querySelectorAll(".level-tile[data-level]").forEach(function (tile) {
+          var t = tile.getAttribute("data-level");
+          tile.classList.toggle("active", t === key || (key === "PRO" && t === "COACHING"));
+        });
+      }
+
+      function renderEuroOffers(torpassLevel) {
+        var CFG = window.TORINVEST_OFFERS_CONFIG;
+        if (!CFG || !CFG.resolveOfferPrice) return;
+        [
+          { id: "ROBOT", priceEl: "offerRobotPrice", cmpEl: "offerRobotCompare", advEl: "offerRobotAdvantage", linkEl: "offerRobotLink" },
+          { id: "FORMATION", priceEl: "offerFormationPrice", cmpEl: "offerFormationCompare", advEl: "offerFormationAdvantage", linkEl: "offerFormationLink" },
+        ].forEach(function (row) {
+          var r = CFG.resolveOfferPrice(row.id, torpassLevel || "PUBLIC");
+          if (!r.ok) return;
+          var pe = document.getElementById(row.priceEl);
+          var ce = document.getElementById(row.cmpEl);
+          var ae = document.getElementById(row.advEl);
+          var le = document.getElementById(row.linkEl);
+          if (pe) pe.textContent = r.displayPrice + "€" + (r.unitLabel || "");
+          if (ce) {
+            ce.textContent = r.compareAtPrice
+              ? r.compareAtPrice + "€" + (r.unitLabel || "") + " · " + (r.badge || "")
+              : r.badge || "";
+          }
+          if (ae) {
+            ae.textContent = r.advantageText || "";
+            if (CFG.PRICING_MODE === "PUBLIC_PROMO" && r.futureAdvantageText) {
+              ae.textContent += " (Plus tard : " + r.futureAdvantageText + ")";
+            }
+          }
+          if (le && r.stripePaymentLink) le.href = r.stripePaymentLink;
         });
       }
 
@@ -1069,12 +1148,14 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         var discordEl = document.getElementById("statDiscord");
         var formEl = document.getElementById("statFormations");
         var coachEl = document.getElementById("statCoaching");
+        var formOk = !!(status.access.memberFormation || status.access.formations);
+        var proOk = !!(status.access.memberRobot || status.access.coaching || status.access.accompagnement);
         discordEl.textContent = yn(status.access.discord);
         discordEl.className = ynClass(status.access.discord);
-        formEl.textContent = yn(status.access.formations);
-        formEl.className = ynClass(status.access.formations);
-        coachEl.textContent = yn(status.access.coaching);
-        coachEl.className = ynClass(status.access.coaching);
+        formEl.textContent = yn(formOk);
+        formEl.className = ynClass(formOk);
+        coachEl.textContent = yn(proOk);
+        coachEl.className = ynClass(proOk);
 
         var nextBox = document.getElementById("nextBox");
         var maxBox = document.getElementById("maxBox");
@@ -1092,6 +1173,7 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         highlightLevel(status.level);
         accessPill.className = "access-pill ok";
         accessPill.textContent = "Niveau " + status.label + " · solde KRM vérifié on-chain";
+        renderEuroOffers(status.level);
         renderServices(status.krm);
         refreshMyRequests();
         tryResumeLastPayment();
@@ -1431,14 +1513,31 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       })();
 
       renderServices(null);
-      document.querySelectorAll(".level-tile").forEach(function (tile) {
+      renderEuroOffers("PUBLIC");
+      document.querySelectorAll(".level-tile[data-level]").forEach(function (tile) {
         var key = tile.getAttribute("data-level");
         var threshold = TP.TORPASS_LEVELS[key];
         var el = tile.querySelector(".level-threshold");
         if (el && threshold != null) {
           el.textContent = TP.formatKrm(threshold) + " KRM";
         }
+        var meta = TP.getLevelMeta(key);
+        var perksEl = tile.querySelector(".level-perks");
+        if (perksEl && meta && meta.perks && meta.perks.length) {
+          perksEl.textContent = meta.perks.join(" · ");
+        }
       });
+      var CFG = window.TORINVEST_OFFERS_CONFIG;
+      if (CFG) {
+        var how = document.getElementById("howKrmList");
+        if (how && CFG.HOW_KRM_WORKS) {
+          how.innerHTML = CFG.HOW_KRM_WORKS.map(function (t) {
+            return "<li>" + t + "</li>";
+          }).join("");
+        }
+        var disc = document.getElementById("torpassDisclaimer");
+        if (disc && CFG.DISCLAIMER) disc.textContent = CFG.DISCLAIMER;
+      }
 
       var buyBtn = document.getElementById("buyKrmBtn");
       if (buyBtn && KRM.KRM_BUY_URL) {

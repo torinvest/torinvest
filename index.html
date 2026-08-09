@@ -1391,14 +1391,14 @@
             <a class="btn btn-ghost" href="#contact">Recevoir les alertes gratuites</a>
           </article>
 
-          <article class="plan featured">
-            <div class="plan-badge">promo</div>
+          <article class="plan featured" data-offer="ROBOT">
+            <div class="plan-badge" data-offer-badge="ROBOT">OFFRE DE LANCEMENT — aucun KRM requis</div>
             <h3 class="plan-name">Robot Access</h3>
-            <p class="plan-desc">EA MT5 connecté à l’infrastructure décisionnelle TORINVEST avec licence individuelle.</p>
+            <p class="plan-desc">EA MT5 connecté à l’infrastructure décisionnelle TORINVEST avec licence individuelle. Produit distinct de la Formation Trading.</p>
 
             <div class="plan-price">
-              <span class="price-current">79€/mois</span>
-              <span class="price-old">149€</span>
+              <span class="price-current" data-offer-price="ROBOT">79€/mois</span>
+              <span class="price-old" data-offer-old="ROBOT">149€</span>
               <span class="price-badge">prix promo</span>
             </div>
 
@@ -1411,9 +1411,14 @@
             </ul>
 
             <div class="plan-actions">
-              <a class="btn btn-pay" href="https://buy.stripe.com/eVq14nclt5XV3ka0zFd7q02" target="_blank" rel="noopener">Payer maintenant</a>
+              <a class="btn btn-pay" data-offer-link="ROBOT" href="https://buy.stripe.com/eVq14nclt5XV3ka0zFd7q02" target="_blank" rel="noopener">Payer maintenant</a>
               <a class="btn btn-primary" href="#contact">Demander l’accès</a>
             </div>
+            <p data-offer-advantage="ROBOT" style="margin-top:12px;font-size:12px;color:var(--gold);text-align:center;line-height:1.45">
+              <strong>Avantage TorPass</strong><br />
+              Offre de lancement : aucun KRM requis.<br />
+              <span style="color:var(--muted)">Plus tard — Tarif membre PRO : 79 €/mois — nécessite ≥ 500 KRM à l’achat ou au renouvellement.</span>
+            </p>
             <p style="margin-top:10px;font-size:12px;color:var(--muted);text-align:center">
               1. Payer → 2. Email avec clé → 3. <a href="/activation.html" style="color:var(--gold)">Compléter profil</a>
             </p>
@@ -1421,19 +1426,20 @@
               Guide MT5 disponible après activation (via AI Access).
             </p>
           </article>
-<article class="plan">
-  <div class="plan-badge">places limitées</div>
+<article class="plan" data-offer="FORMATION">
+  <div class="plan-badge" data-offer-badge="FORMATION">OFFRE DE LANCEMENT — aucun KRM requis</div>
 
   <h3 class="plan-name">Formation de Trading</h3>
 
   <p class="plan-desc">
     Accompagnement complet pour apprendre le trading sérieusement :
     macro, psychologie, lecture de marché, exécution, routine et discipline.
+    Produit distinct du Robot Access.
   </p>
 
   <div class="plan-price">
-    <span class="price-current">349€/an</span>
-    <span class="price-old">499€</span>
+    <span class="price-current" data-offer-price="FORMATION">349€/an</span>
+    <span class="price-old" data-offer-old="FORMATION">499€</span>
     <span class="price-badge">offre lancement</span>
   </div>
 
@@ -1448,6 +1454,7 @@
 
   <div class="plan-actions">
     <a class="btn btn-pay"
+       data-offer-link="FORMATION"
        href="https://buy.stripe.com/aFabJ10CLeurf2S827d7q01"
        target="_blank"
        rel="noopener">
@@ -1457,12 +1464,21 @@
     <a class="btn btn-ghost" href="#contact">
        Demander des informations
     </a>
+    <p data-offer-advantage="FORMATION" style="margin-top:12px;font-size:12px;color:var(--gold);text-align:center;line-height:1.45">
+      <strong>Avantage TorPass</strong><br />
+      Offre de lancement : aucun KRM requis.<br />
+      <span style="color:var(--muted)">Plus tard — Tarif membre ACADEMY : 349 €/an — nécessite ≥ 250 KRM à l’achat ou au renouvellement.</span>
+    </p>
     <p style="margin-top:10px;font-size:12px;color:var(--muted);text-align:center">
       1. Payer → 2. Email avec clé → 3. <a href="/activation-accompagnement.html" style="color:var(--gold)">Compléter profil</a>
     </p>
   </div>
 </article>
         </div>
+        <p style="margin-top:18px;font-size:13px;color:var(--muted);text-align:center;max-width:720px;margin-left:auto;margin-right:auto">
+          Euros = produits principaux · KRM = statut TorPass et services ponctuels.
+          <a href="/torpass" style="color:var(--gold)">Voir TorPass</a>
+        </p>
       </section>
 
       <section id="mt5" class="section">
@@ -1754,6 +1770,42 @@
 }
 </style>
   
+  <script src="/assets/torinvest-offers-config.js?v=1"></script>
+  <script>
+    (function () {
+      var CFG = window.TORINVEST_OFFERS_CONFIG;
+      if (!CFG || !CFG.resolveOfferPrice) return;
+      ["ROBOT", "FORMATION"].forEach(function (id) {
+        var r = CFG.resolveOfferPrice(id, "PUBLIC");
+        if (!r.ok) return;
+        var price = document.querySelector('[data-offer-price="' + id + '"]');
+        var old = document.querySelector('[data-offer-old="' + id + '"]');
+        var badge = document.querySelector('[data-offer-badge="' + id + '"]');
+        var adv = document.querySelector('[data-offer-advantage="' + id + '"]');
+        var link = document.querySelector('[data-offer-link="' + id + '"]');
+        if (price) price.textContent = r.displayPrice + "€" + (r.unitLabel || "");
+        if (old) {
+          if (r.compareAtPrice) {
+            old.textContent = r.compareAtPrice + "€";
+            old.hidden = false;
+          } else {
+            old.hidden = true;
+          }
+        }
+        if (badge && r.badge) badge.textContent = r.badge;
+        if (adv) {
+          var future = r.futureAdvantageText
+            ? '<br /><span style="color:var(--muted)">Plus tard — ' + r.futureAdvantageText + "</span>"
+            : "";
+          adv.innerHTML =
+            "<strong>Avantage TorPass</strong><br />" +
+            (r.advantageText || "") +
+            future;
+        }
+        if (link && r.stripePaymentLink) link.href = r.stripePaymentLink;
+      });
+    })();
+  </script>
   <script src="/assets/torinvest-rgpd.js" defer></script>
 </body>
 </html>

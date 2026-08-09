@@ -24,6 +24,7 @@ global.localStorage = {
 };
 
 // Stub Phantom / web3 not required for simulatePreflight tests
+require(path.join(__dirname, "../assets/torinvest-offers-config.js"));
 require(path.join(__dirname, "../assets/torinvest-krm-config.js"));
 require(path.join(__dirname, "../assets/torinvest-torpass.js"));
 require(path.join(__dirname, "../assets/torinvest-krm-pay.js"));
@@ -273,13 +274,19 @@ test("TransferChecked data encoding (50 KRM)", function () {
   assert.strictEqual(n.toString(), "50000000");
 });
 
-test("niveaux TorPass inchangés", function () {
-  assert.deepStrictEqual(TP.TORPASS_LEVELS, {
-    PUBLIC: 0,
-    COMMUNITY: 100,
-    ACADEMY: 250,
-    COACHING: 500,
-  });
+test("niveaux TorPass (PRO + alias COACHING)", function () {
+  assert.strictEqual(TP.TORPASS_LEVELS.PUBLIC, 0);
+  assert.strictEqual(TP.TORPASS_LEVELS.COMMUNITY, 100);
+  assert.strictEqual(TP.TORPASS_LEVELS.ACADEMY, 250);
+  assert.strictEqual(TP.TORPASS_LEVELS.PRO, 500);
+  assert.strictEqual(TP.TORPASS_LEVELS.COACHING, 500);
+  assert.strictEqual(TP.getLevelFromBalance(0), "PUBLIC");
+  assert.strictEqual(TP.getLevelFromBalance(100), "COMMUNITY");
+  assert.strictEqual(TP.getLevelFromBalance(250), "ACADEMY");
+  assert.strictEqual(TP.getLevelFromBalance(500), "PRO");
+  assert.ok(!TP.getAccessForBalance(250).memberRobot);
+  assert.ok(TP.getAccessForBalance(250).memberFormation);
+  assert.ok(TP.getAccessForBalance(500).memberRobot);
 });
 
 test("aucune private key dans assets krm", function () {
