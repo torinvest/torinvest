@@ -82,7 +82,12 @@
 <body>
   <div class="wrap">
     <h1>DEMANDES SERVICES KRM</h1>
-    <p class="sub">Admin TORINVEST · PIN = <code>licence_crm_pin</code> (sinon <code>dev_access_pin</code>) dans <code>api/config.local.php</code> · pas le mot de passe SSH</p>
+    <p class="sub">
+      Admin TORINVEST · suivi des <strong>paiements de services</strong> TorPass (KRM envoyés à la treasury),
+      pas des achats de KRM sur Jupiter/DEX.<br />
+      PIN = <code>licence_crm_pin</code> (sinon <code>dev_access_pin</code>) dans <code>api/config.local.php</code>
+      · pas le mot de passe SSH
+    </p>
 
     <div class="panel" id="loginPanel">
       <label>PIN admin</label>
@@ -141,7 +146,13 @@
       function render(rows) {
         requestsEl.innerHTML = "";
         if (!rows.length) {
-          requestsEl.innerHTML = "<p class='meta'>Aucune demande.</p>";
+          requestsEl.innerHTML =
+            "<p class='meta'><strong>Aucune demande de service.</strong></p>" +
+            "<p class='meta'>Cette liste se remplit quand un membre paie un service sur " +
+            "<a href='/torpass'>TorPass</a> (analyse, coaching, etc.) avec KRM, " +
+            "puis envoie le formulaire post-paiement.<br/>" +
+            "Acheter des KRM sur Jupiter / un DEX n’apparaît <em>pas</em> ici — " +
+            "ça augmente seulement le solde du wallet (niveaux TorPass / accès Fondamental).</p>";
           return;
         }
         rows.forEach(function (r) {
