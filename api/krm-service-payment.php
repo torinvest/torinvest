@@ -111,7 +111,14 @@ try {
     if ($action === 'admin_list') {
         $result = krmServicesAdminList((string) ($payload['pin'] ?? ''));
         if (empty($result['ok'])) {
-            http_response_code($result['error'] === 'UNAUTHORIZED' ? 401 : 400);
+            $err = (string) ($result['error'] ?? '');
+            if ($err === 'UNAUTHORIZED') {
+                http_response_code(401);
+            } elseif ($err === 'PIN_NOT_CONFIGURED') {
+                http_response_code(503);
+            } else {
+                http_response_code(400);
+            }
         }
         echo json_encode($result, JSON_UNESCAPED_UNICODE);
         exit;
@@ -120,9 +127,12 @@ try {
     if ($action === 'admin_update_status') {
         $result = krmServicesAdminUpdateStatus($payload);
         if (empty($result['ok'])) {
+            $err = (string) ($result['error'] ?? '');
             $code = 400;
-            if (($result['error'] ?? '') === 'UNAUTHORIZED') {
+            if ($err === 'UNAUTHORIZED') {
                 $code = 401;
+            } elseif ($err === 'PIN_NOT_CONFIGURED') {
+                $code = 503;
             }
             http_response_code($code);
         }
