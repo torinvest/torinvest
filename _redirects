@@ -60,6 +60,7 @@
 /api/accompagnement-access.php https://radar.torinvest-trading.com/api/accompagnement-access.php 200!
 # Proxy RPC TorPass (POST same-origin www → radar, pas de CORS navigateur)
 /api/solana-rpc.php           https://radar.torinvest-trading.com/api/solana-rpc.php                200!
+/api/krm-service-payment.php  https://radar.torinvest-trading.com/api/krm-service-payment.php     200!
 /api/license-provision.php    https://radar.torinvest-trading.com/api/license-provision.php    200!
 /api/access-config.php        https://radar.torinvest-trading.com/api/access-config.php        200!
 /api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  200!

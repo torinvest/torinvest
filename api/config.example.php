@@ -111,4 +111,10 @@ return [
     // 0 = email HTML intégré ; sinon ID template Brevo transactionnel
     'brevo_template_vip' => 0,
     'brevo_template_accompagnement' => 0,
+
+    // --- KRM Services Treasury (paiements on-chain TorPass) ---
+    // PUBLIC KEY Solana uniquement (jamais de private key).
+    // Laisser vide pour désactiver les paiements côté serveur.
+    // Doit correspondre à KRM_SERVICES_TREASURY dans assets/torinvest-krm-config.js
+    'krm_services_treasury' => '',
 ];
