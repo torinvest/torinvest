@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin — Demandes Services KRM | TORINVEST</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/forge-logo.png" type="image/png" />
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #121a2b;
+      --line: rgba(232, 184, 74, 0.28);
+      --text: #f3f0e8;
+      --muted: #a8b0bf;
+      --amber: #e8b84a;
+      --ok: #34d399;
+      --ko: #f87171;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: radial-gradient(circle at top, #152033, #07090f 60%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+    }
+    .wrap { max-width: 1100px; margin: 0 auto; }
+    h1 { font-size: 22px; margin: 0 0 8px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    label { display: block; font-size: 12px; color: var(--muted); margin: 8px 0 4px; }
+    input, select, button, textarea {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid rgba(148,163,184,.35);
+      background: #0a101c;
+      color: var(--text);
+      padding: 9px 10px;
+    }
+    button {
+      cursor: pointer;
+      background: linear-gradient(90deg, #f97316, #facc15);
+      color: #111;
+      border: none;
+      font-weight: 700;
+    }
+    button.secondary {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--amber);
+    }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+    .card {
+      border: 1px solid rgba(148,163,184,.2);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+      background: rgba(0,0,0,.2);
+    }
+    .meta { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .mono { font-family: ui-monospace, monospace; word-break: break-all; }
+    .status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--line); color: var(--amber); }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .msg { font-size: 13px; margin-top: 10px; }
+    .msg.ok { color: var(--ok); }
+    .msg.ko { color: var(--ko); }
+    a { color: var(--amber); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>DEMANDES SERVICES KRM</h1>
+    <p class="sub">Admin TORINVEST · PIN = licence CRM / dev (config.local.php) · aucune clé privée</p>
+
+    <div class="panel" id="loginPanel">
+      <label>PIN admin</label>
+      <div class="row">
+        <input id="adminPin" type="password" placeholder="PIN" autocomplete="current-password" />
+        <button id="loginBtn" type="button">Charger les demandes</button>
+      </div>
+      <p class="msg" id="loginMsg"></p>
+    </div>
+
+    <div class="panel" id="listPanel" hidden>
+      <div class="row">
+        <button id="refreshBtn" class="secondary" type="button">Rafraîchir</button>
+        <button id="logoutBtn" class="secondary" type="button">Oublier le PIN (session)</button>
+      </div>
+      <div id="requests"></div>
+      <p class="msg" id="listMsg"></p>
+    </div>
+  </div>
+
+  <script src="/assets/torinvest-php.js"></script>
+  <script src="/assets/torinvest-krm-config.js?v=3"></script>
+  <script src="/assets/torinvest-krm-pay.js?v=3"></script>
+  <script>
+    (function () {
+      var PAY = window.TorinvestKrmPay;
+      var pinInput = document.getElementById("adminPin");
+      var loginMsg = document.getElementById("loginMsg");
+      var listMsg = document.getElementById("listMsg");
+      var listPanel = document.getElementById("listPanel");
+      var requestsEl = document.getElementById("requests");
+      var pin = sessionStorage.getItem("torinvest_krm_admin_pin") || "";
+
+      function truncate(s) {
+        if (!s || s.length < 12) return s || "—";
+        return s.slice(0, 6) + "…" + s.slice(-6);
+      }
+
+      function setMsg(el, text, ok) {
+        el.textContent = text || "";
+        el.className = "msg " + (ok ? "ok" : "ko");
+      }
+
+      function nextActions(status) {
+        if (status === "SUBMITTED") return ["IN_REVIEW", "CANCELLED"];
+        if (status === "IN_REVIEW") return ["COMPLETED", "CANCELLED"];
+        return [];
+      }
+
+      function render(rows) {
+        requestsEl.innerHTML = "";
+        if (!rows.length) {
+          requestsEl.innerHTML = "<p class='meta'>Aucune demande.</p>";
+          return;
+        }
+        rows.forEach(function (r) {
+          var p = r.payload || {};
+          var card = document.createElement("div");
+          card.className = "card";
+          var explorer =
+            (window.TORINVEST_KRM.EXPLORER_TX_BASE || "https://explorer.solana.com/tx/") +
+            r.signature;
+          var textBits = [
+            p.description || "",
+            p.reasoning || "",
+            p.justification || "",
+            p.assumedErrors || "",
+            p.mainQuestion || "",
+            p.comment || "",
+          ]
+            .filter(Boolean)
+            .join("\n---\n");
+
+          card.innerHTML =
+            "<div><span class='status'></span></div>" +
+            "<div class='meta' style='margin-top:8px'></div>" +
+            "<div class='meta mono' style='margin-top:8px'></div>" +
+            "<pre class='meta' style='white-space:pre-wrap;margin-top:10px'></pre>" +
+            "<div class='actions'></div>";
+
+          card.querySelector(".status").textContent = r.status || "—";
+          card.querySelectorAll(".meta")[0].textContent =
+            (r.createdAt || "").slice(0, 19).replace("T", " ") +
+            " UTC · " +
+            (r.serviceName || r.serviceId) +
+            " · " +
+            (r.amountKrm || "?") +
+            " KRM · " +
+            (p.asset || "—") +
+            " · " +
+            (p.timeframe || "—");
+          card.querySelectorAll(".meta")[1].innerHTML =
+            "Wallet : " +
+            truncate(r.userWallet) +
+            "<br/>Signature : " +
+            truncate(r.signature) +
+            ' · <a href="' +
+            explorer +
+            '" target="_blank" rel="noopener">Explorer</a>';
+          card.querySelector("pre").textContent = textBits || "(pas de texte)";
+
+          var actions = card.querySelector(".actions");
+          nextActions(r.status).forEach(function (st) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.className = "secondary";
+            b.textContent = "→ " + st;
+            b.addEventListener("click", function () {
+              updateStatus(r.id, st);
+            });
+            actions.appendChild(b);
+          });
+
+          requestsEl.appendChild(card);
+        });
+      }
+
+      function load() {
+        if (!pin) return;
+        setMsg(listMsg, "Chargement…", true);
+        PAY.adminListRequests(pin).then(function (data) {
+          if (!data || !data.ok) {
+            setMsg(loginMsg, (data && data.error) || "UNAUTHORIZED", false);
+            setMsg(listMsg, "", true);
+            listPanel.hidden = true;
+            return;
+          }
+          sessionStorage.setItem("torinvest_krm_admin_pin", pin);
+          listPanel.hidden = false;
+          setMsg(loginMsg, "Connecté", true);
+          setMsg(listMsg, data.requests.length + " demande(s)", true);
+          render(data.requests || []);
+        });
+      }
+
+      function updateStatus(requestId, status) {
+        PAY.adminUpdateStatus(pin, requestId, status).then(function (data) {
+          if (!data || !data.ok) {
+            setMsg(listMsg, (data && data.error) || "UPDATE_FAILED", false);
+            return;
+          }
+          setMsg(listMsg, "Statut mis à jour → " + status, true);
+          load();
+        });
+      }
+
+      document.getElementById("loginBtn").addEventListener("click", function () {
+        pin = pinInput.value.trim();
+        load();
+      });
+      document.getElementById("refreshBtn").addEventListener("click", load);
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        sessionStorage.removeItem("torinvest_krm_admin_pin");
+        pin = "";
+        pinInput.value = "";
+        listPanel.hidden = true;
+        setMsg(loginMsg, "PIN oublié (session)", true);
+      });
+
+      if (pin) {
+        pinInput.value = pin;
+        load();
+      }
+    })();
+  </script>
+</body>
+</html>
