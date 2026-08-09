@@ -112,6 +112,16 @@ return [
     'brevo_template_vip' => 0,
     'brevo_template_accompagnement' => 0,
 
+    // --- Pricing commercial (€) — miroir de assets/torinvest-offers-config.js ---
+    // PUBLIC_PROMO | MEMBER_PRICING | REGULAR
+    'pricing_mode' => 'PUBLIC_PROMO',
+    'robot_regular_price' => 149,
+    'robot_promo_price' => 79,
+    'robot_member_price' => 79,
+    'formation_regular_price' => 499,
+    'formation_promo_price' => 349,
+    'formation_member_price' => 349,
+
     // --- Fondamental (appli pédagogique, accès TorPass ACADEMY) ---
     // Seuil KRM en détention (même logique que TORPASS_LEVELS.ACADEMY)
     'fondamental_min_krm' => 250,

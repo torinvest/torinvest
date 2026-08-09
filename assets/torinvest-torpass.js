@@ -12,63 +12,93 @@
       ? window.TORINVEST_WORKER.baseUrl
       : "https://morning-hall-d8f6.onzerimes.workers.dev") + "/access-code";
 
-  /** Seuils TorPass — modifier ici uniquement pour changer les niveaux. */
-  var TORPASS_LEVELS = {
-    PUBLIC: 0,
-    COMMUNITY: 100,
-    ACADEMY: 250,
-    COACHING: 500,
-  };
+  /**
+   * Seuils / meta TorPass — source de vérité : torinvest-offers-config.js
+   * (fallback local si le script n’est pas chargé).
+   */
+  var OFFERS = window.TORINVEST_OFFERS_CONFIG || null;
+  var TORPASS_LEVELS = OFFERS
+    ? OFFERS.TORPASS_LEVELS
+    : {
+        PUBLIC: 0,
+        COMMUNITY: 100,
+        ACADEMY: 250,
+        PRO: 500,
+        COACHING: 500,
+      };
 
-  var LEVEL_ORDER = ["PUBLIC", "COMMUNITY", "ACADEMY", "COACHING"];
+  var LEVEL_ORDER = OFFERS
+    ? OFFERS.LEVEL_ORDER.slice()
+    : ["PUBLIC", "COMMUNITY", "ACADEMY", "PRO"];
 
-  var LEVEL_META = {
-    PUBLIC: {
-      label: "PUBLIC",
-      access: {
-        public: true,
-        discord: false,
-        formations: false,
-        coaching: false,
-      },
-      perks: ["Contenu public"],
-    },
-    COMMUNITY: {
-      label: "COMMUNITY",
-      access: {
-        public: true,
-        discord: true,
-        formations: false,
-        coaching: false,
-      },
-      perks: ["Contenu public", "Discord privé"],
-    },
-    ACADEMY: {
-      label: "ACADEMY",
-      access: {
-        public: true,
-        discord: true,
-        formations: true,
-        coaching: false,
-      },
-      perks: ["Contenu public", "Discord privé", "Formations en ligne"],
-    },
-    COACHING: {
-      label: "COACHING",
-      access: {
-        public: true,
-        discord: true,
-        formations: true,
-        coaching: true,
-      },
-      perks: [
-        "Contenu public",
-        "Discord privé",
-        "Formations en ligne",
-        "Espace accompagnement / coaching",
-      ],
-    },
-  };
+  var LEVEL_META = OFFERS
+    ? OFFERS.LEVEL_META
+    : {
+        PUBLIC: {
+          label: "PUBLIC",
+          access: {
+            public: true,
+            discord: false,
+            memberFormation: false,
+            memberRobot: false,
+            accompagnement: false,
+            formations: false,
+            coaching: false,
+          },
+          perks: ["Contenu public"],
+        },
+        COMMUNITY: {
+          label: "COMMUNITY",
+          access: {
+            public: true,
+            discord: true,
+            memberFormation: false,
+            memberRobot: false,
+            accompagnement: false,
+            formations: false,
+            coaching: false,
+          },
+          perks: ["Discord privé"],
+        },
+        ACADEMY: {
+          label: "ACADEMY",
+          access: {
+            public: true,
+            discord: true,
+            memberFormation: true,
+            memberRobot: false,
+            accompagnement: false,
+            formations: true,
+            coaching: false,
+          },
+          perks: [
+            "Discord privé",
+            "Statut membre Formation",
+            "Avantages / tarifs Academy",
+          ],
+        },
+        PRO: {
+          label: "PRO",
+          access: {
+            public: true,
+            discord: true,
+            memberFormation: true,
+            memberRobot: true,
+            accompagnement: true,
+            formations: true,
+            coaching: true,
+          },
+          perks: [
+            "Discord privé",
+            "Statut Academy",
+            "Avantages Robot Access",
+            "Accompagnement / avantages Pro",
+          ],
+        },
+      };
+  if (!LEVEL_META.COACHING && LEVEL_META.PRO) {
+    LEVEL_META.COACHING = LEVEL_META.PRO;
+  }
 
   /**
    * Services ponctuels — montants centralisés dans TORINVEST_KRM.KRM_SERVICES
@@ -219,9 +249,16 @@
 
     /** Niveau TorPass à partir du solde KRM uniquement. */
     getLevelFromBalance: function (krmBalance) {
+      if (
+        window.TORINVEST_OFFERS_CONFIG &&
+        typeof window.TORINVEST_OFFERS_CONFIG.getLevelFromBalance === "function"
+      ) {
+        return window.TORINVEST_OFFERS_CONFIG.getLevelFromBalance(krmBalance);
+      }
       var bal = Number(krmBalance) || 0;
       var levels = this.TORPASS_LEVELS;
-      if (bal >= levels.COACHING) return "COACHING";
+      var pro = levels.PRO != null ? levels.PRO : levels.COACHING;
+      if (bal >= pro) return "PRO";
       if (bal >= levels.ACADEMY) return "ACADEMY";
       if (bal >= levels.COMMUNITY) return "COMMUNITY";
       return "PUBLIC";
@@ -238,11 +275,12 @@
 
     /**
      * Infos prochain niveau + KRM manquants.
-     * null si niveau max (COACHING) atteint.
+     * null si niveau max (PRO) atteint.
      */
     getNextLevelInfo: function (krmBalance) {
       var bal = Number(krmBalance) || 0;
       var current = this.getLevelFromBalance(bal);
+      if (current === "COACHING") current = "PRO";
       var idx = this.LEVEL_ORDER.indexOf(current);
       if (idx < 0 || idx >= this.LEVEL_ORDER.length - 1) {
         return null;
@@ -263,7 +301,8 @@
     },
 
     isMaxLevel: function (krmBalance) {
-      return this.getLevelFromBalance(krmBalance) === "COACHING";
+      var lvl = this.getLevelFromBalance(krmBalance);
+      return lvl === "PRO" || lvl === "COACHING";
     },
 
     getServiceById: function (serviceId) {
