@@ -81,7 +81,7 @@ if (!is_array($payload)) {
     exit;
 }
 
-// Méthodes autorisées (lecture seule — pas de signature de transaction)
+// Méthodes autorisées (lecture + confirmation — jamais de signature serveur)
 $allowedMethods = [
     'getAccountInfo',
     'getBalance',
@@ -90,6 +90,9 @@ $allowedMethods = [
     'getLatestBlockhash',
     'getSlot',
     'getHealth',
+    'getTransaction',
+    'getSignatureStatuses',
+    'getTokenAccountBalance',
 ];
 
 $method = $payload['method'] ?? '';

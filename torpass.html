@@ -480,6 +480,122 @@
     .service-msg.ok { color: var(--ok); }
     .service-msg.ko { color: var(--ko); }
 
+    .pay-state {
+      margin-top: 8px;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #93c5fd;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 18px;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .modal {
+      width: 100%;
+      max-width: 440px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #152033, #0b1220);
+      padding: 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+    }
+
+    .modal h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .modal-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-ghost {
+      border-radius: 999px;
+      padding: 9px 14px;
+      border: 1px solid var(--line-soft);
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .success-box {
+      border-radius: 14px;
+      border: 1px solid rgba(52, 211, 153, 0.4);
+      background: rgba(6, 78, 59, 0.25);
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .success-box a { color: var(--amber); }
+
+    .request-form {
+      display: none;
+      margin-top: 16px;
+      border-top: 1px solid var(--line-soft);
+      padding-top: 14px;
+    }
+
+    .request-form.open { display: block; }
+
+    .request-form label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 10px 0 4px;
+    }
+
+    .request-form input,
+    .request-form select,
+    .request-form textarea {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--line-soft);
+      background: rgba(8, 12, 20, 0.85);
+      color: var(--text);
+      padding: 9px 10px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .request-form textarea { min-height: 90px; resize: vertical; }
+
+    .treasury-warn {
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      background: rgba(120, 53, 15, 0.28);
+      color: #fde68a;
+      font-size: 12px;
+    }
+
     .access-pill {
       margin-top: 12px;
       display: inline-flex;
@@ -649,30 +765,62 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       </div>
     </section>
 
-    <!-- Services KRM (UI + check solde, pas de transfert) -->
+    <!-- Services KRM (paiements on-chain TransferChecked) -->
     <section class="panel" aria-labelledby="servicesTitle">
       <div class="panel-title" id="servicesTitle">Services KRM</div>
+      <div id="treasuryWarn" class="treasury-warn" hidden>
+        Treasury KRM non configuré — paiements on-chain désactivés (développement).
+      </div>
       <p class="subtitle" style="margin-bottom:14px;font-size:13px;">
-        Vérification du solde uniquement. Le paiement on-chain sera activé après validation
-        du wallet Treasury (étape 2).
+        Paiement en KRM via ton wallet (TransferChecked). Les frais réseau Solana sont payés par ton wallet.
+        Aucune clé privée TORINVEST.
       </p>
       <div class="services-list" id="servicesList"></div>
+      <div id="paymentSuccess" class="success-box" hidden></div>
+      <div id="requestForm" class="request-form" aria-live="polite"></div>
     </section>
+  </div>
+
+  <div id="payModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="payModalTitle">
+    <div class="modal">
+      <h3 id="payModalTitle">Confirmer le paiement</h3>
+      <div class="modal-row"><span>Service</span><strong id="modalServiceName">—</strong></div>
+      <div class="modal-row"><span>Montant</span><strong id="modalAmount">—</strong></div>
+      <div class="modal-row"><span>Destinataire</span><strong>TORINVEST</strong></div>
+      <div class="modal-row"><span>Réseau</span><strong>Solana Mainnet</strong></div>
+      <p class="hint" style="margin-top:12px;">
+        Ton wallet paie les frais réseau et signe le transfert KRM. Aucun KRM n’est déplacé sans ta confirmation.
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="modalCancel">ANNULER</button>
+        <button type="button" class="btn-main" id="modalConfirm">CONFIRMER DANS MON WALLET</button>
+      </div>
+    </div>
   </div>
 
   <a href="/" class="back-home-btn">← Retour accueil</a>
 
-  <script src="/assets/torinvest-solana-rpc.js?v=5"></script>
-  <script src="/assets/torinvest-torpass.js?v=7"></script>
+  <script src="/assets/torinvest-php.js"></script>
+  <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+  <script src="/assets/torinvest-krm-config.js?v=1"></script>
+  <script src="/assets/torinvest-solana-rpc.js?v=6"></script>
+  <script src="/assets/torinvest-torpass.js?v=8"></script>
+  <script src="/assets/torinvest-krm-pay.js?v=1"></script>
   <script>
     (function () {
       var TP = window.TorinvestTorpass;
+      var KRM = window.TORINVEST_KRM;
+      var PAY = window.TorinvestKrmPay;
       var connectBtn = document.getElementById("connectBtn");
       var walletStatus = document.getElementById("walletStatus");
       var walletBox = document.getElementById("walletBox");
       var accessPill = document.getElementById("accessPill");
       var connectInProgress = false;
       var currentKrm = null;
+      var currentWallet = null;
+      var pendingServiceId = null;
+      var lastPayment = null;
+      var payBusy = false;
 
       var IS_EDGE = TP.isEdgeBrowser();
       if (IS_EDGE) {
@@ -683,46 +831,77 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         }
       }
 
-      function yn(flag) {
-        return flag ? "OUI" : "NON";
+      var treasuryWarn = document.getElementById("treasuryWarn");
+      if (!KRM.isTreasuryConfigured()) {
+        treasuryWarn.hidden = false;
       }
 
-      function ynClass(flag) {
-        return flag ? "stat-value ok" : "stat-value ko";
+      function yn(flag) { return flag ? "OUI" : "NON"; }
+      function ynClass(flag) { return flag ? "stat-value ok" : "stat-value ko"; }
+
+      function truncateSig(sig) {
+        if (!sig || sig.length < 12) return sig || "—";
+        return sig.slice(0, 6) + "…" + sig.slice(-6);
       }
 
       function highlightLevel(levelKey) {
-        var tiles = document.querySelectorAll(".level-tile");
-        tiles.forEach(function (tile) {
+        document.querySelectorAll(".level-tile").forEach(function (tile) {
           tile.classList.toggle("active", tile.getAttribute("data-level") === levelKey);
         });
+      }
+
+      function setButtonsDisabled(disabled) {
+        document.querySelectorAll(".btn-service[data-pay]").forEach(function (btn) {
+          btn.disabled = disabled || btn.getAttribute("data-force-disabled") === "1";
+        });
+      }
+
+      function openModal(serviceId) {
+        var service = KRM.getService(serviceId);
+        if (!service) return;
+        pendingServiceId = serviceId;
+        document.getElementById("modalServiceName").textContent = service.name;
+        document.getElementById("modalAmount").textContent = service.amountKrm + " KRM";
+        document.getElementById("payModal").classList.add("open");
+      }
+
+      function closeModal() {
+        document.getElementById("payModal").classList.remove("open");
+        pendingServiceId = null;
       }
 
       function renderServices(krmBalance) {
         var list = document.getElementById("servicesList");
         if (!list) return;
         list.innerHTML = "";
+        var treasuryOk = KRM.isTreasuryConfigured();
         TP.TORPASS_SERVICES.forEach(function (service) {
           var item = document.createElement("div");
           item.className = "service-item";
           var affordable =
             krmBalance != null && TP.canAffordService(krmBalance, service.id);
-          var msg =
-            krmBalance == null
-              ? "Connecte ton wallet pour vérifier ton solde."
-              : affordable
-                ? "Solde suffisant · paiement on-chain bientôt disponible."
-                : "Solde insuffisant · il manque " +
-                  TP.formatKrm(Math.max(0, service.priceKrm - krmBalance)) +
-                  " KRM.";
+          var msg;
+          if (!treasuryOk) {
+            msg = "Treasury KRM non configuré";
+          } else if (krmBalance == null) {
+            msg = "Connecte ton wallet pour payer.";
+          } else if (!affordable) {
+            msg =
+              "Solde insuffisant · il manque " +
+              TP.formatKrm(Math.max(0, service.priceKrm - krmBalance)) +
+              " KRM.";
+          } else {
+            msg = "Prêt · transfert SPL TransferChecked vers Treasury TORINVEST.";
+          }
 
           item.innerHTML =
-            '<div>' +
+            "<div>" +
               '<div class="service-name"></div>' +
               '<div class="service-price"></div>' +
               '<div class="service-msg"></div>' +
-            '</div>' +
-            '<button type="button" class="btn-service"></button>';
+              '<div class="pay-state" data-state-for="' + service.id + '">READY</div>' +
+            "</div>" +
+            '<button type="button" class="btn-service" data-pay="1"></button>';
 
           item.querySelector(".service-name").textContent = service.name;
           item.querySelector(".service-price").textContent =
@@ -731,37 +910,43 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           msgEl.textContent = msg;
           msgEl.className =
             "service-msg" +
-            (krmBalance == null ? "" : affordable ? " ok" : " ko");
+            (!treasuryOk || krmBalance == null
+              ? ""
+              : affordable
+                ? " ok"
+                : " ko");
 
           var btn = item.querySelector(".btn-service");
-          btn.textContent = "Vérifier le solde";
-          btn.disabled = krmBalance == null;
+          btn.textContent = "Payer " + service.priceKrm + " KRM";
+          var disable =
+            !treasuryOk || krmBalance == null || !affordable || payBusy;
+          btn.disabled = disable;
+          if (!treasuryOk || krmBalance == null || !affordable) {
+            btn.setAttribute("data-force-disabled", "1");
+          }
           btn.addEventListener("click", function () {
-            if (krmBalance == null) return;
-            if (TP.canAffordService(krmBalance, service.id)) {
-              msgEl.textContent =
-                "Solde OK (" +
-                TP.formatKrm(krmBalance) +
-                " KRM). Le transfert vers Treasury sera ajouté en étape 2.";
-              msgEl.className = "service-msg ok";
-            } else {
-              msgEl.textContent =
-                "Solde insuffisant pour « " +
-                service.name +
-                " » (" +
-                TP.formatKrm(service.priceKrm) +
-                " KRM requis).";
-              msgEl.className = "service-msg ko";
+            if (payBusy || btn.disabled) return;
+            if (!currentWallet) {
+              walletStatus.textContent = "Wallet non connecté.";
+              return;
             }
+            openModal(service.id);
           });
 
           list.appendChild(item);
         });
       }
 
+      function setServiceState(serviceId, state) {
+        document.querySelectorAll('[data-state-for="' + serviceId + '"]').forEach(function (el) {
+          el.textContent = state;
+        });
+      }
+
       function showStatus(pubkey, krmBalance) {
         var status = TP.buildStatus(krmBalance);
         currentKrm = status.krm;
+        currentWallet = pubkey;
 
         walletStatus.textContent = "Wallet Phantom connecté.";
         walletBox.textContent =
@@ -802,6 +987,142 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         renderServices(status.krm);
       }
 
+      function refreshBalance() {
+        if (!currentWallet) return Promise.resolve();
+        return TP.readKrmBalance(currentWallet).then(function (krm) {
+          showStatus(currentWallet, krm);
+        });
+      }
+
+      function showPaymentSuccess(result) {
+        var box = document.getElementById("paymentSuccess");
+        box.hidden = false;
+        box.innerHTML =
+          "<strong>Paiement confirmé</strong><br/>" +
+          "Service : " + result.serviceName + "<br/>" +
+          "Montant : " + result.amountKrm + " KRM<br/>" +
+          "Transaction : " + truncateSig(result.signature) + "<br/>" +
+          '<a href="' + result.explorerUrl + '" target="_blank" rel="noopener">Voir sur Solana Explorer</a>';
+        lastPayment = result;
+        renderRequestForm(result);
+      }
+
+      function renderRequestForm(result) {
+        var formWrap = document.getElementById("requestForm");
+        formWrap.classList.add("open");
+        var isIdea = result.serviceId === "trade_idea_review";
+        var isDebrief = result.serviceId === "trade_debrief";
+
+        var extra = "";
+        if (isIdea) {
+          extra =
+            '<label>Sens envisagé</label>' +
+            '<select name="direction"><option value="Long">Long</option><option value="Short">Short</option><option value="Indécis">Indécis</option></select>' +
+            '<label>Niveau d\'entrée envisagé (facultatif)</label><input name="entryLevel" />' +
+            '<label>Invalidation (facultatif)</label><input name="invalidation" />' +
+            '<label>Objectif (facultatif)</label><input name="target" />';
+        }
+        if (isDebrief) {
+          extra =
+            '<label>Entrée</label><input name="entry" required />' +
+            '<label>Sortie</label><input name="exit" required />' +
+            '<label>Résultat (facultatif)</label><input name="result" />' +
+            '<label>Justification du trade</label><textarea name="justification" required></textarea>' +
+            '<label>Ce que tu veux faire corriger</label><textarea name="correctionFocus" required></textarea>';
+        }
+
+        formWrap.innerHTML =
+          '<div class="panel-title">Créer ma demande</div>' +
+          '<form id="serviceRequestForm">' +
+            '<label>Service</label><input name="serviceName" readonly />' +
+            '<label>Wallet payeur</label><input name="userWallet" readonly />' +
+            '<label>Signature transaction</label><input name="signature" readonly />' +
+            '<label>Actif concerné</label><input name="asset" required placeholder="ex. XAUUSD" />' +
+            '<label>Timeframe</label><input name="timeframe" required placeholder="ex. M15 / H1" />' +
+            '<label>Description / contexte</label><textarea name="description" required></textarea>' +
+            '<label>Lien TradingView (facultatif)</label><input name="tradingViewUrl" />' +
+            '<label>Commentaire (facultatif)</label><textarea name="comment"></textarea>' +
+            extra +
+            '<div class="modal-actions">' +
+              '<button type="submit" class="btn-main">Envoyer ma demande</button>' +
+            '</div>' +
+            '<p class="hint" id="requestFormMsg" style="margin-top:10px;"></p>' +
+          '</form>';
+
+        var form = document.getElementById("serviceRequestForm");
+        form.serviceName.value = result.serviceName;
+        form.userWallet.value = currentWallet;
+        form.signature.value = result.signature;
+
+        form.addEventListener("submit", function (ev) {
+          ev.preventDefault();
+          var msg = document.getElementById("requestFormMsg");
+          msg.textContent = "Envoi de la demande…";
+          var fd = new FormData(form);
+          var payload = {
+            signature: result.signature,
+            serviceId: result.serviceId,
+            userWallet: currentWallet,
+          };
+          fd.forEach(function (v, k) {
+            if (k !== "serviceName") payload[k] = String(v);
+          });
+          PAY.submitServiceRequest(payload)
+            .then(function (resp) {
+              msg.textContent =
+                "Demande enregistrée (n° " + (resp.requestId || "—") + "). Aucun second paiement.";
+              msg.className = "hint";
+              msg.style.color = "#34d399";
+              form.querySelector('button[type="submit"]').disabled = true;
+            })
+            .catch(function (err) {
+              msg.textContent =
+                "Erreur : " +
+                (err && err.code ? err.code : err && err.message ? err.message : String(err));
+              msg.style.color = "#f87171";
+            });
+        });
+      }
+
+      async function confirmPayment() {
+        if (!pendingServiceId || !currentWallet || payBusy) return;
+        var serviceId = pendingServiceId;
+        closeModal();
+        payBusy = true;
+        setButtonsDisabled(true);
+        setServiceState(serviceId, PAY.STATES.CHECKING_BALANCE);
+
+        var unsub = PAY.onStateChange(function (state) {
+          setServiceState(serviceId, state);
+          if (PAY.isBusyState(state)) setButtonsDisabled(true);
+        });
+
+        try {
+          var result = await PAY.executeKrmPayment(serviceId, currentWallet);
+          if (result.state === PAY.STATES.SUCCESS) {
+            showPaymentSuccess(result);
+            await refreshBalance();
+          } else if (result.state === PAY.STATES.CANCELLED) {
+            setServiceState(serviceId, PAY.STATES.CANCELLED);
+          } else if (result.state === PAY.STATES.TREASURY_MISSING) {
+            treasuryWarn.hidden = false;
+            setServiceState(serviceId, PAY.STATES.TREASURY_MISSING);
+          } else {
+            setServiceState(serviceId, PAY.STATES.FAILED);
+          }
+        } finally {
+          unsub();
+          payBusy = false;
+          renderServices(currentKrm);
+        }
+      }
+
+      document.getElementById("modalCancel").addEventListener("click", closeModal);
+      document.getElementById("modalConfirm").addEventListener("click", confirmPayment);
+      document.getElementById("payModal").addEventListener("click", function (e) {
+        if (e.target === e.currentTarget && !payBusy) closeModal();
+      });
+
       function runTorpassCheck(pubkey) {
         walletBox.textContent =
           "Adresse : " + pubkey + "\n\nRécupération du solde KRM en cours sur Solana...";
@@ -839,8 +1160,7 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
             } else {
               walletStatus.textContent = "Erreur connexion Phantom.";
               walletBox.textContent =
-                "Impossible de connecter Phantom : " +
-                TP.formatConnectError(err);
+                "Impossible de connecter Phantom : " + TP.formatConnectError(err);
             }
             accessPill.className = "access-pill ko";
             accessPill.textContent = "Niveau non vérifié · erreur";
@@ -851,7 +1171,6 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           });
       });
 
-      // Reconnexion silencieuse si déjà autorisé
       (function eagerPhantomConnect() {
         var provider = TP.getPhantomProvider();
         if (!provider) return;
@@ -863,9 +1182,7 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         }).catch(function () {});
       })();
 
-      // Affiche les services même avant connexion
       renderServices(null);
-      // Seuils affichés depuis la config centralisée
       document.querySelectorAll(".level-tile").forEach(function (tile) {
         var key = tile.getAttribute("data-level");
         var threshold = TP.TORPASS_LEVELS[key];
