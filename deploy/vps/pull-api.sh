@@ -21,6 +21,8 @@ FILES=(
   brevo-lib.php
   access-config.php
   solana-rpc.php
+  krm-service-payment.php
+  krm-service-payment-lib.php
 )
 
 for f in "${FILES[@]}"; do
