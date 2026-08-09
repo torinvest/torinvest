@@ -1,0 +1,1 @@
+import{i as e}from"./cn-Dr58kden.js";var t=e();function n({className:e}){return(0,t.jsx)(`p`,{className:`text-xs leading-relaxed text-mist-400 ${e??``}`,children:`Cette application est un outil éducatif. Elle ne constitue pas un conseil en investissement ou une recommandation d'achat ou de vente d'un actif financier.`})}export{n as t};
