@@ -102,8 +102,8 @@
       <div class="box">
         <h1>FONDAMENTAL</h1>
         <p>
-          Appli pédagogique TORINVEST — accès payant via détention
-          <strong>KRM</strong> (TorPass).
+          Appli pédagogique TORINVEST — accès réservé aux détenteurs
+          <strong>KRM</strong> niveau TorPass ACADEMY (vérifié côté serveur).
         </p>
         <div class="meta">Niveau requis : ACADEMY · ≥ 250 KRM</div>
         <button type="button" class="primary" id="tf-fonda-connect">
@@ -119,12 +119,9 @@
 
     <div id="root"></div>
 
-    <script src="/assets/torinvest-php.js"></script>
-    <script src="/assets/torinvest-solana-rpc.js?v=fonda3"></script>
-    <script src="/assets/torinvest-torpass.js?v=fonda3"></script>
-    <script src="/assets/torinvest-fondamental-gate.js?v=fonda3"></script>
-    <script src="/assets/torinvest-fondamental-back.js?v=fonda3"></script>
+    <script src="/assets/torinvest-fondamental-gate.js?v=fonda4"></script>
+    <script src="/assets/torinvest-fondamental-back.js?v=fonda4"></script>
     <script type="module" crossorigin src="/applifonda/assets/index-BWbKyfdX.js"></script>
-    <!-- SW désactivé : il cachait un vieux index sans bouton retour -->
+    <!-- Bundles /applifonda/assets/* servis uniquement avec session KRM (VPS). -->
   </body>
 </html>
