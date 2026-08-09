@@ -181,6 +181,90 @@
   }
 
   /**
+   * Parse une réponse API en JSON même si le serveur renvoie du HTML (404 nginx).
+   * Ne jette jamais : renvoie toujours { ok, error, ... }.
+   */
+  async function parsePaymentApiResponse(resp) {
+    var text = "";
+    try {
+      text = await resp.text();
+    } catch (e) {
+      return {
+        ok: false,
+        error: "NETWORK_ERROR",
+        message: "Impossible de lire la réponse API",
+      };
+    }
+    var data = null;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch (e) {
+      data = null;
+    }
+    if (data && typeof data === "object") {
+      if (data.ok === undefined && resp.ok === false) {
+        data.ok = false;
+        data.error = data.error || "HTTP_" + resp.status;
+      }
+      return data;
+    }
+    var looksHtml = /<!DOCTYPE|<html/i.test(text || "");
+    if (resp.status === 404 || looksHtml) {
+      return {
+        ok: false,
+        error: "API_NOT_DEPLOYED",
+        message:
+          "API absente sur le VPS (HTTP " +
+          resp.status +
+          "). Sur le serveur : cd /var/www/torinvest && git pull origin main",
+        httpStatus: resp.status,
+      };
+    }
+    return {
+      ok: false,
+      error: "INVALID_JSON",
+      message: "Réponse serveur invalide (HTTP " + resp.status + ")",
+      httpStatus: resp.status,
+    };
+  }
+
+  function humanizeAdminError(data) {
+    if (!data) return "Erreur inconnue";
+    var code = data.error || "";
+    if (data.message) return data.message;
+    if (code === "UNAUTHORIZED") {
+      return "PIN incorrect. Utilisez licence_crm_pin (sinon dev_access_pin) dans api/config.local.php — pas le mot de passe SSH.";
+    }
+    if (code === "API_NOT_DEPLOYED") {
+      return "API absente sur le VPS. Déployez : cd /var/www/torinvest && git pull origin main";
+    }
+    if (code === "NETWORK_ERROR") {
+      return "Impossible de joindre l'API services KRM.";
+    }
+    if (code === "PIN_NOT_CONFIGURED") {
+      return "Aucun PIN admin configuré côté serveur (licence_crm_pin / dev_access_pin).";
+    }
+    return code || "Erreur API";
+  }
+
+  async function fetchPaymentApiConfig() {
+    try {
+      var resp = await fetch(apiPaymentUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ action: "config" }),
+      });
+      return await parsePaymentApiResponse(resp);
+    } catch (e) {
+      return {
+        ok: false,
+        error: "NETWORK_ERROR",
+        message: "Impossible de joindre l'API services KRM.",
+      };
+    }
+  }
+
+  /**
    * Vérifie on-chain qu'une tx est un paiement KRM valide.
    * Ne fait PAS confiance à la seule présence d'une signature.
    */
@@ -448,26 +532,42 @@
   }
 
   async function adminListRequests(pin) {
-    var resp = await fetch(apiPaymentUrl(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({ action: "admin_list", pin: pin }),
-    });
-    return resp.json();
+    try {
+      var resp = await fetch(apiPaymentUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ action: "admin_list", pin: pin }),
+      });
+      return await parsePaymentApiResponse(resp);
+    } catch (e) {
+      return {
+        ok: false,
+        error: "NETWORK_ERROR",
+        message: "Impossible de joindre l'API services KRM.",
+      };
+    }
   }
 
   async function adminUpdateStatus(pin, requestId, status) {
-    var resp = await fetch(apiPaymentUrl(), {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify({
-        action: "admin_update_status",
-        pin: pin,
-        requestId: requestId,
-        status: status,
-      }),
-    });
-    return resp.json();
+    try {
+      var resp = await fetch(apiPaymentUrl(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          action: "admin_update_status",
+          pin: pin,
+          requestId: requestId,
+          status: status,
+        }),
+      });
+      return await parsePaymentApiResponse(resp);
+    } catch (e) {
+      return {
+        ok: false,
+        error: "NETWORK_ERROR",
+        message: "Impossible de joindre l'API services KRM.",
+      };
+    }
   }
 
   /**
@@ -838,6 +938,8 @@
     listMyRequests: listMyRequests,
     adminListRequests: adminListRequests,
     adminUpdateStatus: adminUpdateStatus,
+    fetchPaymentApiConfig: fetchPaymentApiConfig,
+    humanizeAdminError: humanizeAdminError,
     canPayWithBalance: canPayWithBalance,
     simulatePreflight: simulatePreflight,
     levelAfterPayment: levelAfterPayment,

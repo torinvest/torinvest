@@ -57,6 +57,10 @@
       border: 1px solid var(--line);
       color: var(--amber);
     }
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
     .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
     .card {
       border: 1px solid rgba(148,163,184,.2);
@@ -69,7 +73,7 @@
     .mono { font-family: ui-monospace, monospace; word-break: break-all; }
     .status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid var(--line); color: var(--amber); }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-    .msg { font-size: 13px; margin-top: 10px; }
+    .msg { font-size: 13px; margin-top: 10px; white-space: pre-wrap; }
     .msg.ok { color: var(--ok); }
     .msg.ko { color: var(--ko); }
     a { color: var(--amber); }
@@ -78,7 +82,7 @@
 <body>
   <div class="wrap">
     <h1>DEMANDES SERVICES KRM</h1>
-    <p class="sub">Admin TORINVEST · PIN = licence CRM / dev (config.local.php) · aucune clé privée</p>
+    <p class="sub">Admin TORINVEST · PIN = <code>licence_crm_pin</code> (sinon <code>dev_access_pin</code>) dans <code>api/config.local.php</code> · pas le mot de passe SSH</p>
 
     <div class="panel" id="loginPanel">
       <label>PIN admin</label>
@@ -86,7 +90,7 @@
         <input id="adminPin" type="password" placeholder="PIN" autocomplete="current-password" />
         <button id="loginBtn" type="button">Charger les demandes</button>
       </div>
-      <p class="msg" id="loginMsg"></p>
+      <p class="msg" id="loginMsg">Vérification de l’API…</p>
     </div>
 
     <div class="panel" id="listPanel" hidden>
@@ -100,17 +104,19 @@
   </div>
 
   <script src="/assets/torinvest-php.js"></script>
-  <script src="/assets/torinvest-krm-config.js?v=3"></script>
-  <script src="/assets/torinvest-krm-pay.js?v=3"></script>
+  <script src="/assets/torinvest-krm-config.js?v=4"></script>
+  <script src="/assets/torinvest-krm-pay.js?v=4"></script>
   <script>
     (function () {
       var PAY = window.TorinvestKrmPay;
       var pinInput = document.getElementById("adminPin");
+      var loginBtn = document.getElementById("loginBtn");
       var loginMsg = document.getElementById("loginMsg");
       var listMsg = document.getElementById("listMsg");
       var listPanel = document.getElementById("listPanel");
       var requestsEl = document.getElementById("requests");
       var pin = sessionStorage.getItem("torinvest_krm_admin_pin") || "";
+      var apiReady = false;
 
       function truncate(s) {
         if (!s || s.length < 12) return s || "—";
@@ -120,6 +126,10 @@
       function setMsg(el, text, ok) {
         el.textContent = text || "";
         el.className = "msg " + (ok ? "ok" : "ko");
+      }
+
+      function errText(data) {
+        return PAY.humanizeAdminError(data);
       }
 
       function nextActions(status) {
@@ -197,27 +207,44 @@
       }
 
       function load() {
-        if (!pin) return;
+        if (!pin) {
+          setMsg(loginMsg, "Saisissez le PIN admin.", false);
+          return;
+        }
+        setMsg(loginMsg, "Connexion…", true);
         setMsg(listMsg, "Chargement…", true);
-        PAY.adminListRequests(pin).then(function (data) {
-          if (!data || !data.ok) {
-            setMsg(loginMsg, (data && data.error) || "UNAUTHORIZED", false);
-            setMsg(listMsg, "", true);
+        loginBtn.disabled = true;
+        PAY.adminListRequests(pin)
+          .then(function (data) {
+            if (!data || !data.ok) {
+              setMsg(loginMsg, errText(data), false);
+              setMsg(listMsg, "", true);
+              listPanel.hidden = true;
+              if (data && data.error === "API_NOT_DEPLOYED") {
+                apiReady = false;
+              }
+              return;
+            }
+            apiReady = true;
+            sessionStorage.setItem("torinvest_krm_admin_pin", pin);
+            listPanel.hidden = false;
+            setMsg(loginMsg, "Connecté", true);
+            setMsg(listMsg, data.requests.length + " demande(s)", true);
+            render(data.requests || []);
+          })
+          .catch(function (e) {
+            setMsg(loginMsg, (e && e.message) || "Erreur inattendue", false);
             listPanel.hidden = true;
-            return;
-          }
-          sessionStorage.setItem("torinvest_krm_admin_pin", pin);
-          listPanel.hidden = false;
-          setMsg(loginMsg, "Connecté", true);
-          setMsg(listMsg, data.requests.length + " demande(s)", true);
-          render(data.requests || []);
-        });
+          })
+          .finally(function () {
+            loginBtn.disabled = false;
+          });
       }
 
       function updateStatus(requestId, status) {
         PAY.adminUpdateStatus(pin, requestId, status).then(function (data) {
           if (!data || !data.ok) {
-            setMsg(listMsg, (data && data.error) || "UPDATE_FAILED", false);
+            setMsg(listMsg, errText(data), false);
             return;
           }
           setMsg(listMsg, "Statut mis à jour → " + status, true);
@@ -225,9 +252,34 @@
         });
       }
 
+      function probeApi() {
+        return PAY.fetchPaymentApiConfig().then(function (data) {
+          if (data && data.ok) {
+            apiReady = true;
+            setMsg(
+              loginMsg,
+              pin
+                ? "API OK — reconnexion…"
+                : "API OK. Entrez le PIN (licence_crm_pin / dev_access_pin).",
+              true
+            );
+            return true;
+          }
+          apiReady = false;
+          setMsg(loginMsg, errText(data), false);
+          return false;
+        });
+      }
+
       document.getElementById("loginBtn").addEventListener("click", function () {
         pin = pinInput.value.trim();
         load();
+      });
+      pinInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+          pin = pinInput.value.trim();
+          load();
+        }
       });
       document.getElementById("refreshBtn").addEventListener("click", load);
       document.getElementById("logoutBtn").addEventListener("click", function () {
@@ -238,10 +290,12 @@
         setMsg(loginMsg, "PIN oublié (session)", true);
       });
 
-      if (pin) {
-        pinInput.value = pin;
-        load();
-      }
+      probeApi().then(function (ok) {
+        if (pin) {
+          pinInput.value = pin;
+          if (ok) load();
+        }
+      });
     })();
   </script>
 </body>
