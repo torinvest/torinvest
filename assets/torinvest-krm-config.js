@@ -54,11 +54,11 @@
     "https://jup.ag/swap/SOL-Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
 
   /**
-   * Lien direct vers TON pool de liquidité (Raydium / Meteora / Orca…).
-   * Colle ici l’URL complète du pool. Laisser "" pour n’afficher que Jupiter.
-   * Exemple Raydium : "https://raydium.io/swap/?inputMint=sol&outputMint=Cvx4u…"
+   * Swap via le pool Raydium KRM/USDC TORINVEST
+   * Pool ID : BLXPTAFedmjRHKrkZp42pd6vUs4gTR8sLGJFStNR7iWZ
    */
-  var KRM_POOL_URL = "";
+  var KRM_POOL_URL =
+    "https://raydium.io/swap/?inputMint=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&outputMint=Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
 
   global.TORINVEST_KRM = {
     KRM_MINT: "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA",
