@@ -51,20 +51,12 @@ try {
     torinvestSessionClearCookie('fondamental_access');
 }
 
-if (!$validTarget) {
-    // SPA fallback (routes client) uniquement avec session
-    if ($sessionOk) {
-        $target = $root . '/index.html';
-        $validTarget = is_file($target);
-    } else {
-        fondaServeGatePage($root);
-    }
-}
-
-$isIndex = basename((string) $target) === 'index.html';
 $isAsset = str_starts_with($path, 'assets/')
     || (bool) preg_match('/\.(js|css|png|svg|webmanifest|map|json)$/i', $path);
+$isIndex = ($path === 'index.html')
+    || ($validTarget && basename((string) $target) === 'index.html');
 
+// Sans session : assets / fichiers app → toujours 401 (même si le fichier n'existe pas)
 if (!$sessionOk) {
     if ($isAsset || !$isIndex) {
         http_response_code(401);
@@ -78,6 +70,12 @@ if (!$sessionOk) {
         exit;
     }
     fondaServeGatePage($root);
+}
+
+if (!$validTarget) {
+    // SPA fallback (routes client) uniquement avec session
+    $target = $root . '/index.html';
+    $validTarget = is_file($target);
 }
 
 if (!$validTarget || !is_file((string) $target)) {
