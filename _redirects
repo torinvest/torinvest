@@ -11,12 +11,12 @@
 /actualites      /actualites.html      200
 /crypto          /crypto.html          200
 /torpass         /torpass.html         200
-# Appli Fondamental (build Vite) — toujours sous /applifonda/ (basename React)
+# Appli Fondamental — proxy forcé VPS (session KRM serveur). 200! = ignore fichiers Netlify publics.
 /fondamental            /applifonda/               302
 /fondamental/           /applifonda/               302
-/applifonda             /applifonda/               302
-/applifonda/            /applifonda/index.html     200
-/applifonda/*           /applifonda/index.html     200
+/applifonda             https://radar.torinvest-trading.com/api/fondamental-serve.php 200!
+/applifonda/            https://radar.torinvest-trading.com/api/fondamental-serve.php 200!
+/applifonda/*           https://radar.torinvest-trading.com/api/fondamental-serve.php?path=:splat 200!
 /video           /video.html           200
 /bootcamp        /bootcamp.html        200
 /formation       /formation.html       200
@@ -71,4 +71,6 @@
 /api/license-provision.php    https://radar.torinvest-trading.com/api/license-provision.php    200!
 /api/access-config.php        https://radar.torinvest-trading.com/api/access-config.php        200!
 /api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  200!
+/api/fondamental-access.php   https://radar.torinvest-trading.com/api/fondamental-access.php    200!
+/api/fondamental-serve.php    https://radar.torinvest-trading.com/api/fondamental-serve.php     200!
 /api/*                        https://app.torinvest-trading.com/api/:splat                          302!

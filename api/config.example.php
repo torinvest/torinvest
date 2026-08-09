@@ -112,6 +112,14 @@ return [
     'brevo_template_vip' => 0,
     'brevo_template_accompagnement' => 0,
 
+    // --- Fondamental (appli pédagogique, accès TorPass ACADEMY) ---
+    // Seuil KRM en détention (même logique que TORPASS_LEVELS.ACADEMY)
+    'fondamental_min_krm' => 250,
+    // Durée session cookie HttpOnly torinvest_fondamental (secondes) — 12 h
+    'fondamental_access_session_ttl' => 43200,
+    // Fichiers app hors accès HTTP direct (recommandé : /var/lib/torinvest/applifonda)
+    'fondamental_app_dir' => '/var/lib/torinvest/applifonda',
+
     // --- KRM Services Treasury (paiements on-chain TorPass) ---
     // PUBLIC KEY Solana uniquement (jamais de private key).
     // Laisser vide pour désactiver les paiements côté serveur.
