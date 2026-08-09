@@ -49,9 +49,16 @@
     return Number(whole.toString() + "." + fracStr);
   }
 
-  /** Lien d'achat KRM (Jupiter) — même mint officiel. */
+  /** Lien d'achat KRM (Jupiter aggregator — route souvent via ton pool). */
   var KRM_BUY_URL =
-    "https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+    "https://jup.ag/swap/SOL-Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+
+  /**
+   * Lien direct vers TON pool de liquidité (Raydium / Meteora / Orca…).
+   * Colle ici l’URL complète du pool. Laisser "" pour n’afficher que Jupiter.
+   * Exemple Raydium : "https://raydium.io/swap/?inputMint=sol&outputMint=Cvx4u…"
+   */
+  var KRM_POOL_URL = "";
 
   global.TORINVEST_KRM = {
     KRM_MINT: "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA",
@@ -60,6 +67,7 @@
     KRM_SERVICES_TREASURY: KRM_SERVICES_TREASURY,
     KRM_SERVICES: KRM_SERVICES,
     KRM_BUY_URL: KRM_BUY_URL,
+    KRM_POOL_URL: KRM_POOL_URL,
     TOKEN_PROGRAM_ID: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
     ASSOCIATED_TOKEN_PROGRAM_ID: "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
     EXPLORER_TX_BASE: "https://explorer.solana.com/tx/",
