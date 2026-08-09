@@ -408,6 +408,68 @@
     return data;
   }
 
+  /** Enregistre le paiement validé (PAID) côté serveur — n'altère pas le transfert. */
+  async function registerPaidPayment(opts) {
+    var resp = await fetch(apiPaymentUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        action: "register_paid",
+        signature: opts.signature,
+        serviceId: opts.serviceId || opts.expectedServiceId,
+        userWallet: opts.userWallet || opts.expectedUserWallet,
+      }),
+    });
+    var data = await resp.json().catch(function () {
+      return { ok: false, error: "INVALID_JSON" };
+    });
+    if (!resp.ok || !data.ok) {
+      var err = new Error((data && data.error) || "REGISTER_PAID_FAILED");
+      err.code = (data && data.error) || "REGISTER_PAID_FAILED";
+      err.payload = data;
+      throw err;
+    }
+    return data;
+  }
+
+  async function listMyRequests(userWallet) {
+    var resp = await fetch(apiPaymentUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        action: "list_my_requests",
+        userWallet: userWallet,
+      }),
+    });
+    var data = await resp.json().catch(function () {
+      return { ok: false, error: "INVALID_JSON", requests: [] };
+    });
+    return data;
+  }
+
+  async function adminListRequests(pin) {
+    var resp = await fetch(apiPaymentUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ action: "admin_list", pin: pin }),
+    });
+    return resp.json();
+  }
+
+  async function adminUpdateStatus(pin, requestId, status) {
+    var resp = await fetch(apiPaymentUrl(), {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        action: "admin_update_status",
+        pin: pin,
+        requestId: requestId,
+        status: status,
+      }),
+    });
+    return resp.json();
+  }
+
   /**
    * Construit la transaction SPL TransferChecked (pas de SOL).
    */
@@ -632,6 +694,26 @@
         return result;
       }
 
+      // Persistance serveur PAID (anti-reuse) — hors logique de transfert
+      try {
+        await registerPaidPayment({
+          signature: signature,
+          serviceId: serviceId,
+          userWallet: userWallet,
+        });
+      } catch (regErr) {
+        if (regErr && regErr.code === "PAYMENT_ALREADY_USED") {
+          result.state = STATES.FAILED;
+          result.error = "PAYMENT_ALREADY_USED";
+          result.verification = verification;
+          emit(result.state, result);
+          return result;
+        }
+        // Si le serveur est temporairement down, on laisse le flux client continuer
+        // mais la création de demande re-vérifiera côté serveur.
+        result.registerWarning = regErr && regErr.message ? regErr.message : String(regErr);
+      }
+
       markUsedSignatureLocal(signature, {
         serviceId: serviceId,
         at: Date.now(),
@@ -752,6 +834,10 @@
     verifyKrmServicePayment: verifyKrmServicePayment,
     verifyViaServer: verifyViaServer,
     submitServiceRequest: submitServiceRequest,
+    registerPaidPayment: registerPaidPayment,
+    listMyRequests: listMyRequests,
+    adminListRequests: adminListRequests,
+    adminUpdateStatus: adminUpdateStatus,
     canPayWithBalance: canPayWithBalance,
     simulatePreflight: simulatePreflight,
     levelAfterPayment: levelAfterPayment,

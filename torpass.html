@@ -810,8 +810,32 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         Aucune clé privée TORINVEST.
       </p>
       <div class="services-list" id="servicesList"></div>
+      <div id="resumePaidBox" style="margin-top:14px;display:none;">
+        <p class="hint" style="margin-bottom:8px;">
+          Déjà payé on-chain (ex. test Mainnet) ? Colle la signature pour ouvrir le formulaire sans repayer.
+        </p>
+        <div class="modal-actions" style="align-items:center;">
+          <input id="resumeSignature" placeholder="Signature Solana de la tx" style="flex:1;min-width:220px;border-radius:10px;border:1px solid rgba(148,163,184,.35);background:#0a101c;color:#f3f0e8;padding:9px 10px;font:inherit;" />
+          <select id="resumeServiceId" style="border-radius:10px;border:1px solid rgba(148,163,184,.35);background:#0a101c;color:#f3f0e8;padding:9px 10px;font:inherit;">
+            <option value="trade_idea_review">Revue 50 KRM</option>
+            <option value="trade_debrief">Débrief 100 KRM</option>
+          </select>
+          <button type="button" class="btn-service" id="resumePaidBtn">Reprendre</button>
+        </div>
+        <p class="hint" id="resumePaidMsg" style="margin-top:8px;"></p>
+      </div>
       <div id="paymentSuccess" class="success-box" hidden></div>
       <div id="requestForm" class="request-form" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" aria-labelledby="myRequestsTitle">
+      <div class="panel-title" id="myRequestsTitle">Mes demandes</div>
+      <p class="subtitle" style="margin-bottom:12px;font-size:13px;">
+        Visible après connexion wallet. Les données sont stockées côté serveur TORINVEST.
+      </p>
+      <div id="myRequestsList" class="services-list">
+        <p class="hint">Connecte ton wallet pour voir tes demandes.</p>
+      </div>
     </section>
   </div>
 
@@ -836,10 +860,10 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
 
   <script src="/assets/torinvest-php.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
-  <script src="/assets/torinvest-krm-config.js?v=2"></script>
+  <script src="/assets/torinvest-krm-config.js?v=3"></script>
   <script src="/assets/torinvest-solana-rpc.js?v=6"></script>
   <script src="/assets/torinvest-torpass.js?v=8"></script>
-  <script src="/assets/torinvest-krm-pay.js?v=2"></script>
+  <script src="/assets/torinvest-krm-pay.js?v=3"></script>
   <script>
     (function () {
       var TP = window.TorinvestTorpass;
@@ -1019,6 +1043,9 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         accessPill.className = "access-pill ok";
         accessPill.textContent = "Niveau " + status.label + " · solde KRM vérifié on-chain";
         renderServices(status.krm);
+        refreshMyRequests();
+        tryResumeLastPayment();
+        if (typeof syncResumeBox === "function") syncResumeBox();
       }
 
       function refreshBalance() {
@@ -1028,20 +1055,51 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         });
       }
 
+      function truncateWallet(w) {
+        if (!w || w.length < 10) return w || "—";
+        return w.slice(0, 4) + "…" + w.slice(-4);
+      }
+
       function showPaymentSuccess(result) {
+        if (!result || !result.signature || result.state !== PAY.STATES.SUCCESS) {
+          return;
+        }
         var box = document.getElementById("paymentSuccess");
         box.hidden = false;
         box.innerHTML =
-          "<strong>Paiement confirmé</strong><br/>" +
-          "Service : " + result.serviceName + "<br/>" +
-          "Montant : " + result.amountKrm + " KRM<br/>" +
-          "Transaction : " + truncateSig(result.signature) + "<br/>" +
-          '<a href="' + result.explorerUrl + '" target="_blank" rel="noopener">Voir sur Solana Explorer</a>';
+          "<strong>PAIEMENT CONFIRMÉ</strong><br/><br/>" +
+          "Service :<br/><strong>" + result.serviceName + "</strong><br/><br/>" +
+          "Montant :<br/><strong>" + result.amountKrm + " KRM</strong><br/><br/>" +
+          "Wallet :<br/><strong>" + truncateWallet(currentWallet) + "</strong><br/><br/>" +
+          "Transaction :<br/><strong>" + truncateSig(result.signature) + "</strong><br/><br/>" +
+          '<a class="btn-buy" style="margin-top:8px" href="' + result.explorerUrl +
+          '" target="_blank" rel="noopener">Voir sur Solana Explorer</a>';
         lastPayment = result;
+        try {
+          sessionStorage.setItem(
+            "torinvest_krm_last_payment",
+            JSON.stringify({
+              signature: result.signature,
+              serviceId: result.serviceId,
+              serviceName: result.serviceName,
+              amountKrm: result.amountKrm,
+              wallet: currentWallet,
+              explorerUrl: result.explorerUrl,
+              at: Date.now(),
+            })
+          );
+        } catch (e) {}
         renderRequestForm(result);
+        refreshMyRequests();
       }
 
       function renderRequestForm(result) {
+        if (!result || !result.signature || !result.serviceId || !currentWallet) {
+          return;
+        }
+        if (result.wallet && result.wallet !== currentWallet) {
+          return;
+        }
         var formWrap = document.getElementById("requestForm");
         formWrap.classList.add("open");
         var isIdea = result.serviceId === "trade_idea_review";
@@ -1050,19 +1108,31 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         var extra = "";
         if (isIdea) {
           extra =
-            '<label>Sens envisagé</label>' +
-            '<select name="direction"><option value="Long">Long</option><option value="Short">Short</option><option value="Indécis">Indécis</option></select>' +
-            '<label>Niveau d\'entrée envisagé (facultatif)</label><input name="entryLevel" />' +
+            '<label>Sens</label>' +
+            '<select name="direction" required>' +
+              '<option value="LONG">LONG</option>' +
+              '<option value="SHORT">SHORT</option>' +
+              '<option value="INDÉCIS">INDÉCIS</option>' +
+            '</select>' +
+            '<label>Entrée envisagée (facultatif)</label><input name="entryLevel" />' +
             '<label>Invalidation (facultatif)</label><input name="invalidation" />' +
-            '<label>Objectif (facultatif)</label><input name="target" />';
+            '<label>Objectif (facultatif)</label><input name="target" />' +
+            '<label>Contexte / raisonnement</label><textarea name="reasoning" required></textarea>';
         }
         if (isDebrief) {
           extra =
-            '<label>Entrée</label><input name="entry" required />' +
-            '<label>Sortie</label><input name="exit" required />' +
+            '<label>Sens du trade</label>' +
+            '<select name="direction" required>' +
+              '<option value="LONG">LONG</option>' +
+              '<option value="SHORT">SHORT</option>' +
+              '<option value="INDÉCIS">INDÉCIS</option>' +
+            '</select>' +
+            '<label>Prix d\'entrée</label><input name="entry" required />' +
+            '<label>Prix de sortie</label><input name="exit" required />' +
             '<label>Résultat (facultatif)</label><input name="result" />' +
-            '<label>Justification du trade</label><textarea name="justification" required></textarea>' +
-            '<label>Ce que tu veux faire corriger</label><textarea name="correctionFocus" required></textarea>';
+            '<label>Justification initiale</label><textarea name="justification" required></textarea>' +
+            '<label>Erreurs supposées</label><textarea name="assumedErrors" required></textarea>' +
+            '<label>Question principale</label><textarea name="mainQuestion" required></textarea>';
         }
 
         formWrap.innerHTML =
@@ -1070,10 +1140,10 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           '<form id="serviceRequestForm">' +
             '<label>Service</label><input name="serviceName" readonly />' +
             '<label>Wallet payeur</label><input name="userWallet" readonly />' +
-            '<label>Signature transaction</label><input name="signature" readonly />' +
-            '<label>Actif concerné</label><input name="asset" required placeholder="ex. XAUUSD" />' +
+            '<label>Signature transaction (PAYMENT_ID)</label><input name="signature" readonly />' +
+            '<label>Actif / marché</label><input name="asset" required placeholder="ex. XAUUSD" />' +
             '<label>Timeframe</label><input name="timeframe" required placeholder="ex. M15 / H1" />' +
-            '<label>Description / contexte</label><textarea name="description" required></textarea>' +
+            '<label>Description</label><textarea name="description" required></textarea>' +
             '<label>Lien TradingView (facultatif)</label><input name="tradingViewUrl" />' +
             '<label>Commentaire (facultatif)</label><textarea name="comment"></textarea>' +
             extra +
@@ -1091,7 +1161,10 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         form.addEventListener("submit", function (ev) {
           ev.preventDefault();
           var msg = document.getElementById("requestFormMsg");
-          msg.textContent = "Envoi de la demande…";
+          var btn = form.querySelector('button[type="submit"]');
+          btn.disabled = true;
+          msg.textContent = "Vérification on-chain + envoi…";
+          msg.style.color = "";
           var fd = new FormData(form);
           var payload = {
             signature: result.signature,
@@ -1104,18 +1177,109 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           PAY.submitServiceRequest(payload)
             .then(function (resp) {
               msg.textContent =
-                "Demande enregistrée (n° " + (resp.requestId || "—") + "). Aucun second paiement.";
-              msg.className = "hint";
+                "Demande enregistrée (n° " +
+                (resp.requestId || "—") +
+                ") · statut SUBMITTED. Aucun second paiement.";
               msg.style.color = "#34d399";
-              form.querySelector('button[type="submit"]').disabled = true;
+              try {
+                sessionStorage.removeItem("torinvest_krm_last_payment");
+              } catch (e) {}
+              refreshMyRequests();
             })
             .catch(function (err) {
+              btn.disabled = false;
               msg.textContent =
                 "Erreur : " +
                 (err && err.code ? err.code : err && err.message ? err.message : String(err));
               msg.style.color = "#f87171";
             });
         });
+      }
+
+      function statusLabel(st) {
+        return st || "—";
+      }
+
+      function refreshMyRequests() {
+        var box = document.getElementById("myRequestsList");
+        if (!currentWallet) {
+          box.innerHTML = '<p class="hint">Connecte ton wallet pour voir tes demandes.</p>';
+          return;
+        }
+        box.innerHTML = '<p class="hint">Chargement…</p>';
+        PAY.listMyRequests(currentWallet).then(function (data) {
+          if (!data || !data.ok) {
+            box.innerHTML =
+              '<p class="hint">Impossible de charger les demandes' +
+              (data && data.error ? " (" + data.error + ")" : "") +
+              ".</p>";
+            return;
+          }
+          var rows = data.requests || [];
+          if (!rows.length) {
+            box.innerHTML = '<p class="hint">Aucune demande pour ce wallet.</p>';
+            return;
+          }
+          box.innerHTML = "";
+          rows.forEach(function (r) {
+            var item = document.createElement("div");
+            item.className = "service-item";
+            var asset = (r.payload && r.payload.asset) || "—";
+            var explorer =
+              (window.TORINVEST_KRM && window.TORINVEST_KRM.EXPLORER_TX_BASE
+                ? window.TORINVEST_KRM.EXPLORER_TX_BASE
+                : "https://explorer.solana.com/tx/") + r.signature;
+            item.innerHTML =
+              "<div>" +
+                '<div class="service-name"></div>' +
+                '<div class="service-price"></div>' +
+                '<div class="service-msg"></div>' +
+              "</div>" +
+              '<a class="btn-service" target="_blank" rel="noopener">Explorer</a>';
+            item.querySelector(".service-name").textContent =
+              (r.serviceName || r.serviceId) + " · " + statusLabel(r.status);
+            item.querySelector(".service-price").textContent =
+              (r.amountKrm || "?") + " KRM · " + asset;
+            item.querySelector(".service-msg").textContent =
+              (r.createdAt || "").slice(0, 19).replace("T", " ") +
+              " UTC · tx " +
+              truncateSig(r.signature);
+            item.querySelector("a").href = explorer;
+            box.appendChild(item);
+          });
+        });
+      }
+
+      function tryResumeLastPayment() {
+        try {
+          var raw = sessionStorage.getItem("torinvest_krm_last_payment");
+          if (!raw || !currentWallet) return;
+          var saved = JSON.parse(raw);
+          if (!saved || saved.wallet !== currentWallet || !saved.signature) return;
+          // Revalide côté serveur avant d'ouvrir le formulaire
+          PAY.registerPaidPayment({
+            signature: saved.signature,
+            serviceId: saved.serviceId,
+            userWallet: currentWallet,
+          })
+            .then(function (resp) {
+              if (!resp || !resp.ok || !resp.canCreateRequest) {
+                sessionStorage.removeItem("torinvest_krm_last_payment");
+                return;
+              }
+              showPaymentSuccess({
+                state: PAY.STATES.SUCCESS,
+                signature: saved.signature,
+                serviceId: saved.serviceId,
+                serviceName: saved.serviceName,
+                amountKrm: saved.amountKrm,
+                explorerUrl: saved.explorerUrl,
+              });
+            })
+            .catch(function () {
+              /* ignore */
+            });
+        } catch (e) {}
       }
 
       async function confirmPayment() {
@@ -1230,6 +1394,61 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       if (buyBtn && KRM.KRM_BUY_URL) {
         buyBtn.href = KRM.KRM_BUY_URL;
       }
+
+      var resumeBox = document.getElementById("resumePaidBox");
+      function syncResumeBox() {
+        resumeBox.style.display = currentWallet ? "block" : "none";
+      }
+      syncResumeBox();
+
+      document.getElementById("resumePaidBtn").addEventListener("click", function () {
+        var msg = document.getElementById("resumePaidMsg");
+        if (!currentWallet) {
+          msg.textContent = "Connecte d'abord ton wallet.";
+          msg.style.color = "#f87171";
+          return;
+        }
+        var sig = document.getElementById("resumeSignature").value.trim();
+        var serviceId = document.getElementById("resumeServiceId").value;
+        if (!sig) {
+          msg.textContent = "Signature requise.";
+          msg.style.color = "#f87171";
+          return;
+        }
+        msg.textContent = "Vérification on-chain…";
+        msg.style.color = "";
+        var service = KRM.getService(serviceId);
+        PAY.registerPaidPayment({
+          signature: sig,
+          serviceId: serviceId,
+          userWallet: currentWallet,
+        })
+          .then(function (resp) {
+            if (!resp.ok) {
+              throw Object.assign(new Error(resp.error || "REFUSED"), { code: resp.error });
+            }
+            if (!resp.canCreateRequest) {
+              msg.textContent = "PAYMENT_ALREADY_USED — cette signature a déjà une demande.";
+              msg.style.color = "#f87171";
+              return;
+            }
+            msg.textContent = "Paiement validé — formulaire ouvert.";
+            msg.style.color = "#34d399";
+            showPaymentSuccess({
+              state: PAY.STATES.SUCCESS,
+              signature: sig,
+              serviceId: serviceId,
+              serviceName: service.name,
+              amountKrm: service.amountKrm,
+              explorerUrl: KRM.EXPLORER_TX_BASE + sig,
+            });
+          })
+          .catch(function (err) {
+            msg.textContent =
+              "Erreur : " + (err && err.code ? err.code : err && err.message ? err.message : String(err));
+            msg.style.color = "#f87171";
+          });
+      });
     })();
   </script>
   <script src="/assets/torinvest-rgpd.js" defer></script>
