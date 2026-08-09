@@ -719,18 +719,26 @@
         </button>
         <a id="buyKrmBtn"
            class="btn-buy"
-           href="https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA"
+           href="https://jup.ag/swap/SOL-Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA"
            target="_blank"
            rel="noopener noreferrer">
-          Acheter des KRM
+          Acheter KRM (Jupiter)
+        </a>
+        <a id="buyKrmPoolBtn"
+           class="btn-buy"
+           href="#"
+           target="_blank"
+           rel="noopener noreferrer"
+           hidden>
+          Acheter via le pool TORINVEST
         </a>
         <div class="hint">
           Lecture seule · vérification on-chain du solde <span>KRM</span>
         </div>
       </div>
       <p class="hint" style="margin-top:8px;max-width:36rem;">
-        Pas assez de KRM pour un niveau ? Achète-en sur Jupiter (Solana), puis reconnecte ton wallet
-        pour mettre à jour ton TorPass. Les KRM détenus pour un niveau ne sont pas consommés.
+        Pas assez de KRM ? Achète-en (Jupiter / pool TORINVEST), puis reconnecte ton wallet.
+        Les KRM détenus pour un niveau ne sont pas consommés ; payer un service envoie des KRM à la treasury.
       </p>
       <div class="status-chip">
         <span class="dot"></span>
@@ -973,6 +981,16 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
             msg = "Prêt · transfert SPL TransferChecked vers Treasury TORINVEST.";
           }
 
+          var needBuy =
+            treasuryOk && krmBalance != null && !affordable;
+          var buyHref = (KRM.KRM_POOL_URL && String(KRM.KRM_POOL_URL).trim()) ||
+            KRM.KRM_BUY_URL ||
+            "https://jup.ag/swap/SOL-Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+          var buyLabel =
+            KRM.KRM_POOL_URL && String(KRM.KRM_POOL_URL).trim()
+              ? "Acheter KRM (pool)"
+              : "Acheter KRM (Jupiter)";
+
           item.innerHTML =
             "<div>" +
               '<div class="service-name"></div>' +
@@ -980,13 +998,24 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
               '<div class="service-msg"></div>' +
               '<div class="pay-state" data-state-for="' + service.id + '">READY</div>' +
             "</div>" +
-            '<button type="button" class="btn-service" data-pay="1"></button>';
+            '<div class="service-actions" style="display:flex;flex-direction:column;gap:8px;align-items:stretch">' +
+              '<button type="button" class="btn-service" data-pay="1"></button>' +
+              (needBuy
+                ? '<a class="btn-buy" data-buy-krm="1" href="' +
+                  buyHref +
+                  '" target="_blank" rel="noopener noreferrer">' +
+                  buyLabel +
+                  "</a>"
+                : "") +
+            "</div>";
 
           item.querySelector(".service-name").textContent = service.name;
           item.querySelector(".service-price").textContent =
             TP.formatKrm(service.priceKrm) + " KRM";
           var msgEl = item.querySelector(".service-msg");
-          msgEl.textContent = msg;
+          msgEl.textContent = needBuy
+            ? msg + " Achète des KRM puis reconnecte pour payer."
+            : msg;
           msgEl.className =
             "service-msg" +
             (!treasuryOk || krmBalance == null
@@ -1414,6 +1443,16 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       var buyBtn = document.getElementById("buyKrmBtn");
       if (buyBtn && KRM.KRM_BUY_URL) {
         buyBtn.href = KRM.KRM_BUY_URL;
+      }
+      var poolBtn = document.getElementById("buyKrmPoolBtn");
+      if (poolBtn) {
+        var poolUrl = KRM.KRM_POOL_URL && String(KRM.KRM_POOL_URL).trim();
+        if (poolUrl) {
+          poolBtn.href = poolUrl;
+          poolBtn.hidden = false;
+        } else {
+          poolBtn.hidden = true;
+        }
       }
 
       var resumeBox = document.getElementById("resumePaidBox");
