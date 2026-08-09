@@ -49,12 +49,17 @@
     return Number(whole.toString() + "." + fracStr);
   }
 
+  /** Lien d'achat KRM (Jupiter) — même mint officiel. */
+  var KRM_BUY_URL =
+    "https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
+
   global.TORINVEST_KRM = {
     KRM_MINT: "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA",
     KRM_DECIMALS: KRM_DECIMALS,
     /** Public key Treasury — modifier ici (jamais de private key). */
     KRM_SERVICES_TREASURY: KRM_SERVICES_TREASURY,
     KRM_SERVICES: KRM_SERVICES,
+    KRM_BUY_URL: KRM_BUY_URL,
     TOKEN_PROGRAM_ID: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
     ASSOCIATED_TOKEN_PROGRAM_ID: "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
     EXPLORER_TX_BASE: "https://explorer.solana.com/tx/",
