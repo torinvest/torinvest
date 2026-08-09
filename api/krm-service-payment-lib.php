@@ -592,6 +592,167 @@ function krmServicesAdminList(string $pin): array
     return ['ok' => true, 'requests' => array_values($requests)];
 }
 
+function krmServicesHeliusApiKey(): string
+{
+    $cfg = krmServicesConfig();
+    $apiKey = trim((string) ($cfg['helius_api_key'] ?? ''));
+    if ($apiKey === '' || $apiKey === 'VOTRE_CLE_HELIUS_ICI') {
+        throw new RuntimeException('HELIUS_NOT_CONFIGURED');
+    }
+    return $apiKey;
+}
+
+/**
+ * GET REST Helius (enhanced transactions).
+ * @return array<int, mixed>|array<string, mixed>
+ */
+function krmServicesHeliusRestGet(string $path, array $query = []): array
+{
+    $apiKey = krmServicesHeliusApiKey();
+    $query['api-key'] = $apiKey;
+    $url = 'https://api.helius.xyz' . $path . '?' . http_build_query($query);
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPGET => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 35,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_HTTPHEADER => ['Accept: application/json'],
+    ]);
+    $response = curl_exec($ch);
+    $code = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $errno = curl_errno($ch);
+    curl_close($ch);
+    if ($response === false || $errno) {
+        throw new RuntimeException('HELIUS_REST_FAILED');
+    }
+    $data = json_decode($response, true);
+    if ($code >= 400) {
+        $msg = is_array($data) ? (string) ($data['error'] ?? $data['message'] ?? 'HELIUS_HTTP_' . $code) : 'HELIUS_HTTP_' . $code;
+        throw new RuntimeException($msg);
+    }
+    if (!is_array($data)) {
+        throw new RuntimeException('HELIUS_INVALID_JSON');
+    }
+    return $data;
+}
+
+/**
+ * Achats / réceptions KRM on-chain (hors paiements treasury services).
+ * Source : historique Helius du mint KRM (SWAP + transferts entrants).
+ */
+function krmServicesAdminListPurchases(string $pin, int $limit = 50): array
+{
+    $pinErr = krmServicesAdminPinError($pin);
+    if ($pinErr !== null) {
+        return ['ok' => false, 'error' => $pinErr];
+    }
+
+    $limit = max(10, min(100, $limit));
+    $treasury = krmServicesTreasury();
+
+    try {
+        $txs = krmServicesHeliusRestGet(
+            '/v0/addresses/' . rawurlencode(KRM_MINT_OFFICIAL) . '/transactions',
+            ['limit' => $limit]
+        );
+    } catch (Throwable $e) {
+        return [
+            'ok' => false,
+            'error' => 'PURCHASE_FEED_FAILED',
+            'message' => $e->getMessage(),
+        ];
+    }
+
+    if (!array_is_list($txs)) {
+        // Certaines erreurs Helius renvoient un objet
+        if (isset($txs['error'])) {
+            return [
+                'ok' => false,
+                'error' => 'PURCHASE_FEED_FAILED',
+                'message' => is_string($txs['error']) ? $txs['error'] : json_encode($txs['error']),
+            ];
+        }
+        $txs = [];
+    }
+
+    $purchases = [];
+    $seen = [];
+
+    foreach ($txs as $tx) {
+        if (!is_array($tx)) {
+            continue;
+        }
+        $sig = (string) ($tx['signature'] ?? '');
+        $type = strtoupper((string) ($tx['type'] ?? ''));
+        $source = (string) ($tx['source'] ?? '');
+        $ts = isset($tx['timestamp']) ? (int) $tx['timestamp'] : 0;
+        $transfers = $tx['tokenTransfers'] ?? [];
+        if (!is_array($transfers)) {
+            continue;
+        }
+
+        foreach ($transfers as $t) {
+            if (!is_array($t)) {
+                continue;
+            }
+            if ((string) ($t['mint'] ?? '') !== KRM_MINT_OFFICIAL) {
+                continue;
+            }
+            $to = trim((string) ($t['toUserAccount'] ?? ''));
+            $from = trim((string) ($t['fromUserAccount'] ?? ''));
+            $amount = (float) ($t['tokenAmount'] ?? 0);
+            if ($to === '' || $amount < 1) {
+                continue;
+            }
+            // Paiement service → treasury : hors suivi « achats »
+            if ($treasury !== '' && $to === $treasury) {
+                continue;
+            }
+            // Sorties treasury (hors scope)
+            if ($treasury !== '' && $from === $treasury) {
+                continue;
+            }
+
+            $dedupe = $sig . '|' . $to . '|' . $amount;
+            if (isset($seen[$dedupe])) {
+                continue;
+            }
+            $seen[$dedupe] = true;
+
+            $kind = 'TRANSFER_IN';
+            if (str_contains($type, 'SWAP') || stripos($source, 'JUPITER') !== false || stripos($source, 'RAYDIUM') !== false) {
+                $kind = 'SWAP';
+            }
+
+            $purchases[] = [
+                'signature' => $sig,
+                'at' => $ts > 0 ? gmdate('c', $ts) : null,
+                'timestamp' => $ts,
+                'wallet' => $to,
+                'from' => $from !== '' ? $from : null,
+                'amountKrm' => $amount,
+                'kind' => $kind,
+                'type' => $type !== '' ? $type : null,
+                'source' => $source !== '' ? $source : null,
+                'description' => (string) ($tx['description'] ?? ''),
+            ];
+        }
+    }
+
+    usort($purchases, static function ($a, $b) {
+        return ((int) ($b['timestamp'] ?? 0)) <=> ((int) ($a['timestamp'] ?? 0));
+    });
+
+    return [
+        'ok' => true,
+        'mint' => KRM_MINT_OFFICIAL,
+        'purchases' => array_values($purchases),
+        'count' => count($purchases),
+        'note' => 'Réceptions KRM on-chain (swaps DEX / transferts). Les paiements de services vers la treasury sont exclus.',
+    ];
+}
+
 function krmServicesAdminUpdateStatus(array $input): array
 {
     $pin = (string) ($input['pin'] ?? '');
