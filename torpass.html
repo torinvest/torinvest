@@ -212,6 +212,29 @@
       transform: none;
     }
 
+    .btn-buy {
+      border-radius: 999px;
+      padding: 11px 18px;
+      border: 1px solid rgba(232, 184, 74, 0.55);
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      background: rgba(232, 184, 74, 0.12);
+      color: var(--amber);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: background 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+    }
+
+    .btn-buy:hover {
+      background: rgba(232, 184, 74, 0.22);
+      border-color: rgba(232, 184, 74, 0.85);
+      transform: translateY(-1px);
+    }
+
     .btn-service {
       border-radius: 10px;
       padding: 9px 14px;
@@ -673,10 +696,21 @@
         <button id="connectBtn" class="btn-main" type="button">
           <span>Connecter mon wallet Phantom</span>
         </button>
+        <a id="buyKrmBtn"
+           class="btn-buy"
+           href="https://jup.ag/tokens/Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA"
+           target="_blank"
+           rel="noopener noreferrer">
+          Acheter des KRM
+        </a>
         <div class="hint">
           Lecture seule · vérification on-chain du solde <span>KRM</span>
         </div>
       </div>
+      <p class="hint" style="margin-top:8px;max-width:36rem;">
+        Pas assez de KRM pour un niveau ? Achète-en sur Jupiter (Solana), puis reconnecte ton wallet
+        pour mettre à jour ton TorPass. Les KRM détenus pour un niveau ne sont pas consommés.
+      </p>
       <div class="status-chip">
         <span class="dot"></span>
         <span>Aucun token ne sera déplacé sans ta signature explicite.</span>
@@ -1191,6 +1225,11 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           el.textContent = TP.formatKrm(threshold) + " KRM";
         }
       });
+
+      var buyBtn = document.getElementById("buyKrmBtn");
+      if (buyBtn && KRM.KRM_BUY_URL) {
+        buyBtn.href = KRM.KRM_BUY_URL;
+      }
     })();
   </script>
   <script src="/assets/torinvest-rgpd.js" defer></script>
