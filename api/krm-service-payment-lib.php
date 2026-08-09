@@ -566,10 +566,24 @@ function krmServicesAssertAdminPin(string $pin): bool
     return hash_equals($expected, trim($pin));
 }
 
+/** @return null|string error code if PIN rejected */
+function krmServicesAdminPinError(string $pin): ?string
+{
+    $expected = krmServicesAdminPin();
+    if ($expected === '' || $expected === 'CHANGEZ_MOI') {
+        return 'PIN_NOT_CONFIGURED';
+    }
+    if (!hash_equals($expected, trim($pin))) {
+        return 'UNAUTHORIZED';
+    }
+    return null;
+}
+
 function krmServicesAdminList(string $pin): array
 {
-    if (!krmServicesAssertAdminPin($pin)) {
-        return ['ok' => false, 'error' => 'UNAUTHORIZED'];
+    $pinErr = krmServicesAdminPinError($pin);
+    if ($pinErr !== null) {
+        return ['ok' => false, 'error' => $pinErr];
     }
     $requests = krmServicesReadJson(krmServicesRequestsFile());
     usort($requests, static function ($a, $b) {
@@ -584,8 +598,9 @@ function krmServicesAdminUpdateStatus(array $input): array
     $requestId = trim((string) ($input['requestId'] ?? ''));
     $newStatus = strtoupper(trim((string) ($input['status'] ?? '')));
 
-    if (!krmServicesAssertAdminPin($pin)) {
-        return ['ok' => false, 'error' => 'UNAUTHORIZED'];
+    $pinErr = krmServicesAdminPinError($pin);
+    if ($pinErr !== null) {
+        return ['ok' => false, 'error' => $pinErr];
     }
     if ($requestId === '' || !in_array($newStatus, krmServicesAllowedStatuses(), true)) {
         return ['ok' => false, 'error' => 'INVALID_STATUS'];
