@@ -861,24 +861,31 @@
     }
 
     .plan-badge {
-      position: absolute;
-      right: 16px;
-      top: 16px;
+      display: inline-block;
+      position: static;
+      max-width: 100%;
+      box-sizing: border-box;
       color: var(--gold);
       background: rgba(255,180,0,.1);
       border: 1px solid rgba(255,180,0,.24);
       border-radius: 999px;
-      padding: 4px 8px;
+      padding: 5px 10px;
+      margin: 0 0 12px;
       font-size: 10px;
-      letter-spacing: .1em;
+      letter-spacing: .06em;
       text-transform: uppercase;
       font-weight: 900;
+      line-height: 1.35;
+      white-space: normal;
+      word-break: break-word;
     }
 
     .plan-name {
       font-size: 20px;
       font-weight: 950;
-      margin-bottom: 8px;
+      margin: 0 0 8px;
+      padding-right: 0;
+      line-height: 1.25;
     }
 
     .plan-desc {
@@ -1392,7 +1399,7 @@
           </article>
 
           <article class="plan featured" data-offer="ROBOT">
-            <div class="plan-badge" data-offer-badge="ROBOT">OFFRE DE LANCEMENT — aucun KRM requis</div>
+            <div class="plan-badge" data-offer-badge="ROBOT">Lancement · aucun KRM requis</div>
             <h3 class="plan-name">Robot Access</h3>
             <p class="plan-desc">EA MT5 connecté à l’infrastructure décisionnelle TORINVEST avec licence individuelle. Produit distinct de la Formation Trading.</p>
 
@@ -1427,7 +1434,7 @@
             </p>
           </article>
 <article class="plan" data-offer="FORMATION">
-  <div class="plan-badge" data-offer-badge="FORMATION">OFFRE DE LANCEMENT — aucun KRM requis</div>
+  <div class="plan-badge" data-offer-badge="FORMATION">Lancement · aucun KRM requis</div>
 
   <h3 class="plan-name">Formation de Trading</h3>
 
@@ -1792,7 +1799,12 @@
             old.hidden = true;
           }
         }
-        if (badge && r.badge) badge.textContent = r.badge;
+        if (badge && r.badge) {
+          badge.textContent =
+            CFG.PRICING_MODE === "PUBLIC_PROMO"
+              ? "Lancement · aucun KRM requis"
+              : r.badge;
+        }
         if (adv) {
           var future = r.futureAdvantageText
             ? '<br /><span style="color:var(--muted)">Plus tard — ' + r.futureAdvantageText + "</span>"
