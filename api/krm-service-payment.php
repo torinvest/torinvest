@@ -1,7 +1,6 @@
 <?php
 /**
- * API paiements services KRM — verify + submit_request.
- * Deployé sur le VPS (radar) comme les autres endpoints PHP.
+ * API services KRM — verify, register_paid, submit_request, list, admin.
  */
 declare(strict_types=1);
 
@@ -46,7 +45,7 @@ require_once __DIR__ . '/rate-limit.php';
 require_once __DIR__ . '/krm-service-payment-lib.php';
 
 try {
-    torinvestRateLimitGuard('krm_service_payment', 40, 60);
+    torinvestRateLimitGuard('krm_service_payment', 60, 60);
 } catch (RuntimeException $e) {
     http_response_code(429);
     echo json_encode(['ok' => false, 'error' => $e->getMessage()]);
@@ -72,12 +71,21 @@ try {
             'mint' => KRM_MINT_OFFICIAL,
             'decimals' => KRM_DECIMALS,
             'services' => krmServicesCatalog(),
+            'statuses' => krmServicesAllowedStatuses(),
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
     if ($action === 'verify') {
-        $result = krmServicesVerifyPayment($payload);
+        echo json_encode(krmServicesVerifyPayment($payload, true), JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if ($action === 'register_paid') {
+        $result = krmServicesRegisterPaid($payload);
+        if (empty($result['ok'])) {
+            http_response_code(400);
+        }
         echo json_encode($result, JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -86,6 +94,37 @@ try {
         $result = krmServicesSubmitRequest($payload);
         if (empty($result['ok'])) {
             http_response_code(400);
+        }
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if ($action === 'list_my_requests') {
+        $result = krmServicesListByWallet((string) ($payload['userWallet'] ?? ''));
+        if (empty($result['ok'])) {
+            http_response_code(400);
+        }
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if ($action === 'admin_list') {
+        $result = krmServicesAdminList((string) ($payload['pin'] ?? ''));
+        if (empty($result['ok'])) {
+            http_response_code($result['error'] === 'UNAUTHORIZED' ? 401 : 400);
+        }
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if ($action === 'admin_update_status') {
+        $result = krmServicesAdminUpdateStatus($payload);
+        if (empty($result['ok'])) {
+            $code = 400;
+            if (($result['error'] ?? '') === 'UNAUTHORIZED') {
+                $code = 401;
+            }
+            http_response_code($code);
         }
         echo json_encode($result, JSON_UNESCAPED_UNICODE);
         exit;
