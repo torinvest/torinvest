@@ -11,10 +11,10 @@
 /actualites      /actualites.html      200
 /crypto          /crypto.html          200
 /torpass         /torpass.html         200
-# Appli Fondamental (build Vite) — SPA sous /applifonda/
-/fondamental            /applifonda/index.html     200
-/fondamental/           /applifonda/index.html     200
-/applifonda             /applifonda/index.html     200
+# Appli Fondamental (build Vite) — toujours sous /applifonda/ (basename React)
+/fondamental            /applifonda/               302
+/fondamental/           /applifonda/               302
+/applifonda             /applifonda/               302
 /applifonda/            /applifonda/index.html     200
 /applifonda/*           /applifonda/index.html     200
 /video           /video.html           200
