@@ -5,6 +5,10 @@ crypto-radar/config.vps-backup.php
 assets/torinvest-worker-config.js
 deploy/COPY-TOKEN-ROTATION.local.txt
 
+# Appli Fondamental (build Vite) — contenu payant, JAMAIS sur GitHub public.
+# Déployer uniquement vers le VPS : deploy/vps/push-applifonda.ps1
+applifonda/
+
 # Sauvegardes locales
 backups/*.tar.gz
 
