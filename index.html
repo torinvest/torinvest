@@ -1422,9 +1422,9 @@
               <a class="btn btn-primary" href="#contact">Demander l’accès</a>
             </div>
             <p data-offer-advantage="ROBOT" style="margin-top:12px;font-size:12px;color:var(--gold);text-align:center;line-height:1.45">
-              <strong>Avantage TorPass</strong><br />
+              <strong>TORPASS</strong><br />
               Offre de lancement : aucun KRM requis.<br />
-              <span style="color:var(--muted)">Plus tard — Tarif membre PRO : 79 €/mois — nécessite ≥ 500 KRM à l’achat ou au renouvellement.</span>
+              <span style="color:var(--muted)">Les membres TorPass bénéficieront d’avantages spécifiques après la période de lancement.</span>
             </p>
             <p style="margin-top:10px;font-size:12px;color:var(--muted);text-align:center">
               1. Payer → 2. Email avec clé → 3. <a href="/activation.html" style="color:var(--gold)">Compléter profil</a>
@@ -1472,9 +1472,9 @@
        Demander des informations
     </a>
     <p data-offer-advantage="FORMATION" style="margin-top:12px;font-size:12px;color:var(--gold);text-align:center;line-height:1.45">
-      <strong>Avantage TorPass</strong><br />
+      <strong>TORPASS</strong><br />
       Offre de lancement : aucun KRM requis.<br />
-      <span style="color:var(--muted)">Plus tard — Tarif membre ACADEMY : 349 €/an — nécessite ≥ 250 KRM à l’achat ou au renouvellement.</span>
+      <span style="color:var(--muted)">Les membres TorPass bénéficieront d’avantages spécifiques après la période de lancement.</span>
     </p>
     <p style="margin-top:10px;font-size:12px;color:var(--muted);text-align:center">
       1. Payer → 2. Email avec clé → 3. <a href="/activation-accompagnement.html" style="color:var(--gold)">Compléter profil</a>
@@ -1777,7 +1777,7 @@
 }
 </style>
   
-  <script src="/assets/torinvest-offers-config.js?v=1"></script>
+  <script src="/assets/torinvest-offers-config.js?v=2"></script>
   <script>
     (function () {
       var CFG = window.TORINVEST_OFFERS_CONFIG;
@@ -1807,10 +1807,10 @@
         }
         if (adv) {
           var future = r.futureAdvantageText
-            ? '<br /><span style="color:var(--muted)">Plus tard — ' + r.futureAdvantageText + "</span>"
+            ? '<br /><span style="color:var(--muted)">' + r.futureAdvantageText + "</span>"
             : "";
           adv.innerHTML =
-            "<strong>Avantage TorPass</strong><br />" +
+            "<strong>TORPASS</strong><br />" +
             (r.advantageText || "") +
             future;
         }

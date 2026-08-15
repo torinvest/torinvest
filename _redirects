@@ -70,6 +70,7 @@
 /api/krm-service-payment.php  https://radar.torinvest-trading.com/api/krm-service-payment.php     200!
 /api/license-provision.php    https://radar.torinvest-trading.com/api/license-provision.php    200!
 /api/access-config.php        https://radar.torinvest-trading.com/api/access-config.php        200!
+/api/torpass-client.php       https://radar.torinvest-trading.com/api/torpass-client.php       200!
 /api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  200!
 /api/fondamental-access.php   https://radar.torinvest-trading.com/api/fondamental-access.php    200!
 /api/fondamental-serve.php    https://radar.torinvest-trading.com/api/fondamental-serve.php     200!

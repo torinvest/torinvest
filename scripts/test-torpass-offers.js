@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Tests — offres € + modes pricing TorPass (sans on-chain).
+ * Tests — offres € + parcours client TorPass / KRM (sans on-chain).
  */
 "use strict";
 
@@ -8,10 +8,25 @@ var assert = require("assert");
 var path = require("path");
 
 global.window = global;
+global.localStorage = {
+  _d: {},
+  getItem: function (k) {
+    return Object.prototype.hasOwnProperty.call(this._d, k) ? this._d[k] : null;
+  },
+  setItem: function (k, v) {
+    this._d[k] = String(v);
+  },
+  removeItem: function (k) {
+    delete this._d[k];
+  },
+};
+
 require(path.join(__dirname, "../assets/torinvest-offers-config.js"));
+require(path.join(__dirname, "../assets/torinvest-krm-config.js"));
 require(path.join(__dirname, "../assets/torinvest-torpass.js"));
 
 var CFG = global.TORINVEST_OFFERS_CONFIG;
+var KRM = global.TORINVEST_KRM;
 var TP = global.TorinvestTorpass;
 var results = [];
 
@@ -37,6 +52,7 @@ test("250 KRM → ACADEMY sans Robot membre", function () {
   assert.strictEqual(st.level, "ACADEMY");
   assert.strictEqual(st.access.memberFormation, true);
   assert.strictEqual(st.access.memberRobot, false);
+  assert.strictEqual(st.access.discord, true);
 });
 
 test("500 KRM → PRO sans gratuité produit", function () {
@@ -44,8 +60,52 @@ test("500 KRM → PRO sans gratuité produit", function () {
   assert.strictEqual(st.level, "PRO");
   assert.strictEqual(st.access.memberRobot, true);
   assert.strictEqual(st.access.memberFormation, true);
-  // Éligibilité ≠ accès produit gratuit
   assert.ok(CFG.DISCLAIMER.indexOf("ne remplacent pas") !== -1);
+});
+
+test("250 KRM : Academy OUI, abonnement Formation défaut NON", function () {
+  var st = TP.buildStatus(250);
+  assert.strictEqual(st.level, "ACADEMY");
+  global.localStorage.removeItem("torinvest_sub_formation");
+  var subs = CFG.getClientSubscriptions("test");
+  assert.strictEqual(subs.formationActive, false);
+  assert.strictEqual(st.access.memberFormation, true);
+});
+
+test("500 KRM : Pro OUI, Robot Access défaut NON ABONNÉ", function () {
+  var st = TP.buildStatus(500);
+  assert.strictEqual(st.level, "PRO");
+  global.localStorage.removeItem("torinvest_sub_robot");
+  var subs = CFG.getClientSubscriptions("test");
+  assert.strictEqual(subs.robotActive, false);
+  assert.strictEqual(st.access.memberRobot, true);
+});
+
+test("Formation payée (stub localStorage) → ACTIF", function () {
+  global.localStorage.setItem("torinvest_sub_formation", "1");
+  assert.strictEqual(CFG.getClientSubscriptions().formationActive, true);
+  global.localStorage.removeItem("torinvest_sub_formation");
+});
+
+test("Robot payé (stub localStorage) → ACTIF", function () {
+  global.localStorage.setItem("torinvest_sub_robot", "1");
+  assert.strictEqual(CFG.getClientSubscriptions().robotActive, true);
+  global.localStorage.removeItem("torinvest_sub_robot");
+});
+
+test("niveau max ≥ 500 : isMax + prochain null", function () {
+  var st = TP.buildStatus(500);
+  assert.strictEqual(st.isMax, true);
+  assert.strictEqual(st.next, null);
+  assert.strictEqual(TP.isMaxLevel(500), true);
+});
+
+test("183.42 KRM → COMMUNITY, manque ACADEMY", function () {
+  var st = TP.buildStatus(183.42);
+  assert.strictEqual(st.level, "COMMUNITY");
+  assert.ok(st.next);
+  assert.strictEqual(st.next.key, "ACADEMY");
+  assert.ok(Math.abs(st.next.missing - 66.58) < 0.001);
 });
 
 test("PUBLIC_PROMO : 0 KRM voit 79 et 349", function () {
@@ -56,6 +116,8 @@ test("PUBLIC_PROMO : 0 KRM voit 79 et 349", function () {
   assert.strictEqual(form.displayPrice, 349);
   assert.strictEqual(robot.krmRequiredNow, false);
   assert.strictEqual(form.krmRequiredNow, false);
+  assert.ok(robot.advantageText.indexOf("aucun KRM requis") !== -1);
+  assert.ok(robot.futureAdvantageText.indexOf("après la période de lancement") !== -1);
 });
 
 test("MEMBER_PRICING : 0 KRM voit 149 / 499", function () {
@@ -88,35 +150,47 @@ test("PUBLIC_PROMO checkout : 0 KRM éligible promo", function () {
   assert.strictEqual(g0.reason, "PUBLIC_PROMO");
 });
 
-test("services KRM 50/100 intacts", function () {
-  require(path.join(__dirname, "../assets/torinvest-krm-config.js"));
-  var KRM = global.TORINVEST_KRM;
-  assert.strictEqual(KRM.KRM_SERVICES.trade_idea_review.amountKrm, 50);
-  assert.strictEqual(KRM.KRM_SERVICES.trade_debrief.amountKrm, 100);
+test("RAYDIUM_CONFIG centralisé + mint exact", function () {
   assert.strictEqual(
     KRM.KRM_MINT,
     "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA"
   );
+  assert.ok(KRM.RAYDIUM_CONFIG);
+  assert.strictEqual(KRM.RAYDIUM_CONFIG.krmMint, KRM.KRM_MINT);
+  assert.strictEqual(
+    KRM.RAYDIUM_CONFIG.usdcMint,
+    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+  );
+  assert.strictEqual(
+    KRM.RAYDIUM_CONFIG.poolId,
+    "BLXPTAFedmjRHKrkZp42pd6vUs4gTR8sLGJFStNR7iWZ"
+  );
+  assert.strictEqual(KRM.RAYDIUM_CONFIG.network, "mainnet");
+  assert.ok(KRM.KRM_POOL_URL.indexOf(KRM.RAYDIUM_CONFIG.usdcMint) !== -1);
+  assert.ok(KRM.KRM_POOL_URL.indexOf(KRM.RAYDIUM_CONFIG.krmMint) !== -1);
+  assert.ok(KRM.KRM_POOL_URL.indexOf("raydium.io") !== -1);
+  assert.strictEqual(KRM.getRaydiumSwapUrl(), KRM.KRM_BUY_PRIMARY_URL);
 });
 
-// Simulation MEMBER_PRICING en ré-exécutant la logique de rang
-test("MEMBER_PRICING logique rang (simulée)", function () {
-  function resolve(mode, offerId, level) {
-    var offer = CFG.TORINVEST_OFFERS[offerId];
-    var rank = CFG.levelRank;
-    if (mode === "PUBLIC_PROMO") return offer.promoPrice;
-    if (mode === "MEMBER_PRICING") {
-      if (rank(level) >= rank(offer.requiredKrmLevel)) return offer.memberPrice;
-      return offer.regularPrice;
-    }
-    return offer.regularPrice;
-  }
-  assert.strictEqual(resolve("MEMBER_PRICING", "ROBOT", "PUBLIC"), 149);
-  assert.strictEqual(resolve("MEMBER_PRICING", "FORMATION", "PUBLIC"), 499);
-  assert.strictEqual(resolve("MEMBER_PRICING", "FORMATION", "ACADEMY"), 349);
-  assert.strictEqual(resolve("MEMBER_PRICING", "ROBOT", "ACADEMY"), 149);
-  assert.strictEqual(resolve("MEMBER_PRICING", "ROBOT", "PRO"), 79);
-  assert.strictEqual(resolve("MEMBER_PRICING", "FORMATION", "PRO"), 349);
+test("BETA liquidité note présente", function () {
+  assert.ok(KRM.KRM_BETA_LIQUIDITY_NOTE.indexOf("BETA") !== -1);
+  assert.ok(KRM.KRM_BETA_LIQUIDITY_NOTE.indexOf("liquidité") !== -1);
+});
+
+test("HOW_KRM_WORKS_STEPS = 3 étapes", function () {
+  assert.strictEqual(CFG.HOW_KRM_WORKS_STEPS.length, 3);
+  assert.ok(CFG.HOW_KRM_WORKS_STEPS[0].title.indexOf("KRM") !== -1);
+  assert.ok(CFG.HOLD_VS_SPEND.holdTitle.indexOf("DÉTENIR") !== -1);
+  assert.ok(CFG.HOLD_VS_SPEND.spendTitle.indexOf("DÉPENSER") !== -1);
+});
+
+test("services KRM 50/100 intacts", function () {
+  assert.strictEqual(KRM.KRM_SERVICES.trade_idea_review.amountKrm, 50);
+  assert.strictEqual(KRM.KRM_SERVICES.trade_debrief.amountKrm, 100);
+});
+
+test("TorPass mint aligné sur TORINVEST_KRM", function () {
+  assert.strictEqual(TP.KRM_MINT, KRM.KRM_MINT);
 });
 
 var failed = 0;
