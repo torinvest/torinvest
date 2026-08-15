@@ -71,8 +71,8 @@ return [
     'require_webhook_provision' => true,
 
     // Liens accès accompagnement (publics — affichés après validation licence)
-    'discord_public_url' => 'https://discord.gg/5mSC8gFsT7',
-    'discord_accompagnement_url' => 'https://discord.gg/5mSC8gFsT7',
+    'discord_public_url' => 'https://discord.gg/vwkPp2aeEM',
+    'discord_accompagnement_url' => 'https://discord.gg/vwkPp2aeEM',
     'telegram_public_url' => 'https://t.me/+2qMkEX3KnhowNTU0',
     'telegram_vip_url' => 'https://t.me/+2qMkEX3KnhowNTU0',
     'app_formation_login_url' => 'https://app.torinvest-trading.com/login.html',

@@ -360,8 +360,8 @@ function licenceCrmAccessLinks(): array
 {
     $cfg = licenceCrmConfig();
     return [
-        'discordPublic' => (string) ($cfg['discord_public_url'] ?? 'https://discord.gg/5mSC8gFsT7'),
-        'discordAccompagnement' => (string) ($cfg['discord_accompagnement_url'] ?? $cfg['discord_public_url'] ?? 'https://discord.gg/5mSC8gFsT7'),
+        'discordPublic' => (string) ($cfg['discord_public_url'] ?? 'https://discord.gg/vwkPp2aeEM'),
+        'discordAccompagnement' => (string) ($cfg['discord_accompagnement_url'] ?? $cfg['discord_public_url'] ?? 'https://discord.gg/vwkPp2aeEM'),
         'telegramPublic' => (string) ($cfg['telegram_public_url'] ?? 'https://t.me/+2qMkEX3KnhowNTU0'),
         'telegramVip' => (string) ($cfg['telegram_vip_url'] ?? $cfg['telegram_public_url'] ?? 'https://t.me/+2qMkEX3KnhowNTU0'),
         'appLoginUrl' => (string) ($cfg['app_formation_login_url'] ?? 'https://app.torinvest-trading.com/login.html'),
