@@ -25,6 +25,8 @@ FILES=(
   krm-service-payment-lib.php
   torpass-client.php
   torpass-client-lib.php
+  member-auth.php
+  member-auth-lib.php
   fondamental-access.php
   fondamental-access-lib.php
   fondamental-serve.php
