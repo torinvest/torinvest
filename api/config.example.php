@@ -83,6 +83,22 @@ return [
     // Durée session membre (secondes) — 30 jours par défaut
     'member_session_ttl' => 2592000,
 
+    // --- Discord TorPass (rôles auto selon KRM) ---
+    // false tant que bot + OAuth + IDs rôles ne sont pas prêts
+    'discord_torpass_enabled' => false,
+    'discord_bot_token' => '',
+    'discord_client_id' => '',
+    'discord_client_secret' => '',
+    'discord_guild_id' => '',
+    // IDs des rôles Discord (clic droit rôle → Copier l’identifiant)
+    'discord_role_community' => '', // ≥ 100 KRM
+    'discord_role_academy' => '',   // ≥ 250 KRM
+    'discord_role_pro' => '',       // ≥ 500 KRM
+    'discord_oauth_redirect' => 'https://radar.torinvest-trading.com/api/discord-torpass.php?action=callback',
+    'discord_torpass_success_url' => 'https://www.torinvest-trading.com/torpass?discord=ok',
+    'discord_torpass_error_url' => 'https://www.torinvest-trading.com/torpass?discord=error',
+    'discord_torpass_hmac_secret' => '',
+
     // --- Stripe webhook (paiement confirmé → licence) ---
     // Dashboard Stripe → Developers → Webhooks → signing secret (whsec_…)
     'stripe_webhook_secret' => '',
