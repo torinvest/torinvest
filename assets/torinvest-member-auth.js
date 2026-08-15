@@ -106,16 +106,16 @@
     slots.forEach(function (slot) {
       if (member && member.email) {
         slot.innerHTML =
-          '<a href="' +
+          '<a class="btn btn-ghost" href="' +
           SPACE_PAGE +
           '">Mon espace</a>' +
-          ' · <button type="button" data-member-logout="1" style="all:unset;cursor:pointer;color:inherit;text-decoration:underline">Déconnexion</button>';
+          '<button type="button" class="btn btn-ghost" data-member-logout="1">Déconnexion</button>';
       } else {
         slot.innerHTML =
-          '<a href="' +
+          '<a class="btn btn-auth" href="' +
           MEMBERS_PAGE +
           '?mode=register">Inscription</a>' +
-          ' · <a href="' +
+          '<a class="btn btn-ghost" href="' +
           MEMBERS_PAGE +
           '?mode=login">Connexion</a>';
       }
