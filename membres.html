@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Membres TORINVEST — Inscription / Connexion</title>
+  <meta name="description" content="Crée ton compte membre TORINVEST pour accéder aux contenus du site." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/forge-logo.png" />
+  <style>
+    :root {
+      --bg: #070b14;
+      --card: #101826;
+      --line: rgba(148, 163, 184, 0.28);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --amber: #e8b84a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(900px 420px at 10% -10%, rgba(249, 115, 22, 0.18), transparent 55%),
+        radial-gradient(700px 380px at 90% 0%, rgba(56, 189, 248, 0.12), transparent 50%),
+        var(--bg);
+    }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 28px 18px 48px;
+    }
+    .top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .brand {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+    .top a { color: var(--muted); font-size: 13px; }
+    h1 {
+      font-size: clamp(1.6rem, 3vw, 2rem);
+      margin: 0 0 8px;
+    }
+    .sub {
+      color: var(--muted);
+      margin: 0 0 22px;
+      max-width: 36rem;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 760px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(16, 24, 38, 0.92);
+      padding: 18px;
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 10px 0 4px;
+    }
+    input {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #0a101c;
+      color: var(--text);
+      padding: 10px 12px;
+      font: inherit;
+    }
+    button {
+      margin-top: 14px;
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(90deg, #f97316, #facc15);
+      color: #020617;
+    }
+    button:disabled { opacity: 0.6; cursor: wait; }
+    .msg {
+      margin-top: 10px;
+      font-size: 13px;
+      min-height: 1.2em;
+      color: var(--muted);
+    }
+    .msg.ok { color: #34d399; }
+    .msg.ko { color: #f87171; }
+    .note {
+      margin-top: 18px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .tabs {
+      display: none;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 760px) {
+      .tabs { display: flex; }
+      .card[data-panel] { display: none; }
+      .card[data-panel].active { display: block; }
+    }
+    .tabs button {
+      width: auto;
+      flex: 1;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .tabs button.active {
+      background: rgba(232, 184, 74, 0.15);
+      border-color: rgba(232, 184, 74, 0.5);
+      color: var(--amber);
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a class="brand" href="/">TORINVEST</a>
+      <a href="/">← Accueil</a>
+    </div>
+    <h1>Compte membre</h1>
+    <p class="sub">
+      Inscris-toi gratuitement pour accéder aux contenus du site (chroniques, formations, vidéos…).
+      Les offres payantes (€) et TorPass (KRM) restent séparés.
+    </p>
+
+    <div class="tabs" id="tabs">
+      <button type="button" data-tab="register" class="active">Inscription</button>
+      <button type="button" data-tab="login">Connexion</button>
+    </div>
+
+    <div class="grid">
+      <section class="card active" data-panel="register" id="panelRegister">
+        <h2>Créer un compte</h2>
+        <form id="registerForm">
+          <label for="regName">Prénom / pseudo (facultatif)</label>
+          <input id="regName" name="displayName" autocomplete="nickname" />
+          <label for="regEmail">Email</label>
+          <input id="regEmail" name="email" type="email" required autocomplete="email" />
+          <label for="regPassword">Mot de passe (8 caractères min.)</label>
+          <input id="regPassword" name="password" type="password" required minlength="8" autocomplete="new-password" />
+          <button type="submit">S’inscrire</button>
+          <p class="msg" id="regMsg"></p>
+        </form>
+      </section>
+
+      <section class="card" data-panel="login" id="panelLogin">
+        <h2>Se connecter</h2>
+        <form id="loginForm">
+          <label for="loginEmail">Email</label>
+          <input id="loginEmail" name="email" type="email" required autocomplete="email" />
+          <label for="loginPassword">Mot de passe</label>
+          <input id="loginPassword" name="password" type="password" required autocomplete="current-password" />
+          <button type="submit">Connexion</button>
+          <p class="msg" id="loginMsg"></p>
+        </form>
+      </section>
+    </div>
+
+    <p class="note">
+      TORINVEST ne te demandera jamais ta seed phrase ni ta clé privée wallet.
+      Après inscription, tu pourras ouvrir ton <a href="/espace-membre.html" style="color:var(--amber)">espace membre</a>.
+    </p>
+  </div>
+
+  <script src="/assets/torinvest-php.js"></script>
+  <script src="/assets/torinvest-member-auth.js?v=1"></script>
+  <script>
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var next = params.get("next") || "/espace-membre.html";
+      var mode = params.get("mode") || "register";
+
+      function safeNext(url) {
+        if (!url || url.charAt(0) !== "/") return "/espace-membre.html";
+        if (url.indexOf("//") !== -1) return "/espace-membre.html";
+        return url;
+      }
+      next = safeNext(next);
+
+      function showMode(m) {
+        document.querySelectorAll("[data-panel]").forEach(function (el) {
+          el.classList.toggle("active", el.getAttribute("data-panel") === m);
+        });
+        document.querySelectorAll("[data-tab]").forEach(function (el) {
+          el.classList.toggle("active", el.getAttribute("data-tab") === m);
+        });
+      }
+      showMode(mode === "login" ? "login" : "register");
+      document.querySelectorAll("[data-tab]").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          showMode(btn.getAttribute("data-tab"));
+        });
+      });
+
+      function errLabel(code) {
+        var map = {
+          email_invalide: "Email invalide.",
+          mot_de_passe_trop_court: "Mot de passe trop court (8 min.).",
+          email_deja_inscrit: "Cet email est déjà inscrit — connecte-toi.",
+          identifiants_incorrects: "Email ou mot de passe incorrect.",
+          identifiants_invalides: "Identifiants invalides.",
+          compte_inactif: "Compte inactif.",
+        };
+        return map[code] || code || "Erreur";
+      }
+
+      function goAfterAuth() {
+        window.location.href = next;
+      }
+
+      // Déjà connecté ?
+      window.TorinvestMember.me().then(function (data) {
+        if (data && data.member) goAfterAuth();
+      });
+
+      document.getElementById("registerForm").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var msg = document.getElementById("regMsg");
+        var btn = ev.target.querySelector("button");
+        btn.disabled = true;
+        msg.className = "msg";
+        msg.textContent = "Création du compte…";
+        window.TorinvestMember.register(
+          document.getElementById("regEmail").value.trim(),
+          document.getElementById("regPassword").value,
+          document.getElementById("regName").value.trim()
+        )
+          .then(function () {
+            msg.className = "msg ok";
+            msg.textContent = "Compte créé — redirection…";
+            goAfterAuth();
+          })
+          .catch(function (err) {
+            msg.className = "msg ko";
+            msg.textContent = errLabel(err && err.message);
+            btn.disabled = false;
+          });
+      });
+
+      document.getElementById("loginForm").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var msg = document.getElementById("loginMsg");
+        var btn = ev.target.querySelector("button");
+        btn.disabled = true;
+        msg.className = "msg";
+        msg.textContent = "Connexion…";
+        window.TorinvestMember.login(
+          document.getElementById("loginEmail").value.trim(),
+          document.getElementById("loginPassword").value
+        )
+          .then(function () {
+            msg.className = "msg ok";
+            msg.textContent = "Connecté — redirection…";
+            goAfterAuth();
+          })
+          .catch(function (err) {
+            msg.className = "msg ko";
+            msg.textContent = errLabel(err && err.message);
+            btn.disabled = false;
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

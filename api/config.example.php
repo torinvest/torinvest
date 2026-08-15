@@ -77,6 +77,12 @@ return [
     'telegram_vip_url' => 'https://t.me/+2qMkEX3KnhowNTU0',
     'app_formation_login_url' => 'https://app.torinvest-trading.com/login.html',
 
+    // --- Membres du site (inscription / soft gate contenus) ---
+    // Secret HMAC dédié (sinon repli ai_access_hmac_secret / PIN)
+    'member_hmac_secret' => 'CHANGEZ_MOI_MEMBER_HMAC_LONG',
+    // Durée session membre (secondes) — 30 jours par défaut
+    'member_session_ttl' => 2592000,
+
     // --- Stripe webhook (paiement confirmé → licence) ---
     // Dashboard Stripe → Developers → Webhooks → signing secret (whsec_…)
     'stripe_webhook_secret' => '',
