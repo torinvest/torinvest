@@ -279,6 +279,83 @@ function licenceCrmFindActiveByEmailPlan(string $email, string $type): ?array
     return $row;
 }
 
+/**
+ * Recherche une licence par code (VIP / ACCOMPAGNEMENT / FORGE).
+ */
+function licenceCrmFindByLicenseCode(string $licenseCode): ?array
+{
+    $licenseCode = trim($licenseCode);
+    if ($licenseCode === '') {
+        return null;
+    }
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare(
+        'SELECT * FROM licence_records WHERE license_code = :license ORDER BY id DESC LIMIT 1'
+    );
+    $stmt->execute([':license' => $licenseCode]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $row ?: null;
+}
+
+/**
+ * Licences € rattachées à un wallet Solana (TorPass).
+ * @return list<array<string,mixed>>
+ */
+function licenceCrmListUsableByWallet(string $wallet): array
+{
+    $wallet = trim($wallet);
+    if ($wallet === '' || strlen($wallet) < 32) {
+        return [];
+    }
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare(
+        'SELECT * FROM licence_records
+         WHERE wallet = :wallet
+           AND type IN ("VIP", "ACCOMPAGNEMENT")
+           AND status IN ("active", "reused", "pending_activation")
+         ORDER BY id DESC'
+    );
+    $stmt->execute([':wallet' => $wallet]);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $out = [];
+    foreach ($rows as $row) {
+        if (licenceCrmRecordIsUsable($row)) {
+            $out[] = $row;
+        }
+    }
+    return $out;
+}
+
+/**
+ * Attache un wallet Solana à une licence si libre ou déjà identique.
+ */
+function licenceCrmAttachWalletToLicense(string $licenseCode, string $wallet): array
+{
+    $licenseCode = trim($licenseCode);
+    $wallet = trim($wallet);
+    if ($licenseCode === '' || $wallet === '' || strlen($wallet) < 32) {
+        throw new InvalidArgumentException('wallet_ou_licence_invalide');
+    }
+    $row = licenceCrmFindByLicenseCode($licenseCode);
+    if ($row === null) {
+        throw new RuntimeException('licence_introuvable');
+    }
+    $existingWallet = trim((string) ($row['wallet'] ?? ''));
+    if ($existingWallet !== '' && $existingWallet !== $wallet) {
+        throw new RuntimeException('licence_deja_liee_autre_wallet');
+    }
+    if ($existingWallet === $wallet) {
+        return ['ok' => true, 'linked' => false, 'already' => true, 'row' => $row];
+    }
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare(
+        'UPDATE licence_records SET wallet = :wallet WHERE id = :id AND (wallet IS NULL OR wallet = "")'
+    );
+    $stmt->execute([':wallet' => $wallet, ':id' => (int) $row['id']]);
+    $row['wallet'] = $wallet;
+    return ['ok' => true, 'linked' => true, 'already' => false, 'row' => $row];
+}
+
 function licenceCrmAccessLinks(): array
 {
     $cfg = licenceCrmConfig();

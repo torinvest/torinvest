@@ -1029,7 +1029,7 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           </div>
           <div id="discordActivateWrap" hidden style="margin:8px 0 4px;">
             <p class="hint" id="discordEligibleHint" style="margin-bottom:8px;">
-              Accès Discord privé éligible
+              Accès Discord privé éligible — le rôle n’est pas encore attribué automatiquement.
             </p>
             <button type="button" class="btn-service" id="discordActivateBtn">
               ACTIVER MON ACCÈS DISCORD
@@ -1053,6 +1053,15 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           <div class="stat-row">
             <span class="stat-label">Robot Access</span>
             <span class="stat-value" id="statRobotSub">—</span>
+          </div>
+          <div id="licenseLinkBox" class="next-box" style="margin-top:12px;">
+            Lie ta licence € à ce wallet pour afficher ABONNEMENT ACTIF.
+            <div style="display:grid;gap:8px;margin-top:10px;">
+              <input id="licenseKeyInput" placeholder="Clé licence (TOR-VIP-… ou Formation)" style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,.35);background:#0a101c;color:#f3f0e8;padding:9px 10px;font:inherit;" />
+              <input id="licenseEmailInput" placeholder="Email (recommandé pour Formation)" style="width:100%;border-radius:10px;border:1px solid rgba(148,163,184,.35);background:#0a101c;color:#f3f0e8;padding:9px 10px;font:inherit;" />
+              <button type="button" class="btn-service" id="licenseLinkBtn" disabled>LIER MA LICENCE</button>
+              <p class="hint" id="licenseLinkMsg"></p>
+            </div>
           </div>
           <div id="nextBox" class="next-box" hidden>
             Prochain niveau : <strong id="nextLevelLabel">—</strong><br />
@@ -1197,6 +1206,92 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       var pendingServiceId = null;
       var lastPayment = null;
       var payBusy = false;
+      var clientSubs = { formationActive: false, robotActive: false, source: "none" };
+      var discordInviteUrl = "https://discord.gg/5mSC8gFsT7";
+      var discordNote =
+        "Accès Discord privé éligible. Le rôle n’est pas encore attribué automatiquement.";
+
+      function torpassClientApi(action, body) {
+        var PHP = window.TORINVEST_PHP;
+        var payload = Object.assign({ action: action }, body || {});
+        var opts = {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        };
+        var req = PHP && typeof PHP.fetch === "function"
+          ? PHP.fetch("/api/torpass-client.php", opts)
+          : fetch("/api/torpass-client.php", opts);
+        return req.then(function (r) {
+          return r.json().catch(function () {
+            return { ok: false, error: "invalid_json", _http: r.status };
+          });
+        });
+      }
+
+      function applySubscriptionUi() {
+        var formSubEl = document.getElementById("statFormationSub");
+        var robotSubEl = document.getElementById("statRobotSub");
+        var ef = document.getElementById("espaceFormation");
+        var er = document.getElementById("espaceRobot");
+        if (formSubEl) {
+          formSubEl.textContent = clientSubs.formationActive
+            ? "ABONNEMENT ACTIF"
+            : "NON ABONNÉ";
+          formSubEl.className = ynClass(!!clientSubs.formationActive);
+        }
+        if (robotSubEl) {
+          robotSubEl.textContent = clientSubs.robotActive
+            ? "ABONNEMENT ACTIF"
+            : "NON ABONNÉ";
+          robotSubEl.className = ynClass(!!clientSubs.robotActive);
+        }
+        if (ef) {
+          ef.textContent = clientSubs.formationActive ? "actif" : "non abonné";
+        }
+        if (er) {
+          er.textContent = clientSubs.robotActive ? "actif" : "non abonné";
+        }
+        var linkBtn = document.getElementById("licenseLinkBtn");
+        if (linkBtn) linkBtn.disabled = !currentWallet;
+      }
+
+      function refreshClientSubscriptions(wallet) {
+        if (!wallet) {
+          clientSubs = { formationActive: false, robotActive: false, source: "none" };
+          applySubscriptionUi();
+          return Promise.resolve(clientSubs);
+        }
+        return torpassClientApi("status", { wallet: wallet })
+          .then(function (data) {
+            if (data && data.ok) {
+              clientSubs = {
+                formationActive: !!data.formationActive,
+                robotActive: !!data.robotActive,
+                source: data.source || "licence_crm",
+              };
+              if (data.discordInviteUrl) discordInviteUrl = data.discordInviteUrl;
+              if (data.discordNote) discordNote = data.discordNote;
+            } else {
+              // Fallback stub local (tests / API indisponible)
+              var CFG = window.TORINVEST_OFFERS_CONFIG;
+              if (CFG && typeof CFG.getClientSubscriptions === "function") {
+                clientSubs = CFG.getClientSubscriptions(wallet);
+              }
+            }
+            applySubscriptionUi();
+            return clientSubs;
+          })
+          .catch(function () {
+            var CFG = window.TORINVEST_OFFERS_CONFIG;
+            if (CFG && typeof CFG.getClientSubscriptions === "function") {
+              clientSubs = CFG.getClientSubscriptions(wallet);
+            }
+            applySubscriptionUi();
+            return clientSubs;
+          });
+      }
 
       var IS_EDGE = TP.isEdgeBrowser();
       if (IS_EDGE) {
@@ -1401,11 +1496,6 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         var status = TP.buildStatus(krmBalance);
         currentKrm = status.krm;
         currentWallet = pubkey;
-        var CFG = window.TORINVEST_OFFERS_CONFIG;
-        var subs =
-          CFG && typeof CFG.getClientSubscriptions === "function"
-            ? CFG.getClientSubscriptions(pubkey)
-            : { formationActive: false, robotActive: false };
 
         walletStatus.textContent = "Wallet Phantom connecté.";
         walletBox.textContent =
@@ -1420,8 +1510,6 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         var discordEl = document.getElementById("statDiscord");
         var academyEl = document.getElementById("statAcademy");
         var proEl = document.getElementById("statPro");
-        var formSubEl = document.getElementById("statFormationSub");
-        var robotSubEl = document.getElementById("statRobotSub");
         var discordWrap = document.getElementById("discordActivateWrap");
 
         var academyOk = !!(status.access.memberFormation || status.access.formations);
@@ -1445,18 +1533,9 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           proEl.textContent = proOk ? "PRO ACTIF" : "NON";
           proEl.className = ynClass(proOk);
         }
-        if (formSubEl) {
-          formSubEl.textContent = subs.formationActive
-            ? "ABONNEMENT ACTIF"
-            : "NON ABONNÉ";
-          formSubEl.className = ynClass(!!subs.formationActive);
-        }
-        if (robotSubEl) {
-          robotSubEl.textContent = subs.robotActive
-            ? "ABONNEMENT ACTIF"
-            : "NON ABONNÉ";
-          robotSubEl.className = ynClass(!!subs.robotActive);
-        }
+
+        applySubscriptionUi();
+        refreshClientSubscriptions(pubkey);
 
         var nextBox = document.getElementById("nextBox");
         var maxBox = document.getElementById("maxBox");
@@ -1476,19 +1555,11 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         var ek = document.getElementById("espaceKrm");
         var el = document.getElementById("espaceLevel");
         var ed = document.getElementById("espaceDiscord");
-        var ef = document.getElementById("espaceFormation");
-        var er = document.getElementById("espaceRobot");
         if (ew) ew.textContent = "connecté";
         if (ek) ek.textContent = TP.formatKrm(status.krm);
         if (el) el.textContent = status.label;
         if (ed) {
           ed.textContent = status.access.discord ? "éligible" : "non";
-        }
-        if (ef) {
-          ef.textContent = subs.formationActive ? "actif" : "non abonné";
-        }
-        if (er) {
-          er.textContent = subs.robotActive ? "actif" : "non abonné";
         }
 
         highlightLevel(status.level);
@@ -1907,10 +1978,85 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         discordBtn.addEventListener("click", function () {
           var msg = document.getElementById("discordActivateMsg");
           if (msg) {
-            msg.textContent =
-              "Activation Discord bientôt disponible. Ton éligibilité TorPass est déjà reconnue (≥ 100 KRM).";
+            msg.textContent = discordNote;
             msg.style.color = "#fde68a";
           }
+          if (discordInviteUrl) {
+            window.open(discordInviteUrl, "_blank", "noopener,noreferrer");
+          }
+        });
+      }
+
+      // Charge l’invite Discord depuis la config serveur
+      torpassClientApi("links", {})
+        .then(function (data) {
+          if (data && data.ok && data.discordInviteUrl) {
+            discordInviteUrl = data.discordInviteUrl;
+          }
+          if (data && data.discordNote) discordNote = data.discordNote;
+        })
+        .catch(function () {
+          /* fallback invite déjà définie */
+        });
+
+      var licenseLinkBtn = document.getElementById("licenseLinkBtn");
+      if (licenseLinkBtn) {
+        licenseLinkBtn.addEventListener("click", function () {
+          var msg = document.getElementById("licenseLinkMsg");
+          if (!currentWallet) {
+            if (msg) {
+              msg.textContent = "Connecte d’abord ton wallet Phantom.";
+              msg.style.color = "#f87171";
+            }
+            return;
+          }
+          var keyEl = document.getElementById("licenseKeyInput");
+          var emailEl = document.getElementById("licenseEmailInput");
+          var key = keyEl ? keyEl.value.trim() : "";
+          var email = emailEl ? emailEl.value.trim() : "";
+          if (!key) {
+            if (msg) {
+              msg.textContent = "Indique ta clé de licence.";
+              msg.style.color = "#f87171";
+            }
+            return;
+          }
+          licenseLinkBtn.disabled = true;
+          if (msg) {
+            msg.textContent = "Vérification de la licence…";
+            msg.style.color = "";
+          }
+          torpassClientApi("link_license", {
+            wallet: currentWallet,
+            licenseKey: key,
+            email: email,
+          })
+            .then(function (data) {
+              if (!data || !data.ok) {
+                throw new Error((data && data.error) || "lien_impossible");
+              }
+              clientSubs = {
+                formationActive: !!data.formationActive,
+                robotActive: !!data.robotActive,
+                source: "licence_crm",
+              };
+              applySubscriptionUi();
+              if (msg) {
+                msg.textContent = data.message || "Licence liée.";
+                msg.style.color = "#34d399";
+              }
+              if (keyEl) keyEl.value = "";
+            })
+            .catch(function (err) {
+              if (msg) {
+                msg.textContent =
+                  "Erreur : " + (err && err.message ? err.message : String(err));
+                msg.style.color = "#f87171";
+              }
+            })
+            .finally(function () {
+              licenseLinkBtn.disabled = !currentWallet;
+            });
         });
       }
 
@@ -1919,6 +2065,7 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         resumeBox.style.display = currentWallet ? "block" : "none";
       }
       syncResumeBox();
+      applySubscriptionUi();
 
       document.getElementById("resumePaidBtn").addEventListener("click", function () {
         var msg = document.getElementById("resumePaidMsg");
