@@ -27,6 +27,8 @@ FILES=(
   torpass-client-lib.php
   member-auth.php
   member-auth-lib.php
+  discord-torpass.php
+  discord-torpass-lib.php
   fondamental-access.php
   fondamental-access-lib.php
   fondamental-serve.php

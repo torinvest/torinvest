@@ -1029,7 +1029,7 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           </div>
           <div id="discordActivateWrap" hidden style="margin:8px 0 4px;">
             <p class="hint" id="discordEligibleHint" style="margin-bottom:8px;">
-              Accès Discord privé éligible — le rôle n’est pas encore attribué automatiquement.
+              Accès Discord privé éligible (≥ 100 KRM). Active pour recevoir tes rôles TorPass automatiquement.
             </p>
             <button type="button" class="btn-service" id="discordActivateBtn">
               ACTIVER MON ACCÈS DISCORD
@@ -1974,20 +1974,154 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       });
 
       var discordBtn = document.getElementById("discordActivateBtn");
-      if (discordBtn) {
-        discordBtn.addEventListener("click", function () {
-          var msg = document.getElementById("discordActivateMsg");
-          if (msg) {
-            msg.textContent = discordNote;
-            msg.style.color = "#fde68a";
-          }
-          if (discordInviteUrl) {
-            window.open(discordInviteUrl, "_blank", "noopener,noreferrer");
-          }
+      var discordAutoEnabled = false;
+
+      function bytesToBase64(bytes) {
+        var bin = "";
+        var u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+        for (var i = 0; i < u8.length; i++) bin += String.fromCharCode(u8[i]);
+        return btoa(bin);
+      }
+
+      function discordApi(action, body) {
+        var PHP = window.TORINVEST_PHP;
+        var payload = Object.assign({ action: action }, body || {});
+        var opts = {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        };
+        var req =
+          PHP && typeof PHP.fetch === "function"
+            ? PHP.fetch("/api/discord-torpass.php", opts)
+            : fetch("/api/discord-torpass.php", opts);
+        return req.then(function (r) {
+          return r.json().catch(function () {
+            return { ok: false, error: "invalid_json", _http: r.status };
+          });
         });
       }
 
-      // Charge l’invite Discord depuis la config serveur
+      function showDiscordQueryFeedback() {
+        try {
+          var q = new URLSearchParams(window.location.search);
+          var d = q.get("discord");
+          var msg = document.getElementById("discordActivateMsg");
+          if (!msg || !d) return;
+          if (d === "ok") {
+            msg.textContent = "Discord lié — rôles TorPass appliqués selon ton solde KRM.";
+            msg.style.color = "#34d399";
+          } else if (d === "error") {
+            msg.textContent =
+              "Échec Discord : " + (q.get("reason") || "erreur") + ". Réessaie ou rejoins via l’invite.";
+            msg.style.color = "#f87171";
+          }
+        } catch (e) {}
+      }
+      showDiscordQueryFeedback();
+
+      discordApi("status", {})
+        .then(function (data) {
+          if (data && data.ok) {
+            discordAutoEnabled = !!data.enabled;
+            if (data.inviteUrl) discordInviteUrl = data.inviteUrl;
+            if (data.note) discordNote = data.note;
+          }
+        })
+        .catch(function () {});
+
+      if (discordBtn) {
+        discordBtn.addEventListener("click", function () {
+          var msg = document.getElementById("discordActivateMsg");
+          if (!currentWallet) {
+            if (msg) {
+              msg.textContent = "Connecte d’abord ton wallet Phantom.";
+              msg.style.color = "#f87171";
+            }
+            return;
+          }
+
+          // Fallback invite si auto non configuré
+          if (!discordAutoEnabled) {
+            if (msg) {
+              msg.textContent =
+                discordNote ||
+                "Rôles auto pas encore activés côté serveur — ouverture de l’invite Discord.";
+              msg.style.color = "#fde68a";
+            }
+            if (discordInviteUrl) {
+              window.open(discordInviteUrl, "_blank", "noopener,noreferrer");
+            }
+            return;
+          }
+
+          var provider = TP.getPhantomProvider();
+          if (!provider) {
+            if (msg) {
+              msg.textContent = "Phantom introuvable.";
+              msg.style.color = "#f87171";
+            }
+            return;
+          }
+
+          discordBtn.disabled = true;
+          if (msg) {
+            msg.textContent = "Préparation Discord TorPass…";
+            msg.style.color = "";
+          }
+
+          discordApi("challenge", { wallet: currentWallet })
+            .then(function (ch) {
+              if (!ch || !ch.ok || !ch.message) {
+                throw new Error((ch && ch.error) || "challenge_failed");
+              }
+              if (msg) msg.textContent = "Signe le message dans Phantom…";
+              var encoded = new TextEncoder().encode(ch.message);
+              return provider.signMessage(encoded, "utf8").then(function (signed) {
+                var sig = signed && (signed.signature || signed);
+                return discordApi("start", {
+                  wallet: currentWallet,
+                  message: ch.message,
+                  nonce: ch.nonce,
+                  signature: bytesToBase64(sig),
+                });
+              });
+            })
+            .then(function (start) {
+              if (!start || !start.ok || !start.authorizeUrl) {
+                throw new Error((start && start.error) || "start_failed");
+              }
+              if (msg) {
+                msg.textContent = "Redirection vers Discord…";
+                msg.style.color = "#34d399";
+              }
+              window.location.href = start.authorizeUrl;
+            })
+            .catch(function (err) {
+              var code = err && err.message ? err.message : String(err);
+              if (msg) {
+                if (code === "krm_insuffisant_community") {
+                  msg.textContent = "Il faut ≥ 100 KRM pour activer Discord TorPass.";
+                } else if (code === "4001" || /User rejected/i.test(code)) {
+                  msg.textContent = "Signature refusée.";
+                } else {
+                  msg.textContent = "Erreur Discord : " + code;
+                  if (discordInviteUrl) {
+                    msg.textContent += " — ouverture invite de secours.";
+                    window.open(discordInviteUrl, "_blank", "noopener,noreferrer");
+                  }
+                }
+                msg.style.color = "#f87171";
+              }
+            })
+            .finally(function () {
+              discordBtn.disabled = false;
+            });
+        });
+      }
+
+      // Charge l’invite Discord depuis torpass-client (secours)
       torpassClientApi("links", {})
         .then(function (data) {
           if (data && data.ok && data.discordInviteUrl) {
@@ -1995,9 +2129,7 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           }
           if (data && data.discordNote) discordNote = data.discordNote;
         })
-        .catch(function () {
-          /* fallback invite déjà définie */
-        });
+        .catch(function () {});
 
       var licenseLinkBtn = document.getElementById("licenseLinkBtn");
       if (licenseLinkBtn) {

@@ -74,6 +74,7 @@
 /api/access-config.php        https://radar.torinvest-trading.com/api/access-config.php        200!
 /api/torpass-client.php       https://radar.torinvest-trading.com/api/torpass-client.php       200!
 /api/member-auth.php          https://radar.torinvest-trading.com/api/member-auth.php          200!
+/api/discord-torpass.php      https://radar.torinvest-trading.com/api/discord-torpass.php      200!
 /api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  200!
 /api/fondamental-access.php   https://radar.torinvest-trading.com/api/fondamental-access.php    200!
 /api/fondamental-serve.php    https://radar.torinvest-trading.com/api/fondamental-serve.php     200!
