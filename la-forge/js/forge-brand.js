@@ -34,7 +34,7 @@ const FORGE_BRAND = {
     discord: {
       label: "Discord",
       hint: "Communauté · entraide · annonces",
-      url: "https://discord.gg/5mSC8gFsT7",
+      url: "https://discord.gg/vwkPp2aeEM",
       color: "#5865f2",
     },
   },

@@ -314,7 +314,7 @@ TORINVEST est un laboratoire, une forge et une base de construction.
 
 - 🎥 Kick : [kick.com/onzertv](https://www.kick.com/onzertv)
 - 📺 YouTube : [youtube.com/@onzertv](https://www.youtubecom/@onzertv)
-- 💬 Discord : [discord.gg/5mSC8gFsT7](https://discord.gg/5mSC8gFsT7)
+- 💬 Discord : [discord.gg/vwkPp2aeEM](https://discord.gg/vwkPp2aeEM)
 - 📢 Telegram : [t.me/+2qMkEX3KnhowNTU0](https://t.me/+2qMkEX3KnhowNTU0)       
 - 🐙 GitHub : [github.com/torinvest](https://github.com/torinvest)
 
