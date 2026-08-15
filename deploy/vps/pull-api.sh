@@ -23,6 +23,8 @@ FILES=(
   solana-rpc.php
   krm-service-payment.php
   krm-service-payment-lib.php
+  torpass-client.php
+  torpass-client-lib.php
   fondamental-access.php
   fondamental-access-lib.php
   fondamental-serve.php
