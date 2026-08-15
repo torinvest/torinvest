@@ -464,6 +464,167 @@
       font-weight: 600;
     }
 
+    .how-steps {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      counter-reset: howstep;
+    }
+
+    .how-steps li {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: start;
+      counter-increment: howstep;
+    }
+
+    .how-steps li::before {
+      content: counter(howstep);
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #020617;
+      background: radial-gradient(circle at 0 0, #f97316, #facc15);
+    }
+
+    .how-step-title {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .how-step-body {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .beta-note {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: rgba(15, 23, 42, 0.45);
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .hold-spend {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 640px) {
+      .hold-spend { grid-template-columns: 1fr; }
+    }
+
+    .hold-spend-card {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--line-soft);
+      background: rgba(8, 12, 20, 0.45);
+    }
+
+    .hold-spend-card.hold {
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .hold-spend-card.spend {
+      border-color: rgba(232, 184, 74, 0.4);
+    }
+
+    .hold-spend-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-bottom: 2px;
+    }
+
+    .hold-spend-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mint-mono {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 11px;
+      word-break: break-all;
+      color: #e2e8f0;
+    }
+
+    .sub-section-label {
+      margin-top: 14px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+
+    .espace-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .espace-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid var(--line-soft);
+      background: rgba(8, 12, 20, 0.4);
+    }
+
+    .espace-item .k {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .espace-item .v {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .next-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .torpass-zone {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(232, 184, 74, 0.28);
+      background: rgba(146, 64, 14, 0.12);
+      font-size: 12px;
+      line-height: 1.45;
+      color: #e7e5e4;
+    }
+
+    .torpass-zone strong {
+      display: block;
+      letter-spacing: 0.08em;
+      font-size: 11px;
+      color: var(--amber);
+      margin-bottom: 4px;
+    }
+
     .services-list {
       display: grid;
       gap: 12px;
@@ -717,28 +878,16 @@
         <button id="connectBtn" class="btn-main" type="button">
           <span>Connecter mon wallet Phantom</span>
         </button>
-        <a id="buyKrmBtn"
-           class="btn-buy"
-           href="https://jup.ag/swap/SOL-Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA"
-           target="_blank"
-           rel="noopener noreferrer">
-          Acheter KRM (Jupiter)
-        </a>
-        <a id="buyKrmPoolBtn"
-           class="btn-buy"
-           href="#"
-           target="_blank"
-           rel="noopener noreferrer"
-           hidden>
-          Acheter via le pool TORINVEST
-        </a>
+        <button id="buyKrmBtn" class="btn-buy" type="button">
+          ACHETER DES KRM
+        </button>
         <div class="hint">
           Lecture seule · vérification on-chain du solde <span>KRM</span>
         </div>
       </div>
       <p class="hint" style="margin-top:8px;max-width:36rem;">
-        Pas assez de KRM ? Achète-en (Jupiter / pool TORINVEST), puis reconnecte ton wallet.
-        Les KRM détenus pour un niveau ne sont pas consommés ; payer un service envoie des KRM à la treasury.
+        TORINVEST reste utilisable gratuitement. Les produits principaux se paient en euros.
+        Les KRM détenus débloquent TorPass ; certains services ponctuels se paient en KRM.
       </p>
       <div class="status-chip">
         <span class="dot"></span>
@@ -749,15 +898,33 @@
 
     <!-- Comment fonctionne KRM -->
     <section class="panel" aria-labelledby="howKrmTitle">
-      <div class="panel-title" id="howKrmTitle">Comment fonctionne KRM ?</div>
-      <ol id="howKrmList" style="margin:0;padding-left:1.2rem;color:var(--muted);font-size:14px;line-height:1.55">
-        <li>Détiens des KRM → débloque ton niveau TorPass</li>
-        <li>Achète les produits principaux en euros</li>
-        <li>Utilise des KRM pour certains services ponctuels</li>
+      <div class="panel-title" id="howKrmTitle">COMMENT FONCTIONNE KRM ?</div>
+      <ol id="howKrmList" class="how-steps">
+        <li>
+          <div>
+            <div class="how-step-title">ACHÈTE OU DÉTIENS DES KRM</div>
+            <div class="how-step-body">Les KRM peuvent être obtenus sur Raydium avec un wallet Solana.</div>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div class="how-step-title">DÉBLOQUE TON TORPASS</div>
+            <div class="how-step-body">100 KRM → Discord privé · 250 KRM → Academy · 500 KRM → Pro. Les KRM nécessaires au niveau restent dans ton wallet. Ils ne sont pas consommés.</div>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div class="how-step-title">UTILISE DES KRM</div>
+            <div class="how-step-body">Certains services ponctuels peuvent être payés directement en KRM. 50 KRM → revue pédagogique d’une idée de trade · 100 KRM → débrief pédagogique d’un trade.</div>
+          </div>
+        </li>
       </ol>
       <p class="disclaimer" style="margin-top:12px" id="torpassDisclaimer">
         Les niveaux TorPass donnent des droits et avantages dans l’écosystème TORINVEST.
         Ils ne remplacent pas l’achat des produits payants.
+      </p>
+      <p class="beta-note" id="krmBetaNote">
+        KRM Economy est actuellement en phase BETA. La liquidité du marché est limitée et le prix peut varier fortement lors d’un achat ou d’une vente.
       </p>
     </section>
 
@@ -780,13 +947,13 @@
         <article class="level-tile" data-level="ACADEMY">
           <div class="level-name">ACADEMY</div>
           <div class="level-threshold">250 KRM</div>
-          <div class="level-perks">Discord privé · Statut membre Formation · Avantages / tarifs Academy</div>
+          <div class="level-perks">Discord privé · Statut Academy · Avantages membres liés à la Formation</div>
           <div class="level-active-badge">Niveau actif</div>
         </article>
         <article class="level-tile" data-level="PRO">
           <div class="level-name">PRO</div>
           <div class="level-threshold">500 KRM</div>
-          <div class="level-perks">Discord · Statut Academy · Avantages Robot Access · Accompagnement / avantages Pro</div>
+          <div class="level-perks">Discord · Statut Academy · Statut Pro · Avantages membres Robot Access · Accompagnement / avantages Pro</div>
           <div class="level-active-badge">Niveau actif</div>
         </article>
       </div>
@@ -808,9 +975,11 @@
           <div class="level-name">ROBOT ACCESS</div>
           <div class="level-threshold" id="offerRobotPrice">79€/mois</div>
           <div class="level-perks" id="offerRobotCompare">149€/mois barré</div>
-          <p class="disclaimer" id="offerRobotAdvantage" style="margin-top:10px">
-            Offre de lancement : aucun KRM requis.
-          </p>
+          <div class="torpass-zone" id="offerRobotAdvantage">
+            <strong>TORPASS</strong>
+            Offre de lancement : aucun KRM requis.<br />
+            <span style="color:var(--muted)">Les membres TorPass bénéficieront d’avantages spécifiques après la période de lancement.</span>
+          </div>
           <a id="offerRobotLink" class="btn-buy" href="https://buy.stripe.com/eVq14nclt5XV3ka0zFd7q02" target="_blank" rel="noopener" style="margin-top:10px;display:inline-flex">
             Voir l’offre Robot
           </a>
@@ -819,9 +988,11 @@
           <div class="level-name">FORMATION TRADING</div>
           <div class="level-threshold" id="offerFormationPrice">349€/an</div>
           <div class="level-perks" id="offerFormationCompare">499€/an barré</div>
-          <p class="disclaimer" id="offerFormationAdvantage" style="margin-top:10px">
-            Offre de lancement : aucun KRM requis.
-          </p>
+          <div class="torpass-zone" id="offerFormationAdvantage">
+            <strong>TORPASS</strong>
+            Offre de lancement : aucun KRM requis.<br />
+            <span style="color:var(--muted)">Les membres TorPass bénéficieront d’avantages spécifiques après la période de lancement.</span>
+          </div>
           <a id="offerFormationLink" class="btn-buy" href="https://buy.stripe.com/aFabJ10CLeurf2S827d7q01" target="_blank" rel="noopener" style="margin-top:10px;display:inline-flex">
             Voir l’offre Formation
           </a>
@@ -856,28 +1027,74 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
             <span class="stat-label">Discord privé</span>
             <span class="stat-value" id="statDiscord">—</span>
           </div>
+          <div id="discordActivateWrap" hidden style="margin:8px 0 4px;">
+            <p class="hint" id="discordEligibleHint" style="margin-bottom:8px;">
+              Accès Discord privé éligible
+            </p>
+            <button type="button" class="btn-service" id="discordActivateBtn">
+              ACTIVER MON ACCÈS DISCORD
+            </button>
+            <p class="hint" id="discordActivateMsg" style="margin-top:8px;"></p>
+          </div>
+          <div class="sub-section-label">Statuts TorPass (KRM détenus)</div>
           <div class="stat-row">
-            <span class="stat-label">Avantage Formation</span>
-            <span class="stat-value" id="statFormations">—</span>
+            <span class="stat-label">Academy</span>
+            <span class="stat-value" id="statAcademy">—</span>
           </div>
           <div class="stat-row">
-            <span class="stat-label">Avantage Robot / Pro</span>
-            <span class="stat-value" id="statCoaching">—</span>
+            <span class="stat-label">Pro</span>
+            <span class="stat-value" id="statPro">—</span>
+          </div>
+          <div class="sub-section-label">Abonnements payés (€)</div>
+          <div class="stat-row">
+            <span class="stat-label">Formation</span>
+            <span class="stat-value" id="statFormationSub">—</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Robot Access</span>
+            <span class="stat-value" id="statRobotSub">—</span>
           </div>
           <div id="nextBox" class="next-box" hidden>
             Prochain niveau : <strong id="nextLevelLabel">—</strong><br />
             Il manque : <strong id="nextMissing">—</strong>
+            <div class="next-actions">
+              <button type="button" class="btn-buy" data-open-buy-krm="1">ACHETER DES KRM</button>
+            </div>
           </div>
           <div id="maxBox" class="max-box" hidden>
-            Niveau maximum TorPass V1 atteint
+            Niveau maximum TorPass BETA V1 atteint
           </div>
         </div>
+      </div>
+    </section>
+
+    <!-- Mon espace -->
+    <section class="panel" aria-labelledby="espaceTitle">
+      <div class="panel-title" id="espaceTitle">MON ESPACE TORINVEST</div>
+      <div class="espace-grid" id="espaceGrid">
+        <div class="espace-item"><div class="k">Wallet</div><div class="v" id="espaceWallet">non connecté</div></div>
+        <div class="espace-item"><div class="k">KRM</div><div class="v" id="espaceKrm">—</div></div>
+        <div class="espace-item"><div class="k">TorPass</div><div class="v" id="espaceLevel">—</div></div>
+        <div class="espace-item"><div class="k">Discord</div><div class="v" id="espaceDiscord">—</div></div>
+        <div class="espace-item"><div class="k">Formation</div><div class="v" id="espaceFormation">—</div></div>
+        <div class="espace-item"><div class="k">Robot Access</div><div class="v" id="espaceRobot">—</div></div>
+        <div class="espace-item"><div class="k">Services KRM</div><div class="v"><a href="#servicesTitle" class="btn-buy" style="padding:6px 12px;font-size:12px;">Accéder</a></div></div>
       </div>
     </section>
 
     <!-- Services KRM (paiements on-chain TransferChecked) -->
     <section class="panel" aria-labelledby="servicesTitle">
       <div class="panel-title" id="servicesTitle">Services KRM</div>
+      <div class="hold-spend" id="holdSpendBanner">
+        <div class="hold-spend-card hold">
+          <div class="hold-spend-title">DÉTENIR DES KRM</div>
+          <div class="hold-spend-sub">= niveau TorPass</div>
+        </div>
+        <div class="hold-spend-card spend">
+          <div class="hold-spend-title">DÉPENSER DES KRM</div>
+          <div class="hold-spend-sub">= services ponctuels</div>
+        </div>
+      </div>
       <div id="treasuryWarn" class="treasury-warn" hidden>
         Treasury KRM non configuré — paiements on-chain désactivés (développement).
       </div>
@@ -932,14 +1149,38 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
     </div>
   </div>
 
+  <div id="buyKrmModal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="buyKrmModalTitle">
+    <div class="modal">
+      <h3 id="buyKrmModalTitle">ACHETER DES KRM</h3>
+      <div class="modal-row"><span>Réseau</span><strong id="buyModalNetwork">Solana</strong></div>
+      <div class="modal-row"><span>Token</span><strong>KRM</strong></div>
+      <div class="modal-row" style="flex-direction:column;align-items:flex-start;gap:6px;">
+        <span>Mint officiel</span>
+        <strong class="mint-mono" id="buyModalMint">Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA</strong>
+      </div>
+      <div class="modal-row"><span>Marché</span><strong id="buyModalMarket">Raydium KRM / USDC</strong></div>
+      <p class="hint" style="margin-top:12px;">
+        Vérifie toujours l’adresse du mint avant d’acheter.
+        TORINVEST ne demande jamais de seed phrase ni de clé privée.
+      </p>
+      <p class="beta-note" id="buyModalBeta" style="margin-top:10px;">
+        KRM Economy est actuellement en phase BETA. La liquidité du marché est limitée et le prix peut varier fortement lors d’un achat ou d’une vente.
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="buyModalCancel">ANNULER</button>
+        <button type="button" class="btn-main" id="buyModalOpen">OUVRIR RAYDIUM</button>
+      </div>
+    </div>
+  </div>
+
   <a href="/" class="back-home-btn" aria-label="Retour accueil site TORINVEST">← Accueil site</a>
 
   <script src="/assets/torinvest-php.js"></script>
   <script src="https://unpkg.com/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
-  <script src="/assets/torinvest-offers-config.js?v=1"></script>
-  <script src="/assets/torinvest-krm-config.js?v=7"></script>
+  <script src="/assets/torinvest-offers-config.js?v=2"></script>
+  <script src="/assets/torinvest-krm-config.js?v=8"></script>
   <script src="/assets/torinvest-solana-rpc.js?v=6"></script>
-  <script src="/assets/torinvest-torpass.js?v=9"></script>
+  <script src="/assets/torinvest-torpass.js?v=10"></script>
   <script src="/assets/torinvest-krm-pay.js?v=3"></script>
   <script>
     (function () {
@@ -1007,10 +1248,14 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
               : r.badge || "";
           }
           if (ae) {
-            ae.textContent = r.advantageText || "";
-            if (CFG.PRICING_MODE === "PUBLIC_PROMO" && r.futureAdvantageText) {
-              ae.textContent += " (Plus tard : " + r.futureAdvantageText + ")";
-            }
+            var future =
+              CFG.PRICING_MODE === "PUBLIC_PROMO" && r.futureAdvantageText
+                ? '<br /><span style="color:var(--muted)">' + r.futureAdvantageText + "</span>"
+                : "";
+            ae.innerHTML =
+              "<strong>TORPASS</strong>" +
+              (r.advantageText || "") +
+              future;
           }
           if (le && r.stripePaymentLink) le.href = r.stripePaymentLink;
         });
@@ -1034,6 +1279,34 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       function closeModal() {
         document.getElementById("payModal").classList.remove("open");
         pendingServiceId = null;
+      }
+
+      function openBuyKrmModal() {
+        var rc = KRM.RAYDIUM_CONFIG || {};
+        var mintEl = document.getElementById("buyModalMint");
+        var netEl = document.getElementById("buyModalNetwork");
+        var mktEl = document.getElementById("buyModalMarket");
+        if (mintEl) mintEl.textContent = rc.krmMint || KRM.KRM_MINT;
+        if (netEl) {
+          netEl.textContent =
+            rc.network === "mainnet" ? "Solana" : rc.network || "Solana";
+        }
+        if (mktEl) mktEl.textContent = rc.marketLabel || "Raydium KRM / USDC";
+        document.getElementById("buyKrmModal").classList.add("open");
+      }
+
+      function closeBuyKrmModal() {
+        document.getElementById("buyKrmModal").classList.remove("open");
+      }
+
+      function openRaydium() {
+        var url =
+          (typeof KRM.getRaydiumSwapUrl === "function" && KRM.getRaydiumSwapUrl()) ||
+          KRM.KRM_BUY_PRIMARY_URL ||
+          KRM.KRM_POOL_URL ||
+          "https://raydium.io/swap/";
+        window.open(url, "_blank", "noopener,noreferrer");
+        closeBuyKrmModal();
       }
 
       function renderServices(krmBalance) {
@@ -1062,13 +1335,6 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
 
           var needBuy =
             treasuryOk && krmBalance != null && !affordable;
-          var buyHref = (KRM.KRM_POOL_URL && String(KRM.KRM_POOL_URL).trim()) ||
-            KRM.KRM_BUY_URL ||
-            "https://jup.ag/swap/SOL-Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA";
-          var buyLabel =
-            KRM.KRM_POOL_URL && String(KRM.KRM_POOL_URL).trim()
-              ? "Acheter KRM (pool)"
-              : "Acheter KRM (Jupiter)";
 
           item.innerHTML =
             "<div>" +
@@ -1080,11 +1346,7 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
             '<div class="service-actions" style="display:flex;flex-direction:column;gap:8px;align-items:stretch">' +
               '<button type="button" class="btn-service" data-pay="1"></button>' +
               (needBuy
-                ? '<a class="btn-buy" data-buy-krm="1" href="' +
-                  buyHref +
-                  '" target="_blank" rel="noopener noreferrer">' +
-                  buyLabel +
-                  "</a>"
+                ? '<button type="button" class="btn-buy" data-open-buy-krm="1">ACHETER DES KRM</button>'
                 : "") +
             "</div>";
 
@@ -1120,6 +1382,11 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
             openModal(service.id);
           });
 
+          var buyBtnSvc = item.querySelector("[data-open-buy-krm]");
+          if (buyBtnSvc) {
+            buyBtnSvc.addEventListener("click", openBuyKrmModal);
+          }
+
           list.appendChild(item);
         });
       }
@@ -1134,6 +1401,11 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         var status = TP.buildStatus(krmBalance);
         currentKrm = status.krm;
         currentWallet = pubkey;
+        var CFG = window.TORINVEST_OFFERS_CONFIG;
+        var subs =
+          CFG && typeof CFG.getClientSubscriptions === "function"
+            ? CFG.getClientSubscriptions(pubkey)
+            : { formationActive: false, robotActive: false };
 
         walletStatus.textContent = "Wallet Phantom connecté.";
         walletBox.textContent =
@@ -1146,16 +1418,45 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
         document.getElementById("statLevel").textContent = status.label;
 
         var discordEl = document.getElementById("statDiscord");
-        var formEl = document.getElementById("statFormations");
-        var coachEl = document.getElementById("statCoaching");
-        var formOk = !!(status.access.memberFormation || status.access.formations);
+        var academyEl = document.getElementById("statAcademy");
+        var proEl = document.getElementById("statPro");
+        var formSubEl = document.getElementById("statFormationSub");
+        var robotSubEl = document.getElementById("statRobotSub");
+        var discordWrap = document.getElementById("discordActivateWrap");
+
+        var academyOk = !!(status.access.memberFormation || status.access.formations);
         var proOk = !!(status.access.memberRobot || status.access.coaching || status.access.accompagnement);
-        discordEl.textContent = yn(status.access.discord);
-        discordEl.className = ynClass(status.access.discord);
-        formEl.textContent = yn(formOk);
-        formEl.className = ynClass(formOk);
-        coachEl.textContent = yn(proOk);
-        coachEl.className = ynClass(proOk);
+
+        if (status.access.discord) {
+          discordEl.textContent = "ÉLIGIBLE";
+          discordEl.className = "stat-value ok";
+          if (discordWrap) discordWrap.hidden = false;
+        } else {
+          discordEl.textContent = "NON";
+          discordEl.className = "stat-value ko";
+          if (discordWrap) discordWrap.hidden = true;
+        }
+
+        if (academyEl) {
+          academyEl.textContent = academyOk ? "ACADEMY ACTIF" : "NON";
+          academyEl.className = ynClass(academyOk);
+        }
+        if (proEl) {
+          proEl.textContent = proOk ? "PRO ACTIF" : "NON";
+          proEl.className = ynClass(proOk);
+        }
+        if (formSubEl) {
+          formSubEl.textContent = subs.formationActive
+            ? "ABONNEMENT ACTIF"
+            : "NON ABONNÉ";
+          formSubEl.className = ynClass(!!subs.formationActive);
+        }
+        if (robotSubEl) {
+          robotSubEl.textContent = subs.robotActive
+            ? "ABONNEMENT ACTIF"
+            : "NON ABONNÉ";
+          robotSubEl.className = ynClass(!!subs.robotActive);
+        }
 
         var nextBox = document.getElementById("nextBox");
         var maxBox = document.getElementById("maxBox");
@@ -1168,6 +1469,26 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
           document.getElementById("nextLevelLabel").textContent = status.next.label;
           document.getElementById("nextMissing").textContent =
             TP.formatKrm(status.next.missing) + " KRM";
+        }
+
+        // Mon espace
+        var ew = document.getElementById("espaceWallet");
+        var ek = document.getElementById("espaceKrm");
+        var el = document.getElementById("espaceLevel");
+        var ed = document.getElementById("espaceDiscord");
+        var ef = document.getElementById("espaceFormation");
+        var er = document.getElementById("espaceRobot");
+        if (ew) ew.textContent = "connecté";
+        if (ek) ek.textContent = TP.formatKrm(status.krm);
+        if (el) el.textContent = status.label;
+        if (ed) {
+          ed.textContent = status.access.discord ? "éligible" : "non";
+        }
+        if (ef) {
+          ef.textContent = subs.formationActive ? "actif" : "non abonné";
+        }
+        if (er) {
+          er.textContent = subs.robotActive ? "actif" : "non abonné";
         }
 
         highlightLevel(status.level);
@@ -1530,28 +1851,67 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
       var CFG = window.TORINVEST_OFFERS_CONFIG;
       if (CFG) {
         var how = document.getElementById("howKrmList");
-        if (how && CFG.HOW_KRM_WORKS) {
-          how.innerHTML = CFG.HOW_KRM_WORKS.map(function (t) {
-            return "<li>" + t + "</li>";
+        if (how && CFG.HOW_KRM_WORKS_STEPS && CFG.HOW_KRM_WORKS_STEPS.length) {
+          how.innerHTML = CFG.HOW_KRM_WORKS_STEPS.map(function (step) {
+            return (
+              "<li><div>" +
+              '<div class="how-step-title"></div>' +
+              '<div class="how-step-body"></div>' +
+              "</div></li>"
+            );
           }).join("");
+          CFG.HOW_KRM_WORKS_STEPS.forEach(function (step, i) {
+            var li = how.children[i];
+            if (!li) return;
+            li.querySelector(".how-step-title").textContent = step.title;
+            li.querySelector(".how-step-body").textContent = step.body;
+          });
         }
         var disc = document.getElementById("torpassDisclaimer");
         if (disc && CFG.DISCLAIMER) disc.textContent = CFG.DISCLAIMER;
+        var hold = CFG.HOLD_VS_SPEND;
+        if (hold) {
+          var holdTitle = document.querySelector(".hold-spend-card.hold .hold-spend-title");
+          var holdSub = document.querySelector(".hold-spend-card.hold .hold-spend-sub");
+          var spendTitle = document.querySelector(".hold-spend-card.spend .hold-spend-title");
+          var spendSub = document.querySelector(".hold-spend-card.spend .hold-spend-sub");
+          if (holdTitle) holdTitle.textContent = hold.holdTitle;
+          if (holdSub) holdSub.textContent = hold.holdSubtitle;
+          if (spendTitle) spendTitle.textContent = hold.spendTitle;
+          if (spendSub) spendSub.textContent = hold.spendSubtitle;
+        }
+      }
+
+      if (KRM.KRM_BETA_LIQUIDITY_NOTE) {
+        var betaEl = document.getElementById("krmBetaNote");
+        var buyBeta = document.getElementById("buyModalBeta");
+        if (betaEl) betaEl.textContent = KRM.KRM_BETA_LIQUIDITY_NOTE;
+        if (buyBeta) buyBeta.textContent = KRM.KRM_BETA_LIQUIDITY_NOTE;
       }
 
       var buyBtn = document.getElementById("buyKrmBtn");
-      if (buyBtn && KRM.KRM_BUY_URL) {
-        buyBtn.href = KRM.KRM_BUY_URL;
+      if (buyBtn) {
+        buyBtn.addEventListener("click", openBuyKrmModal);
       }
-      var poolBtn = document.getElementById("buyKrmPoolBtn");
-      if (poolBtn) {
-        var poolUrl = KRM.KRM_POOL_URL && String(KRM.KRM_POOL_URL).trim();
-        if (poolUrl) {
-          poolBtn.href = poolUrl;
-          poolBtn.hidden = false;
-        } else {
-          poolBtn.hidden = true;
-        }
+      document.getElementById("buyModalCancel").addEventListener("click", closeBuyKrmModal);
+      document.getElementById("buyModalOpen").addEventListener("click", openRaydium);
+      document.getElementById("buyKrmModal").addEventListener("click", function (e) {
+        if (e.target === e.currentTarget) closeBuyKrmModal();
+      });
+      document.querySelectorAll("[data-open-buy-krm]").forEach(function (el) {
+        el.addEventListener("click", openBuyKrmModal);
+      });
+
+      var discordBtn = document.getElementById("discordActivateBtn");
+      if (discordBtn) {
+        discordBtn.addEventListener("click", function () {
+          var msg = document.getElementById("discordActivateMsg");
+          if (msg) {
+            msg.textContent =
+              "Activation Discord bientôt disponible. Ton éligibilité TorPass est déjà reconnue (≥ 100 KRM).";
+            msg.style.color = "#fde68a";
+          }
+        });
       }
 
       var resumeBox = document.getElementById("resumePaidBox");

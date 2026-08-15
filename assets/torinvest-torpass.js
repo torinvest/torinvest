@@ -73,8 +73,8 @@
           },
           perks: [
             "Discord privé",
-            "Statut membre Formation",
-            "Avantages / tarifs Academy",
+            "Statut Academy",
+            "Avantages membres liés à la Formation",
           ],
         },
         PRO: {
@@ -91,7 +91,8 @@
           perks: [
             "Discord privé",
             "Statut Academy",
-            "Avantages Robot Access",
+            "Statut Pro",
+            "Avantages membres Robot Access",
             "Accompagnement / avantages Pro",
           ],
         },
@@ -115,7 +116,9 @@
 
   window.TorinvestTorpass = {
     WORKER_ACCESS_URL: WORKER_ACCESS_URL,
-    KRM_MINT: "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA",
+    KRM_MINT:
+      (window.TORINVEST_KRM && window.TORINVEST_KRM.KRM_MINT) ||
+      "Cvx4uEQUHgkrNR1apuz8eBSbWVFDwKhPFGFJn3XcBBwA",
     /** Conservé pour d'autres pages ; non utilisé pour les niveaux TorPass V1. */
     ORAX_MINT: "Ej5okcJb5oncGiZ7w53SgjCD9n4M7C3Uhzp1Lstxpump",
     KRM_DECIMALS: 6,

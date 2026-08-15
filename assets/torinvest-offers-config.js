@@ -73,8 +73,8 @@
       },
       perks: [
         "Discord privé",
-        "Statut membre Formation",
-        "Avantages / tarifs Academy",
+        "Statut Academy",
+        "Avantages membres liés à la Formation",
       ],
     },
     PRO: {
@@ -91,7 +91,8 @@
       perks: [
         "Discord privé",
         "Statut Academy",
-        "Avantages Robot Access",
+        "Statut Pro",
+        "Avantages membres Robot Access",
         "Accompagnement / avantages Pro",
       ],
     },
@@ -179,20 +180,22 @@
         memberEligible: memberOk,
         unitLabel: offer.unitLabel,
         stripePaymentLink: offer.stripePaymentLink,
-        advantageText:
-          "Offre de lancement : aucun KRM requis.",
+        advantageText: "Offre de lancement : aucun KRM requis.",
         futureAdvantageText:
+          "Les membres TorPass bénéficieront d’avantages spécifiques après la période de lancement.",
+        /** Préparé pour MEMBER_PRICING (non activé tant que PUBLIC_PROMO). */
+        memberPricingPreview:
           offerId === "ROBOT"
             ? "Tarif membre PRO : " +
               offer.memberPrice +
-              " €/mois — nécessite ≥ " +
+              " €/mois (≥ " +
               offer.requiredKrm +
-              " KRM au moment de l’achat ou du renouvellement."
+              " KRM)."
             : "Tarif membre ACADEMY : " +
               offer.memberPrice +
-              " €/an — nécessite ≥ " +
+              " €/an (≥ " +
               offer.requiredKrm +
-              " KRM au moment de l’achat ou du renouvellement.",
+              " KRM).",
       };
     }
 
@@ -307,6 +310,30 @@
     };
   }
 
+  /**
+   * Abonnements € (séparés du niveau KRM).
+   * Par défaut NON ABONNÉ — brancher plus tard sur l’API licences.
+   * Override localStorage optionnel (tests UX) :
+   *   torinvest_sub_formation = "1"
+   *   torinvest_sub_robot = "1"
+   */
+  function readLocalSubFlag(key) {
+    try {
+      if (typeof global.localStorage === "undefined") return false;
+      return global.localStorage.getItem(key) === "1";
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function getClientSubscriptions(/* wallet */) {
+    return {
+      formationActive: readLocalSubFlag("torinvest_sub_formation"),
+      robotActive: readLocalSubFlag("torinvest_sub_robot"),
+      source: "local_stub",
+    };
+  }
+
   global.TORINVEST_OFFERS_CONFIG = {
     PRICING_MODE: PRICING_MODE,
     TORPASS_LEVELS: TORPASS_LEVELS,
@@ -317,12 +344,36 @@
     levelRank: levelRank,
     resolveOfferPrice: resolveOfferPrice,
     canUseMemberPriceAtCheckout: canUseMemberPriceAtCheckout,
+    getClientSubscriptions: getClientSubscriptions,
     DISCLAIMER:
       "Les niveaux TorPass donnent des droits et avantages dans l’écosystème TORINVEST. Ils ne remplacent pas l’achat des produits payants.",
+    HOLD_VS_SPEND: {
+      holdTitle: "DÉTENIR DES KRM",
+      holdSubtitle: "= niveau TorPass",
+      spendTitle: "DÉPENSER DES KRM",
+      spendSubtitle: "= services ponctuels",
+    },
+    HOW_KRM_WORKS_STEPS: [
+      {
+        title: "ACHÈTE OU DÉTIENS DES KRM",
+        body: "Les KRM peuvent être obtenus sur Raydium avec un wallet Solana.",
+      },
+      {
+        title: "DÉBLOQUE TON TORPASS",
+        body:
+          "100 KRM → Discord privé · 250 KRM → Academy · 500 KRM → Pro. Les KRM nécessaires au niveau restent dans ton wallet. Ils ne sont pas consommés.",
+      },
+      {
+        title: "UTILISE DES KRM",
+        body:
+          "Certains services ponctuels peuvent être payés directement en KRM. 50 KRM → revue pédagogique d’une idée de trade · 100 KRM → débrief pédagogique d’un trade.",
+      },
+    ],
+    /** Compat affichage liste simple. */
     HOW_KRM_WORKS: [
-      "Détiens des KRM → débloque ton niveau TorPass",
-      "Achète les produits principaux en euros",
-      "Utilise des KRM pour certains services ponctuels",
+      "Achète ou détiens des KRM (Raydium / wallet Solana)",
+      "Débloque ton TorPass (100 / 250 / 500) — KRM non consommés",
+      "Utilise des KRM pour des services ponctuels (50 / 100)",
     ],
   };
 })(typeof window !== "undefined" ? window : global);
