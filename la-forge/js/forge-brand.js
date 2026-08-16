@@ -7,6 +7,8 @@ const FORGE_BRAND = {
   title: "La Forge ICT-SMC-PRICE ACTION — ÉLITE",
   slogan: "La force d'un esprit libre",
   site: "torinvest-trading.com",
+  /** Site principal TORINVEST (hors app formation) — URL absolue pour app.* */
+  homeUrl: "https://www.torinvest-trading.com/",
   logos: {
     anvil: "/la-forge/img/forge-anvil.png?v=20260612",
     full: "/la-forge/img/torinvest-logo-full.png?v=20260612",
@@ -40,6 +42,40 @@ const FORGE_BRAND = {
   },
 };
 
+function forgeMainSiteHref() {
+  return FORGE_BRAND.homeUrl || "https://www.torinvest-trading.com/";
+}
+
+/** Lien nav + bouton fixe vers le site principal (toutes pages formation). */
+function forgeBackHomeNavHtml() {
+  return (
+    '<a href="' +
+    forgeMainSiteHref() +
+    '" class="forge-back-home-nav" aria-label="Retour au site principal TORINVEST">← Site principal</a>'
+  );
+}
+
+function initForgeBackHome() {
+  if (document.getElementById("forge-back-home-btn")) return;
+  if (!document.getElementById("forge-back-home-style")) {
+    const style = document.createElement("style");
+    style.id = "forge-back-home-style";
+    style.textContent =
+      ".forge-back-home-nav{color:#e8b84a!important;font-weight:700;padding:.35rem .7rem;border:1px solid rgba(232,184,74,.45);border-radius:999px;text-decoration:none!important}" +
+      ".forge-back-home-nav:hover{background:rgba(249,115,22,.18);border-color:rgba(250,204,21,.7);color:#fff7d6!important}" +
+      ".forge-back-home-btn{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:max(14px,env(safe-area-inset-left));z-index:10000;padding:9px 14px;font-size:12px;font-weight:700;text-decoration:none;border-radius:999px;background:rgba(8,12,20,.92);border:1px solid rgba(232,184,74,.5);color:#facc15;backdrop-filter:blur(6px);box-shadow:0 8px 24px rgba(0,0,0,.35)}" +
+      ".forge-back-home-btn:hover{background:rgba(249,115,22,.28);border-color:rgba(250,204,21,.75);color:#fff7d6}";
+    document.head.appendChild(style);
+  }
+  const a = document.createElement("a");
+  a.id = "forge-back-home-btn";
+  a.className = "forge-back-home-btn";
+  a.href = forgeMainSiteHref();
+  a.setAttribute("aria-label", "Retour au site principal TORINVEST");
+  a.textContent = "← Site principal";
+  document.body.appendChild(a);
+}
+
 function forgeLogoHtml(size) {
   const s = size || "header";
   if (s === "header") {
@@ -71,9 +107,11 @@ function renderForgeHeader(active, extraNav) {
     { id: "tarifs", href: "/la-forge/pricing.html", label: "Tarifs" },
     { id: "connexion", href: "https://app.torinvest-trading.com/login.html", label: "Connexion" },
   ];
-  let navHtml = nav
-    .map((n) => '<a href="' + n.href + '"' + (active === n.id ? ' class="active"' : "") + ">" + n.label + "</a>")
-    .join("");
+  let navHtml =
+    forgeBackHomeNavHtml() +
+    nav
+      .map((n) => '<a href="' + n.href + '"' + (active === n.id ? ' class="active"' : "") + ">" + n.label + "</a>")
+      .join("");
   if (extraNav) navHtml += extraNav;
   return (
     '<div class="header-brand">' + forgeLogoHtml("header") + "</div>" +
@@ -146,6 +184,7 @@ function initLiveSection() {
 
 function initMemberHeader(active) {
   const nav =
+    forgeBackHomeNavHtml() +
     '<a href="https://app.torinvest-trading.com/dashboard.html"' + (active === "dashboard" ? ' class="active"' : "") + ">Dashboard</a>" +
     '<a href="https://app.torinvest-trading.com/course/index.html"' + (active === "course" ? ' class="active"' : "") + ">Formation</a>" +
     '<a href="https://app.torinvest-trading.com/calendar.html"' + (active === "calendar" ? ' class="active"' : "") + ">Calendrier</a>" +
@@ -162,7 +201,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.querySelector("[data-forge-member-header]")) initMemberHeader(document.querySelector("[data-forge-member-header]")?.dataset.forgeMemberHeader || "");
   if (document.querySelector("[data-forge-footer]")) initForgeFooter();
   initLiveSection();
+  initForgeBackHome();
 });
 
 window.FORGE_BRAND = FORGE_BRAND;
-window.ForgeBrand = { initForgeHeader, initForgeFooter, initLiveSection, initMemberHeader, renderLiveSection, forgeLogoHtml };
+window.ForgeBrand = {
+  initForgeHeader,
+  initForgeFooter,
+  initLiveSection,
+  initMemberHeader,
+  initForgeBackHome,
+  renderLiveSection,
+  forgeLogoHtml,
+};
