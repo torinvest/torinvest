@@ -31,7 +31,12 @@
   }
 
   function loadAdSense() {
-    if (document.querySelector('script[data-torinvest-adsense]')) return;
+    if (
+      document.querySelector('script[data-torinvest-adsense]') ||
+      document.querySelector('script[src*="adsbygoogle.js?client="]')
+    ) {
+      return;
+    }
     var s = document.createElement("script");
     s.async = true;
     s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=" + encodeURIComponent(ADSENSE_CLIENT);
