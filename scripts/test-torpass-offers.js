@@ -108,6 +108,17 @@ test("183.42 KRM → COMMUNITY, manque ACADEMY", function () {
   assert.ok(Math.abs(st.next.missing - 66.58) < 0.001);
 });
 
+test("ROBOT checkout paused : pas de lien Stripe", function () {
+  assert.strictEqual(CFG.isOfferCheckoutPaused("ROBOT"), true);
+  var robot = CFG.resolveOfferPrice("ROBOT", "PUBLIC");
+  assert.strictEqual(robot.paused, true);
+  assert.strictEqual(robot.stripePaymentLink, null);
+  assert.ok(robot.pausedMessage.indexOf("pause") !== -1);
+  var form = CFG.resolveOfferPrice("FORMATION", "PUBLIC");
+  assert.strictEqual(form.paused, false);
+  assert.ok(form.stripePaymentLink);
+});
+
 test("PUBLIC_PROMO : 0 KRM voit 79 et 349", function () {
   assert.strictEqual(CFG.PRICING_MODE, "PUBLIC_PROMO");
   var robot = CFG.resolveOfferPrice("ROBOT", "PUBLIC");

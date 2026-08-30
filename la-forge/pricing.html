@@ -85,7 +85,7 @@
           <li>Contrôle expiration et accès abonné</li>
         </ul>
         <div class="price-actions">
-          <a class="btn btn-primary btn-block" href="https://buy.stripe.com/eVq14nclt5XV3ka0zFd7q02" target="_blank" rel="noopener">Payer 79€/mois (Stripe)</a>
+          <a class="btn btn-primary btn-block" id="robot-access-pay-btn" href="https://buy.stripe.com/eVq14nclt5XV3ka0zFd7q02" target="_blank" rel="noopener">Payer 79€/mois (Stripe)</a>
           <p style="margin-top:10px;font-size:12px;color:var(--muted);text-align:center">
             1. Payer → 2. Email → 3. <a href="/activation.html" style="color:var(--gold)">Profil</a>
           </p>
@@ -167,10 +167,20 @@
 
   <footer data-forge-footer></footer>
   <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/assets/torinvest-offers-config.js?v=3"></script>
   <script>
     const discord = (window.FORGE_BRAND && FORGE_BRAND.social.discord.url) || "https://discord.gg/vwkPp2aeEM";
     document.getElementById("robot-access-request").href = discord;
     document.getElementById("formation-info").href = discord;
+    (function () {
+      var CFG = window.TORINVEST_OFFERS_CONFIG;
+      var payBtn = document.getElementById("robot-access-pay-btn");
+      if (!CFG || !payBtn || !CFG.resolveOfferPrice) return;
+      var r = CFG.resolveOfferPrice("ROBOT", "PUBLIC");
+      CFG.applyCheckoutLink(payBtn, r, {
+        activeLabel: "Payer 79€/mois (Stripe)",
+      });
+    })();
   </script>
 <script src="/la-forge/js/forge-consent.js"></script>
 <script src="/la-forge/js/forge-legal.js"></script>
