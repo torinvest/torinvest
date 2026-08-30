@@ -35,15 +35,11 @@ dl "la-forge/js/course-index.js" "js/course-index.js"
 dl "la-forge/js/forge-unlock.js" "js/forge-unlock.js"
 dl "la-forge/js/lesson-core.js" "js/lesson-core.js"
 dl "deploy/vps/app-shells/course/index.html" "course/index.html"
+dl "deploy/vps/app-shells/dashboard.html" "dashboard.html"
 
 PATCHES="$APP_DIR/server-patches"
 mkdir -p "$PATCHES"
-for pair in \
-  "middleware-require-subscribed.js:middleware-require-subscribed.js" \
-  "forge-unlock-server.js:forge-unlock-server.js" \
-  "course-module-order.json:course-module-order.json"
-do
-  src="${pair%%:*}"
+for src in middleware-require-subscribed.js forge-unlock-server.js forge-progress-rules.js routes-progress.js course-module-order.json; do
   echo "  server-patches/$src"
   curl -fsSL "$BASE/deploy/vps/formation-server/$src" -o "$PATCHES/$src" || echo "  WARN — $src"
 done
@@ -55,4 +51,4 @@ wc -c "$APP_DIR/public/js/progress.js" \
 echo ""
 echo "OK — unlock appliqué ($(date -Iseconds))."
 echo "→ pm2 restart la-forge"
-echo "→ wc -c public/js/progress.js  (attendu ~14845)"
+echo "→ wc -c public/js/progress.js  (attendu ~6700, unlock dans forge-unlock.js)"

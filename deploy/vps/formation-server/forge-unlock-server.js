@@ -2,6 +2,7 @@
 
 const BATCH_SIZE = 3;
 const moduleOrder = require("./course-module-order.json");
+const rules = require("./forge-progress-rules");
 
 function moduleIds() {
   return moduleOrder.map((m) => m.id);
@@ -9,7 +10,7 @@ function moduleIds() {
 
 function moduleCompleted(progress, moduleId) {
   const p = progress && progress[moduleId];
-  return !!(p && p.completed);
+  return rules.computeModuleCompleted(p);
 }
 
 function getMaxUnlockedModuleIndex(progress) {
@@ -29,7 +30,7 @@ function getMaxUnlockedModuleIndex(progress) {
 
 function isModuleUnlocked(moduleId, progress) {
   const idx = moduleOrder.findIndex((m) => m.id === moduleId);
-  if (idx < 0) return true;
+  if (idx < 0) return false;
   return idx <= getMaxUnlockedModuleIndex(progress || {});
 }
 

@@ -1,13 +1,14 @@
 /**
  * Route Express /api/progress — à monter sur torinvest-formation (VPS).
- *
- * Usage (server.js) :
- *   const createProgressRouter = require("./server-patches/routes-progress");
- *   app.use(createProgressRouter({ dataDir: "/home/ubuntu/torinvest-formation/data", requireAuth }));
+ * completed recalculé côté serveur (anti-forge unlock).
  */
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const rules = require("./forge-progress-rules");
+const moduleOrder = require("./course-module-order.json");
+
+const ALLOWED_IDS = moduleOrder.map((m) => m.id);
 
 function safeEmailFile(email) {
   return String(email || "guest").replace(/[^a-z0-9@._-]/gi, "_");
@@ -34,7 +35,8 @@ module.exports = function createProgressRouter(options) {
     try {
       const raw = fs.readFileSync(filePath(email), "utf8");
       const parsed = JSON.parse(raw);
-      return parsed.modules || parsed;
+      const modules = parsed.modules || parsed;
+      return rules.sanitizeModulesPayload(modules, {}, ALLOWED_IDS);
     } catch {
       return {};
     }
@@ -61,8 +63,10 @@ module.exports = function createProgressRouter(options) {
     if (!modules || typeof modules !== "object") {
       return res.status(400).json({ error: "Body modules requis" });
     }
-    writeModules(email, modules);
-    res.json({ ok: true });
+    const existing = readModules(email);
+    const sanitized = rules.sanitizeModulesPayload(modules, existing, ALLOWED_IDS);
+    writeModules(email, sanitized);
+    res.json({ ok: true, modules: sanitized });
   });
 
   return router;

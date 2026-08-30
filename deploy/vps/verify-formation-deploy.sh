@@ -38,6 +38,7 @@ for f in \
   server-patches/middleware-require-subscribed.js \
   server-patches/routes-calendar.js \
   server-patches/forge-unlock-server.js \
+  server-patches/forge-progress-rules.js \
   server-patches/course-module-order.json
 do
   check_file "$f"

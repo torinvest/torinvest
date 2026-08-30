@@ -41,7 +41,7 @@ pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
 echo "==> Patches serveur (server-patches/)"
 PATCHES_DIR="$APP_DIR/server-patches"
 mkdir -p "$PATCHES_DIR"
-for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js forge-unlock-server.js; do
+for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js forge-unlock-server.js forge-progress-rules.js; do
   echo "  server-patches/$f"
   curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/${f}" -o "$PATCHES_DIR/${f}"
 done
