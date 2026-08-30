@@ -2,7 +2,10 @@
 # Finalise la formation sur le VPS : pull assets, wire server.js, vérif, backup optionnel, restart PM2.
 #
 # Sur le VPS (one-liner depuis GitHub) :
-#   SHA=d70b955 curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/deploy/vps/finish-formation-vps-setup.sh" | bash
+#   export SHA=4f53c85
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/deploy/vps/finish-formation-vps-setup.sh" | bash
+#
+# Important : curl -fsSL (pas -fSSL). SHA doit être mergé sur GitHub (PR #46+).
 #
 # Ou si déjà cloné :
 #   bash /home/ubuntu/torinvest-formation/deploy/vps/finish-formation-vps-setup.sh
@@ -10,6 +13,7 @@
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/home/ubuntu/torinvest-formation}"
+APP_URL="${APP_URL:-https://app.torinvest-trading.com}"
 SHA="${SHA:-main}"
 RUN_BACKUP="${RUN_BACKUP:-0}"
 PM2_NAME="${PM2_NAME:-}"
