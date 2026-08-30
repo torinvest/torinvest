@@ -7,7 +7,16 @@ function renderCourseIndex(me) {
   const modFn = typeof getModuleProgress === "function" ? getModuleProgress : () => ({});
   const overall = typeof getOverallProgress === "function" ? getOverallProgress(ids) : { done: 0, total: ids.length, pct: 0 };
   const subscribed = me && me.subscribed;
-  const unlockFn = typeof isModuleUnlocked === "function" ? isModuleUnlocked : () => true;
+  const hasUnlock = typeof isModuleUnlocked === "function";
+  const unlockFn = hasUnlock
+    ? isModuleUnlocked
+    : function (moduleId) {
+        const idx = ids.indexOf(moduleId);
+        return idx >= 0 && idx < 3;
+      };
+  if (subscribed && !hasUnlock) {
+    console.warn("[La Forge] forge-unlock.js absent — lot 1 seul (3 modules). Déployez pull-forge-assets.");
+  }
 
   const titleEl = document.getElementById("forge-title");
   if (titleEl && typeof FORGE_TITLE !== "undefined") titleEl.textContent = FORGE_TITLE;
@@ -26,14 +35,20 @@ function renderCourseIndex(me) {
   if (txt) txt.textContent = overall.done + " / " + overall.total + " modules validés (" + overall.pct + "%)";
 
   const unlockBanner = document.getElementById("unlock-banner");
-  if (unlockBanner && subscribed && typeof getUnlockSummaryText === "function") {
+  if (unlockBanner && subscribed) {
     unlockBanner.hidden = false;
-    unlockBanner.innerHTML =
-      "<strong>Parcours guidé</strong> — " +
-      getUnlockSummaryText() +
-      ".<br /><span style='color:var(--muted)'>" +
-      (typeof getNextUnlockHint === "function" ? getNextUnlockHint() : "") +
-      "</span>";
+    if (typeof getUnlockSummaryText === "function") {
+      unlockBanner.innerHTML =
+        "<strong>Parcours guidé</strong> — " +
+        getUnlockSummaryText() +
+        ".<br /><span style='color:var(--muted)'>" +
+        (typeof getNextUnlockHint === "function" ? getNextUnlockHint() : "") +
+        "</span>";
+    } else {
+      unlockBanner.innerHTML =
+        "<strong>Parcours guidé</strong> — 3 modules ouverts (lot 1). " +
+        "<span style='color:var(--muted)'>Validez le lot pour débloquer les 3 suivants.</span>";
+    }
   } else if (unlockBanner) {
     unlockBanner.hidden = true;
   }
@@ -65,6 +80,11 @@ function renderCourseIndex(me) {
     const partMods = MODULES.filter((m) => m.part === part.id);
     if (!partMods.length) return;
 
+    const visibleMods = subscribed
+      ? partMods.filter((m) => unlockFn(m.id))
+      : partMods;
+    if (!visibleMods.length) return;
+
     const header = document.createElement("li");
     header.className = "course-part-header";
     header.style.cssText = "display:block;border:none;background:transparent;padding:1.5rem 0 0.5rem";
@@ -74,6 +94,9 @@ function renderCourseIndex(me) {
     list.appendChild(header);
 
     partMods.forEach((m) => {
+      const pathUnlocked = subscribed && unlockFn(m.id);
+      if (subscribed && !pathUnlocked) return;
+
       const p = modFn(m.id);
       const practice = p.practiceTotal ? " · Exo " + (p.practiceScore || 0) + "/" + p.practiceTotal : "";
       const hintFn = typeof getModuleCompletionHint === "function" ? getModuleCompletionHint : () => [];
@@ -82,28 +105,22 @@ function renderCourseIndex(me) {
         !p.completed && missing.length
           ? '<div class="mod-hint">Pour valider : ' + missing.join(" · ") + "</div>"
           : "";
-      const pathUnlocked = subscribed && unlockFn(m.id);
       const badge = p.completed
         ? '<span class="badge badge-done">Validé</span>'
-        : !pathUnlocked
-          ? '<span class="badge badge-locked">À débloquer</span>'
-          : p.stepsDone > 0 || p.quizScore > 0
-            ? '<span class="badge badge-progress">En cours</span>'
-            : '<span class="badge badge-free">' + m.num + "</span>";
+        : p.stepsDone > 0 || p.quizScore > 0
+          ? '<span class="badge badge-progress">En cours</span>'
+          : '<span class="badge badge-free">' + m.num + "</span>";
       const meta = p.quizTotal
         ? "Quiz " + p.quizScore + "/" + p.quizTotal + practice + " · " + m.desc
         : m.desc;
       const li = document.createElement("li");
-      if (!subscribed || !pathUnlocked) li.classList.add("locked");
+      if (!subscribed) li.classList.add("locked");
       let action;
       if (!subscribed) {
         action =
           '<a class="btn btn-secondary" href="' +
           (typeof forgePricingUrl === "function" ? forgePricingUrl() : "/la-forge/pricing.html") +
           '">Premium</a>';
-      } else if (!pathUnlocked) {
-        action =
-          '<span class="btn btn-secondary" style="opacity:0.55;cursor:not-allowed" title="Lot précédent à valider">Bientôt</span>';
       } else {
         action =
           '<a class="btn btn-secondary" href="' + m.href + '">' + (p.completed ? "Revoir" : "Commencer") + "</a>";
@@ -116,6 +133,27 @@ function renderCourseIndex(me) {
       list.appendChild(li);
     });
   });
+
+  if (subscribed) {
+    const hiddenCount = MODULES.filter((m) => !unlockFn(m.id)).length;
+    if (hiddenCount > 0) {
+      const teaser = document.createElement("li");
+      teaser.style.cssText = "display:block;border:none;background:transparent;padding:1rem 0 0";
+      const hint =
+        typeof getNextUnlockHint === "function"
+          ? getNextUnlockHint()
+          : "Validez le lot actuel pour ouvrir les 3 modules suivants.";
+      teaser.innerHTML =
+        '<div class="alert" style="font-size:0.88rem;border-color:rgba(255,180,0,.25)">' +
+        "<strong>" +
+        hiddenCount +
+        " module(s) à venir</strong> — masqués jusqu’au déblocage du lot. " +
+        "<span style='color:var(--muted)'>" +
+        hint +
+        "</span></div>";
+      list.appendChild(teaser);
+    }
+  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
