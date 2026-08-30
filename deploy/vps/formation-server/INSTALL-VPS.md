@@ -59,3 +59,19 @@ pm2 restart torinvest-formation   # ou systemctl selon votre setup
 ## Sécurité contenu
 
 Les HTML des 37 modules restent dans `public/course/` sur le VPS — ne pas les pousser sur le repo public GitHub.
+
+## Logos (CSP Helmet)
+
+Helmet a `img-src 'self' data:` — les images `https://www.torinvest-trading.com/...` sont **bloquées** par le navigateur.
+
+`pull-forge-assets.sh` copie les PNG dans `public/img/` et `public/la-forge/img/`. Le JS app utilise `/img/...` (même origine).
+
+Si un logo manque encore :
+
+```bash
+ls /home/ubuntu/torinvest-formation/public/img/
+curl -sI https://app.torinvest-trading.com/img/forge-anvil.png | head -5
+```
+
+Attendu : `HTTP/1.1 200`.
+

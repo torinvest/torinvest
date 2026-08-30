@@ -10,9 +10,9 @@ const FORGE_BRAND = {
   /** Site principal TORINVEST (hors app formation) — URL absolue pour app.* */
   homeUrl: "https://www.torinvest-trading.com/",
   logos: {
-    anvil: "https://www.torinvest-trading.com/la-forge/img/forge-anvil.png?v=20260612",
-    full: "https://www.torinvest-trading.com/la-forge/img/torinvest-logo-full.png?v=20260612",
-    liveBanner: "https://www.torinvest-trading.com/la-forge/img/live-trading-banner.png",
+    anvil: "/la-forge/img/forge-anvil.png?v=20260630",
+    full: "/la-forge/img/torinvest-logo-full.png?v=20260630",
+    liveBanner: "/la-forge/img/live-trading-banner.png",
   },
   social: {
     youtube: {
@@ -50,23 +50,44 @@ function forgeWwwOrigin() {
   return "https://www.torinvest-trading.com";
 }
 
+function isForgeAppHost() {
+  return typeof window !== "undefined" && window.location.hostname === "app.torinvest-trading.com";
+}
+
 function forgePublicUrl(path) {
   const p = path.startsWith("/") ? path : "/" + path;
-  if (typeof window !== "undefined" && window.location.hostname === "app.torinvest-trading.com") {
+  if (isForgeAppHost()) {
     return forgeWwwOrigin() + p;
   }
   return p;
 }
 
-/** Sur l'app VPS, /la-forge/img n'existe pas — pointer vers le site public. */
+/** App VPS : logos en même origine (/img) — Helmet img-src 'self' bloque www. */
+function applyForgeAppLogos() {
+  if (!isForgeAppHost()) return;
+  FORGE_BRAND.logos = {
+    anvil: "/img/forge-anvil.png?v=20260630",
+    full: "/img/torinvest-logo-full.png?v=20260630",
+    liveBanner: "/img/live-trading-banner.png",
+  };
+}
+
 function rewriteForgeAssetUrls() {
-  if (typeof window === "undefined" || window.location.hostname !== "app.torinvest-trading.com") return;
-  const prefix = forgeWwwOrigin();
-  document.querySelectorAll("img[src^='/la-forge/']").forEach((el) => {
-    el.src = prefix + el.getAttribute("src");
+  if (!isForgeAppHost()) return;
+  const toLocal = (url) => {
+    if (!url) return url;
+    return url
+      .replace("https://www.torinvest-trading.com/la-forge/img/", "/img/")
+      .replace("/la-forge/img/", "/img/");
+  };
+  document.querySelectorAll("img[src*='la-forge/img/'], img[src^='/img/']").forEach((el) => {
+    el.src = toLocal(el.getAttribute("src"));
   });
-  document.querySelectorAll('link[rel="icon"][href^="/la-forge/"]').forEach((el) => {
-    el.href = prefix + el.getAttribute("href");
+  document.querySelectorAll('link[rel="icon"]').forEach((el) => {
+    const href = el.getAttribute("href") || "";
+    if (href.includes("la-forge/img/") || href.startsWith("/img/")) {
+      el.href = toLocal(href);
+    }
   });
 }
 
@@ -229,6 +250,7 @@ function initMemberHeader(active) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  applyForgeAppLogos();
   rewriteForgeAssetUrls();
   if (document.querySelector("[data-forge-header]")) initForgeHeader();
   if (document.querySelector("[data-forge-member-header]")) initMemberHeader(document.querySelector("[data-forge-member-header]")?.dataset.forgeMemberHeader || "");

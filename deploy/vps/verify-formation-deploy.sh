@@ -25,7 +25,8 @@ for f in \
   public/login.html \
   public/calendar.html \
   public/calendar-day.html \
-  public/course/index.html
+  public/course/index.html \
+  public/img/forge-anvil.png
 do
   check_file "$f"
 done
