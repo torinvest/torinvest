@@ -54,9 +54,6 @@ function initStepLesson(config) {
       setModuleSteps(moduleId, current + 1, totalSteps);
     }
     if (onStep) onStep(current);
-    if (typeof ForgeAnnotations !== "undefined") {
-      ForgeAnnotations.setLessonStep(current);
-    }
   }
 
   buttons.forEach((btn) => {
@@ -117,52 +114,6 @@ function renderModuleNav(prev, next) {
   nav.innerHTML =
     (prev ? '<a class="btn btn-secondary" href="' + prev + '">← Module précédent</a>' : "<span></span>") +
     (next ? '<a class="btn btn-primary" href="' + next + '">Module suivant →</a>' : "");
-}
-
-/**
- * Replay chart annoté (frames SVG ou images TradingView-style)
- */
-function initChartReplay(config) {
-  const {
-    frames,
-    svgRootId = "replay-svg",
-    counterId = "replay-counter",
-    captionId = "replay-caption",
-    progressId = "replay-progress",
-  } = config;
-  if (!frames || !frames.length) return;
-
-  const buttons = document.querySelectorAll("[data-replay]");
-  const captionEl = document.getElementById(captionId);
-  const counterEl = document.getElementById(counterId);
-  const progressEl = document.getElementById(progressId);
-  let current = 0;
-
-  function goTo(index) {
-    current = Math.max(0, Math.min(frames.length - 1, index));
-    buttons.forEach((btn) => {
-      btn.classList.toggle("active", Number(btn.dataset.replay) === current);
-    });
-    frames.forEach((frame, i) => {
-      const group = document.getElementById(frame.groupId);
-      if (group) group.classList.toggle("anim-hidden", i !== current);
-    });
-    const f = frames[current];
-    if (captionEl) captionEl.textContent = f.caption || "";
-    if (counterEl) counterEl.textContent = "Frame " + (current + 1) + " / " + frames.length + (f.label ? " · " + f.label : "");
-    if (progressEl) progressEl.style.width = ((current + 1) / frames.length) * 100 + "%";
-    if (typeof ForgeAnnotations !== "undefined") {
-      ForgeAnnotations.setLessonStep(current);
-    }
-  }
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => goTo(Number(btn.dataset.replay)));
-  });
-  document.getElementById("replay-prev")?.addEventListener("click", () => goTo(current - 1));
-  document.getElementById("replay-next")?.addEventListener("click", () => goTo(current + 1));
-
-  goTo(0);
 }
 
 /**
@@ -247,7 +198,6 @@ function initPractice(moduleId, exercises) {
 window.initStepLesson = initStepLesson;
 window.initQuiz = initQuiz;
 window.renderModuleNav = renderModuleNav;
-window.initChartReplay = initChartReplay;
 window.initPractice = initPractice;
 
 /**
@@ -294,7 +244,7 @@ function initChartExercise(moduleId, config) {
       msg.textContent = "Exercice chart enregistré (" + done.length + "/" + tasks.length + " tâches cochées).";
     }
     if (typeof setModulePractice === "function" && done.length >= Math.ceil(tasks.length * 0.7)) {
-      setModulePractice(moduleId + "-chart", done.length, tasks.length);
+      setModulePractice(moduleId, done.length, tasks.length);
     }
   });
 }

@@ -91,41 +91,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-/**
- * Contrôleur d'étapes pour illustrations SVG
- * usage: initStepLesson({ steps: [...], onStep: (i) => {} })
- */
-function initStepLesson(config) {
-  const { steps, onStep, containerId = "step-text" } = config;
-  const textEl = document.getElementById(containerId);
-  const progressEl = document.getElementById("lesson-progress");
-  const buttons = document.querySelectorAll("[data-step]");
-  let current = 0;
-
-  function goTo(index) {
-    current = Math.max(0, Math.min(steps.length - 1, index));
-    buttons.forEach((btn) => {
-      btn.classList.toggle("active", Number(btn.dataset.step) === current);
-    });
-    if (textEl) {
-      textEl.innerHTML = "<h4>" + steps[current].title + "</h4><p>" + steps[current].body + "</p>";
-    }
-    if (progressEl) {
-      progressEl.style.width = ((current + 1) / steps.length) * 100 + "%";
-    }
-    if (onStep) onStep(current);
-  }
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => goTo(Number(btn.dataset.step)));
-  });
-
-  document.getElementById("step-prev")?.addEventListener("click", () => goTo(current - 1));
-  document.getElementById("step-next")?.addEventListener("click", () => goTo(current + 1));
-
-  goTo(0);
-}
-
-window.initStepLesson = initStepLesson;
 window.getMe = getMe;
 window.logout = logout;
