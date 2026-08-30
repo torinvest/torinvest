@@ -90,5 +90,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         ? await getMe()
         : null;
   if (!me) return;
+  if (typeof initForgeProgress === "function") {
+    await initForgeProgress(me.email);
+  }
   renderCourseIndex(me);
 });

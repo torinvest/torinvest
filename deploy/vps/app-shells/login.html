@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connexion — TORINVEST La Forge</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-header="connexion"></header>
+
+  <div class="container" style="max-width:440px;padding-top:2rem">
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <img src="/la-forge/img/forge-anvil.png" alt="La Forge" width="72" height="72" class="forge-logo-img" style="margin-bottom:0.75rem" />
+      <p class="forge-slogan" style="margin:0">La force d'un esprit libre</p>
+    </div>
+    <div class="card">
+      <h2>Connexion membre</h2>
+      <p style="margin-bottom:1rem;color:var(--muted);font-size:0.95rem">
+        Accès réservé aux abonnés La Forge (349€/an). Identifiants envoyés par email après paiement Stripe.
+      </p>
+      <div id="login-alert" class="alert" hidden></div>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required autocomplete="email" />
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" name="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.5rem">Se connecter</button>
+      </form>
+      <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted);text-align:center">
+        Pas encore inscrit ? <a href="https://www.torinvest-trading.com/formation.html">Liste d'attente</a>
+        · <a href="https://www.torinvest-trading.com/la-forge/pricing.html">Tarifs</a>
+      </p>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/forge-legal.js"></script>
+</body>
+</html>
