@@ -110,6 +110,9 @@
       requiredKrmLevel: "PRO",
       requiredKrm: TORPASS_LEVELS.PRO,
       stripePaymentLink: "https://buy.stripe.com/eVq14nclt5XV3ka0zFd7q02",
+      /** Paiement Stripe temporairement fermé — le bloc offre reste visible. */
+      checkoutPaused: true,
+      pausedMessage: "En pause actuellement",
       currency: "EUR",
       unitLabel: "/mois",
     },
@@ -158,6 +161,50 @@
     return PRICING_MODE;
   }
 
+  function isOfferCheckoutPaused(offerId) {
+    var offer = TORINVEST_OFFERS[offerId];
+    return !!(offer && offer.checkoutPaused);
+  }
+
+  function checkoutStripeLink(offer) {
+    if (!offer || offer.checkoutPaused) return null;
+    return offer.stripePaymentLink || null;
+  }
+
+  /**
+   * Applique pause ou lien Stripe sur un CTA (bouton / lien d’achat).
+   * @param {HTMLElement} linkEl
+   * @param {object} resolved résultat resolveOfferPrice
+   * @param {{ activeLabel?: string }} options activeLabel = libellé quand le paiement est ouvert
+   */
+  function applyCheckoutLink(linkEl, resolved, options) {
+    options = options || {};
+    if (!linkEl || !resolved || !resolved.ok) return;
+    if (resolved.paused) {
+      linkEl.removeAttribute("href");
+      linkEl.removeAttribute("target");
+      linkEl.removeAttribute("rel");
+      linkEl.setAttribute("aria-disabled", "true");
+      linkEl.classList.add("checkout-paused");
+      linkEl.textContent = resolved.pausedMessage || "En pause actuellement";
+      linkEl.style.pointerEvents = "none";
+      linkEl.style.opacity = "0.65";
+      linkEl.style.cursor = "not-allowed";
+      return;
+    }
+    linkEl.classList.remove("checkout-paused");
+    linkEl.removeAttribute("aria-disabled");
+    linkEl.style.pointerEvents = "";
+    linkEl.style.opacity = "";
+    linkEl.style.cursor = "";
+    if (options.activeLabel) linkEl.textContent = options.activeLabel;
+    if (resolved.stripePaymentLink) {
+      linkEl.href = resolved.stripePaymentLink;
+      linkEl.target = "_blank";
+      linkEl.rel = "noopener";
+    }
+  }
+
   function resolveOfferPrice(offerId, torpassLevel) {
     var offer = TORINVEST_OFFERS[offerId];
     if (!offer) {
@@ -167,6 +214,9 @@
     var level = torpassLevel || "PUBLIC";
     var memberOk =
       levelRank(level) >= levelRank(offer.requiredKrmLevel);
+    var paused = isOfferCheckoutPaused(offerId);
+    var stripeLink = checkoutStripeLink(offer);
+    var pausedMessage = offer.pausedMessage || "En pause actuellement";
 
     if (mode === "PUBLIC_PROMO") {
       return {
@@ -179,7 +229,9 @@
         krmRequiredNow: false,
         memberEligible: memberOk,
         unitLabel: offer.unitLabel,
-        stripePaymentLink: offer.stripePaymentLink,
+        paused: paused,
+        pausedMessage: pausedMessage,
+        stripePaymentLink: stripeLink,
         advantageText: "Offre de lancement : aucun KRM requis.",
         futureAdvantageText:
           "Les membres TorPass bénéficieront d’avantages spécifiques après la période de lancement.",
@@ -211,7 +263,9 @@
           krmRequiredNow: true,
           memberEligible: true,
           unitLabel: offer.unitLabel,
-          stripePaymentLink: offer.stripePaymentLink,
+          paused: paused,
+          pausedMessage: pausedMessage,
+          stripePaymentLink: stripeLink,
           advantageText:
             offerId === "ROBOT"
               ? "Tarif membre PRO : " +
@@ -237,7 +291,9 @@
         krmRequiredNow: false,
         memberEligible: false,
         unitLabel: offer.unitLabel,
-        stripePaymentLink: offer.stripePaymentLink,
+        paused: paused,
+        pausedMessage: pausedMessage,
+        stripePaymentLink: stripeLink,
         advantageText:
           "Tarif public. Détiens ≥ " +
           offer.requiredKrm +
@@ -263,7 +319,9 @@
       krmRequiredNow: false,
       memberEligible: memberOk,
       unitLabel: offer.unitLabel,
-      stripePaymentLink: offer.stripePaymentLink,
+      paused: paused,
+      pausedMessage: pausedMessage,
+      stripePaymentLink: stripeLink,
       advantageText: "Tarif normal. Les avantages TorPass membres ne sont pas actifs (mode REGULAR).",
       futureAdvantageText:
         "Configurer PRICING_MODE = MEMBER_PRICING pour activer les tarifs membres KRM.",
@@ -343,6 +401,8 @@
     getLevelFromBalance: getLevelFromBalance,
     levelRank: levelRank,
     resolveOfferPrice: resolveOfferPrice,
+    isOfferCheckoutPaused: isOfferCheckoutPaused,
+    applyCheckoutLink: applyCheckoutLink,
     canUseMemberPriceAtCheckout: canUseMemberPriceAtCheckout,
     getClientSubscriptions: getClientSubscriptions,
     DISCLAIMER:

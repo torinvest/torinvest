@@ -1839,7 +1839,7 @@
 }
 </style>
   
-  <script src="/assets/torinvest-offers-config.js?v=2"></script>
+  <script src="/assets/torinvest-offers-config.js?v=3"></script>
   <script>
     (function () {
       var CFG = window.TORINVEST_OFFERS_CONFIG;
@@ -1876,7 +1876,11 @@
             (r.advantageText || "") +
             future;
         }
-        if (link && r.stripePaymentLink) link.href = r.stripePaymentLink;
+        if (link) {
+          CFG.applyCheckoutLink(link, r, {
+            activeLabel: id === "ROBOT" ? "Payer maintenant" : link.textContent,
+          });
+        }
       });
     })();
   </script>

@@ -1354,7 +1354,12 @@ Connecte ton wallet Phantom pour déterminer ton niveau TorPass.</div>
               (r.advantageText || "") +
               future;
           }
-          if (le && r.stripePaymentLink) le.href = r.stripePaymentLink;
+          if (le) {
+            CFG.applyCheckoutLink(le, r, {
+              activeLabel:
+                row.id === "ROBOT" ? "Voir l’offre Robot" : le.textContent,
+            });
+          }
         });
       }
 
