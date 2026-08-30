@@ -133,7 +133,15 @@
   }
 
   function initAllForgeCharts() {
-    document.querySelectorAll(".forge-chart, .chart-replay-section .tv-frame, .chart-replay-section .forge-chart").forEach(initForgeChartAnnotations);
+    document.querySelectorAll(
+      ".forge-chart, .chart-replay-section .tv-frame, .chart-replay-section .forge-chart, .elite-replay .tv-frame, .elite-replay .forge-chart"
+    ).forEach(initForgeChartAnnotations);
+  }
+
+  function refit(chart) {
+    if (typeof window.ForgeChartFit === "function" && chart && chart.el) {
+      window.ForgeChartFit(chart.el);
+    }
   }
 
   function setReplayStep(stepIndex) {
@@ -141,6 +149,7 @@
       if (!chart.el.closest(".elite-replay, .chart-replay-section")) return;
       chart.stepIndex = stepIndex;
       applyStepFilter(chart, stepIndex);
+      refit(chart);
     });
   }
 
@@ -150,6 +159,7 @@
       if (!chart.el.closest(".lesson-layout, .lesson-pro")) return;
       chart.stepIndex = stepIndex;
       applyStepFilter(chart, stepIndex);
+      refit(chart);
     });
   }
 

@@ -2,15 +2,58 @@
  * La Forge ÉLITE — Replay chart pédagogique
  * Mode exclusif : une frame visible à la fois (pas d’empilement sur le SVG).
  */
+function isReplayKeepId(id) {
+  return /^(base|base-|bg-|background|chart-base|candles|replay-base|price-axis|grid|axes?)$/i.test(id || "");
+}
+
+function isReplayOverlayId(id) {
+  return /^(frame|step|layer|overlay|scene|seq|annos?|callouts?|fvg-|ob-|mss-|liq-|zone-step|replay-frame)/i.test(
+    id || ""
+  );
+}
+
 function applyReplayFrames(frames, current) {
-  frames.forEach((frame, i) => {
-    const group = document.getElementById(frame.groupId);
-    if (group) group.classList.toggle("anim-hidden", i !== current);
-    if (frame.baseId) {
-      const base = document.getElementById(frame.baseId);
-      if (base) base.classList.remove("anim-hidden");
-    }
+  const f = frames[current] || {};
+  const keepIds = new Set();
+  if (f.groupId) keepIds.add(f.groupId);
+  frames.forEach((fr) => {
+    if (fr.baseId) keepIds.add(fr.baseId);
   });
+
+  const keepEls = Array.from(keepIds)
+    .map((id) => document.getElementById(id))
+    .filter(Boolean);
+  const svg =
+    keepEls[0]?.ownerSVGElement ||
+    document.querySelector(".elite-replay svg, .chart-replay-section svg, .replay-chart-svg");
+  const frameIds = new Set(frames.map((fr) => fr.groupId).filter(Boolean));
+
+  function isKept(g) {
+    if (keepIds.has(g.id) || isReplayKeepId(g.id)) return true;
+    return keepEls.some((k) => k.contains(g) || g.contains(k));
+  }
+
+  if (svg) {
+    svg.querySelectorAll("g[id]").forEach((g) => {
+      if (g.closest("defs")) return;
+      if (isKept(g)) {
+        g.classList.remove("anim-hidden");
+        return;
+      }
+      if (frameIds.has(g.id) || isReplayOverlayId(g.id)) {
+        g.classList.add("anim-hidden");
+      }
+    });
+  } else {
+    frames.forEach((frame, i) => {
+      const group = document.getElementById(frame.groupId);
+      if (group) group.classList.toggle("anim-hidden", i !== current);
+      if (frame.baseId) {
+        const base = document.getElementById(frame.baseId);
+        if (base) base.classList.remove("anim-hidden");
+      }
+    });
+  }
 }
 
 function notifyReplayStep(index) {

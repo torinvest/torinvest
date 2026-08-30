@@ -221,6 +221,7 @@
 }
 
 .fc-callout.anno-step-hidden {
+  display: none !important;
   opacity: 0;
   pointer-events: none;
   visibility: hidden;
@@ -345,9 +346,9 @@
 
 .elite-replay .tv-frame .chart-zoom-wrap,
 .chart-replay-section .tv-frame .chart-zoom-wrap {
-  min-height: 280px;
-  height: min(44vh, 420px);
-  max-height: min(44vh, 420px);
+  min-height: 300px;
+  height: min(50vh, 460px);
+  max-height: min(50vh, 460px);
   margin: 0 0.6rem 0.6rem;
   border-radius: 8px;
 }
@@ -560,9 +561,9 @@
 .chart-zoom-wrap {
   overflow: hidden;
   width: 100%;
-  min-height: 260px;
-  height: min(42vh, 380px);
-  max-height: min(42vh, 380px);
+  min-height: 280px;
+  height: min(48vh, 440px);
+  max-height: min(48vh, 440px);
   border-radius: 8px;
   background: #08080e;
   border: 1px solid #2a2a38;
@@ -591,28 +592,30 @@
 /* Lisibilité texte SVG (fond sombre) */
 .chart-readable svg text,
 .chart-stage svg text,
-.lesson-layout .forge-chart svg text {
+.lesson-layout .forge-chart svg text,
+.chart-in-viewer svg text {
   fill: #e8e8ef;
+  paint-order: stroke fill;
+  stroke: #08080e;
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 .chart-readable svg text.co-n,
-.lesson-layout .forge-chart svg text.co-n {
+.lesson-layout .forge-chart svg text.co-n,
+.chart-in-viewer svg text.co-n {
   fill: #111 !important;
+  stroke: none;
 }
 .chart-readable svg .co-t,
-.lesson-layout .forge-chart svg .co-t {
+.lesson-layout .forge-chart svg .co-t,
+.chart-in-viewer svg .co-t {
   fill: #f0f0f8 !important;
   font-size: 12px !important;
 }
 
-.forge-chart.chart-enlarged .chart-zoom-wrap svg,
-.chart-stage.chart-enlarged .chart-zoom-wrap svg {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* Focus = masquer gros labels (pas opacity invisible) */
 .forge-chart.chart-simplified svg .chart-clutter-label,
-.chart-stage.chart-simplified svg .chart-clutter-label {
+.chart-stage.chart-simplified svg .chart-clutter-label,
+svg .chart-collision-hide {
   display: none !important;
 }
 .forge-chart.chart-simplified:not(.chart-show-all) svg .fc-callout.anno-step-hidden,

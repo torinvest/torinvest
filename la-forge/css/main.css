@@ -377,10 +377,13 @@ nav a.active, nav a:hover { color: var(--text); }
 }
 .step-panel h4 { color: var(--aqua); margin-bottom: 0.5rem; }
 
-/* Animations SVG — masquage réel dans charts (getBBox + lisibilité) */
+/* Animations SVG — masquage réel (display:none) sinon calques empilés + getBBox faux */
+svg .anim-hidden,
 .chart-zoom-wrap .anim-hidden,
 .replay-chart-svg .anim-hidden,
-.elite-replay svg .anim-hidden {
+.elite-replay svg .anim-hidden,
+.chart-replay-section svg .anim-hidden,
+.lesson-layout svg .anim-hidden {
   display: none !important;
   opacity: 0;
   visibility: hidden;
