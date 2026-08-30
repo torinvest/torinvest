@@ -46,13 +46,19 @@ for f in routes-progress.js middleware-require-subscribed.js; do
   curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/${f}" -o "$PATCHES_DIR/${f}"
 done
 
-if [[ -f "$APP_DIR/deploy/vps/formation-server/INSTALL-VPS.md" ]]; then
-  curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/INSTALL-VPS.md" \
-    -o "$APP_DIR/deploy/vps/formation-server/INSTALL-VPS.md" 2>/dev/null || true
-fi
+echo "==> Scripts & docs (deploy/vps/)"
+DEPLOY_DIR="$APP_DIR/deploy/vps"
+mkdir -p "$DEPLOY_DIR/formation-server"
+curl -fsSL "${RAW_ROOT}/deploy/vps/verify-formation-deploy.sh" -o "$DEPLOY_DIR/verify-formation-deploy.sh"
+chmod +x "$DEPLOY_DIR/verify-formation-deploy.sh"
+echo "  deploy/vps/verify-formation-deploy.sh"
+curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/INSTALL-VPS.md" \
+  -o "$DEPLOY_DIR/formation-server/INSTALL-VPS.md"
+echo "  deploy/vps/formation-server/INSTALL-VPS.md"
 
 echo ""
 echo "OK — formation complète ($(date -Iseconds))."
+echo "→ Vérif : bash $DEPLOY_DIR/verify-formation-deploy.sh"
 echo "→ Si première install : monter server-patches dans server.js (voir INSTALL-VPS.md)"
 echo "→ pm2 restart torinvest-formation"
 echo "→ Hard refresh navigateur (Ctrl+Shift+R)"

@@ -9,6 +9,12 @@ SHA=<commit-merge> curl -fsSL "https://raw.githubusercontent.com/torinvest/torin
 bash /home/ubuntu/torinvest-formation/deploy/vps/verify-formation-deploy.sh
 ```
 
+Si `verify-formation-deploy.sh` est absent (ancien pull) :
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/verify-formation-deploy.sh" | bash -s /home/ubuntu/torinvest-formation
+```
+
 ## 1. Progression `/api/progress`
 
 Dans `server.js` (ou `app.js`) :
