@@ -1,17 +1,26 @@
 #!/usr/bin/env bash
-# Déploie JS/CSS La Forge sur l’app formation (VPS).
+# Déploie JS/CSS La Forge sur l'app formation (VPS).
+#
+# SÉCURITÉ CONTENU : les 37 modules HTML restent sur le VPS (accès login).
+# Ce script ne publie que le moteur JS/CSS — pas les leçons.
+# Versionner les modules : repo GitHub PRIVÉ ou git local sur le VPS (pas public).
 #
 # Sur le VPS :
-#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/formation-audit-fixes-691a/deploy/vps/pull-forge-assets.sh | bash
+#   SHA=abc1234 curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/deploy/vps/pull-forge-assets.sh" | bash
 #
-# Ou :
-#   curl -fsSL ... -o /tmp/pull-forge.sh && bash /tmp/pull-forge.sh
+# Ou branche :
+#   BRANCH=cursor/formation-platform-691a curl -fsSL .../pull-forge-assets.sh | bash
 
 set -eo pipefail
 
 APP_DIR="${1:-/home/ubuntu/torinvest-formation}"
-BRANCH="${BRANCH:-cursor/formation-audit-fixes-691a}"
-RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}/la-forge"
+BRANCH="${BRANCH:-main}"
+SHA="${SHA:-}"
+if [[ -n "$SHA" ]]; then
+  RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/la-forge"
+else
+  RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}/la-forge"
+fi
 
 JS_FILES=(
   auth.js
@@ -21,6 +30,8 @@ JS_FILES=(
   forge-annotations.js
   forge-brand.js
   forge-calendar.js
+  forge-consent.js
+  forge-gate.js
   forge-legal.js
   forge-replay.js
   legal-page.js
@@ -42,7 +53,7 @@ if [[ ! -d "$APP_DIR/public/js" ]]; then
   exit 1
 fi
 
-echo "==> Téléchargement GitHub ($BRANCH) → $APP_DIR/public"
+echo "==> Téléchargement GitHub (${SHA:-$BRANCH}) → $APP_DIR/public"
 
 for f in "${JS_FILES[@]}"; do
   echo "  js/$f"
@@ -54,4 +65,4 @@ for f in "${CSS_FILES[@]}"; do
   curl -fsSL "$RAW_BASE/css/$f" -o "$APP_DIR/public/css/$f"
 done
 
-echo "OK — JS/CSS formation mis à jour. Hard refresh (Ctrl+Shift+R)."
+echo "OK — JS/CSS formation mis à jour ($(date -Iseconds)). Hard refresh (Ctrl+Shift+R)."

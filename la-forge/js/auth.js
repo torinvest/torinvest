@@ -32,7 +32,10 @@ async function getMe() {
 
 async function logout() {
   await api("/api/logout", { method: "POST" });
-  window.location.href = "/";
+  window.location.href =
+    window.location.hostname === "app.torinvest-trading.com"
+      ? "/login.html"
+      : "https://app.torinvest-trading.com/login.html";
 }
 
 function showAlert(el, message, type = "error") {

@@ -676,6 +676,45 @@ window.ForgeChartFit = fitChartToWrap;
 window.restoreChartViewBox = restoreChartViewBox;
 window.openChartViewer = openChartViewer;
 
+function initCoursePageGate() {
+  const path = window.location.pathname || "";
+  if (!/\/course\/[^/]+\.html$/i.test(path)) return;
+  if (/\/course\/index\.html$/i.test(path)) return;
+
+  const run = async () => {
+    if (typeof initForgeGate === "function") {
+      await initForgeGate({ requirePremium: true });
+      return;
+    }
+    if (typeof getMe !== "function") return;
+    const me = await getMe();
+    if (!me) {
+      const next = encodeURIComponent(path + window.location.search);
+      window.location.replace(
+        window.location.hostname === "app.torinvest-trading.com"
+          ? "/login.html?next=" + next
+          : "https://app.torinvest-trading.com/login.html?next=" + next
+      );
+      return;
+    }
+    if (!me.subscribed) {
+      window.location.replace(
+        window.location.hostname === "app.torinvest-trading.com"
+          ? "/dashboard.html?locked=1"
+          : "https://app.torinvest-trading.com/dashboard.html?locked=1"
+      );
+    }
+  };
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
+}
+
+initCoursePageGate();
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initAllChartHosts);
 } else {
