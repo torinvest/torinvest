@@ -45,6 +45,42 @@ function ensureChartZoomWrap(chartHost) {
   return svg;
 }
 
+function saveSvgFitState(svg) {
+  if (svg.dataset.forgeFitSaved === "1") return;
+  svg.dataset.forgeFitSaved = "1";
+  svg.dataset.forgeOrigViewBox = svg.getAttribute("viewBox") || "";
+  svg.dataset.forgeOrigPreserve = svg.getAttribute("preserveAspectRatio") || "";
+  svg.dataset.forgeOrigWidth = svg.getAttribute("width") || "";
+  svg.dataset.forgeOrigHeight = svg.getAttribute("height") || "";
+}
+
+function restoreChartViewBox(chartRoot) {
+  const svg = chartRoot?.querySelector(".chart-zoom-wrap svg");
+  if (!svg || svg.dataset.forgeFitSaved !== "1") return;
+  if (svg.dataset.forgeOrigViewBox) {
+    svg.setAttribute("viewBox", svg.dataset.forgeOrigViewBox);
+  } else {
+    svg.removeAttribute("viewBox");
+  }
+  if (svg.dataset.forgeOrigPreserve) {
+    svg.setAttribute("preserveAspectRatio", svg.dataset.forgeOrigPreserve);
+  } else {
+    svg.removeAttribute("preserveAspectRatio");
+  }
+  if (svg.dataset.forgeOrigWidth) svg.setAttribute("width", svg.dataset.forgeOrigWidth);
+  else svg.removeAttribute("width");
+  if (svg.dataset.forgeOrigHeight) svg.setAttribute("height", svg.dataset.forgeOrigHeight);
+  else svg.removeAttribute("height");
+  svg.style.transform = "none";
+  svg.style.width = "";
+  svg.style.height = "";
+  svg.style.maxHeight = "";
+}
+
+function isReplayBaseGroup(id) {
+  return /^(base|base-|bg-|background|chart-base|candles|replay-base)/i.test(id || "");
+}
+
 function getFitBBox(svg, chartRoot) {
   let merged = null;
   const isReplay = chartRoot._forgeChartMode === "replay";
@@ -66,7 +102,22 @@ function getFitBBox(svg, chartRoot) {
     if (merged) return merged;
   }
 
-  if (isReplay || !stepLayers.length) {
+  if (isReplay) {
+    const visibleGroups = [];
+    svg.querySelectorAll("g[id]").forEach((g) => {
+      if (g.closest("defs")) return;
+      if (isHiddenChartEl(g)) return;
+      visibleGroups.push(g);
+    });
+    const frameGroups = visibleGroups.filter((g) => !isReplayBaseGroup(g.id));
+    const targets = frameGroups.length ? frameGroups : visibleGroups;
+    targets.forEach((g) => {
+      try {
+        const bb = g.getBBox();
+        if (bb.width > 2 && bb.height > 2) merged = mergeBBox(merged, bb);
+      } catch (_) {}
+    });
+  } else if (!stepLayers.length) {
     svg.querySelectorAll("g[id]").forEach((g) => {
       if (g.closest("defs")) return;
       if (isHiddenChartEl(g)) return;
@@ -108,35 +159,35 @@ function fitChartToWrap(chartRoot) {
   const svg = wrap?.querySelector("svg");
   if (!wrap || !svg) return;
 
-  svg.style.width = "";
-  svg.style.height = "";
+  saveSvgFitState(svg);
   svg.style.transform = "none";
-  svg.style.transformOrigin = "0 0";
+  svg.style.width = "100%";
+  svg.style.height = "100%";
+  svg.style.maxWidth = "100%";
+  svg.style.maxHeight = "100%";
+  svg.removeAttribute("width");
+  svg.removeAttribute("height");
 
   const applyFit = () => {
-    let cw = wrap.clientWidth;
     let ch = wrap.clientHeight;
     if (ch < 40) {
       wrap.style.minHeight = chartRoot.classList.contains("chart-in-viewer") ? "50vh" : "280px";
-      cw = wrap.clientWidth;
       ch = wrap.clientHeight;
     }
-    if (cw < 20 || ch < 20) return;
+    if (wrap.clientWidth < 20 || ch < 20) return;
 
     try {
       const bb = getFitBBox(svg, chartRoot);
-      const pad = chartRoot.classList.contains("chart-in-viewer") ? 16 : 24;
-      const sw = bb.width || 1;
-      const sh = bb.height || 1;
-      const scale = Math.min((cw - pad) / sw, (ch - pad) / sh, 6);
-      const tx = (cw - sw * scale) / 2 - bb.x * scale;
-      const ty = (ch - sh * scale) / 2 - bb.y * scale;
-      svg.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + scale + ")";
+      const padRatio = chartRoot.classList.contains("chart-in-viewer") ? 0.08 : 0.06;
+      const pad = Math.max(16, Math.min(bb.width, bb.height) * padRatio);
+      const x = bb.x - pad;
+      const y = bb.y - pad;
+      const w = Math.max(bb.width + pad * 2, 1);
+      const h = Math.max(bb.height + pad * 2, 1);
+      svg.setAttribute("viewBox", x + " " + y + " " + w + " " + h);
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
     } catch (_) {
-      svg.style.width = "100%";
-      svg.style.height = "auto";
-      svg.style.maxHeight = "100%";
-      svg.style.transform = "none";
+      restoreChartViewBox(chartRoot);
     }
   };
 
@@ -337,6 +388,7 @@ function openChartViewer(chartRoot) {
     if (inlineBar) inlineBar.hidden = false;
     overlay.remove();
     document.body.classList.remove("chart-viewer-open");
+    restoreChartViewBox(chartRoot);
     fitChartToWrap(chartRoot);
   }
 

@@ -337,7 +337,16 @@ nav a.active, nav a:hover { color: var(--text); }
 }
 .step-panel h4 { color: var(--aqua); margin-bottom: 0.5rem; }
 
-/* Animations SVG — masquage réel (pas seulement opacity) */
+/* Animations SVG — masquage réel dans charts (getBBox + lisibilité) */
+.chart-zoom-wrap .anim-hidden,
+.replay-chart-svg .anim-hidden,
+.elite-replay svg .anim-hidden {
+  display: none !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .anim-candle { transition: opacity 0.35s, visibility 0.35s; }
 .anim-hidden {
   opacity: 0;
