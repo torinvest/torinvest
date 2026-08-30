@@ -10,9 +10,9 @@ const FORGE_BRAND = {
   /** Site principal TORINVEST (hors app formation) — URL absolue pour app.* */
   homeUrl: "https://www.torinvest-trading.com/",
   logos: {
-    anvil: "/la-forge/img/forge-anvil.png?v=20260612",
-    full: "/la-forge/img/torinvest-logo-full.png?v=20260612",
-    liveBanner: "/la-forge/img/live-trading-banner.png",
+    anvil: "https://www.torinvest-trading.com/la-forge/img/forge-anvil.png?v=20260612",
+    full: "https://www.torinvest-trading.com/la-forge/img/torinvest-logo-full.png?v=20260612",
+    liveBanner: "https://www.torinvest-trading.com/la-forge/img/live-trading-banner.png",
   },
   social: {
     youtube: {
@@ -44,6 +44,30 @@ const FORGE_BRAND = {
 
 function forgeMainSiteHref() {
   return FORGE_BRAND.homeUrl || "https://www.torinvest-trading.com/";
+}
+
+function forgeWwwOrigin() {
+  return "https://www.torinvest-trading.com";
+}
+
+function forgePublicUrl(path) {
+  const p = path.startsWith("/") ? path : "/" + path;
+  if (typeof window !== "undefined" && window.location.hostname === "app.torinvest-trading.com") {
+    return forgeWwwOrigin() + p;
+  }
+  return p;
+}
+
+/** Sur l'app VPS, /la-forge/img n'existe pas — pointer vers le site public. */
+function rewriteForgeAssetUrls() {
+  if (typeof window === "undefined" || window.location.hostname !== "app.torinvest-trading.com") return;
+  const prefix = forgeWwwOrigin();
+  document.querySelectorAll("img[src^='/la-forge/']").forEach((el) => {
+    el.src = prefix + el.getAttribute("src");
+  });
+  document.querySelectorAll('link[rel="icon"][href^="/la-forge/"]').forEach((el) => {
+    el.href = prefix + el.getAttribute("href");
+  });
 }
 
 /** Lien nav + bouton fixe vers le site principal (toutes pages formation). */
@@ -80,7 +104,7 @@ function forgeLogoHtml(size) {
   const s = size || "header";
   if (s === "header") {
     return (
-      '<a href="/la-forge/" class="forge-logo forge-logo-header" aria-label="TORINVEST La Forge">' +
+      '<a href="' + forgePublicUrl("/la-forge/") + '" class="forge-logo forge-logo-header" aria-label="TORINVEST La Forge">' +
       '<img src="' + FORGE_BRAND.logos.anvil + '" alt="" width="36" height="36" class="forge-logo-img" decoding="async" />' +
       '<span class="forge-logo-text forge-logo-compact">' +
       '<strong>TORINVEST</strong>' +
@@ -90,7 +114,7 @@ function forgeLogoHtml(size) {
   }
   const cls = s === "hero" ? "forge-logo forge-logo-hero" : "forge-logo forge-logo-header";
   return (
-    '<a href="/la-forge/" class="' + cls + '" aria-label="TORINVEST La Forge">' +
+    '<a href="' + forgePublicUrl("/la-forge/") + '" class="' + cls + '" aria-label="TORINVEST La Forge">' +
     '<img src="' + FORGE_BRAND.logos.anvil + '" alt="La Forge — enclume TORINVEST" class="forge-logo-img" width="' + (s === "hero" ? 120 : 44) + '" height="' + (s === "hero" ? 120 : 44) + '" decoding="async" />' +
     '<span class="forge-logo-text">' +
     '<strong>TORINVEST</strong>' +
@@ -141,7 +165,7 @@ function renderForgeFooter() {
     "</div>" +
     '<div class="footer-social">' + social + "</div>" +
     '<nav class="footer-legal-nav" aria-label="Mentions légales">' +
-    '<a href="/la-forge/legal/mentions-legales.html">Mentions légales</a> · <a href="/la-forge/legal/cgu.html">CGU</a> · <a href="/la-forge/legal/cgv.html">CGV</a> · <a href="/la-forge/legal/confidentialite.html">Confidentialité</a> · <a href="/la-forge/legal/cookies.html">Cookies</a> · <a href="/la-forge/legal/avertissement-risques.html">Avertissement risques</a>' +
+    '<a href="' + forgePublicUrl("/la-forge/legal/mentions-legales.html") + '">Mentions légales</a> · <a href="' + forgePublicUrl("/la-forge/legal/cgu.html") + '">CGU</a> · <a href="' + forgePublicUrl("/la-forge/legal/cgv.html") + '">CGV</a> · <a href="' + forgePublicUrl("/la-forge/legal/confidentialite.html") + '">Confidentialité</a> · <a href="' + forgePublicUrl("/la-forge/legal/cookies.html") + '">Cookies</a> · <a href="' + forgePublicUrl("/la-forge/legal/avertissement-risques.html") + '">Avertissement risques</a>' +
     "</nav>" +
     "<p class=\"footer-copy\">© TORINVEST · " + FORGE_BRAND.site + " · La force d'un esprit libre · Pas de promesses, que des processus.</p>"
   );
@@ -196,7 +220,7 @@ function initMemberHeader(active) {
     '<a href="https://app.torinvest-trading.com/dashboard.html"' + (active === "dashboard" ? ' class="active"' : "") + ">Dashboard</a>" +
     '<a href="https://app.torinvest-trading.com/course/index.html"' + (active === "course" ? ' class="active"' : "") + ">Formation</a>" +
     '<a href="https://app.torinvest-trading.com/calendar.html"' + (active === "calendar" ? ' class="active"' : "") + ">Calendrier</a>" +
-    '<a href="/la-forge/#live"' + (active === "live" ? ' class="active"' : "") + ">Live</a>" +
+    '<a href="' + forgePublicUrl("/la-forge/#live") + '"' + (active === "live" ? ' class="active"' : "") + ">Live</a>" +
     '<a href="#" id="logout-btn">Déconnexion</a>';
   document.querySelectorAll("[data-forge-member-header]").forEach((el) => {
     el.className = "site-header";
@@ -205,6 +229,7 @@ function initMemberHeader(active) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  rewriteForgeAssetUrls();
   if (document.querySelector("[data-forge-header]")) initForgeHeader();
   if (document.querySelector("[data-forge-member-header]")) initMemberHeader(document.querySelector("[data-forge-member-header]")?.dataset.forgeMemberHeader || "");
   if (document.querySelector("[data-forge-footer]")) initForgeFooter();
