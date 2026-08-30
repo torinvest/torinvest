@@ -88,6 +88,19 @@ bash /home/ubuntu/torinvest-formation/deploy/vps/verify-formation-live.sh
 
 ## 5. Redémarrage
 
+**Obligatoire derrière nginx** — sans ça `express-rate-limit` peut crasher en boucle (ERR_ERL_UNEXPECTED_X_FORWARDED_FOR) :
+
+```javascript
+app.set("trust proxy", 1);
+```
+
+Juste après `const app = express();`, ou :
+
+```bash
+node /home/ubuntu/torinvest-formation/deploy/vps/fix-trust-proxy.js
+pm2 restart la-forge
+```
+
 ```bash
 cd /home/ubuntu/torinvest-formation
 pm2 restart torinvest-formation   # ou systemctl selon votre setup
