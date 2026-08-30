@@ -55,7 +55,7 @@ echo "  deploy/vps/verify-formation-deploy.sh"
 curl -fsSL "${RAW_ROOT}/deploy/vps/backup-course-private.sh" -o "$DEPLOY_DIR/backup-course-private.sh"
 chmod +x "$DEPLOY_DIR/backup-course-private.sh"
 echo "  deploy/vps/backup-course-private.sh"
-for script in wire-formation-server-patches.js verify-formation-live.sh finish-formation-vps-setup.sh recover-formation-server.sh repair-server-broken-wire.js; do
+for script in wire-formation-server-patches.js verify-formation-live.sh finish-formation-vps-setup.sh recover-formation-server.sh repair-server-broken-wire.js fix-trust-proxy.js; do
   curl -fsSL "${RAW_ROOT}/deploy/vps/${script}" -o "$DEPLOY_DIR/${script}"
   chmod +x "$DEPLOY_DIR/${script}" 2>/dev/null || true
   echo "  deploy/vps/${script}"
