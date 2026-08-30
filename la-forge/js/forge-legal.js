@@ -97,6 +97,8 @@ function injectLegalBar() {
 }
 
 function initLegalCompliance() {
+  if (document.querySelector("[data-forge-member-header]")) return;
+  if (document.querySelector("[data-forge-footer]")) return;
   injectLegalBar();
 }
 

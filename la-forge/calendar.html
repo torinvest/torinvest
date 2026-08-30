@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7026076448428574"
-     crossorigin="anonymous"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Calendrier v2 — La Forge</title>
@@ -41,11 +39,12 @@
   <footer data-forge-footer></footer>
   <script src="/la-forge/js/forge-brand.js"></script>
   <script src="/la-forge/js/auth.js"></script>
+  <script src="/la-forge/js/forge-gate.js"></script>
   <script src="/la-forge/js/course-data.js"></script>
   <script src="/la-forge/js/forge-calendar.js"></script>
   <script>
-    getMe().then(async (me) => {
-      if (!me) { window.location.href = "/la-forge/login.html"; return; }
+    initForgeGate({ requirePremium: true }).then(async (me) => {
+      if (!me) return;
       await initForgeCalendar(me.email);
       initCalendarPage();
       const now = new Date();

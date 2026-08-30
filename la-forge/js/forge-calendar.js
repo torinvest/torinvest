@@ -386,18 +386,20 @@ function populateModulePicker(selected) {
   const root = document.getElementById("module-picker");
   if (!root || typeof MODULES === "undefined") return;
   const sel = new Set(selected || []);
-  root.innerHTML = MODULES.map(
-    (m) =>
+  root.innerHTML = MODULES.map((m) => {
+    const checked = sel.has(m.id) || sel.has(m.num);
+    return (
       '<label class="mod-pick"><input type="checkbox" name="modpick" value="' +
-      m.num +
+      m.id +
       '" ' +
-      (sel.has(m.num) ? "checked" : "") +
+      (checked ? "checked" : "") +
       " /> " +
       m.num +
       " · " +
       m.title +
       "</label>"
-  ).join("");
+    );
+  }).join("");
 }
 
 async function initForgeCalendar(userEmail) {

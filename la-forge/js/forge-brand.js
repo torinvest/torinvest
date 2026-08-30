@@ -100,10 +100,18 @@ function forgeLogoHtml(size) {
   );
 }
 
+function forgeNavHref(path) {
+  const onLaForge =
+    window.location.pathname.startsWith("/la-forge/") || window.location.pathname === "/la-forge";
+  if (path === "/#live" && onLaForge) return "/la-forge/#live";
+  if (path === "/" && onLaForge) return "/la-forge/";
+  return path;
+}
+
 function renderForgeHeader(active, extraNav) {
   const nav = [
-    { id: "accueil", href: "/", label: "Accueil" },
-    { id: "live", href: "/#live", label: "Live" },
+    { id: "accueil", href: forgeNavHref("/"), label: "Accueil" },
+    { id: "live", href: forgeNavHref("/#live"), label: "Live" },
     { id: "tarifs", href: "/la-forge/pricing.html", label: "Tarifs" },
     { id: "connexion", href: "https://app.torinvest-trading.com/login.html", label: "Connexion" },
   ];

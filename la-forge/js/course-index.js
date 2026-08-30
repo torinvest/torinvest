@@ -1,4 +1,4 @@
-function renderCourseIndex() {
+function renderCourseIndex(me) {
   const container = document.querySelector(".container");
   const list = document.getElementById("module-list");
   if (!list || typeof MODULES === "undefined") return;
@@ -6,6 +6,7 @@ function renderCourseIndex() {
   const ids = getAllModuleIds();
   const modFn = typeof getModuleProgress === "function" ? getModuleProgress : () => ({});
   const overall = typeof getOverallProgress === "function" ? getOverallProgress(ids) : { done: 0, total: ids.length, pct: 0 };
+  const subscribed = me && me.subscribed;
 
   const titleEl = document.getElementById("forge-title");
   if (titleEl && typeof FORGE_TITLE !== "undefined") titleEl.textContent = FORGE_TITLE;
@@ -25,6 +26,17 @@ function renderCourseIndex() {
 
   list.innerHTML = "";
 
+  if (!subscribed) {
+    const lock = document.createElement("li");
+    lock.style.cssText = "display:block;border:none;background:transparent;padding:0";
+    lock.innerHTML =
+      '<div class="alert alert-warn">Accès Premium requis pour ouvrir les modules. ' +
+      '<a href="' +
+      (typeof forgePricingUrl === "function" ? forgePricingUrl() : "/la-forge/pricing.html") +
+      '">Voir l’offre 349 €/an</a></div>';
+    list.appendChild(lock);
+  }
+
   COURSE_PARTS.forEach((part) => {
     const partMods = MODULES.filter((m) => m.part === part.id);
     if (!partMods.length) return;
@@ -40,20 +52,43 @@ function renderCourseIndex() {
     partMods.forEach((m) => {
       const p = modFn(m.id);
       const practice = p.practiceTotal ? " · Exo " + (p.practiceScore || 0) + "/" + p.practiceTotal : "";
+      const hintFn = typeof getModuleCompletionHint === "function" ? getModuleCompletionHint : () => [];
+      const missing = hintFn(m.id);
+      const hint =
+        !p.completed && missing.length
+          ? '<div class="mod-hint">Pour valider : ' + missing.join(" · ") + "</div>"
+          : "";
       const badge = p.completed
         ? '<span class="badge badge-done">Validé</span>'
         : p.stepsDone > 0 || p.quizScore > 0
           ? '<span class="badge badge-progress">En cours</span>'
           : '<span class="badge badge-free">' + m.num + "</span>";
-      const meta = p.quizTotal ? "Quiz " + p.quizScore + "/" + p.quizTotal + practice + " · " + m.desc : m.desc;
+      const meta = p.quizTotal
+        ? "Quiz " + p.quizScore + "/" + p.quizTotal + practice + " · " + m.desc
+        : m.desc;
       const li = document.createElement("li");
+      if (!subscribed) li.classList.add("locked");
       li.innerHTML =
         '<div class="mod-info"><strong><span class="mod-num">' + m.num + "</span>" + m.title + "</strong>" +
-        '<div class="mod-meta">' + meta + "</div></div>" + badge +
-        '<a class="btn btn-secondary" href="' + m.href + '">' + (p.completed ? "Revoir" : "Commencer") + "</a>";
+        '<div class="mod-meta">' + meta + "</div>" + hint + "</div>" +
+        badge +
+        (subscribed
+          ? '<a class="btn btn-secondary" href="' + m.href + '">' + (p.completed ? "Revoir" : "Commencer") + "</a>"
+          : '<a class="btn btn-secondary" href="' +
+            (typeof forgePricingUrl === "function" ? forgePricingUrl() : "/la-forge/pricing.html") +
+            '">Premium</a>');
       list.appendChild(li);
     });
   });
 }
 
-document.addEventListener("DOMContentLoaded", renderCourseIndex);
+document.addEventListener("DOMContentLoaded", async () => {
+  const me =
+    typeof initForgeGate === "function"
+      ? await initForgeGate({ requirePremium: true })
+      : typeof getMe === "function"
+        ? await getMe()
+        : null;
+  if (!me) return;
+  renderCourseIndex(me);
+});

@@ -76,9 +76,28 @@ function getOverallProgress(moduleIds) {
   return { done, total: moduleIds.length, pct: Math.round((done / moduleIds.length) * 100) };
 }
 
+function getModuleCompletionHint(moduleId) {
+  const p = getModuleProgress(moduleId);
+  const totalSteps = p.totalSteps || 12;
+  const missing = [];
+  if ((p.stepsDone || 0) < totalSteps) {
+    missing.push("sections " + (p.stepsDone || 0) + "/" + totalSteps);
+  }
+  const quizTotal = p.quizTotal || 0;
+  if (quizTotal > 0 && (p.quizScore || 0) < quizTotal * 0.7) {
+    missing.push("quiz " + (p.quizScore || 0) + "/" + quizTotal + " (70 %)");
+  }
+  const practiceTotal = p.practiceTotal || 0;
+  if (practiceTotal > 0 && !practiceSatisfied(p)) {
+    missing.push("exercices " + (p.practiceScore || 0) + "/" + practiceTotal + " (70 %)");
+  }
+  return missing;
+}
+
 window.loadProgress = loadProgress;
 window.getModuleProgress = getModuleProgress;
 window.setModuleSteps = setModuleSteps;
 window.setModuleQuiz = setModuleQuiz;
 window.setModulePractice = setModulePractice;
 window.getOverallProgress = getOverallProgress;
+window.getModuleCompletionHint = getModuleCompletionHint;

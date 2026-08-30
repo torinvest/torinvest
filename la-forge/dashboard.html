@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7026076448428574"
-     crossorigin="anonymous"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Espace membre — TORINVEST La Forge</title>
@@ -43,7 +41,7 @@
           <li>Calendrier sync · export JSON</li>
         </ul>
         <a class="btn btn-primary" href="https://app.torinvest-trading.com/course/index.html" id="course-link">Ouvrir la formation</a>
-        <a class="btn btn-secondary" href="https://app.torinvest-trading.com/calendar.html" style="margin-left:0.5rem">Calendrier</a>
+        <a class="btn btn-secondary" href="https://app.torinvest-trading.com/calendar.html" id="calendar-link" style="margin-left:0.5rem">Calendrier</a>
       </div>
       <div class="card">
         <h3>Live & communauté</h3>
@@ -61,6 +59,7 @@
 
   <script src="/la-forge/js/forge-brand.js"></script>
   <script src="/la-forge/js/auth.js"></script>
+  <script src="/la-forge/js/forge-gate.js"></script>
   <script src="/la-forge/js/progress.js"></script>
   <script src="/la-forge/js/course-data.js"></script>
   <script>
@@ -84,15 +83,25 @@
     });
     getMe().then((me) => {
       if (!me) { window.location.href = "/la-forge/login.html"; return; }
-      document.getElementById("plan-text").textContent = me.subscribed
-        ? "Plan Premium actif — accès La Forge débloqué."
-        : "Plan gratuit — abonnez-vous pour accéder aux " + MODULES.length + " modules.";
+      const lockedEl = document.getElementById("locked-alert");
       if (!me.subscribed) {
+        if (lockedEl) lockedEl.hidden = false;
+        document.getElementById("plan-text").textContent =
+          "Plan gratuit — abonnez-vous pour accéder aux " + MODULES.length + " modules.";
         const link = document.getElementById("course-link");
         link.classList.remove("btn-primary");
         link.classList.add("btn-secondary");
         link.textContent = "Formation (Premium requis)";
         link.href = "/la-forge/pricing.html";
+        const cal = document.getElementById("calendar-link");
+        if (cal) {
+          cal.classList.remove("btn-secondary");
+          cal.classList.add("btn-secondary");
+          cal.textContent = "Calendrier (Premium)";
+          cal.href = "/la-forge/pricing.html";
+        }
+      } else {
+        document.getElementById("plan-text").textContent = "Plan Premium actif — accès La Forge débloqué.";
       }
       const o = getOverallProgress(MODULE_IDS);
       document.getElementById("dash-progress-bar").style.width = o.pct + "%";

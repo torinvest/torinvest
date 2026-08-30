@@ -282,7 +282,47 @@ nav a.active, nav a:hover { color: var(--text); }
   gap: 1rem;
   background: var(--panel2);
 }
-.module-list li.locked { opacity: 0.5; }
+.module-list li.locked { opacity: 0.55; }
+.module-list li.locked .btn { pointer-events: auto; }
+.mod-hint {
+  font-size: 0.78rem;
+  color: var(--aqua);
+  margin-top: 0.35rem;
+  line-height: 1.4;
+}
+
+.forge-cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99990;
+  background: rgba(10, 10, 18, 0.97);
+  border-top: 1px solid rgba(255, 215, 0, 0.25);
+  padding: 0.85rem 1rem;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.45);
+}
+.forge-cookie-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  justify-content: space-between;
+}
+.forge-cookie-inner p {
+  flex: 1 1 280px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.45;
+}
+.forge-cookie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
 
 /* ─── Illustrations animées ─── */
 .lesson-layout {

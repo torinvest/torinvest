@@ -1,17 +1,28 @@
 #!/usr/bin/env bash
-# Déploie JS/CSS La Forge sur l’app formation (VPS).
+# Déploie JS/CSS La Forge sur l'app formation (VPS).
+#
+# SÉCURITÉ CONTENU : les 37 modules HTML restent sur le VPS (accès login).
+# Ce script ne publie que le moteur JS/CSS — pas les leçons.
+# Versionner les modules : repo GitHub PRIVÉ ou git local sur le VPS (pas public).
 #
 # Sur le VPS :
-#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/formation-audit-fixes-691a/deploy/vps/pull-forge-assets.sh | bash
+#   SHA=abc1234 curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/deploy/vps/pull-forge-assets.sh" | bash
 #
-# Ou :
-#   curl -fsSL ... -o /tmp/pull-forge.sh && bash /tmp/pull-forge.sh
+# Ou branche :
+#   BRANCH=cursor/formation-platform-691a curl -fsSL .../pull-forge-assets.sh | bash
 
-set -eo pipefail
+set -euo pipefail
 
 APP_DIR="${1:-/home/ubuntu/torinvest-formation}"
-BRANCH="${BRANCH:-cursor/formation-audit-fixes-691a}"
-RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}/la-forge"
+BRANCH="${BRANCH:-cursor/formation-platform-691a}"
+SHA="${SHA:-}"
+if [[ -n "$SHA" ]]; then
+  RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/la-forge"
+  REF_LABEL="$SHA"
+else
+  RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}/la-forge"
+  REF_LABEL="$BRANCH"
+fi
 
 JS_FILES=(
   auth.js
@@ -21,6 +32,8 @@ JS_FILES=(
   forge-annotations.js
   forge-brand.js
   forge-calendar.js
+  forge-consent.js
+  forge-gate.js
   forge-legal.js
   forge-replay.js
   legal-page.js
@@ -42,16 +55,37 @@ if [[ ! -d "$APP_DIR/public/js" ]]; then
   exit 1
 fi
 
-echo "==> Téléchargement GitHub ($BRANCH) → $APP_DIR/public"
+echo "==> Téléchargement GitHub ($REF_LABEL) → $APP_DIR/public"
+FAIL=0
+
+pull_file() {
+  local subdir="$1"
+  local name="$2"
+  local url="$RAW_BASE/$subdir/$name"
+  local dest="$APP_DIR/public/$subdir/$name"
+  echo "  $subdir/$name"
+  if curl -fsSL "$url" -o "$dest"; then
+    return 0
+  fi
+  echo "  ERREUR 404 ou réseau : $url"
+  FAIL=$((FAIL + 1))
+  return 1
+}
 
 for f in "${JS_FILES[@]}"; do
-  echo "  js/$f"
-  curl -fsSL "$RAW_BASE/js/$f" -o "$APP_DIR/public/js/$f"
+  pull_file js "$f" || true
 done
 
 for f in "${CSS_FILES[@]}"; do
-  echo "  css/$f"
-  curl -fsSL "$RAW_BASE/css/$f" -o "$APP_DIR/public/css/$f"
+  pull_file css "$f" || true
 done
 
-echo "OK — JS/CSS formation mis à jour. Hard refresh (Ctrl+Shift+R)."
+if [[ "$FAIL" -gt 0 ]]; then
+  echo ""
+  echo "ÉCHEC : $FAIL fichier(s) introuvable(s) pour la ref $REF_LABEL."
+  echo "→ Utilisez un SHA qui contient tous les fichiers, ex. :"
+  echo "   SHA=d5c5695 curl -fsSL \"https://raw.githubusercontent.com/torinvest/torinvest/d5c5695/deploy/vps/pull-forge-assets.sh\" | bash"
+  exit 1
+fi
+
+echo "OK — JS/CSS formation mis à jour ($(date -Iseconds)). Hard refresh (Ctrl+Shift+R)."

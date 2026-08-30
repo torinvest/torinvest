@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7026076448428574"
-     crossorigin="anonymous"></script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Journée — Calendrier La Forge</title>
@@ -28,7 +26,7 @@
       </div>
       <div class="grid-2" style="margin-top:1rem">
         <div class="form-group"><label for="hours">Heures d'étude</label><input type="text" id="hours" name="hours" placeholder="1.5" /></div>
-        <div class="form-group"><label for="reminder">Rappel</label><input type="text" id="reminder" name="reminder" placeholder="09:00 London" /></div>
+        <div class="form-group"><label for="reminder">Note horaire (rappel push — bientôt)</label><input type="text" id="reminder" name="reminder" placeholder="09:00 London" /></div>
       </div>
       <div class="form-group"><label for="goals">Objectifs</label><input type="text" id="goals" name="goals" /></div>
       <div class="form-group">
@@ -54,11 +52,12 @@
   <footer data-forge-footer></footer>
   <script src="/la-forge/js/forge-brand.js"></script>
   <script src="/la-forge/js/auth.js"></script>
+  <script src="/la-forge/js/forge-gate.js"></script>
   <script src="/la-forge/js/course-data.js"></script>
   <script src="/la-forge/js/forge-calendar.js"></script>
   <script>
-    getMe().then(async (me) => {
-      if (!me) { window.location.href = "/la-forge/login.html"; return; }
+    initForgeGate({ requirePremium: true }).then(async (me) => {
+      if (!me) return;
       await initForgeCalendar(me.email);
       await initCalendarDayPage();
     });
