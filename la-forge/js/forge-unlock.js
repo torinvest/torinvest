@@ -4,6 +4,7 @@
  */
 (function (global) {
   "use strict";
+  if (typeof global.isModuleUnlocked === "function") return;
 
   var FORGE_UNLOCK_BATCH_SIZE = 3;
 
