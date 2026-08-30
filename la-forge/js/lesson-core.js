@@ -14,6 +14,44 @@ function markChartClutter(svg) {
   });
 }
 
+function mergeBBox(acc, bb) {
+  if (!bb || bb.width <= 0 || bb.height <= 0) return acc;
+  if (!acc) return { x: bb.x, y: bb.y, width: bb.width, height: bb.height };
+  const x2 = Math.max(acc.x + acc.width, bb.x + bb.width);
+  const y2 = Math.max(acc.y + acc.height, bb.y + bb.height);
+  acc.x = Math.min(acc.x, bb.x);
+  acc.y = Math.min(acc.y, bb.y);
+  acc.width = x2 - acc.x;
+  acc.height = y2 - acc.y;
+  return acc;
+}
+
+function getFitBBox(svg, chartRoot) {
+  let merged = null;
+  const stepLayers = svg.querySelectorAll("[data-lesson-step]");
+
+  if (stepLayers.length) {
+    stepLayers.forEach((el) => {
+      if (el.classList.contains("anim-hidden")) return;
+      try {
+        merged = mergeBBox(merged, el.getBBox());
+      } catch (_) {}
+    });
+    svg.querySelectorAll(".fc-callout:not(.anno-step-hidden):not(.anno-off)").forEach((el) => {
+      try {
+        merged = mergeBBox(merged, el.getBBox());
+      } catch (_) {}
+    });
+  }
+
+  if (merged) return merged;
+  try {
+    return svg.getBBox();
+  } catch (_) {
+    return { x: 0, y: 0, width: svg.clientWidth || 800, height: svg.clientHeight || 400 };
+  }
+}
+
 function fitChartToWrap(chartRoot) {
   const wrap = chartRoot.querySelector(".chart-zoom-wrap");
   const svg = wrap?.querySelector("svg");
@@ -22,6 +60,7 @@ function fitChartToWrap(chartRoot) {
   svg.style.width = "";
   svg.style.height = "";
   svg.style.transform = "none";
+  svg.style.transformOrigin = "0 0";
 
   requestAnimationFrame(() => {
     const cw = wrap.clientWidth;
@@ -29,12 +68,14 @@ function fitChartToWrap(chartRoot) {
     if (cw < 20 || ch < 20) return;
 
     try {
-      const bb = svg.getBBox();
-      const sw = bb.width || svg.clientWidth || 1;
-      const sh = bb.height || svg.clientHeight || 1;
-      const scale = Math.min((cw - 16) / sw, (ch - 16) / sh);
-      svg.style.transform = "scale(" + scale + ")";
-      svg.style.transformOrigin = "center center";
+      const bb = getFitBBox(svg, chartRoot);
+      const pad = chartRoot.classList.contains("chart-in-viewer") ? 20 : 28;
+      const sw = bb.width || 1;
+      const sh = bb.height || 1;
+      const scale = Math.min((cw - pad) / sw, (ch - pad) / sh, 4);
+      const tx = (cw - sw * scale) / 2 - bb.x * scale;
+      const ty = (ch - sh * scale) / 2 - bb.y * scale;
+      svg.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + scale + ")";
     } catch (_) {
       svg.style.width = "100%";
       svg.style.height = "auto";
@@ -55,6 +96,16 @@ function bindChartFit(chartRoot) {
   }
 }
 
+function applyChartStep(stepIndex) {
+  syncLessonChartLayers(stepIndex);
+  if (typeof ForgeAnnotations !== "undefined" && ForgeAnnotations.setTextStep) {
+    ForgeAnnotations.setTextStep(stepIndex);
+  }
+  document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage, .chart-in-viewer").forEach((root) => {
+    fitChartToWrap(root);
+  });
+}
+
 function injectLessonChartToolbar(chartRoot) {
   if (!chartRoot || chartRoot.querySelector(".chart-focus-toolbar")) return;
 
@@ -69,68 +120,163 @@ function injectLessonChartToolbar(chartRoot) {
   const bar = document.createElement("div");
   bar.className = "chart-focus-toolbar";
   bar.innerHTML =
-    '<span class="chart-focus-hint">Schéma adapté à l’écran — pas de scroll.</span>' +
-    '<button type="button" class="chart-focus-btn" data-chart-toggle="enlarge">Maximiser</button>' +
-    '<button type="button" class="chart-focus-btn" data-chart-toggle="fullscreen">Plein écran</button>' +
-    '<button type="button" class="chart-focus-btn ghost" data-chart-toggle="focus">Masquer labels</button>' +
-    '<button type="button" class="chart-focus-btn ghost" data-chart-toggle="full">Tout afficher</button>';
+    '<button type="button" class="chart-focus-btn chart-focus-primary" data-chart-open-viewer>Ouvrir le visualiseur</button>' +
+    '<span class="chart-focus-hint">Plein écran + navigation par section</span>';
 
-  chartRoot.classList.add("chart-readable");
+  chartRoot.classList.add("chart-readable", "chart-simplified");
   chartRoot.insertBefore(bar, chartRoot.firstChild);
 
-  bar.querySelector('[data-chart-toggle="enlarge"]').addEventListener("click", () => {
-    chartRoot.classList.toggle("chart-enlarged");
-    fitChartToWrap(chartRoot);
-  });
-  bar.querySelector('[data-chart-toggle="fullscreen"]').addEventListener("click", () => {
-    openChartFullscreen(chartRoot);
-  });
-  bar.querySelector('[data-chart-toggle="focus"]').addEventListener("click", () => {
-    chartRoot.classList.add("chart-simplified");
-    chartRoot.classList.remove("chart-show-all");
-    fitChartToWrap(chartRoot);
-  });
-  bar.querySelector('[data-chart-toggle="full"]').addEventListener("click", () => {
-    chartRoot.classList.remove("chart-simplified");
-    chartRoot.classList.add("chart-show-all");
-    fitChartToWrap(chartRoot);
+  bar.querySelector("[data-chart-open-viewer]").addEventListener("click", () => {
+    openChartViewer(chartRoot);
   });
 
   bindChartFit(chartRoot);
 }
 
-function openChartFullscreen(chartRoot) {
-  if (document.getElementById("chart-fs-overlay")) return;
-  const overlay = document.createElement("div");
-  overlay.id = "chart-fs-overlay";
-  overlay.className = "chart-fs-overlay";
-  overlay.innerHTML =
-    '<div class="chart-fs-panel" role="dialog" aria-label="Schéma plein écran">' +
-    '<div class="chart-fs-header">' +
-    '<span>Schéma — lecture sans scroll</span>' +
-    '<button type="button" class="chart-fs-close" aria-label="Fermer">✕ Fermer</button>' +
-    "</div>" +
-    '<div class="chart-fs-body"></div></div>';
-  const body = overlay.querySelector(".chart-fs-body");
-  const clone = chartRoot.cloneNode(true);
-  clone.classList.remove("chart-simplified", "chart-enlarged");
-  clone.classList.add("chart-show-all", "chart-fs-clone");
-  const tb = clone.querySelector(".chart-focus-toolbar");
-  if (tb) tb.remove();
-  body.appendChild(clone);
-  document.body.appendChild(overlay);
-  document.body.classList.add("chart-fs-open");
-  bindChartFit(clone);
-  requestAnimationFrame(() => fitChartToWrap(clone));
+function openChartViewer(chartRoot) {
+  if (document.getElementById("chart-viewer-overlay")) return;
 
-  const close = () => {
-    overlay.remove();
-    document.body.classList.remove("chart-fs-open");
+  const nav = window.ForgeLessonNav;
+  const startStep = nav ? nav.getIndex() : Number(chartRoot.dataset.activeStep || 0);
+
+  const overlay = document.createElement("div");
+  overlay.id = "chart-viewer-overlay";
+  overlay.className = "chart-viewer-overlay";
+  overlay.innerHTML =
+    '<div class="chart-viewer-panel" role="dialog" aria-label="Visualiseur schéma">' +
+    '<header class="chart-viewer-header">' +
+    '<div class="chart-viewer-meta">' +
+    '<span class="chart-viewer-step-num"></span>' +
+    '<strong class="chart-viewer-step-title"></strong>' +
+    "</div>" +
+    '<div class="chart-viewer-header-actions">' +
+    '<button type="button" class="chart-viewer-btn ghost" data-viewer-toggle="labels">Labels</button>' +
+    '<button type="button" class="chart-viewer-btn" data-viewer-close>Fermer</button>' +
+    "</div></header>" +
+    '<div class="chart-viewer-body"></div>' +
+    '<footer class="chart-viewer-footer">' +
+    '<button type="button" class="chart-viewer-nav" data-viewer-nav="prev">← Section</button>' +
+    '<div class="chart-viewer-pills"></div>' +
+    '<button type="button" class="chart-viewer-nav" data-viewer-nav="next">Section →</button>' +
+    "</footer></div>";
+
+  const body = overlay.querySelector(".chart-viewer-body");
+  const placeholder = document.createElement("div");
+  placeholder.className = "chart-viewer-placeholder";
+  placeholder.hidden = true;
+  chartRoot.parentNode.insertBefore(placeholder, chartRoot);
+
+  chartRoot.classList.add("chart-in-viewer", "chart-show-all");
+  chartRoot.classList.remove("chart-enlarged");
+  const inlineBar = chartRoot.querySelector(".chart-focus-toolbar");
+  if (inlineBar) inlineBar.hidden = true;
+
+  body.appendChild(chartRoot);
+  document.body.appendChild(overlay);
+  document.body.classList.add("chart-viewer-open");
+
+  const stepNumEl = overlay.querySelector(".chart-viewer-step-num");
+  const stepTitleEl = overlay.querySelector(".chart-viewer-step-title");
+  const pillsWrap = overlay.querySelector(".chart-viewer-pills");
+  let viewerStep = startStep;
+  let labelsOn = true;
+
+  function getStepsMeta() {
+    if (nav && nav.getStepButtons) return nav.getStepButtons();
+    return Array.from(document.querySelectorAll("[data-step]")).map((b) => ({
+      index: Number(b.dataset.step),
+      label: (b.textContent || "").trim().replace(/^\d+\.\s*/, ""),
+    }));
+  }
+
+  function renderPills() {
+    const meta = getStepsMeta();
+    pillsWrap.innerHTML = meta
+      .map((m) => {
+        const short = m.label.length > 14 ? m.label.slice(0, 12) + "…" : m.label;
+        return (
+          '<button type="button" class="chart-viewer-pill' +
+          (m.index === viewerStep ? " active" : "") +
+          '" data-viewer-step="' +
+          m.index +
+          '" title="' +
+          m.label.replace(/"/g, "") +
+          '">' +
+          (m.index + 1) +
+          ". " +
+          short +
+          "</button>"
+        );
+      })
+      .join("");
+    pillsWrap.querySelectorAll("[data-viewer-step]").forEach((btn) => {
+      btn.addEventListener("click", () => goViewerStep(Number(btn.dataset.viewerStep)));
+    });
+  }
+
+  function updateHeader() {
+    const meta = getStepsMeta();
+    const total = nav ? nav.getTotal() : meta.length;
+    const title = nav ? nav.getTitle(viewerStep) : meta.find((m) => m.index === viewerStep)?.label || "";
+    stepNumEl.textContent = "Section " + (viewerStep + 1) + " / " + total;
+    stepTitleEl.textContent = title;
+    pillsWrap.querySelectorAll(".chart-viewer-pill").forEach((p) => {
+      p.classList.toggle("active", Number(p.dataset.viewerStep) === viewerStep);
+    });
+  }
+
+  function goViewerStep(index) {
+    const total = nav ? nav.getTotal() : getStepsMeta().length;
+    viewerStep = Math.max(0, Math.min(total - 1, index));
+    if (nav) nav.goTo(viewerStep);
+    else applyChartStep(viewerStep);
+    chartRoot.classList.toggle("chart-simplified", !labelsOn);
+    updateHeader();
+    overlay.querySelector("[data-viewer-nav='prev']").disabled = viewerStep <= 0;
+    overlay.querySelector("[data-viewer-nav='next']").disabled = viewerStep >= total - 1;
+    fitChartToWrap(chartRoot);
+  }
+
+  overlay.querySelector("[data-viewer-nav='prev']").addEventListener("click", () => goViewerStep(viewerStep - 1));
+  overlay.querySelector("[data-viewer-nav='next']").addEventListener("click", () => goViewerStep(viewerStep + 1));
+  overlay.querySelector("[data-viewer-toggle='labels']").addEventListener("click", () => {
+    labelsOn = !labelsOn;
+    chartRoot.classList.toggle("chart-simplified", !labelsOn);
+    overlay.querySelector("[data-viewer-toggle='labels']").textContent = labelsOn ? "Labels" : "Labels off";
+    fitChartToWrap(chartRoot);
+  });
+
+  const onKey = (e) => {
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft") goViewerStep(viewerStep - 1);
+    if (e.key === "ArrowRight") goViewerStep(viewerStep + 1);
   };
-  overlay.querySelector(".chart-fs-close").addEventListener("click", close);
+
+  window._chartViewerSync = (index) => {
+    if (viewerStep !== index) goViewerStep(index);
+  };
+
+  function close() {
+    document.removeEventListener("keydown", onKey);
+    delete window._chartViewerSync;
+    placeholder.replaceWith(chartRoot);
+    placeholder.remove();
+    chartRoot.classList.remove("chart-in-viewer", "chart-show-all");
+    if (inlineBar) inlineBar.hidden = false;
+    overlay.remove();
+    document.body.classList.remove("chart-viewer-open");
+    fitChartToWrap(chartRoot);
+  }
+
+  overlay.querySelector("[data-viewer-close]").addEventListener("click", close);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) close();
   });
+  document.addEventListener("keydown", onKey);
+
+  renderPills();
+  goViewerStep(startStep);
+  bindChartFit(chartRoot);
 }
 
 function initLessonCharts() {
@@ -211,10 +357,25 @@ function initStepLesson(config) {
     if (typeof ForgeAnnotations !== "undefined" && ForgeAnnotations.setTextStep) {
       ForgeAnnotations.setTextStep(current);
     }
-    document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage").forEach((root) => {
+    document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage, .chart-in-viewer").forEach((root) => {
       fitChartToWrap(root);
     });
+    if (typeof window._chartViewerSync === "function") {
+      window._chartViewerSync(current);
+    }
   }
+
+  window.ForgeLessonNav = {
+    getIndex: () => current,
+    getTotal: () => steps.length,
+    getTitle: (i) => steps[i]?.title || "",
+    getStepButtons: () =>
+      Array.from(buttons).map((btn) => ({
+        index: Number(btn.dataset.step),
+        label: (btn.textContent || "").trim().replace(/^\d+\.\s*/, ""),
+      })),
+    goTo: (index) => goTo(index),
+  };
 
   initLessonCharts();
   if (typeof ForgeAnnotations !== "undefined" && ForgeAnnotations.refresh) {
