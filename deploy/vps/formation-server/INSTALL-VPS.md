@@ -2,12 +2,21 @@
 
 Fichiers copiés dans `/home/ubuntu/torinvest-formation/` via `pull-forge-all.sh` (ou `pull-forge-assets.sh` pour JS/CSS seul).
 
-## Déploiement rapide (VPS)
+## Déploiement rapide (VPS) — tout en une commande
 
 ```bash
-SHA=<commit-merge> curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/deploy/vps/pull-forge-all.sh" | bash
-bash /home/ubuntu/torinvest-formation/deploy/vps/verify-formation-deploy.sh
+SHA=d70b955 curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/deploy/vps/finish-formation-vps-setup.sh" | bash
 ```
+
+Avec sauvegarde privée des leçons :
+
+```bash
+SHA=d70b955 RUN_BACKUP=1 curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/deploy/vps/finish-formation-vps-setup.sh" | bash
+```
+
+Le script : `pull-forge-all` → wire `server.js` → vérif fichiers + HTTP → restart PM2 (`la-forge` ou `torinvest-formation`).
+
+## Déploiement manuel (étapes)
 
 Si `verify-formation-deploy.sh` est absent (ancien pull) :
 
@@ -68,7 +77,16 @@ Test (connecté) :
 curl -b cookies.txt -s https://app.torinvest-trading.com/api/calendar
 ```
 
-## 4. Redémarrage
+## 4. Wire automatique server.js
+
+Si les patches ne sont pas encore dans `server.js` :
+
+```bash
+node /home/ubuntu/torinvest-formation/deploy/vps/wire-formation-server-patches.js
+bash /home/ubuntu/torinvest-formation/deploy/vps/verify-formation-live.sh
+```
+
+## 5. Redémarrage
 
 ```bash
 cd /home/ubuntu/torinvest-formation
