@@ -7,6 +7,7 @@ function renderCourseIndex(me) {
   const modFn = typeof getModuleProgress === "function" ? getModuleProgress : () => ({});
   const overall = typeof getOverallProgress === "function" ? getOverallProgress(ids) : { done: 0, total: ids.length, pct: 0 };
   const subscribed = me && me.subscribed;
+  const unlockFn = typeof isModuleUnlocked === "function" ? isModuleUnlocked : () => true;
 
   const titleEl = document.getElementById("forge-title");
   if (titleEl && typeof FORGE_TITLE !== "undefined") titleEl.textContent = FORGE_TITLE;
@@ -24,6 +25,19 @@ function renderCourseIndex(me) {
   if (bar) bar.style.width = overall.pct + "%";
   if (txt) txt.textContent = overall.done + " / " + overall.total + " modules validés (" + overall.pct + "%)";
 
+  const unlockBanner = document.getElementById("unlock-banner");
+  if (unlockBanner && subscribed && typeof getUnlockSummaryText === "function") {
+    unlockBanner.hidden = false;
+    unlockBanner.innerHTML =
+      "<strong>Parcours guidé</strong> — " +
+      getUnlockSummaryText() +
+      ".<br /><span style='color:var(--muted)'>" +
+      (typeof getNextUnlockHint === "function" ? getNextUnlockHint() : "") +
+      "</span>";
+  } else if (unlockBanner) {
+    unlockBanner.hidden = true;
+  }
+
   list.innerHTML = "";
 
   if (!subscribed) {
@@ -34,6 +48,16 @@ function renderCourseIndex(me) {
       '<a href="' +
       (typeof forgePricingUrl === "function" ? forgePricingUrl() : "/la-forge/pricing.html") +
       '">Voir l’offre 349 €/an</a></div>';
+    list.appendChild(lock);
+  }
+
+  if (subscribed && new URLSearchParams(location.search).get("locked_module") === "1") {
+    const lock = document.createElement("li");
+    lock.style.cssText = "display:block;border:none;background:transparent;padding:0";
+    lock.innerHTML =
+      '<div class="alert alert-warn">Ce module n’est pas encore débloqué. ' +
+      (typeof getNextUnlockHint === "function" ? getNextUnlockHint() : "Complétez le lot précédent.") +
+      "</div>";
     list.appendChild(lock);
   }
 
@@ -58,25 +82,37 @@ function renderCourseIndex(me) {
         !p.completed && missing.length
           ? '<div class="mod-hint">Pour valider : ' + missing.join(" · ") + "</div>"
           : "";
+      const pathUnlocked = subscribed && unlockFn(m.id);
       const badge = p.completed
         ? '<span class="badge badge-done">Validé</span>'
-        : p.stepsDone > 0 || p.quizScore > 0
-          ? '<span class="badge badge-progress">En cours</span>'
-          : '<span class="badge badge-free">' + m.num + "</span>";
+        : !pathUnlocked
+          ? '<span class="badge badge-locked">À débloquer</span>'
+          : p.stepsDone > 0 || p.quizScore > 0
+            ? '<span class="badge badge-progress">En cours</span>'
+            : '<span class="badge badge-free">' + m.num + "</span>";
       const meta = p.quizTotal
         ? "Quiz " + p.quizScore + "/" + p.quizTotal + practice + " · " + m.desc
         : m.desc;
       const li = document.createElement("li");
-      if (!subscribed) li.classList.add("locked");
+      if (!subscribed || !pathUnlocked) li.classList.add("locked");
+      let action;
+      if (!subscribed) {
+        action =
+          '<a class="btn btn-secondary" href="' +
+          (typeof forgePricingUrl === "function" ? forgePricingUrl() : "/la-forge/pricing.html") +
+          '">Premium</a>';
+      } else if (!pathUnlocked) {
+        action =
+          '<span class="btn btn-secondary" style="opacity:0.55;cursor:not-allowed" title="Lot précédent à valider">Bientôt</span>';
+      } else {
+        action =
+          '<a class="btn btn-secondary" href="' + m.href + '">' + (p.completed ? "Revoir" : "Commencer") + "</a>";
+      }
       li.innerHTML =
         '<div class="mod-info"><strong><span class="mod-num">' + m.num + "</span>" + m.title + "</strong>" +
         '<div class="mod-meta">' + meta + "</div>" + hint + "</div>" +
         badge +
-        (subscribed
-          ? '<a class="btn btn-secondary" href="' + m.href + '">' + (p.completed ? "Revoir" : "Commencer") + "</a>"
-          : '<a class="btn btn-secondary" href="' +
-            (typeof forgePricingUrl === "function" ? forgePricingUrl() : "/la-forge/pricing.html") +
-            '">Premium</a>');
+        action;
       list.appendChild(li);
     });
   });

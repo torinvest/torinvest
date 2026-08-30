@@ -25,6 +25,10 @@ export SHA BRANCH="${SHA}"
 bash <(curl -fsSL "${BASE}/pull-forge-all.sh") "$APP_DIR"
 
 echo ""
+echo "==> Scripts unlock sur pages leçon (course/*.html)"
+node "$APP_DIR/deploy/vps/patch-lesson-unlock-scripts.js" "$APP_DIR" || true
+
+echo ""
 echo "==> Wire server.js (progress + calendar + paywall)"
 if node "$APP_DIR/deploy/vps/wire-formation-server-patches.js" "$APP_DIR"; then
   :

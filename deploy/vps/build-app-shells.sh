@@ -108,6 +108,7 @@ cat > "$OUT/course/index.html" <<'COURSE_EOF'
       <h3>Progression globale</h3>
       <div class="progress-bar"><div id="overall-bar" style="width:0%"></div></div>
       <p id="overall-text" style="color:var(--muted);font-size:0.9rem;margin-top:0.5rem">Chargement…</p>
+      <p id="unlock-banner" class="alert" hidden style="margin-top:0.75rem;font-size:0.88rem;border-color:rgba(255,180,0,.35)"></p>
       <p style="margin-top:0.35rem;font-size:0.82rem;color:var(--muted)">
         <span id="progress-sync-badge" class="cal-sync-badge idle">—</span>
       </p>
@@ -122,6 +123,7 @@ cat > "$OUT/course/index.html" <<'COURSE_EOF'
   <script src="/js/forge-gate.js"></script>
   <script src="/js/progress.js"></script>
   <script src="/js/course-data.js"></script>
+  <script src="/js/forge-unlock.js"></script>
   <script src="/js/course-index.js"></script>
   <script src="/js/forge-legal.js"></script>
 </body>

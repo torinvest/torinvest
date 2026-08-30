@@ -49,13 +49,21 @@ curl -b cookies.txt -s -X PUT https://app.torinvest-trading.com/api/progress \
   -d '{"modules":{"intro":{"stepsDone":1,"totalSteps":12}}}'
 ```
 
-## 2. Paywall Premium sur `/course/*`
+## 2. Paywall Premium + déblocage par lots (3 modules)
 
 **Avant** `express.static('public')` :
 
 ```javascript
 const requireSubscribedForCourse = require("./server-patches/middleware-require-subscribed");
 app.use(requireSubscribedForCourse);
+```
+
+Le middleware bloque aussi les leçons non débloquées (lots de 3 validés) et redirige vers `/course/index.html?locked_module=1`.
+
+Côté client : `forge-unlock.js` + bannière sur l’index formation. Après déploiement JS, patcher les pages leçon sur le VPS :
+
+```bash
+node /home/ubuntu/torinvest-formation/deploy/vps/patch-lesson-unlock-scripts.js
 ```
 
 ## 3. Calendrier `/api/calendar`
