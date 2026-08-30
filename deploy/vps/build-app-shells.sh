@@ -11,6 +11,8 @@ mkdir -p "$OUT/course"
 transform() {
   sed -e 's|/la-forge/js/|/js/|g' \
       -e 's|/la-forge/css/|/css/|g' \
+      -e 's|https://www\.torinvest-trading\.com/la-forge/img/|/img/|g' \
+      -e 's|/la-forge/img/|/img/|g' \
       -e 's|https://app\.torinvest-trading\.com/course/index\.html|/course/index.html|g' \
       -e 's|https://app\.torinvest-trading\.com/calendar\.html|/calendar.html|g' \
       -e 's|https://app\.torinvest-trading\.com/calendar-day\.html|/calendar-day.html|g' \
@@ -32,7 +34,7 @@ cat > "$OUT/login.html" <<'LOGIN_EOF'
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Connexion — TORINVEST La Forge</title>
-  <link rel="icon" href="https://www.torinvest-trading.com/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
   <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/legal.css" />
 </head>
@@ -41,7 +43,7 @@ cat > "$OUT/login.html" <<'LOGIN_EOF'
 
   <div class="container" style="max-width:440px;padding-top:2rem">
     <div style="text-align:center;margin-bottom:1.5rem">
-      <img src="https://www.torinvest-trading.com/la-forge/img/forge-anvil.png" alt="La Forge" width="72" height="72" class="forge-logo-img" style="margin-bottom:0.75rem" />
+      <img src="/img/forge-anvil.png" alt="La Forge" width="72" height="72" class="forge-logo-img" style="margin-bottom:0.75rem" />
       <p class="forge-slogan" style="margin:0">La force d'un esprit libre</p>
     </div>
     <div class="card">
@@ -84,7 +86,7 @@ cat > "$OUT/course/index.html" <<'COURSE_EOF'
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Formation ÉLITE — La Forge</title>
-  <link rel="icon" href="https://www.torinvest-trading.com/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
   <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/legal.css" />
   <link rel="stylesheet" href="/css/forge-charts.css" />
@@ -94,7 +96,7 @@ cat > "$OUT/course/index.html" <<'COURSE_EOF'
 
   <div class="container">
     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
-      <img src="https://www.torinvest-trading.com/la-forge/img/forge-anvil.png" alt="" width="48" height="48" class="forge-logo-img" />
+      <img src="/img/forge-anvil.png" alt="" width="48" height="48" class="forge-logo-img" />
       <div>
         <h1 id="forge-title" style="margin:0.15rem 0">La Forge ÉLITE</h1>
         <p id="forge-slogan-line" class="forge-slogan" style="margin:0;color:var(--muted);font-size:0.92rem"></p>

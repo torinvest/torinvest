@@ -49,6 +49,12 @@ CSS_FILES=(
   main.css
 )
 
+IMG_FILES=(
+  forge-anvil.png
+  torinvest-logo-full.png
+  live-trading-banner.png
+)
+
 if [[ ! -d "$APP_DIR/public/js" ]]; then
   echo "ERREUR: $APP_DIR/public/js introuvable"
   echo "Vérifie le chemin de l'app : ls /home/ubuntu/"
@@ -78,6 +84,17 @@ done
 
 for f in "${CSS_FILES[@]}"; do
   pull_file css "$f" || true
+done
+
+mkdir -p "$APP_DIR/public/img" "$APP_DIR/public/la-forge/img"
+for f in "${IMG_FILES[@]}"; do
+  echo "  img/$f"
+  if curl -fsSL "$RAW_BASE/img/$f" -o "$APP_DIR/public/img/$f"; then
+    cp "$APP_DIR/public/img/$f" "$APP_DIR/public/la-forge/img/$f"
+  else
+    echo "  ERREUR 404 ou réseau : $RAW_BASE/img/$f"
+    FAIL=$((FAIL + 1))
+  fi
 done
 
 if [[ "$FAIL" -gt 0 ]]; then
