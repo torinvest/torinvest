@@ -45,11 +45,18 @@ test("pages membres + espace", function () {
 });
 
 test("pages contenu gated", function () {
-  ["chroniques.html", "formation.html", "video.html", "crypto.html"].forEach(function (f) {
+  ["chroniques.html", "video.html", "crypto.html"].forEach(function (f) {
     var html = fs.readFileSync(path.join(root, f), "utf8");
     assert.ok(html.indexOf('data-member-required="1"') !== -1, f + " gate");
     assert.ok(html.indexOf("torinvest-member-auth.js") !== -1, f + " script");
   });
+});
+
+test("formation.html publique (hub La Forge)", function () {
+  var html = fs.readFileSync(path.join(root, "formation.html"), "utf8");
+  assert.ok(html.indexOf('data-member-required="1"') === -1, "formation public");
+  assert.ok(html.indexOf("/la-forge/") !== -1, "formation CTA la-forge");
+  assert.ok(html.indexOf("liste-attente-torinvest") === -1, "no waitlist");
 });
 
 test("pages publiques non gated", function () {

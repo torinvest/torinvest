@@ -41,7 +41,7 @@ pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
 echo "==> Patches serveur (server-patches/)"
 PATCHES_DIR="$APP_DIR/server-patches"
 mkdir -p "$PATCHES_DIR"
-for f in routes-progress.js middleware-require-subscribed.js; do
+for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js; do
   echo "  server-patches/$f"
   curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/${f}" -o "$PATCHES_DIR/${f}"
 done
@@ -52,6 +52,9 @@ mkdir -p "$DEPLOY_DIR/formation-server"
 curl -fsSL "${RAW_ROOT}/deploy/vps/verify-formation-deploy.sh" -o "$DEPLOY_DIR/verify-formation-deploy.sh"
 chmod +x "$DEPLOY_DIR/verify-formation-deploy.sh"
 echo "  deploy/vps/verify-formation-deploy.sh"
+curl -fsSL "${RAW_ROOT}/deploy/vps/backup-course-private.sh" -o "$DEPLOY_DIR/backup-course-private.sh"
+chmod +x "$DEPLOY_DIR/backup-course-private.sh"
+echo "  deploy/vps/backup-course-private.sh"
 curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/INSTALL-VPS.md" \
   -o "$DEPLOY_DIR/formation-server/INSTALL-VPS.md"
 echo "  deploy/vps/formation-server/INSTALL-VPS.md"

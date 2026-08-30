@@ -259,7 +259,7 @@
   </style>
 </head>
 
-<body data-member-required="1">
+<body>
   <div class="forge-glow"></div>
 
   <div class="box">
@@ -271,95 +271,39 @@
           <div class="logo-sub">TRADING • MACRO • PSYCHO</div>
         </div>
       </div>
-      <div class="badge">Formation à venir</div>
+      <div class="badge">La Forge — disponible</div>
     </div>
 
-    <h1>La <span>Forge des Formations</span> s’allume 🔥</h1>
+    <h1>Formation <span>La Forge ICT-SMC ÉLITE</span></h1>
 
     <p>
-      La première formation TORINVEST sera bientôt disponible.  
-      L’objectif : une approche <strong>structurée, pédagogique et honnête</strong> sur le trading,
-      la macroéconomie et la psychologie des marchés – sans promesse de gains.
-    </p>
-
-    <p>
-      Si tu veux être parmi les premiers informés à l’ouverture des modules, tu peux rejoindre
-      dès maintenant la liste d’attente dédiée à la formation.
+      Parcours complet pour apprendre le trading sérieusement : macro, psychologie, lecture du marché,
+      exécution, routine et discipline — <strong>37 modules · ~57 h · 11 parties</strong>.
+      Projet 100 % éducatif, sans promesse de gains.
     </p>
 
     <ul class="list">
-      <li>Accès prioritaire à l’ouverture de la formation</li>
-      <li>Infos en avant-première sur le contenu et les formats</li>
-      <li>Projet 100 % éducatif, sans conseil en investissement</li>
+      <li>Modules 0 à 37 · exercices chart · replays · quiz</li>
+      <li>Espace membre : progression, calendrier, export JSON</li>
+      <li>Accompagnement 349 €/an · paiement Stripe · accès sous 24–48 h</li>
     </ul>
 
     <div class="divider"></div>
 
-    <p style="font-size:13px; margin-bottom:6px;">
-      Laisse ton email ci-dessous pour être prévenu dès que la Forge des Formations ouvre ses portes :
-    </p>
-
-    <form
-      name="liste-attente-torinvest"
-      method="POST"
-      data-netlify="true"
-      data-netlify-honeypot="bot-field"
-    >
-      <input type="hidden" name="form-name" value="liste-attente-torinvest" />
-
-      <p style="display:none">
-        <label>Ne pas remplir : <input name="bot-field" /></label>
-      </p>
-
-      <div class="small-input-row">
-        <input
-          class="small-input"
-          type="email"
-          name="email"
-          placeholder="Ton email (liste d’attente formation)"
-          required
-        />
-        <button class="btn" type="submit">
-          Rejoindre la liste
-        </button>
-      </div>
-    </form>
-
-    <div class="note">
-      Aucun spam. Tu recevras uniquement des infos liées à TORINVEST et à l’ouverture de la formation.
+    <div class="small-input-row" style="flex-wrap:wrap">
+      <a class="btn" href="/la-forge/">Voir le programme</a>
+      <a class="btn" href="/la-forge/pricing.html" style="background:transparent;border:1px solid rgba(255,180,0,.5);color:#ffb400;box-shadow:none">Tarifs 349 €/an</a>
     </div>
+    <p class="note" style="margin-top:14px">
+      Déjà abonné ? <a href="https://app.torinvest-trading.com/login.html" style="color:#ffb400">Connexion espace formation →</a>
+    </p>
 
     <div class="footer-links">
       <a href="/">← Retour au site TORINVEST</a>
-      <span>Projet éducatif &amp; expérimental – Aucun conseil en investissement.</span>
+      <span>Projet éducatif — aucun conseil en investissement.</span>
     </div>
   </div>
 
-  <script>
-    // Envoi manuel vers Netlify + redirection vers la page Merci
-    const form = document.forms["liste-attente-torinvest"];
-
-    if (form) {
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const data = new FormData(form);
-
-        fetch("/", {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams(data).toString()
-        })
-        .then(() => {
-          window.location.href = "/merci.html";
-        })
-        .catch((err) => {
-          console.error("Erreur Netlify form", err);
-          alert("Une erreur est survenue. Merci de réessayer dans quelques instants.");
-        });
-      });
-    }
-  </script>
   <a href="/" class="back-home-btn">← Retour accueil</a>
 
 <style>
@@ -388,8 +332,6 @@
 </style>
 
   <script src="/assets/torinvest-rgpd.js" defer></script>
-
-<script src="/assets/torinvest-php.js"></script>
-<script src="/assets/torinvest-member-auth.js?v=1"></script>
+  <script src="/assets/torinvest-php.js"></script>
 </body>
 </html>

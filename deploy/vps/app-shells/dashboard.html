@@ -41,7 +41,7 @@
         <ul style="color:var(--muted);font-size:0.9rem;padding-left:1.2rem;margin:0.75rem 0;line-height:1.7">
           <li id="dash-course-line">Module 0 → 37 · ICT/SMC · macro · pro avancé · mindset</li>
           <li>Exercices chart · replays · quiz par module</li>
-          <li>Calendrier sync · export JSON</li>
+          <li>Calendrier personnel · export JSON</li>
         </ul>
         <a class="btn btn-primary" href="/course/index.html" id="course-link">Ouvrir la formation</a>
         <a class="btn btn-secondary" href="/calendar.html" id="calendar-link" style="margin-left:0.5rem">Calendrier</a>
@@ -51,7 +51,7 @@
         <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem">Complétez la formation par le terrain — sessions live chart.</p>
         <div id="dash-live-pills" style="display:flex;flex-wrap:wrap;gap:0.4rem"></div>
         <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">
-          Durée : <strong style="color:var(--gold)" id="dash-hours">~42 h</strong>
+          Durée : <strong style="color:var(--gold)" id="dash-hours">~57 h</strong>
         </p>
         <p id="plan-text" style="color:var(--muted);margin-top:0.5rem">Chargement…</p>
       </div>
@@ -86,12 +86,14 @@
     });
     getMe().then(async (me) => {
       if (!me) { window.location.href = "/login.html"; return; }
+      const lockedParam = new URLSearchParams(location.search).get("locked") === "1";
       if (typeof initForgeProgress === "function") {
         await initForgeProgress(me.email);
       }
       const lockedEl = document.getElementById("locked-alert");
       if (!me.subscribed) {
         if (lockedEl) lockedEl.hidden = false;
+        if (lockedParam && lockedEl) lockedEl.scrollIntoView({ behavior: "smooth", block: "center" });
         document.getElementById("plan-text").textContent =
           "Plan gratuit — abonnez-vous pour accéder aux " + MODULES.length + " modules.";
         const link = document.getElementById("course-link");

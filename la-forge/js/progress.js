@@ -59,11 +59,11 @@ function updateProgressSyncBadge() {
   el.className = "cal-sync-badge " + _progressSyncStatus;
   el.textContent =
     _progressSyncStatus === "ok"
-      ? "Progression sync"
+      ? "Progression sauvegardée"
       : _progressSyncStatus === "syncing"
-        ? "Sync…"
+        ? "Sauvegarde…"
         : _progressSyncStatus === "offline"
-          ? "Progression locale"
+          ? "Progression locale (navigateur)"
           : "—";
 }
 
