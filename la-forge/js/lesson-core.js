@@ -26,20 +26,71 @@ function mergeBBox(acc, bb) {
   return acc;
 }
 
+function isHiddenChartEl(el) {
+  if (!el) return true;
+  if (el.classList.contains("anim-hidden")) return true;
+  return Boolean(el.closest(".anim-hidden"));
+}
+
+function ensureChartZoomWrap(chartHost) {
+  const svg = chartHost.querySelector("svg");
+  if (!svg) return null;
+  const parent = svg.parentElement;
+  if (!parent.classList.contains("chart-zoom-wrap")) {
+    const wrap = document.createElement("div");
+    wrap.className = "chart-zoom-wrap";
+    svg.parentNode.insertBefore(wrap, svg);
+    wrap.appendChild(svg);
+  }
+  return svg;
+}
+
 function getFitBBox(svg, chartRoot) {
   let merged = null;
+  const isReplay = chartRoot._forgeChartMode === "replay";
   const stepLayers = svg.querySelectorAll("[data-lesson-step]");
 
-  if (stepLayers.length) {
+  if (stepLayers.length && !isReplay) {
     stepLayers.forEach((el) => {
-      if (el.classList.contains("anim-hidden")) return;
+      if (isHiddenChartEl(el)) return;
       try {
         merged = mergeBBox(merged, el.getBBox());
       } catch (_) {}
     });
     svg.querySelectorAll(".fc-callout:not(.anno-step-hidden):not(.anno-off)").forEach((el) => {
+      if (isHiddenChartEl(el)) return;
       try {
         merged = mergeBBox(merged, el.getBBox());
+      } catch (_) {}
+    });
+    if (merged) return merged;
+  }
+
+  if (isReplay || !stepLayers.length) {
+    svg.querySelectorAll("g[id]").forEach((g) => {
+      if (g.closest("defs")) return;
+      if (isHiddenChartEl(g)) return;
+      try {
+        const bb = g.getBBox();
+        if (bb.width > 2 && bb.height > 2) merged = mergeBBox(merged, bb);
+      } catch (_) {}
+    });
+  }
+
+  svg.querySelectorAll(".fc-callout:not(.anno-step-hidden):not(.anno-off)").forEach((el) => {
+    if (isHiddenChartEl(el)) return;
+    try {
+      merged = mergeBBox(merged, el.getBBox());
+    } catch (_) {}
+  });
+
+  if (!merged) {
+    svg.querySelectorAll("g, path, line, rect, circle, polyline, text").forEach((el) => {
+      if (el.closest("defs")) return;
+      if (isHiddenChartEl(el)) return;
+      try {
+        const bb = el.getBBox();
+        if (bb.width > 4 && bb.height > 4) merged = mergeBBox(merged, bb);
       } catch (_) {}
     });
   }
@@ -62,17 +113,22 @@ function fitChartToWrap(chartRoot) {
   svg.style.transform = "none";
   svg.style.transformOrigin = "0 0";
 
-  requestAnimationFrame(() => {
-    const cw = wrap.clientWidth;
-    const ch = wrap.clientHeight;
+  const applyFit = () => {
+    let cw = wrap.clientWidth;
+    let ch = wrap.clientHeight;
+    if (ch < 40) {
+      wrap.style.minHeight = chartRoot.classList.contains("chart-in-viewer") ? "50vh" : "280px";
+      cw = wrap.clientWidth;
+      ch = wrap.clientHeight;
+    }
     if (cw < 20 || ch < 20) return;
 
     try {
       const bb = getFitBBox(svg, chartRoot);
-      const pad = chartRoot.classList.contains("chart-in-viewer") ? 20 : 28;
+      const pad = chartRoot.classList.contains("chart-in-viewer") ? 16 : 24;
       const sw = bb.width || 1;
       const sh = bb.height || 1;
-      const scale = Math.min((cw - pad) / sw, (ch - pad) / sh, 4);
+      const scale = Math.min((cw - pad) / sw, (ch - pad) / sh, 6);
       const tx = (cw - sw * scale) / 2 - bb.x * scale;
       const ty = (ch - sh * scale) / 2 - bb.y * scale;
       svg.style.transform = "translate(" + tx + "px," + ty + "px) scale(" + scale + ")";
@@ -82,7 +138,10 @@ function fitChartToWrap(chartRoot) {
       svg.style.maxHeight = "100%";
       svg.style.transform = "none";
     }
-  });
+  };
+
+  applyFit();
+  requestAnimationFrame(() => requestAnimationFrame(applyFit));
 }
 
 function bindChartFit(chartRoot) {
@@ -101,42 +160,47 @@ function applyChartStep(stepIndex) {
   if (typeof ForgeAnnotations !== "undefined" && ForgeAnnotations.setTextStep) {
     ForgeAnnotations.setTextStep(stepIndex);
   }
-  document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage, .chart-in-viewer").forEach((root) => {
+  document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage, .chart-in-viewer, .tv-frame.chart-in-viewer").forEach((root) => {
     fitChartToWrap(root);
   });
 }
 
-function injectLessonChartToolbar(chartRoot) {
-  if (!chartRoot || chartRoot.querySelector(".chart-focus-toolbar")) return;
+function injectChartToolbar(chartHost) {
+  if (!chartHost || chartHost.querySelector(".chart-focus-toolbar")) return;
 
-  const svg = chartRoot.querySelector("svg");
-  if (svg && !svg.parentElement.classList.contains("chart-zoom-wrap")) {
-    const wrap = document.createElement("div");
-    wrap.className = "chart-zoom-wrap";
-    svg.parentNode.insertBefore(wrap, svg);
-    wrap.appendChild(svg);
-  }
+  ensureChartZoomWrap(chartHost);
 
   const bar = document.createElement("div");
   bar.className = "chart-focus-toolbar";
   bar.innerHTML =
     '<button type="button" class="chart-focus-btn chart-focus-primary" data-chart-open-viewer>Ouvrir le visualiseur</button>' +
-    '<span class="chart-focus-hint">Plein écran + navigation par section</span>';
+    '<span class="chart-focus-hint">Plein écran · navigation par étape · sans scroll</span>';
 
-  chartRoot.classList.add("chart-readable", "chart-simplified");
-  chartRoot.insertBefore(bar, chartRoot.firstChild);
+  chartHost.classList.add("chart-readable", "chart-simplified");
+  const anchor = chartHost.querySelector(".tv-toolbar");
+  if (anchor) anchor.insertAdjacentElement("afterend", bar);
+  else chartHost.insertBefore(bar, chartHost.firstChild);
 
   bar.querySelector("[data-chart-open-viewer]").addEventListener("click", () => {
-    openChartViewer(chartRoot);
+    openChartViewer(chartHost);
   });
 
-  bindChartFit(chartRoot);
+  bindChartFit(chartHost);
+}
+
+function initChartHostUI(chartHost) {
+  if (!chartHost) return;
+  const svg = chartHost.querySelector("svg");
+  if (svg) markChartClutter(svg);
+  injectChartToolbar(chartHost);
 }
 
 function openChartViewer(chartRoot) {
   if (document.getElementById("chart-viewer-overlay")) return;
 
-  const nav = window.ForgeLessonNav;
+  const nav = chartRoot._forgeChartNav || window.ForgeLessonNav;
+  const isReplay = chartRoot._forgeChartMode === "replay";
+  const stepWord = isReplay ? "Étape" : "Section";
   const startStep = nav ? nav.getIndex() : Number(chartRoot.dataset.activeStep || 0);
 
   const overlay = document.createElement("div");
@@ -155,9 +219,9 @@ function openChartViewer(chartRoot) {
     "</div></header>" +
     '<div class="chart-viewer-body"></div>' +
     '<footer class="chart-viewer-footer">' +
-    '<button type="button" class="chart-viewer-nav" data-viewer-nav="prev">← Section</button>' +
+    '<button type="button" class="chart-viewer-nav" data-viewer-nav="prev">← ' + stepWord + '</button>' +
     '<div class="chart-viewer-pills"></div>' +
-    '<button type="button" class="chart-viewer-nav" data-viewer-nav="next">Section →</button>' +
+    '<button type="button" class="chart-viewer-nav" data-viewer-nav="next">' + stepWord + ' →</button>' +
     "</footer></div>";
 
   const body = overlay.querySelector(".chart-viewer-body");
@@ -183,6 +247,12 @@ function openChartViewer(chartRoot) {
 
   function getStepsMeta() {
     if (nav && nav.getStepButtons) return nav.getStepButtons();
+    if (isReplay) {
+      return Array.from(document.querySelectorAll("[data-replay]")).map((b) => ({
+        index: Number(b.dataset.replay),
+        label: (b.textContent || "").trim().replace(/^\d+\.\s*/, ""),
+      }));
+    }
     return Array.from(document.querySelectorAll("[data-step]")).map((b) => ({
       index: Number(b.dataset.step),
       label: (b.textContent || "").trim().replace(/^\d+\.\s*/, ""),
@@ -218,11 +288,13 @@ function openChartViewer(chartRoot) {
     const meta = getStepsMeta();
     const total = nav ? nav.getTotal() : meta.length;
     const title = nav ? nav.getTitle(viewerStep) : meta.find((m) => m.index === viewerStep)?.label || "";
-    stepNumEl.textContent = "Section " + (viewerStep + 1) + " / " + total;
+    stepNumEl.textContent = stepWord + " " + (viewerStep + 1) + " / " + total;
     stepTitleEl.textContent = title;
     pillsWrap.querySelectorAll(".chart-viewer-pill").forEach((p) => {
       p.classList.toggle("active", Number(p.dataset.viewerStep) === viewerStep);
     });
+    const activePill = pillsWrap.querySelector(".chart-viewer-pill.active");
+    if (activePill) activePill.scrollIntoView({ block: "nearest", inline: "center" });
   }
 
   function goViewerStep(index) {
@@ -279,15 +351,35 @@ function openChartViewer(chartRoot) {
   bindChartFit(chartRoot);
 }
 
-function initLessonCharts() {
+function initAllChartHosts() {
+  const hosts = new Set();
+
   document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage").forEach((root) => {
-    const svg = root.querySelector("svg");
-    if (svg) markChartClutter(svg);
-    injectLessonChartToolbar(root.classList.contains("forge-chart") ? root : root);
+    hosts.add(root);
     if (!root.classList.contains("forge-chart") && root.querySelector(".forge-chart")) {
-      injectLessonChartToolbar(root.querySelector(".forge-chart"));
+      hosts.add(root.querySelector(".forge-chart"));
     }
   });
+
+  document
+    .querySelectorAll(
+      ".elite-replay .forge-chart, .elite-replay .tv-frame, .chart-replay-section .forge-chart, .chart-replay-section .tv-frame"
+    )
+    .forEach((host) => hosts.add(host));
+
+  hosts.forEach((host) => {
+    if (!host) return;
+    const replayRoot = host.closest(".elite-replay, .chart-replay-section");
+    if (replayRoot && replayRoot._forgeReplayNav && !host._forgeChartNav) {
+      host._forgeChartNav = replayRoot._forgeReplayNav;
+      host._forgeChartMode = "replay";
+    }
+    initChartHostUI(host);
+  });
+}
+
+function initLessonCharts() {
+  initAllChartHosts();
 }
 
 function syncLessonChartLayers(stepIndex) {
@@ -525,6 +617,17 @@ window.initStepLesson = initStepLesson;
 window.initQuiz = initQuiz;
 window.renderModuleNav = renderModuleNav;
 window.initPractice = initPractice;
+window.initChartHostUI = initChartHostUI;
+window.initAllChartHosts = initAllChartHosts;
+window.initLessonCharts = initLessonCharts;
+window.ForgeChartFit = fitChartToWrap;
+window.openChartViewer = openChartViewer;
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAllChartHosts);
+} else {
+  initAllChartHosts();
+}
 
 /**
  * Exercice chart — travail guidé sur graphique (TradingView / replay)

@@ -19,6 +19,37 @@ function notifyReplayStep(index) {
   }
 }
 
+function fitReplayCharts(root) {
+  if (typeof window.ForgeChartFit !== "function") return;
+  root.querySelectorAll(".forge-chart, .tv-frame").forEach((host) => window.ForgeChartFit(host));
+}
+
+function bindReplayNav(root, frames, goTo) {
+  const navApi = {
+    getIndex: () => navApi._index,
+    getTotal: () => frames.length,
+    getTitle: (i) => frames[i]?.title || frames[i]?.label || "Étape " + (i + 1),
+    getStepButtons: () => navApi._buttons.map((btn) => ({
+      index: Number(btn.dataset.replay),
+      label: (btn.textContent || "").trim().replace(/^\d+\.\s*/, ""),
+    })),
+    goTo: (index) => goTo(index),
+    _index: 0,
+    _buttons: [],
+  };
+
+  root._forgeReplayNav = navApi;
+  const chartHost = root.querySelector(".forge-chart, .tv-frame");
+  if (chartHost) {
+    chartHost._forgeChartNav = navApi;
+    chartHost._forgeChartMode = "replay";
+    if (typeof window.initChartHostUI === "function") {
+      window.initChartHostUI(chartHost);
+    }
+  }
+  return navApi;
+}
+
 function initEliteReplay(config) {
   const {
     frames,
@@ -61,6 +92,7 @@ function initEliteReplay(config) {
   const warnEl = document.getElementById(guideWarnId);
   const stepNumEl = root.querySelector("#erg-step-num");
   let current = 0;
+  let navApi = null;
 
   function renderList(el, items) {
     if (!el) return;
@@ -95,7 +127,16 @@ function initEliteReplay(config) {
     root.querySelectorAll(".elite-frame-tag").forEach((tag, i) => {
       tag.classList.toggle("active", i === current);
     });
+
+    if (navApi) navApi._index = current;
+    if (typeof window._chartViewerSync === "function") {
+      window._chartViewerSync(current);
+    }
+    fitReplayCharts(root);
   }
+
+  navApi = bindReplayNav(root, frames, goTo);
+  navApi._buttons = Array.from(buttons);
 
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => goTo(Number(btn.dataset.replay)));
@@ -117,11 +158,14 @@ function initChartReplay(config) {
   const { frames, counterId = "replay-counter", captionId = "replay-caption", progressId = "replay-progress" } = config;
   if (!frames || !frames.length) return;
 
-  const buttons = document.querySelectorAll("[data-replay]");
+  const root =
+    document.querySelector(config.rootSelector || ".chart-replay-section, .elite-replay") || document.body;
+  const buttons = root.querySelectorAll("[data-replay]");
   const captionEl = document.getElementById(captionId);
   const counterEl = document.getElementById(counterId);
   const progressEl = document.getElementById(progressId);
   let current = 0;
+  let navApi = null;
 
   function goTo(index) {
     current = Math.max(0, Math.min(frames.length - 1, index));
@@ -133,7 +177,16 @@ function initChartReplay(config) {
     if (captionEl) captionEl.textContent = f.caption || "";
     if (counterEl) counterEl.textContent = "Frame " + (current + 1) + " / " + frames.length;
     if (progressEl) progressEl.style.width = ((current + 1) / frames.length) * 100 + "%";
+
+    if (navApi) navApi._index = current;
+    if (typeof window._chartViewerSync === "function") {
+      window._chartViewerSync(current);
+    }
+    fitReplayCharts(root);
   }
+
+  navApi = bindReplayNav(root, frames, goTo);
+  navApi._buttons = Array.from(buttons);
 
   buttons.forEach((btn) => btn.addEventListener("click", () => goTo(Number(btn.dataset.replay))));
   document.getElementById("replay-prev")?.addEventListener("click", () => goTo(current - 1));
