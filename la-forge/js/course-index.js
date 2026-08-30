@@ -137,8 +137,13 @@ function renderCourseIndex(me) {
   if (subscribed) {
     const hiddenCount = MODULES.filter((m) => !unlockFn(m.id)).length;
     if (hiddenCount > 0) {
-      const teaser = document.createElement("li");
-      teaser.style.cssText = "display:block;border:none;background:transparent;padding:1rem 0 0";
+      let teaser = document.getElementById("forge-unlock-teaser");
+      if (!teaser) {
+        teaser = document.createElement("li");
+        teaser.id = "forge-unlock-teaser";
+        teaser.style.cssText = "display:block;border:none;background:transparent;padding:1rem 0 0";
+        list.appendChild(teaser);
+      }
       const hint =
         typeof getNextUnlockHint === "function"
           ? getNextUnlockHint()
@@ -151,7 +156,6 @@ function renderCourseIndex(me) {
         "<span style='color:var(--muted)'>" +
         hint +
         "</span></div>";
-      list.appendChild(teaser);
     }
   }
 }

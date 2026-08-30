@@ -392,23 +392,15 @@ function getModuleCompletionHint(moduleId) {
         ".<br /><span style='color:var(--muted)'>" + getNextUnlockHint() + "</span>";
     }
 
-    var hidden = moduleIds().filter(function (id) { return !isModuleUnlocked(id); }).length;
-    var teaserId = "forge-unlock-teaser";
-    var teaser = document.getElementById(teaserId);
-    if (hidden > 0) {
-      if (!teaser) {
-        teaser = document.createElement("li");
-        teaser.id = teaserId;
-        teaser.style.cssText = "display:block;border:none;background:transparent;padding:1rem 0 0";
-        list.appendChild(teaser);
+    /* Un seul teaser « modules à venir » (course-index.js) — supprime les doublons */
+    var teasers = [];
+    list.querySelectorAll("li").forEach(function (li) {
+      if (li.textContent && li.textContent.indexOf("module(s) à venir") !== -1) {
+        teasers.push(li);
       }
-      teaser.innerHTML =
-        '<div class="alert" style="font-size:0.88rem;border-color:rgba(255,180,0,.25)">' +
-        "<strong>" + hidden + " module(s) à venir</strong> — masqués jusqu’au déblocage du lot. " +
-        "<span style='color:var(--muted)'>" + getNextUnlockHint() + "</span></div>";
-      teaser.style.display = "block";
-    } else if (teaser) {
-      teaser.style.display = "none";
+    });
+    while (teasers.length > 1) {
+      teasers.pop().remove();
     }
   }
 
