@@ -535,12 +535,32 @@
 .chart-focus-btn:hover { filter: brightness(1.08); }
 
 .chart-zoom-wrap {
-  overflow: auto;
-  max-height: min(72vh, 640px);
+  overflow: hidden;
+  width: 100%;
+  height: min(38vh, 340px);
+  max-height: min(38vh, 340px);
   border-radius: 8px;
   background: #08080e;
   border: 1px solid #2a2a38;
-  padding: 0.35rem;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.forge-chart.chart-enlarged .chart-zoom-wrap,
+.chart-stage.chart-enlarged .chart-zoom-wrap {
+  height: min(52vh, 480px);
+  max-height: min(52vh, 480px);
+}
+
+.chart-zoom-wrap svg {
+  min-width: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  transform-origin: center center;
+  flex-shrink: 0;
 }
 
 /* Lisibilité texte SVG (fond sombre) */
@@ -561,10 +581,7 @@
 
 .forge-chart.chart-enlarged .chart-zoom-wrap svg,
 .chart-stage.chart-enlarged .chart-zoom-wrap svg {
-  transform: scale(1.45);
-  transform-origin: top left;
-  width: 100%;
-  min-width: 720px;
+  transform-origin: center center;
 }
 
 /* Focus = masquer gros labels (pas opacity invisible) */
@@ -577,43 +594,76 @@
   display: none !important;
 }
 
-/* Plein écran */
+/* Plein écran — tout visible sans scroll */
 .chart-fs-overlay {
   position: fixed;
   inset: 0;
   z-index: 200000;
-  background: rgba(4, 4, 10, 0.92);
+  background: rgba(4, 4, 10, 0.94);
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
-  padding: 1rem;
+  padding: 0.5rem;
+  box-sizing: border-box;
 }
 .chart-fs-panel {
-  width: min(1200px, 100%);
-  max-height: 96vh;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100%;
   background: #0d0d14;
   border: 1px solid rgba(255, 215, 0, 0.35);
-  border-radius: 14px;
-  padding: 1rem;
-  overflow: auto;
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+.chart-fs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--muted, #9a9aad);
+  flex-shrink: 0;
 }
 .chart-fs-close {
-  float: right;
   border: 1px solid rgba(255, 255, 255, 0.2);
   background: rgba(255, 255, 255, 0.06);
   color: #f5f5f7;
   border-radius: 8px;
-  padding: 0.45rem 0.75rem;
+  padding: 0.4rem 0.7rem;
   cursor: pointer;
-  font-size: 0.85rem;
-  margin-bottom: 0.75rem;
+  font-size: 0.82rem;
+  flex-shrink: 0;
 }
-.chart-fs-clone.chart-enlarged .chart-zoom-wrap {
-  max-height: none;
+.chart-fs-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.chart-fs-clone {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.chart-fs-clone .chart-zoom-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden;
 }
 .chart-fs-clone .chart-zoom-wrap svg {
-  transform: scale(1.2);
-  transform-origin: top center;
-  min-width: 800px;
+  min-width: 0 !important;
+  transform-origin: center center;
 }
 body.chart-fs-open { overflow: hidden; }

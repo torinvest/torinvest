@@ -8,10 +8,51 @@ function markChartClutter(svg) {
   svg.querySelectorAll("text").forEach((t) => {
     if (t.closest(".fc-callout")) return;
     const txt = (t.textContent || "").trim();
-    if (txt.length < 14) return;
+    if (txt.length < 22) return;
     const g = t.closest("g");
     if (g) g.classList.add("chart-clutter-label");
   });
+}
+
+function fitChartToWrap(chartRoot) {
+  const wrap = chartRoot.querySelector(".chart-zoom-wrap");
+  const svg = wrap?.querySelector("svg");
+  if (!wrap || !svg) return;
+
+  svg.style.width = "";
+  svg.style.height = "";
+  svg.style.transform = "none";
+
+  requestAnimationFrame(() => {
+    const cw = wrap.clientWidth;
+    const ch = wrap.clientHeight;
+    if (cw < 20 || ch < 20) return;
+
+    try {
+      const bb = svg.getBBox();
+      const sw = bb.width || svg.clientWidth || 1;
+      const sh = bb.height || svg.clientHeight || 1;
+      const scale = Math.min((cw - 16) / sw, (ch - 16) / sh);
+      svg.style.transform = "scale(" + scale + ")";
+      svg.style.transformOrigin = "center center";
+    } catch (_) {
+      svg.style.width = "100%";
+      svg.style.height = "auto";
+      svg.style.maxHeight = "100%";
+      svg.style.transform = "none";
+    }
+  });
+}
+
+function bindChartFit(chartRoot) {
+  fitChartToWrap(chartRoot);
+  if (chartRoot.dataset.fitBound === "1") return;
+  chartRoot.dataset.fitBound = "1";
+  const wrap = chartRoot.querySelector(".chart-zoom-wrap");
+  if (wrap && typeof ResizeObserver !== "undefined") {
+    const ro = new ResizeObserver(() => fitChartToWrap(chartRoot));
+    ro.observe(wrap);
+  }
 }
 
 function injectLessonChartToolbar(chartRoot) {
@@ -28,8 +69,8 @@ function injectLessonChartToolbar(chartRoot) {
   const bar = document.createElement("div");
   bar.className = "chart-focus-toolbar";
   bar.innerHTML =
-    '<span class="chart-focus-hint">Lisez le texte à droite — le schéma résume la section.</span>' +
-    '<button type="button" class="chart-focus-btn" data-chart-toggle="enlarge">Agrandir</button>' +
+    '<span class="chart-focus-hint">Schéma adapté à l’écran — pas de scroll.</span>' +
+    '<button type="button" class="chart-focus-btn" data-chart-toggle="enlarge">Maximiser</button>' +
     '<button type="button" class="chart-focus-btn" data-chart-toggle="fullscreen">Plein écran</button>' +
     '<button type="button" class="chart-focus-btn ghost" data-chart-toggle="focus">Masquer labels</button>' +
     '<button type="button" class="chart-focus-btn ghost" data-chart-toggle="full">Tout afficher</button>';
@@ -39,6 +80,7 @@ function injectLessonChartToolbar(chartRoot) {
 
   bar.querySelector('[data-chart-toggle="enlarge"]').addEventListener("click", () => {
     chartRoot.classList.toggle("chart-enlarged");
+    fitChartToWrap(chartRoot);
   });
   bar.querySelector('[data-chart-toggle="fullscreen"]').addEventListener("click", () => {
     openChartFullscreen(chartRoot);
@@ -46,11 +88,15 @@ function injectLessonChartToolbar(chartRoot) {
   bar.querySelector('[data-chart-toggle="focus"]').addEventListener("click", () => {
     chartRoot.classList.add("chart-simplified");
     chartRoot.classList.remove("chart-show-all");
+    fitChartToWrap(chartRoot);
   });
   bar.querySelector('[data-chart-toggle="full"]').addEventListener("click", () => {
     chartRoot.classList.remove("chart-simplified");
     chartRoot.classList.add("chart-show-all");
+    fitChartToWrap(chartRoot);
   });
+
+  bindChartFit(chartRoot);
 }
 
 function openChartFullscreen(chartRoot) {
@@ -60,17 +106,23 @@ function openChartFullscreen(chartRoot) {
   overlay.className = "chart-fs-overlay";
   overlay.innerHTML =
     '<div class="chart-fs-panel" role="dialog" aria-label="Schéma plein écran">' +
+    '<div class="chart-fs-header">' +
+    '<span>Schéma — lecture sans scroll</span>' +
     '<button type="button" class="chart-fs-close" aria-label="Fermer">✕ Fermer</button>' +
+    "</div>" +
     '<div class="chart-fs-body"></div></div>';
   const body = overlay.querySelector(".chart-fs-body");
   const clone = chartRoot.cloneNode(true);
-  clone.classList.remove("chart-simplified");
-  clone.classList.add("chart-show-all", "chart-enlarged", "chart-fs-clone");
+  clone.classList.remove("chart-simplified", "chart-enlarged");
+  clone.classList.add("chart-show-all", "chart-fs-clone");
   const tb = clone.querySelector(".chart-focus-toolbar");
   if (tb) tb.remove();
   body.appendChild(clone);
   document.body.appendChild(overlay);
   document.body.classList.add("chart-fs-open");
+  bindChartFit(clone);
+  requestAnimationFrame(() => fitChartToWrap(clone));
+
   const close = () => {
     overlay.remove();
     document.body.classList.remove("chart-fs-open");
@@ -159,6 +211,9 @@ function initStepLesson(config) {
     if (typeof ForgeAnnotations !== "undefined" && ForgeAnnotations.setTextStep) {
       ForgeAnnotations.setTextStep(current);
     }
+    document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage").forEach((root) => {
+      fitChartToWrap(root);
+    });
   }
 
   initLessonCharts();
