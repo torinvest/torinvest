@@ -48,12 +48,18 @@ function hasPaywall() {
   return /requireSubscribedForCourse|middleware-require-subscribed/.test(content);
 }
 
-function extractDataDirFromProgress() {
-  const m = content.match(
-    /createProgressRouter\(\{[\s\S]*?dataDir:\s*([^,\n]+)/m
-  );
-  if (m) return m[1].trim();
+function extractDataDirFromProgressBlock(block) {
+  if (!block) return "path.join(__dirname, \"data\")";
+  const m = block.match(/dataDir:\s*([\s\S]*?),\s*requireAuth/m);
+  if (m) return m[1].replace(/\s+/g, " ").trim();
   return "path.join(__dirname, \"data\")";
+}
+
+function extractDataDirFromProgress() {
+  const progressUseRe =
+    /app\.use\(\s*createProgressRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const progressMatch = content.match(progressUseRe);
+  return extractDataDirFromProgressBlock(progressMatch && progressMatch[0]);
 }
 
 function managedBlock(dataDirExpr) {
@@ -108,11 +114,6 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
   console.log("OK — paywall + progress + calendar déjà présents dans " + serverPath);
   process.exit(0);
 } else if (hasProgress() && !hasCalendar()) {
-  const dataDirExpr = extractDataDirFromProgress();
-  content = content.replace(
-    /(const createProgressRouter = require\(["']\.\/server-patches\/routes-progress["']\);)/,
-    "$1\nconst createCalendarRouter = require(\"./server-patches/routes-calendar\");"
-  );
   const progressUseRe =
     /app\.use\(\s*createProgressRouter\(\{[\s\S]*?\}\)\s*\);/m;
   const progressMatch = content.match(progressUseRe);
@@ -120,6 +121,11 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
     console.error("ERREUR : createProgressRouter trouvé mais app.use(...) introuvable.");
     process.exit(1);
   }
+  const dataDirExpr = extractDataDirFromProgressBlock(progressMatch[0]);
+  content = content.replace(
+    /(const createProgressRouter = require\(["']\.\/server-patches\/routes-progress["']\);)/,
+    "$1\nconst createCalendarRouter = require(\"./server-patches/routes-calendar\");"
+  );
   const calendarUse = [
     "app.use(",
     "  createCalendarRouter({",
@@ -164,7 +170,25 @@ if (content === original) {
 
 const backup = serverPath + ".bak." + Date.now();
 fs.writeFileSync(backup, original);
+
+function syntaxOk() {
+  try {
+    const { execSync } = require("child_process");
+    execSync("node --check " + JSON.stringify(serverPath), { stdio: "pipe" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 fs.writeFileSync(serverPath, content);
+if (!syntaxOk()) {
+  fs.writeFileSync(serverPath, original);
+  console.error("ERREUR : server.js invalide après patch — restauré depuis sauvegarde.");
+  console.error("Sauvegarde inchangée :", backup);
+  process.exit(1);
+}
+
 console.log("Sauvegarde :", backup);
 console.log("Modifié :", serverPath);
 console.log("→ pm2 restart la-forge   # ou torinvest-formation");
