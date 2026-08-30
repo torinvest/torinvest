@@ -49,16 +49,43 @@ const requireSubscribedForCourse = require("./server-patches/middleware-require-
 app.use(requireSubscribedForCourse);
 ```
 
-## 3. Redémarrage
+## 3. Calendrier `/api/calendar`
+
+```javascript
+const createCalendarRouter = require("./server-patches/routes-calendar");
+
+app.use(
+  createCalendarRouter({
+    dataDir: "/home/ubuntu/torinvest-formation/data",
+    requireAuth,
+  })
+);
+```
+
+Test (connecté) :
+
+```bash
+curl -b cookies.txt -s https://app.torinvest-trading.com/api/calendar
+```
+
+## 4. Redémarrage
 
 ```bash
 cd /home/ubuntu/torinvest-formation
 pm2 restart torinvest-formation   # ou systemctl selon votre setup
 ```
 
-## Sécurité contenu
+## Sécurité contenu (intentionnel)
 
-Les HTML des 37 modules restent dans `public/course/` sur le VPS — ne pas les pousser sur le repo public GitHub.
+Les HTML des 37 modules restent **uniquement** dans `public/course/` sur le VPS. C’est le bon modèle : le paywall serveur (`middleware-require-subscribed`) empêche l’accès sans abonnement — ne pas publier ces fichiers sur GitHub public.
+
+**Sauvegarde privée** (sur le VPS, sans exposer le contenu) :
+
+```bash
+bash /home/ubuntu/torinvest-formation/deploy/vps/backup-course-private.sh
+```
+
+Les archives restent sur le serveur (ex. `/home/ubuntu/backups/torinvest/`).
 
 ## Logos (CSP Helmet)
 

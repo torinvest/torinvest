@@ -34,7 +34,8 @@ done
 echo "==> Patches serveur"
 for f in \
   server-patches/routes-progress.js \
-  server-patches/middleware-require-subscribed.js
+  server-patches/middleware-require-subscribed.js \
+  server-patches/routes-calendar.js
 do
   check_file "$f"
 done

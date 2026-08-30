@@ -151,7 +151,7 @@ async function saveDayEntry(key, entry) {
 function updateSyncBadge() {
   const el = document.getElementById("cal-sync-badge");
   if (!el) return;
-  const labels = { idle: "—", syncing: "Synchronisation…", ok: "Synchronisé", offline: "Hors ligne (local)" };
+  const labels = { idle: "—", syncing: "Sauvegarde…", ok: "Sauvegardé sur votre compte", offline: "Calendrier local (navigateur)" };
   el.textContent = labels[_syncStatus] || _syncStatus;
   el.className = "cal-sync-badge " + _syncStatus;
 }
