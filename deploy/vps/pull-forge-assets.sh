@@ -10,7 +10,7 @@ set -euo pipefail
 
 APP_DIR="${1:-/home/ubuntu/torinvest-formation}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../" && pwd)"
 SRC="$REPO_ROOT/la-forge"
 
 if [[ ! -d "$SRC/js" ]]; then
