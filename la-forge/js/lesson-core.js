@@ -1,6 +1,60 @@
 /**
  * La Forge ICT-SMC-PRICE ACTION — moteur leçons
  */
+
+function markChartClutter(svg) {
+  if (!svg || svg.dataset.clutterMarked === "1") return;
+  svg.dataset.clutterMarked = "1";
+  svg.querySelectorAll("text").forEach((t) => {
+    if (t.closest(".fc-callout")) return;
+    const txt = (t.textContent || "").trim();
+    if (txt.length < 14) return;
+    const g = t.closest("g");
+    if (g) g.classList.add("chart-clutter-label");
+  });
+}
+
+function injectLessonChartToolbar(chartRoot) {
+  if (!chartRoot || chartRoot.querySelector(".chart-focus-toolbar")) return;
+  const bar = document.createElement("div");
+  bar.className = "chart-focus-toolbar";
+  bar.innerHTML =
+    '<span class="chart-focus-hint">Schéma dense — utilisez le mode focus pour lire une couche à la fois.</span>' +
+    '<button type="button" class="chart-focus-btn" data-chart-toggle="focus">Mode focus</button>' +
+    '<button type="button" class="chart-focus-btn ghost" data-chart-toggle="full">Tout afficher</button>';
+  chartRoot.classList.add("chart-simplified");
+  chartRoot.insertBefore(bar, chartRoot.firstChild);
+  bar.querySelector('[data-chart-toggle="focus"]').addEventListener("click", () => {
+    chartRoot.classList.add("chart-simplified");
+    chartRoot.classList.remove("chart-show-all");
+  });
+  bar.querySelector('[data-chart-toggle="full"]').addEventListener("click", () => {
+    chartRoot.classList.remove("chart-simplified");
+    chartRoot.classList.add("chart-show-all");
+  });
+}
+
+function initLessonCharts() {
+  document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage").forEach((root) => {
+    const svg = root.querySelector("svg");
+    if (svg) markChartClutter(svg);
+    injectLessonChartToolbar(root.classList.contains("forge-chart") ? root : root);
+    if (!root.classList.contains("forge-chart") && root.querySelector(".forge-chart")) {
+      injectLessonChartToolbar(root.querySelector(".forge-chart"));
+    }
+  });
+}
+
+function syncLessonChartLayers(stepIndex) {
+  document.querySelectorAll(".lesson-layout [data-lesson-step]").forEach((el) => {
+    const s = Number(el.getAttribute("data-lesson-step"));
+    el.classList.toggle("anim-hidden", s !== stepIndex);
+  });
+  document.querySelectorAll(".lesson-layout .forge-chart, .lesson-layout .chart-stage").forEach((root) => {
+    root.dataset.activeStep = String(stepIndex);
+  });
+}
+
 function initStepLesson(config) {
   const {
     moduleId,
@@ -54,6 +108,15 @@ function initStepLesson(config) {
       setModuleSteps(moduleId, current + 1, totalSteps);
     }
     if (onStep) onStep(current);
+    syncLessonChartLayers(current);
+    if (typeof ForgeAnnotations !== "undefined" && ForgeAnnotations.setTextStep) {
+      ForgeAnnotations.setTextStep(current);
+    }
+  }
+
+  initLessonCharts();
+  if (typeof ForgeAnnotations !== "undefined" && ForgeAnnotations.refresh) {
+    ForgeAnnotations.refresh();
   }
 
   buttons.forEach((btn) => {

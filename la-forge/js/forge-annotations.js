@@ -125,7 +125,7 @@
       el: chartEl,
       callouts: entries,
       stepIndex: 0,
-      filterMode: inReplay ? "exclusive" : "cumulative",
+      filterMode: inReplay ? "exclusive" : "exclusive",
     };
     charts.push(chart);
     applyStepFilter(chart, 0);
@@ -144,6 +144,15 @@
     });
   }
 
+  function setTextStep(stepIndex) {
+    charts.forEach((chart) => {
+      if (chart.el.closest(".elite-replay, .chart-replay-section")) return;
+      if (!chart.el.closest(".lesson-layout, .lesson-pro")) return;
+      chart.stepIndex = stepIndex;
+      applyStepFilter(chart, stepIndex);
+    });
+  }
+
   function boot() {
     initAllForgeCharts();
   }
@@ -151,7 +160,8 @@
   window.initForgeChartAnnotations = initForgeChartAnnotations;
   window.ForgeAnnotations = {
     setReplayStep,
-    setLessonStep: setReplayStep,
+    setTextStep,
+    setLessonStep: setTextStep,
     initAll: boot,
     refresh: boot,
   };

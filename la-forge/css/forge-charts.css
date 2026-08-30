@@ -497,3 +497,50 @@
   border-radius: 4px;
   margin-bottom: 0.5rem;
 }
+
+/* ─── Schémas statiques leçon : mode focus (M0, synthèse…) ─── */
+.chart-focus-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 8px;
+  background: rgba(255, 215, 0, 0.06);
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  font-size: 0.78rem;
+}
+.chart-focus-hint { color: var(--muted, #9a9aad); flex: 1 1 180px; }
+.chart-focus-btn {
+  border: 1px solid rgba(255, 215, 0, 0.45);
+  background: rgba(255, 215, 0, 0.12);
+  color: var(--gold, #ffd700);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.chart-focus-btn.ghost {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--muted, #9a9aad);
+}
+.chart-focus-btn:hover { filter: brightness(1.08); }
+
+.forge-chart.chart-simplified svg .chart-clutter-label,
+.chart-stage.chart-simplified svg .chart-clutter-label {
+  opacity: 0.14 !important;
+  pointer-events: none;
+}
+.forge-chart.chart-simplified:not(.chart-show-all) svg .fc-callout.anno-step-hidden,
+.chart-stage.chart-simplified:not(.chart-show-all) svg .fc-callout.anno-step-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+.forge-chart.chart-show-all svg .chart-clutter-label,
+.chart-stage.chart-show-all svg .chart-clutter-label {
+  opacity: 1 !important;
+  pointer-events: auto;
+}
