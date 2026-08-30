@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Formation ÉLITE — La Forge</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <link rel="stylesheet" href="/css/forge-charts.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="course"></header>
+
+  <div class="container">
+    <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap">
+      <img src="/la-forge/img/forge-anvil.png" alt="" width="48" height="48" class="forge-logo-img" />
+      <div>
+        <h1 id="forge-title" style="margin:0.15rem 0">La Forge ÉLITE</h1>
+        <p id="forge-slogan-line" class="forge-slogan" style="margin:0;color:var(--muted);font-size:0.92rem"></p>
+      </div>
+    </div>
+    <p id="forge-hours" style="color:var(--muted);font-size:0.9rem;margin-bottom:1.25rem"></p>
+
+    <div class="overall-progress">
+      <h3>Progression globale</h3>
+      <div class="progress-bar"><div id="overall-bar" style="width:0%"></div></div>
+      <p id="overall-text" style="color:var(--muted);font-size:0.9rem;margin-top:0.5rem">Chargement…</p>
+      <p style="margin-top:0.35rem;font-size:0.82rem;color:var(--muted)">
+        <span id="progress-sync-badge" class="cal-sync-badge idle">—</span>
+      </p>
+    </div>
+
+    <ul id="module-list" class="module-list" style="margin-top:1.5rem"></ul>
+  </div>
+
+  <footer data-forge-footer></footer>
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/progress.js"></script>
+  <script src="/js/course-data.js"></script>
+  <script src="/js/course-index.js"></script>
+  <script src="/js/forge-legal.js"></script>
+</body>
+</html>

@@ -14,7 +14,7 @@
 set -euo pipefail
 
 APP_DIR="${1:-/home/ubuntu/torinvest-formation}"
-BRANCH="${BRANCH:-cursor/formation-platform-691a}"
+BRANCH="${BRANCH:-main}"
 SHA="${SHA:-}"
 if [[ -n "$SHA" ]]; then
   RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/la-forge"

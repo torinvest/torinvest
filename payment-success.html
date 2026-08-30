@@ -58,11 +58,13 @@
         : "/ai-access.html";
       if (isAccomp) {
         document.getElementById("intro").textContent =
-          "Ton accompagnement 349€/an est confirmé. Ta licence TOR-ACCOMPAGNEMENT arrive par email. Utilise le même email que sur Stripe.";
+          "Ton accompagnement 349€/an est confirmé. Tu recevras tes identifiants La Forge par email (même adresse que Stripe).";
         document.getElementById("steps").innerHTML =
-          '<div class="step"><b>1.</b> Email avec ta clé TOR-ACCOMPAGNEMENT (vérifie les spams).</div>' +
+          '<div class="step"><b>1.</b> Email avec ta clé TOR-ACCOMPAGNEMENT et tes identifiants espace formation (vérifie les spams).</div>' +
           '<div class="step"><b>2.</b> Complète le formulaire accompagnement (Discord, niveau).</div>' +
-          '<div class="step"><b>3.</b> Valide ton accès formation + espace privé.</div>';
+          '<div class="step"><b>3.</b> Connecte-toi à <a href="https://app.torinvest-trading.com/login.html" style="color:var(--gold2)">app.torinvest-trading.com</a> — formation, calendrier et progression.</div>';
+        document.getElementById("ctaAccess").href = "https://app.torinvest-trading.com/login.html";
+        document.getElementById("ctaAccess").textContent = "Connexion espace formation →";
       }
     })();
   </script>

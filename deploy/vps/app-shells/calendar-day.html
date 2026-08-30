@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Journée — Calendrier La Forge</title>
   <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
-  <link rel="stylesheet" href="/la-forge/css/main.css" />
-  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
 </head>
 <body>
   <header class="site-header" data-forge-member-header="calendar"></header>
@@ -50,11 +50,11 @@
   </div>
 
   <footer data-forge-footer></footer>
-  <script src="/la-forge/js/forge-brand.js"></script>
-  <script src="/la-forge/js/auth.js"></script>
-  <script src="/la-forge/js/forge-gate.js"></script>
-  <script src="/la-forge/js/course-data.js"></script>
-  <script src="/la-forge/js/forge-calendar.js"></script>
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/course-data.js"></script>
+  <script src="/js/forge-calendar.js"></script>
   <script>
     initForgeGate({ requirePremium: true }).then(async (me) => {
       if (!me) return;
@@ -62,6 +62,6 @@
       await initCalendarDayPage();
     });
   </script>
-<script src="/la-forge/js/forge-legal.js"></script>
+<script src="/js/forge-legal.js"></script>
 </body>
 </html>
