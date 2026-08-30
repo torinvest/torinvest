@@ -287,8 +287,8 @@ nav a.active, nav a:hover { color: var(--text); }
 /* ─── Illustrations animées ─── */
 .lesson-layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, 0.85fr);
+  gap: 1.5rem 2rem;
   align-items: start;
 }
 @media (max-width: 900px) {
@@ -301,9 +301,16 @@ nav a.active, nav a:hover { color: var(--text); }
   border-radius: 12px;
   padding: 1rem;
   position: relative;
+  min-height: 380px;
 }
 
-.chart-stage svg { width: 100%; height: auto; display: block; }
+.chart-stage svg,
+.lesson-layout .forge-chart svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  min-width: 520px;
+}
 
 .step-controls {
   display: flex;

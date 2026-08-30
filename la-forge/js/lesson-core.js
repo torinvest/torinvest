@@ -16,14 +16,33 @@ function markChartClutter(svg) {
 
 function injectLessonChartToolbar(chartRoot) {
   if (!chartRoot || chartRoot.querySelector(".chart-focus-toolbar")) return;
+
+  const svg = chartRoot.querySelector("svg");
+  if (svg && !svg.parentElement.classList.contains("chart-zoom-wrap")) {
+    const wrap = document.createElement("div");
+    wrap.className = "chart-zoom-wrap";
+    svg.parentNode.insertBefore(wrap, svg);
+    wrap.appendChild(svg);
+  }
+
   const bar = document.createElement("div");
   bar.className = "chart-focus-toolbar";
   bar.innerHTML =
-    '<span class="chart-focus-hint">Schéma dense — utilisez le mode focus pour lire une couche à la fois.</span>' +
-    '<button type="button" class="chart-focus-btn" data-chart-toggle="focus">Mode focus</button>' +
+    '<span class="chart-focus-hint">Lisez le texte à droite — le schéma résume la section.</span>' +
+    '<button type="button" class="chart-focus-btn" data-chart-toggle="enlarge">Agrandir</button>' +
+    '<button type="button" class="chart-focus-btn" data-chart-toggle="fullscreen">Plein écran</button>' +
+    '<button type="button" class="chart-focus-btn ghost" data-chart-toggle="focus">Masquer labels</button>' +
     '<button type="button" class="chart-focus-btn ghost" data-chart-toggle="full">Tout afficher</button>';
-  chartRoot.classList.add("chart-simplified");
+
+  chartRoot.classList.add("chart-readable");
   chartRoot.insertBefore(bar, chartRoot.firstChild);
+
+  bar.querySelector('[data-chart-toggle="enlarge"]').addEventListener("click", () => {
+    chartRoot.classList.toggle("chart-enlarged");
+  });
+  bar.querySelector('[data-chart-toggle="fullscreen"]').addEventListener("click", () => {
+    openChartFullscreen(chartRoot);
+  });
   bar.querySelector('[data-chart-toggle="focus"]').addEventListener("click", () => {
     chartRoot.classList.add("chart-simplified");
     chartRoot.classList.remove("chart-show-all");
@@ -31,6 +50,34 @@ function injectLessonChartToolbar(chartRoot) {
   bar.querySelector('[data-chart-toggle="full"]').addEventListener("click", () => {
     chartRoot.classList.remove("chart-simplified");
     chartRoot.classList.add("chart-show-all");
+  });
+}
+
+function openChartFullscreen(chartRoot) {
+  if (document.getElementById("chart-fs-overlay")) return;
+  const overlay = document.createElement("div");
+  overlay.id = "chart-fs-overlay";
+  overlay.className = "chart-fs-overlay";
+  overlay.innerHTML =
+    '<div class="chart-fs-panel" role="dialog" aria-label="Schéma plein écran">' +
+    '<button type="button" class="chart-fs-close" aria-label="Fermer">✕ Fermer</button>' +
+    '<div class="chart-fs-body"></div></div>';
+  const body = overlay.querySelector(".chart-fs-body");
+  const clone = chartRoot.cloneNode(true);
+  clone.classList.remove("chart-simplified");
+  clone.classList.add("chart-show-all", "chart-enlarged", "chart-fs-clone");
+  const tb = clone.querySelector(".chart-focus-toolbar");
+  if (tb) tb.remove();
+  body.appendChild(clone);
+  document.body.appendChild(overlay);
+  document.body.classList.add("chart-fs-open");
+  const close = () => {
+    overlay.remove();
+    document.body.classList.remove("chart-fs-open");
+  };
+  overlay.querySelector(".chart-fs-close").addEventListener("click", close);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) close();
   });
 }
 
