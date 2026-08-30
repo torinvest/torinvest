@@ -21,9 +21,19 @@ if (!fs.existsSync(serverPath)) {
 
 let content = fs.readFileSync(serverPath, "utf8");
 
-if (/trust proxy/.test(content)) {
-  console.log("OK — trust proxy déjà configuré.");
+function hasTrustProxySet() {
+  return /app\.set\s*\(\s*['"]trust proxy['"]/.test(content);
+}
+
+if (hasTrustProxySet()) {
+  console.log("OK — app.set('trust proxy') déjà présent.");
   process.exit(0);
+}
+
+if (/trust proxy/i.test(content)) {
+  console.log(
+    "Note : 'trust proxy' trouvé (commentaire ?) mais pas app.set() — ajout de la ligne."
+  );
 }
 
 const m = content.match(/const app = express\(\);?\s*\n/);
