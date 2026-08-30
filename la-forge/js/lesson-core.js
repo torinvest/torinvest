@@ -673,6 +673,7 @@ window.initChartHostUI = initChartHostUI;
 window.initAllChartHosts = initAllChartHosts;
 window.initLessonCharts = initLessonCharts;
 window.ForgeChartFit = fitChartToWrap;
+window.restoreChartViewBox = restoreChartViewBox;
 window.openChartViewer = openChartViewer;
 
 if (document.readyState === "loading") {
