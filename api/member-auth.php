@@ -40,7 +40,7 @@ function memberAuthJson(array $data, int $status = 200): void
 try {
     memberAuthConfig();
 } catch (Throwable $e) {
-    memberAuthJson(['ok' => false, 'error' => $e->getMessage()], 503);
+    memberAuthJson(['ok' => false, 'error' => 'service_unavailable'], 503);
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
@@ -107,5 +107,5 @@ try {
     }
     memberAuthJson(['ok' => false, 'error' => $code], $status);
 } catch (Throwable $e) {
-    memberAuthJson(['ok' => false, 'error' => 'server_error', 'detail' => $e->getMessage()], 500);
+    memberAuthJson(['ok' => false, 'error' => 'server_error'], 500);
 }

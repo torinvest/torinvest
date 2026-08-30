@@ -1,8 +1,12 @@
 <?php
 /**
- * Authentification développeur pour AITORINVEST2.html
- * Valide un PIN et retourne un token de session (localStorage côté client).
+ * Authentification développeur (legacy AITORINVEST2) — durci.
+ * Préférer ai-access.html + api/ai-access.php pour les nouveaux flux.
  */
+declare(strict_types=1);
+
+require_once __DIR__ . '/rate-limit.php';
+
 header('Content-Type: application/json; charset=utf-8');
 $allowedOrigins = [
     'https://www.torinvest-trading.com',
@@ -15,10 +19,8 @@ $isNetlifyPreview = (bool) preg_match('/\.netlify\.app$/', $originHost);
 if (in_array($origin, $allowedOrigins, true) || $isNetlifyPreview) {
     header('Access-Control-Allow-Origin: ' . $origin);
     header('Vary: Origin');
-} else {
-    header('Access-Control-Allow-Origin: *');
 }
-header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -36,15 +38,18 @@ if (!file_exists($configFile)) {
 $config = require $configFile;
 $expectedPin = $config['dev_access_pin'] ?? '';
 $ttl = (int) ($config['dev_session_ttl'] ?? 604800);
+$hmacSecret = (string) ($config['dev_session_hmac_secret'] ?? '');
+if ($hmacSecret === '') {
+    $hmacSecret = hash('sha256', 'torinvest-dev:' . $expectedPin);
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Vérification d'un token existant
     $token = $_GET['token'] ?? '';
     if (empty($token)) {
         echo json_encode(['ok' => false]);
         exit;
     }
-    $valid = verifyDevToken($token, $expectedPin);
+    $valid = verifyDevToken($token, $hmacSecret);
     echo json_encode(['ok' => $valid]);
     exit;
 }
@@ -54,6 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['ok' => false, 'error' => 'Méthode non autorisée']);
     exit;
 }
+
+torinvestRateLimitGuard('dev_auth_pin', 8, 900);
 
 $input = json_decode(file_get_contents('php://input'), true);
 $pin = trim($input['pin'] ?? '');
@@ -65,7 +72,7 @@ if ($pin === '' || !hash_equals($expectedPin, $pin)) {
 }
 
 $expiresAt = time() + $ttl;
-$token = generateDevToken($expiresAt, $expectedPin);
+$token = generateDevToken($expiresAt, $hmacSecret);
 
 echo json_encode([
     'ok' => true,

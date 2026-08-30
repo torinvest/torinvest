@@ -52,6 +52,21 @@ test("pages contenu gated", function () {
   });
 });
 
+test("chroniques 4-14 gated", function () {
+  for (var n = 4; n <= 14; n++) {
+    var f = "chronique" + n + ".html";
+    var html = fs.readFileSync(path.join(root, f), "utf8");
+    assert.ok(html.indexOf('data-member-required="1"') !== -1, f + " gate");
+    assert.ok(html.indexOf("torinvest-member-auth.js") !== -1, f + " script");
+  }
+});
+
+test("tormission2 gated", function () {
+  var html = fs.readFileSync(path.join(root, "tormission2.html"), "utf8");
+  assert.ok(html.indexOf('data-member-required="1"') !== -1);
+  assert.ok(html.indexOf("torinvest-member-auth.js") !== -1);
+});
+
 test("formation.html publique (hub La Forge)", function () {
   var html = fs.readFileSync(path.join(root, "formation.html"), "utf8");
   assert.ok(html.indexOf('data-member-required="1"') === -1, "formation public");

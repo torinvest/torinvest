@@ -13,6 +13,9 @@ return [
     // Durée session admin (secondes) — 7 jours par défaut
     'dev_session_ttl' => 604800,
 
+    // Secret HMAC sessions dev-auth (legacy) — vide = dérivé du PIN
+    'dev_session_hmac_secret' => '',
+
     // Session admin accompagnement / Crypto Radar (secondes) — 7 j par défaut
     'accompagnement_access_admin_session_ttl' => 604800,
 
