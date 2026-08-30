@@ -331,10 +331,14 @@ nav a.active, nav a:hover { color: var(--text); }
 }
 .step-panel h4 { color: var(--aqua); margin-bottom: 0.5rem; }
 
-/* Animations SVG */
-.anim-candle { transition: opacity 0.4s, transform 0.4s; }
-.anim-hidden { opacity: 0; }
-.anim-visible { opacity: 1; }
+/* Animations SVG — masquage réel (pas seulement opacity) */
+.anim-candle { transition: opacity 0.35s, visibility 0.35s; }
+.anim-hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.anim-visible { opacity: 1; visibility: visible; }
 
 @keyframes sweepFlash {
   0%, 100% { fill: rgba(239,68,68,0.2); }

@@ -17,16 +17,21 @@ function getModuleProgress(moduleId) {
   return all[moduleId] || { stepsDone: 0, quizScore: 0, quizTotal: 0, completed: false };
 }
 
+function practiceSatisfied(prev) {
+  const total = prev.practiceTotal || 0;
+  if (total <= 0) return true;
+  return (prev.practiceScore || 0) >= total * 0.7;
+}
+
 function setModuleSteps(moduleId, stepsDone, totalSteps) {
   const all = loadProgress();
   const prev = all[moduleId] || {};
   const quizOk = (prev.quizScore || 0) >= (prev.quizTotal || 10) * 0.7;
-  const practiceOk = (prev.practiceScore || 0) >= (prev.practiceTotal || 4) * 0.7;
   all[moduleId] = {
     ...prev,
     stepsDone,
     totalSteps,
-    completed: stepsDone >= totalSteps && quizOk && practiceOk,
+    completed: stepsDone >= totalSteps && quizOk && practiceSatisfied(prev),
   };
   saveProgress(all);
 }
@@ -34,7 +39,6 @@ function setModuleSteps(moduleId, stepsDone, totalSteps) {
 function setModuleQuiz(moduleId, score, total, totalSteps) {
   const all = loadProgress();
   const prev = all[moduleId] || {};
-  const practiceOk = (prev.practiceScore || 0) >= (prev.practiceTotal || 4) * 0.7;
   all[moduleId] = {
     ...prev,
     quizScore: score,
@@ -43,7 +47,7 @@ function setModuleQuiz(moduleId, score, total, totalSteps) {
     completed:
       (prev.stepsDone || 0) >= (totalSteps || prev.totalSteps || 12) &&
       score >= total * 0.7 &&
-      practiceOk,
+      practiceSatisfied(prev),
   };
   saveProgress(all);
 }
@@ -59,7 +63,7 @@ function setModulePractice(moduleId, score, total) {
     completed:
       (prev.stepsDone || 0) >= (prev.totalSteps || 12) &&
       quizOk &&
-      score >= total * 0.7,
+      practiceSatisfied({ ...prev, practiceScore: score, practiceTotal: total }),
   };
   saveProgress(all);
 }

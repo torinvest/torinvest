@@ -1,7 +1,24 @@
 /**
  * La Forge ÉLITE — Replay chart pédagogique
- * Chart minimal + panneau explicatif (ce que vous voyez / signification / attention)
+ * Mode exclusif : une frame visible à la fois (pas d’empilement sur le SVG).
  */
+function applyReplayFrames(frames, current) {
+  frames.forEach((frame, i) => {
+    const group = document.getElementById(frame.groupId);
+    if (group) group.classList.toggle("anim-hidden", i !== current);
+    if (frame.baseId) {
+      const base = document.getElementById(frame.baseId);
+      if (base) base.classList.remove("anim-hidden");
+    }
+  });
+}
+
+function notifyReplayStep(index) {
+  if (typeof ForgeAnnotations !== "undefined" && ForgeAnnotations.setReplayStep) {
+    ForgeAnnotations.setReplayStep(index);
+  }
+}
+
 function initEliteReplay(config) {
   const {
     frames,
@@ -48,7 +65,7 @@ function initEliteReplay(config) {
   function renderList(el, items) {
     if (!el) return;
     if (!items || !items.length) {
-      el.innerHTML = "<li>Aucun élément sur cette frame — lisez le chart.</li>";
+      el.innerHTML = "<li>Une seule couche visible — lisez le chart et le panneau à droite.</li>";
       return;
     }
     el.innerHTML = items.map((t) => "<li>" + t + "</li>").join("");
@@ -60,14 +77,8 @@ function initEliteReplay(config) {
       btn.classList.toggle("active", Number(btn.dataset.replay) === current);
     });
 
-    frames.forEach((frame, i) => {
-      const group = document.getElementById(frame.groupId);
-      if (group) group.classList.toggle("anim-hidden", i > current);
-      if (frame.baseId) {
-        const base = document.getElementById(frame.baseId);
-        if (base) base.classList.remove("anim-hidden");
-      }
-    });
+    applyReplayFrames(frames, current);
+    notifyReplayStep(current);
 
     const f = frames[current];
     if (titleEl) titleEl.textContent = f.title || f.label || "Étape " + (current + 1);
@@ -95,30 +106,35 @@ function initEliteReplay(config) {
   goTo(0);
 }
 
-/** @deprecated — utilise initEliteReplay si config enrichie */
 function initChartReplay(config) {
   if (config.frames && config.frames[0] && (config.frames[0].see || config.frames[0].means)) {
-    return initEliteReplay({ ...config, rootSelector: config.rootSelector || ".chart-replay-section.elite-replay, .elite-replay" });
+    return initEliteReplay({
+      ...config,
+      rootSelector: config.rootSelector || ".chart-replay-section.elite-replay, .elite-replay",
+    });
   }
+
   const { frames, counterId = "replay-counter", captionId = "replay-caption", progressId = "replay-progress" } = config;
   if (!frames || !frames.length) return;
+
   const buttons = document.querySelectorAll("[data-replay]");
   const captionEl = document.getElementById(captionId);
   const counterEl = document.getElementById(counterId);
   const progressEl = document.getElementById(progressId);
   let current = 0;
+
   function goTo(index) {
     current = Math.max(0, Math.min(frames.length - 1, index));
     buttons.forEach((btn) => btn.classList.toggle("active", Number(btn.dataset.replay) === current));
-    frames.forEach((frame, i) => {
-      const group = document.getElementById(frame.groupId);
-      if (group) group.classList.toggle("anim-hidden", i > current);
-    });
+    applyReplayFrames(frames, current);
+    notifyReplayStep(current);
+
     const f = frames[current];
     if (captionEl) captionEl.textContent = f.caption || "";
     if (counterEl) counterEl.textContent = "Frame " + (current + 1) + " / " + frames.length;
     if (progressEl) progressEl.style.width = ((current + 1) / frames.length) * 100 + "%";
   }
+
   buttons.forEach((btn) => btn.addEventListener("click", () => goTo(Number(btn.dataset.replay))));
   document.getElementById("replay-prev")?.addEventListener("click", () => goTo(current - 1));
   document.getElementById("replay-next")?.addEventListener("click", () => goTo(current + 1));

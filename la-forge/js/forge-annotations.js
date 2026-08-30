@@ -1,5 +1,5 @@
 /**
- * La Forge — annotations chart cliquables (masquer / réafficher)
+ * La Forge — annotations chart (replay : une étape = annotations liées, pas cumul).
  */
 (function () {
   const charts = [];
@@ -18,10 +18,17 @@
   }
 
   function applyStepFilter(chart, stepIndex) {
+    const exclusive = chart.filterMode === "exclusive";
     chart.callouts.forEach((entry) => {
-      const from = Number(entry.g.dataset.annoFrom || 0);
+      const fromRaw = entry.g.dataset.annoFrom;
       const userOff = entry.g.dataset.annoUser === "off";
-      const stepOk = stepIndex >= from;
+      let stepOk = false;
+
+      if (fromRaw !== undefined && fromRaw !== "") {
+        const from = Number(fromRaw);
+        stepOk = exclusive ? from === stepIndex : stepIndex >= from;
+      }
+
       entry.g.classList.toggle("anno-step-hidden", !stepOk);
       if (!stepOk) return;
       if (userOff) {
@@ -42,14 +49,15 @@
     if (!calloutNodes.length) return null;
 
     chartEl.dataset.annoInit = "1";
+    const inReplay = chartEl.closest(".elite-replay, .chart-replay-section");
 
     const toolbar = document.createElement("div");
     toolbar.className = "anno-toolbar";
     toolbar.innerHTML =
       '<div class="anno-toolbar-top">' +
-      '<span class="anno-hint">Cliquez sur une pastille <strong>①</strong> ou un bouton ci-dessous pour masquer / réafficher une annotation.</span>' +
+      '<span class="anno-hint">Pastilles <strong>①</strong> : une étape du replay = une couche lisible. Cliquez pour masquer / réafficher.</span>' +
       '<div class="anno-actions">' +
-      '<button type="button" class="anno-btn" data-act="show">Tout afficher</button>' +
+      '<button type="button" class="anno-btn" data-act="show">Tout afficher (étape)</button>' +
       '<button type="button" class="anno-btn" data-act="hide">Tout masquer</button>' +
       "</div></div>" +
       '<div class="anno-pills"></div>';
@@ -59,7 +67,7 @@
 
     calloutNodes.forEach((g, idx) => {
       if (!g.dataset.annoFrom) {
-        g.dataset.annoFrom = String(Math.min(Math.floor(idx / 2), 11));
+        g.dataset.annoFrom = String(idx);
       }
       const label = calloutLabel(g, idx);
       g.classList.add("anno-interactive");
@@ -97,9 +105,9 @@
 
     toolbar.querySelector('[data-act="show"]').addEventListener("click", () => {
       entries.forEach((e) => {
+        if (e.g.classList.contains("anno-step-hidden")) return;
         e.g.dataset.annoUser = "on";
         setCalloutVisible(e.g, e.pill, true, false);
-        e.g.classList.remove("anno-step-hidden");
       });
     });
     toolbar.querySelector('[data-act="hide"]').addEventListener("click", () => {
@@ -113,7 +121,12 @@
     if (anchor) anchor.insertAdjacentElement("afterend", toolbar);
     else svg.insertAdjacentElement("afterend", toolbar);
 
-    const chart = { el: chartEl, callouts: entries, stepIndex: 0 };
+    const chart = {
+      el: chartEl,
+      callouts: entries,
+      stepIndex: 0,
+      filterMode: inReplay ? "exclusive" : "cumulative",
+    };
     charts.push(chart);
     applyStepFilter(chart, 0);
     return chart;
@@ -123,9 +136,9 @@
     document.querySelectorAll(".forge-chart, .chart-replay-section .tv-frame, .chart-replay-section .forge-chart").forEach(initForgeChartAnnotations);
   }
 
-  function setLessonStep(stepIndex) {
+  function setReplayStep(stepIndex) {
     charts.forEach((chart) => {
-      if (!chart.el.closest(".lesson-layout, .chart-replay-section")) return;
+      if (!chart.el.closest(".elite-replay, .chart-replay-section")) return;
       chart.stepIndex = stepIndex;
       applyStepFilter(chart, stepIndex);
     });
@@ -136,7 +149,12 @@
   }
 
   window.initForgeChartAnnotations = initForgeChartAnnotations;
-  window.ForgeAnnotations = { setLessonStep, initAll: boot, refresh: boot };
+  window.ForgeAnnotations = {
+    setReplayStep,
+    setLessonStep: setReplayStep,
+    initAll: boot,
+    refresh: boot,
+  };
 
   boot();
   document.addEventListener("DOMContentLoaded", boot);
