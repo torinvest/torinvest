@@ -22,6 +22,7 @@ pull() {
   curl -fsSL "$RAW/la-forge/$rel" -o "$dest"
 }
 
+pull "js/progress.js"
 pull "js/course-data.js"
 pull "js/course-index.js"
 pull "js/forge-unlock.js"
