@@ -20,6 +20,7 @@ for f in \
   public/js/lesson-core.js \
   public/js/forge-gate.js \
   public/js/course-index.js \
+  public/js/forge-unlock.js \
   public/js/forge-calendar.js \
   public/dashboard.html \
   public/login.html \
@@ -35,7 +36,9 @@ echo "==> Patches serveur"
 for f in \
   server-patches/routes-progress.js \
   server-patches/middleware-require-subscribed.js \
-  server-patches/routes-calendar.js
+  server-patches/routes-calendar.js \
+  server-patches/forge-unlock-server.js \
+  server-patches/course-module-order.json
 do
   check_file "$f"
 done
@@ -55,6 +58,8 @@ grep -q 'initForgeProgress' "$APP_DIR/public/js/progress.js" && echo "  OK initF
 grep -q 'viewBox' "$APP_DIR/public/js/lesson-core.js" && echo "  OK lesson-core viewBox" || { echo "  MISSING viewBox fit"; FAIL=$((FAIL + 1)); }
 grep -q 'bindReplayNav' "$APP_DIR/public/js/forge-replay.js" && echo "  OK replay nav" || { echo "  MISSING replay nav"; FAIL=$((FAIL + 1)); }
 grep -q 'module-list' "$APP_DIR/public/course/index.html" && echo "  OK course index shell" || { echo "  MISSING course index"; FAIL=$((FAIL + 1)); }
+grep -q 'forge-unlock.js' "$APP_DIR/public/course/index.html" && echo "  OK unlock scripts index" || { echo "  MISSING forge-unlock on index"; FAIL=$((FAIL + 1)); }
+grep -q 'isModuleUnlocked' "$APP_DIR/public/js/forge-unlock.js" && echo "  OK forge-unlock" || { echo "  MISSING forge-unlock logic"; FAIL=$((FAIL + 1)); }
 grep -q 'login-form' "$APP_DIR/public/login.html" && echo "  OK login form" || { echo "  MISSING login form"; FAIL=$((FAIL + 1)); }
 
 if [[ "$FAIL" -gt 0 ]]; then

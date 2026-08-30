@@ -757,7 +757,18 @@ function initCoursePageGate() {
 
   const run = async () => {
     if (typeof initForgeGate === "function") {
-      await initForgeGate({ requirePremium: true });
+      const me = await initForgeGate({ requirePremium: true });
+      if (!me) return;
+      if (typeof initForgeProgress === "function") {
+        await initForgeProgress(me.email);
+      }
+      if (typeof getModuleIdFromPath === "function" && typeof isModuleUnlocked === "function") {
+        const moduleId = getModuleIdFromPath(path);
+        if (moduleId && !isModuleUnlocked(moduleId)) {
+          window.location.replace("/course/index.html?locked_module=1");
+          return;
+        }
+      }
       return;
     }
     if (typeof getMe !== "function") return;
