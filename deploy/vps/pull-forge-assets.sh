@@ -11,15 +11,17 @@
 # Ou branche :
 #   BRANCH=cursor/formation-platform-691a curl -fsSL .../pull-forge-assets.sh | bash
 
-set -eo pipefail
+set -euo pipefail
 
 APP_DIR="${1:-/home/ubuntu/torinvest-formation}"
-BRANCH="${BRANCH:-main}"
+BRANCH="${BRANCH:-cursor/formation-platform-691a}"
 SHA="${SHA:-}"
 if [[ -n "$SHA" ]]; then
   RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${SHA}/la-forge"
+  REF_LABEL="$SHA"
 else
   RAW_BASE="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}/la-forge"
+  REF_LABEL="$BRANCH"
 fi
 
 JS_FILES=(
@@ -53,16 +55,37 @@ if [[ ! -d "$APP_DIR/public/js" ]]; then
   exit 1
 fi
 
-echo "==> Téléchargement GitHub (${SHA:-$BRANCH}) → $APP_DIR/public"
+echo "==> Téléchargement GitHub ($REF_LABEL) → $APP_DIR/public"
+FAIL=0
+
+pull_file() {
+  local subdir="$1"
+  local name="$2"
+  local url="$RAW_BASE/$subdir/$name"
+  local dest="$APP_DIR/public/$subdir/$name"
+  echo "  $subdir/$name"
+  if curl -fsSL "$url" -o "$dest"; then
+    return 0
+  fi
+  echo "  ERREUR 404 ou réseau : $url"
+  FAIL=$((FAIL + 1))
+  return 1
+}
 
 for f in "${JS_FILES[@]}"; do
-  echo "  js/$f"
-  curl -fsSL "$RAW_BASE/js/$f" -o "$APP_DIR/public/js/$f"
+  pull_file js "$f" || true
 done
 
 for f in "${CSS_FILES[@]}"; do
-  echo "  css/$f"
-  curl -fsSL "$RAW_BASE/css/$f" -o "$APP_DIR/public/css/$f"
+  pull_file css "$f" || true
 done
+
+if [[ "$FAIL" -gt 0 ]]; then
+  echo ""
+  echo "ÉCHEC : $FAIL fichier(s) introuvable(s) pour la ref $REF_LABEL."
+  echo "→ Utilisez un SHA qui contient tous les fichiers, ex. :"
+  echo "   SHA=d5c5695 curl -fsSL \"https://raw.githubusercontent.com/torinvest/torinvest/d5c5695/deploy/vps/pull-forge-assets.sh\" | bash"
+  exit 1
+fi
 
 echo "OK — JS/CSS formation mis à jour ($(date -Iseconds)). Hard refresh (Ctrl+Shift+R)."
