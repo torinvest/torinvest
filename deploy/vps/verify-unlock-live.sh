@@ -33,21 +33,20 @@ check_grep() {
 
 echo "==> Vérif unlock live ($APP_URL)"
 
-check_min_size "/js/progress.js" 9000 "progress.js (unlock intégré)"
+check_min_size "/js/progress.js" 6000 "progress.js"
 check_min_size "/js/course-index.js" 6000 "course-index.js (masquage)"
-check_grep "/js/progress.js" "isModuleUnlocked" "unlock dans progress.js"
-check_grep "/js/course-data.js" "isModuleUnlocked" "unlock dans course-data.js"
+check_grep "/js/forge-unlock.js" "isModuleUnlocked" "unlock dans forge-unlock.js"
+check_grep "/js/course-data.js" "getAllModuleIds" "course-data.js"
 
-if curl -fsSL -o /dev/null -w "%{http_code}" "$APP_URL/js/forge-unlock.js" | grep -q 200; then
-  echo "  OK forge-unlock.js (200)"
-else
-  echo "  INFO forge-unlock.js absent (OK si progress.js à jour)"
+if curl -fsSL "$APP_URL/js/progress.js" | grep -q "isModuleUnlocked"; then
+  echo "  WARN progress.js contient encore unlock (ancienne version)"
+  FAIL=$((FAIL + 1))
 fi
 
 if [[ "$FAIL" -gt 0 ]]; then
   echo ""
   echo "ÉCHEC — déployez sur le VPS :"
-  echo "  SHA=<commit> curl -fsSL \"https://raw.githubusercontent.com/torinvest/torinvest/\${SHA}/deploy/vps/pull-unlock-hotfix.sh\" | bash"
+  echo "  curl -fsSL \"https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/apply-unlock-now.sh\" | bash"
   exit 1
 fi
 

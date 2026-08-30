@@ -51,6 +51,11 @@ if [[ -f "$INDEX_SRC" ]]; then
   echo "  public/course/index.html"
   cp "$INDEX_SRC" "$APP_DIR/public/course/index.html"
 fi
+DASH_SRC="$REPO_ROOT/deploy/vps/app-shells/dashboard.html"
+if [[ -f "$DASH_SRC" ]]; then
+  echo "  public/dashboard.html"
+  cp "$DASH_SRC" "$APP_DIR/public/dashboard.html"
+fi
 
 PATCH_SRC="$REPO_ROOT/deploy/vps/formation-server"
 PATCH_DEST="$APP_DIR/server-patches"

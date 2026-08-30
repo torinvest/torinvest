@@ -5,7 +5,11 @@
  */
 const fs = require("fs");
 const path = require("path");
+const rules = require("./forge-progress-rules");
+const moduleOrder = require("./course-module-order.json");
 const unlock = require("./forge-unlock-server");
+
+const ALLOWED_IDS = moduleOrder.map((m) => m.id);
 
 function safeEmailFile(email) {
   return String(email || "guest").replace(/[^a-z0-9@._-]/gi, "_");
@@ -19,7 +23,8 @@ function readProgressModules(email, dataDir) {
       "utf8"
     );
     const parsed = JSON.parse(raw);
-    return parsed.modules || parsed;
+    const modules = parsed.modules || parsed;
+    return rules.sanitizeModulesPayload(modules, {}, ALLOWED_IDS);
   } catch {
     return {};
   }
@@ -52,7 +57,7 @@ module.exports = function requireSubscribedForCourse(req, res, next) {
     const dataDir = path.join(__dirname, "..", "data");
     const progress = readProgressModules(user.email, dataDir);
     const moduleId = unlock.getModuleIdFromCoursePath(coursePath);
-    if (moduleId && !unlock.isModuleUnlocked(moduleId, progress)) {
+    if (!moduleId || !unlock.isModuleUnlocked(moduleId, progress)) {
       return res.redirect("/course/index.html?locked_module=1");
     }
   }
