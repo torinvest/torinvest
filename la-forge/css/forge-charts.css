@@ -381,13 +381,14 @@
 
 .elite-replay-layout {
   display: grid;
-  grid-template-columns: 1fr 300px;
+  grid-template-columns: 1fr minmax(280px, 340px);
   gap: 1rem;
   align-items: stretch;
 }
 
 @media (max-width: 900px) {
   .elite-replay-layout { grid-template-columns: 1fr; }
+  .elite-replay-guide { order: 2; }
 }
 
 .elite-replay-guide {
@@ -495,6 +496,143 @@
   border-color: var(--gold);
   color: var(--gold);
   background: rgba(255, 215, 0, 0.08);
+}
+
+/* ─── Replay pédagogique (lisibilité) ─── */
+.replay-pedagogy-mode .zone-pulse,
+.replay-pedagogy-mode .sweep-zone,
+.replay-pedagogy-mode .anim-pop,
+.replay-pedagogy-mode .anim-draw {
+  animation: none !important;
+}
+
+.replay-pedagogy-mode svg .replay-focus {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.45));
+}
+
+.replay-pedagogy-mode svg .replay-context {
+  opacity: 0.42 !important;
+  filter: none;
+}
+
+.replay-pedagogy-mode svg .replay-future {
+  opacity: 0 !important;
+}
+
+.replay-focus-ring {
+  fill: none;
+  stroke: rgba(255, 215, 0, 0.85);
+  stroke-width: 2.5;
+  stroke-dasharray: 8 5;
+  pointer-events: none;
+  animation: replayRingPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes replayRingPulse {
+  0%, 100% { stroke-opacity: 0.55; }
+  50% { stroke-opacity: 1; }
+}
+
+.replay-story-bar {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(0, 0, 0, 0.35));
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.replay-story-badge {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.replay-story-text {
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: #f2f2fa;
+  margin: 0 0 0.35rem;
+}
+
+.replay-story-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.replay-progress-track {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  margin-top: 0.65rem;
+  overflow: hidden;
+}
+
+.replay-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--gold), #f97316);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.replay-controls-pedagogy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.replay-nav-btn {
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--gold);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.replay-nav-btn:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+
+.replay-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.replay-nav-btn-primary {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(249, 115, 22, 0.2));
+}
+
+.replay-counter-pedagogy {
+  font-size: 0.8rem;
+  color: var(--muted);
+  min-width: 5rem;
+  text-align: center;
+}
+
+.chart-replay-full svg text.co-t,
+.chart-replay-full svg .replay-label-big {
+  font-size: 12px !important;
+  font-weight: 600;
+}
+
+.chart-replay-full svg .fc-callout text {
+  paint-order: stroke fill;
+  stroke: rgba(0, 0, 0, 0.85);
+  stroke-width: 3px;
 }
 
 .replay-base-candles .c-label {
