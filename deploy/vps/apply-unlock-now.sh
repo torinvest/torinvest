@@ -69,6 +69,9 @@ dl "la-forge/js/course-data.js" "js/course-data.js"
 dl "la-forge/js/course-index.js" "js/course-index.js"
 dl "la-forge/js/forge-unlock.js" "js/forge-unlock.js"
 dl "la-forge/js/lesson-core.js" "js/lesson-core.js"
+dl "la-forge/js/forge-replay.js" "js/forge-replay.js"
+dl "la-forge/js/forge-annotations.js" "js/forge-annotations.js"
+dl "la-forge/css/forge-charts.css" "css/forge-charts.css"
 dl "deploy/vps/app-shells/course/index.html" "course/index.html"
 dl "deploy/vps/app-shells/dashboard.html" "dashboard.html"
 
@@ -93,6 +96,22 @@ else
   mkdir -p "$(dirname "$PATCH_JS")"
   curl -fsSL "$BASE/deploy/vps/patch-lesson-unlock-scripts.js" -o "$PATCH_JS"
   node "$PATCH_JS" "$APP_DIR" || true
+fi
+
+REPLAY_PATCH="$APP_DIR/deploy/vps/patch-lesson-replay-scripts.js"
+if [[ -f "$REPLAY_PATCH" ]]; then
+  echo "==> patch lesson HTML (replay scripts)"
+  node "$REPLAY_PATCH" "$APP_DIR" || true
+else
+  mkdir -p "$(dirname "$REPLAY_PATCH")"
+  curl -fsSL "$BASE/deploy/vps/patch-lesson-replay-scripts.js" -o "$REPLAY_PATCH"
+  node "$REPLAY_PATCH" "$APP_DIR" || true
+fi
+
+if grep -q 'enrichFrames' "$APP_DIR/public/js/forge-replay.js"; then
+  echo "  OK replay pédagogique (enrichFrames)"
+else
+  echo "  WARN — forge-replay.js ancien : curl deploy-replay-now.sh"
 fi
 echo "→ pm2 restart la-forge"
 echo "→ wc -c public/js/progress.js  (attendu ~6700, unlock dans forge-unlock.js)"
