@@ -6,6 +6,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/admin-licence-lib.php';
+require_once __DIR__ . '/member-auth-lib.php';
 require_once __DIR__ . '/http-session.php';
 require_once __DIR__ . '/rate-limit.php';
 
@@ -89,6 +90,14 @@ if ($method === 'GET') {
         echo "\xEF\xBB\xBF" . $csv;
         exit;
     }
+    if ($action === 'export_site_members') {
+        licenceCrmRequireAuth();
+        $csv = memberAuthAdminExportCsv();
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="torinvest-site-members-' . date('Y-m-d-His') . '.csv"');
+        echo "\xEF\xBB\xBF" . $csv;
+        exit;
+    }
     licenceCrmJson(['ok' => false, 'error' => 'action_inconnue'], 400);
 }
 
@@ -161,6 +170,18 @@ try {
             licenceCrmJson(licenceCrmResendBrevoLicenseEmail(
                 (string) ($input['email'] ?? ''),
                 isset($input['type']) ? (string) $input['type'] : null
+            ));
+
+        case 'list_site_members':
+            licenceCrmJson(memberAuthAdminList(
+                (int) ($input['limit'] ?? 500),
+                (int) ($input['offset'] ?? 0)
+            ));
+
+        case 'set_site_member_status':
+            licenceCrmJson(memberAuthAdminSetStatus(
+                (int) ($input['memberId'] ?? $input['id'] ?? 0),
+                (string) ($input['status'] ?? '')
             ));
 
         case 'ping':

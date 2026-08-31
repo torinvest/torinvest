@@ -161,6 +161,7 @@
           <button class="tab" data-tab="forge" type="button">TorPass FORGE (tokens)</button>
           <button class="tab" data-tab="activate" type="button">Activer VIP</button>
           <button class="tab" data-tab="history" type="button">Historique</button>
+          <button class="tab" data-tab="members" type="button">Membres site</button>
           <button class="tab" data-tab="watch" type="button">Surveillance Netlify</button>
           <button class="tab" data-tab="stripe" type="button">Stripe / Brevo</button>
         </div>
@@ -247,6 +248,26 @@
               <tbody id="histBody"><tr><td colspan="8">Chargement…</td></tr></tbody>
             </table>
           </div>
+        </div>
+
+        <div id="panel-members" class="panel">
+          <p class="hint">Comptes créés sur <span class="mono">membres.html</span> (espace membre gratuit du site). ≠ licence VIP / accompagnement 349€ — c’est le login pour chroniques, vidéos gated, etc.</p>
+          <div class="toolbar">
+            <span id="membersCount" class="muted" style="font-size:12px">—</span>
+            <button class="btn secondary" type="button" id="membersRefreshBtn">Rafraîchir</button>
+            <button class="btn secondary" type="button" id="membersExportBtn">Export CSV</button>
+          </div>
+          <div style="overflow-x:auto;margin-top:12px">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Email</th><th>Nom affiché</th><th>Inscription</th><th>Dernière connexion</th><th>Statut</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="membersBody"><tr><td colspan="7">Chargement…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="membersResult" class="result" style="margin-top:12px">—</div>
         </div>
 
         <div id="panel-watch" class="panel">
@@ -365,6 +386,50 @@
       }).join("");
     }
 
+    async function loadMembers() {
+      const data = await api("list_site_members", { limit: 500 });
+      const tbody = document.getElementById("membersBody");
+      const countEl = document.getElementById("membersCount");
+      if (!data.ok || !data.members || !data.members.length) {
+        tbody.innerHTML = "<tr><td colspan='7'>Aucun membre inscrit pour l’instant.</td></tr>";
+        if (countEl) countEl.textContent = "0 membre(s)";
+        return;
+      }
+      if (countEl) countEl.textContent = data.total + " membre(s) au total · " + data.count + " affiché(s)";
+      tbody.innerHTML = data.members.map(function (m) {
+        const created = (m.createdAt || "").replace("T", " ").slice(0, 19);
+        const login = (m.last_login_at || m.lastLoginAt || "").replace("T", " ").slice(0, 19) || "—";
+        const st = (m.status || "active").toLowerCase();
+        const isActive = st === "active";
+        const btnLabel = isActive ? "Suspendre" : "Réactiver";
+        const nextStatus = isActive ? "suspended" : "active";
+        return "<tr>" +
+          "<td>" + esc(m.id) + "</td>" +
+          "<td class='mono'>" + esc(m.email) + "</td>" +
+          "<td>" + esc(m.displayName || "—") + "</td>" +
+          "<td>" + esc(created) + "</td>" +
+          "<td>" + esc(login) + "</td>" +
+          "<td>" + (isActive ? "<span class='ok'>active</span>" : "<span class='bad'>suspended</span>") + "</td>" +
+          "<td><button type='button' class='btn secondary member-status-btn' data-id='" + esc(m.id) + "' data-status='" + nextStatus + "'>" + btnLabel + "</button></td>" +
+        "</tr>";
+      }).join("");
+      tbody.querySelectorAll(".member-status-btn").forEach(function (btn) {
+        btn.addEventListener("click", async function () {
+          const id = Number(btn.getAttribute("data-id"));
+          const status = btn.getAttribute("data-status");
+          setHtml("membersResult", '<span class="warn">Mise à jour…</span>');
+          try {
+            const res = await api("set_site_member_status", { memberId: id, status: status });
+            if (!res.ok) throw new Error(res.error || "Échec");
+            setHtml("membersResult", '<span class="ok">Membre #' + id + " → " + esc(status) + "</span>");
+            await loadMembers();
+          } catch (e) {
+            setHtml("membersResult", '<span class="bad">' + esc(e.message) + "</span>");
+          }
+        });
+      });
+    }
+
     async function loadWatch() {
       const formName = document.getElementById("watchFilter").value || null;
       const data = await api("list_submissions", formName ? { form_name: formName } : {});
@@ -415,6 +480,7 @@
         btn.classList.add("active");
         document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
         if (btn.dataset.tab === "history") loadHistory().catch(function (e) { alert(e.message); });
+        if (btn.dataset.tab === "members") loadMembers().catch(function (e) { alert(e.message); });
         if (btn.dataset.tab === "watch") loadWatch().catch(function (e) { alert(e.message); });
         if (btn.dataset.tab === "stripe") loadStripeEvents().catch(function (e) { alert(e.message); });
       });
@@ -435,6 +501,23 @@
       } catch (e) {
         setHtml("resendResult", '<span class="bad">' + esc(e.message) + "</span>");
       }
+    });
+
+    document.getElementById("membersRefreshBtn").addEventListener("click", function () {
+      loadMembers().catch(function (e) { alert(e.message); });
+    });
+
+    document.getElementById("membersExportBtn").addEventListener("click", function () {
+      const url = API + "?action=export_site_members";
+      fetch(url, { credentials: "include" })
+        .then(function (r) { if (!r.ok) throw new Error("Export HTTP " + r.status); return r.blob(); })
+        .then(function (blob) {
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "torinvest-site-members.csv";
+          a.click();
+        })
+        .catch(function (e) { alert(e.message); });
     });
 
     document.getElementById("watchRefreshBtn").addEventListener("click", function () {
