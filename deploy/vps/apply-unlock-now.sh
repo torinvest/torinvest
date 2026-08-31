@@ -11,7 +11,8 @@
 set -euo pipefail
 
 APP_DIR="${1:-/home/ubuntu/torinvest-formation}"
-BASE="https://raw.githubusercontent.com/torinvest/torinvest/main"
+SHA="${SHA:-main}"
+BASE="https://raw.githubusercontent.com/torinvest/torinvest/${SHA}"
 
 if [[ ! -d "$APP_DIR/public/js" ]]; then
   echo "ERREUR: $APP_DIR/public/js introuvable"
@@ -50,5 +51,14 @@ wc -c "$APP_DIR/public/js/progress.js" \
   "$APP_DIR/public/js/course-data.js"
 echo ""
 echo "OK — unlock appliqué ($(date -Iseconds))."
+if [[ -f "$APP_DIR/deploy/vps/patch-lesson-unlock-scripts.js" ]]; then
+  echo "==> patch lesson HTML (unlock scripts)"
+  node "$APP_DIR/deploy/vps/patch-lesson-unlock-scripts.js" "$APP_DIR" || true
+else
+  PATCH_JS="$APP_DIR/deploy/vps/patch-lesson-unlock-scripts.js"
+  mkdir -p "$(dirname "$PATCH_JS")"
+  curl -fsSL "$BASE/deploy/vps/patch-lesson-unlock-scripts.js" -o "$PATCH_JS"
+  node "$PATCH_JS" "$APP_DIR" || true
+fi
 echo "→ pm2 restart la-forge"
 echo "→ wc -c public/js/progress.js  (attendu ~6700, unlock dans forge-unlock.js)"

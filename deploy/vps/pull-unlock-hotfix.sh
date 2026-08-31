@@ -59,10 +59,17 @@ fi
 
 PATCHES="$APP_DIR/server-patches"
 mkdir -p "$PATCHES"
-for f in middleware-require-subscribed.js forge-unlock-server.js course-module-order.json; do
+for f in middleware-require-subscribed.js forge-unlock-server.js forge-progress-rules.js routes-progress.js course-module-order.json; do
   echo "  server-patches/$f"
   curl -fsSL "$RAW/deploy/vps/formation-server/$f" -o "$PATCHES/$f" || echo "  WARN — $f"
 done
+
+if [[ -f "$APP_DIR/deploy/vps/patch-lesson-unlock-scripts.js" ]]; then
+  echo "==> patch lesson HTML"
+  node "$APP_DIR/deploy/vps/patch-lesson-unlock-scripts.js" "$APP_DIR" || true
+elif curl -fsSL "$RAW/deploy/vps/patch-lesson-unlock-scripts.js" -o "$APP_DIR/deploy/vps/patch-lesson-unlock-scripts.js"; then
+  node "$APP_DIR/deploy/vps/patch-lesson-unlock-scripts.js" "$APP_DIR" || true
+fi
 
 echo ""
 echo "Tailles déployées :"

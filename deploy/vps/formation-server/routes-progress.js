@@ -59,6 +59,9 @@ module.exports = function createProgressRouter(options) {
   router.put("/api/progress", requireAuth, (req, res) => {
     const email = req.session?.user?.email || req.user?.email;
     if (!email) return res.status(401).json({ error: "Non authentifié" });
+    if (!req.session?.user?.subscribed) {
+      return res.status(403).json({ error: "Premium requis" });
+    }
     const modules = req.body?.modules;
     if (!modules || typeof modules !== "object") {
       return res.status(400).json({ error: "Body modules requis" });

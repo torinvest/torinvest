@@ -37,6 +37,14 @@ check_min_size "/js/progress.js" 6000 "progress.js"
 check_min_size "/js/course-index.js" 6000 "course-index.js (masquage)"
 check_grep "/js/forge-unlock.js" "isModuleUnlocked" "unlock dans forge-unlock.js"
 check_grep "/js/course-data.js" "getAllModuleIds" "course-data.js"
+check_min_size "/js/progress.js" 6000 "progress.js (post-consolidation)"
+
+if curl -fsSL "$APP_URL/js/progress.js" | grep -q "function quizSatisfied"; then
+  echo "  OK progress.js quizSatisfied (aligné serveur)"
+else
+  echo "  WARN progress.js sans quizSatisfied — version ancienne"
+  FAIL=$((FAIL + 1))
+fi
 
 if curl -fsSL "$APP_URL/js/progress.js" | grep -q "isModuleUnlocked"; then
   echo "  WARN progress.js contient encore unlock (ancienne version)"

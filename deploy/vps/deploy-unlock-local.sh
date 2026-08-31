@@ -61,12 +61,18 @@ PATCH_SRC="$REPO_ROOT/deploy/vps/formation-server"
 PATCH_DEST="$APP_DIR/server-patches"
 if [[ -d "$PATCH_SRC" ]]; then
   mkdir -p "$PATCH_DEST"
-  for f in middleware-require-subscribed.js forge-unlock-server.js course-module-order.json; do
+  for f in middleware-require-subscribed.js forge-unlock-server.js forge-progress-rules.js routes-progress.js course-module-order.json; do
     if [[ -f "$PATCH_SRC/$f" ]]; then
       echo "  server-patches/$f"
       cp "$PATCH_SRC/$f" "$PATCH_DEST/$f"
     fi
   done
+fi
+
+PATCH_LESSON="$REPO_ROOT/deploy/vps/patch-lesson-unlock-scripts.js"
+if [[ -f "$PATCH_LESSON" ]]; then
+  echo "==> patch lesson HTML"
+  node "$PATCH_LESSON" "$APP_DIR" || true
 fi
 
 echo ""

@@ -30,6 +30,7 @@
       <h3>Progression formation</h3>
       <div class="progress-bar"><div id="dash-progress-bar" style="width:0%"></div></div>
       <p id="dash-progress-text" style="color:var(--muted);font-size:0.9rem;margin-top:0.5rem">Chargement…</p>
+      <p id="unlock-banner" class="alert" hidden style="margin-top:0.75rem;font-size:0.88rem;border-color:rgba(255,180,0,.35)"></p>
       <p style="margin-top:0.35rem;font-size:0.82rem;color:var(--muted)">
         <span id="progress-sync-badge" class="cal-sync-badge idle">—</span>
       </p>
@@ -65,6 +66,7 @@
   <script src="/la-forge/js/forge-gate.js"></script>
   <script src="/la-forge/js/progress.js"></script>
   <script src="/la-forge/js/course-data.js"></script>
+  <script src="/la-forge/js/forge-unlock.js"></script>
   <script>
     const MODULE_IDS = getAllModuleIds();
     document.getElementById("dash-hours").textContent = "~" + FORGE_TOTAL_HOURS + " h";
@@ -115,6 +117,15 @@
       document.getElementById("dash-progress-bar").style.width = o.pct + "%";
       document.getElementById("dash-progress-text").textContent =
         o.done + " / " + o.total + " modules validés · " + o.pct + "%";
+      const unlockBanner = document.getElementById("unlock-banner");
+      if (unlockBanner && me.subscribed && typeof getUnlockSummaryText === "function") {
+        unlockBanner.hidden = false;
+        unlockBanner.innerHTML =
+          "<strong>Parcours guidé</strong> — " + getUnlockSummaryText() +
+          ".<br /><span style='color:var(--muted)'>" +
+          (typeof getNextUnlockHint === "function" ? getNextUnlockHint() : "") +
+          "</span>";
+      }
     });
   </script>
 <script src="/la-forge/js/forge-legal.js"></script>

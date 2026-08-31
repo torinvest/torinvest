@@ -109,6 +109,15 @@ async function pushProgressToServer() {
       body: JSON.stringify({ modules: loadProgress() }),
     });
     if (!res.ok) throw new Error("push failed");
+    const data = await res.json();
+    if (data.modules && typeof data.modules === "object") {
+      const local = loadProgress();
+      const merged = { ...local };
+      Object.keys(data.modules).forEach((id) => {
+        merged[id] = data.modules[id];
+      });
+      saveProgress(merged);
+    }
     saveProgressMeta({ ...loadProgressMeta(), lastSync: new Date().toISOString() });
     _progressSyncStatus = "ok";
   } catch {
@@ -129,6 +138,12 @@ function practiceSatisfied(prev) {
   return (prev.practiceScore || 0) >= total * 0.7;
 }
 
+function quizSatisfied(prev) {
+  const quizTotal = Number(prev.quizTotal) || 0;
+  const quizScore = Number(prev.quizScore) || 0;
+  return quizTotal <= 0 || quizScore >= quizTotal * 0.7;
+}
+
 function getModuleProgress(moduleId) {
   const all = loadProgress();
   return all[moduleId] || { stepsDone: 0, quizScore: 0, quizTotal: 0, completed: false };
@@ -137,13 +152,12 @@ function getModuleProgress(moduleId) {
 async function setModuleSteps(moduleId, stepsDone, totalSteps) {
   const all = loadProgress();
   const prev = all[moduleId] || {};
-  const quizOk = (prev.quizScore || 0) >= (prev.quizTotal || 10) * 0.7;
   all[moduleId] = {
     ...prev,
     stepsDone,
     totalSteps,
     updated: new Date().toISOString(),
-    completed: stepsDone >= totalSteps && quizOk && practiceSatisfied(prev),
+    completed: stepsDone >= totalSteps && quizSatisfied(prev) && practiceSatisfied(prev),
   };
   saveProgress(all);
   await pushProgressToServer();
@@ -170,7 +184,6 @@ async function setModuleQuiz(moduleId, score, total, totalSteps) {
 async function setModulePractice(moduleId, score, total) {
   const all = loadProgress();
   const prev = all[moduleId] || {};
-  const quizOk = (prev.quizScore || 0) >= (prev.quizTotal || 10) * 0.7;
   all[moduleId] = {
     ...prev,
     practiceScore: score,
@@ -178,7 +191,7 @@ async function setModulePractice(moduleId, score, total) {
     updated: new Date().toISOString(),
     completed:
       (prev.stepsDone || 0) >= (prev.totalSteps || 12) &&
-      quizOk &&
+      quizSatisfied(prev) &&
       practiceSatisfied({ ...prev, practiceScore: score, practiceTotal: total }),
   };
   saveProgress(all);
