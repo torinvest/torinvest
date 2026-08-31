@@ -322,7 +322,13 @@ function injectChartToolbar(chartHost) {
     '<button type="button" class="chart-focus-btn chart-focus-primary" data-chart-open-viewer>Ouvrir le visualiseur</button>' +
     '<span class="chart-focus-hint">Plein écran · navigation par étape · sans scroll</span>';
 
-  chartHost.classList.add("chart-readable", "chart-simplified");
+  chartHost.classList.add("chart-readable");
+  const inReplay = chartHost.closest(".elite-replay, .chart-replay-section");
+  if (inReplay) {
+    chartHost.classList.add("chart-replay-full");
+  } else {
+    chartHost.classList.add("chart-simplified");
+  }
   const anchor = chartHost.querySelector(".tv-toolbar");
   if (anchor) anchor.insertAdjacentElement("afterend", bar);
   else chartHost.insertBefore(bar, chartHost.firstChild);
