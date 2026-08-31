@@ -80,6 +80,11 @@ test("bootAllReplays auto", function () {
   assert.ok(replay.indexOf("bootAllReplays") !== -1);
 });
 
+test("version marker deploy", function () {
+  assert.ok(replay.indexOf("FORGE_REPLAY_VERSION") !== -1);
+  assert.ok(replay.indexOf("discoverFramesFromSvg") !== -1);
+});
+
 var failed = 0;
 results.forEach(function (r) {
   console.log(r.result + " — " + r.name + (r.error ? " :: " + r.error : ""));

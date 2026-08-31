@@ -1,10 +1,9 @@
 /**
  * La Forge ÉLITE — Replay chart pédagogique
  * Objectif : séquences lisibles, texte explicatif toujours présent, focus sur l'étape courante.
- * Modes :
- * - cumulative (défaut) : étapes 0…N visibles — schéma qui se construit
- * - exclusive : une seule frame overlay + base
+ * Version déployée : FORGE_REPLAY_VERSION (vérifier sur live : /js/forge-replay.js)
  */
+var FORGE_REPLAY_VERSION = "2.1";
 function isReplayKeepId(id) {
   return /^(base|base-|bg-|background|chart-base|candles?|replay-base|price-axis|grid|axes?|volume|time-axis|wick)/i.test(
     id || ""
@@ -132,6 +131,86 @@ function framesFromReplayButtons(root) {
     };
   });
   return frames.filter(Boolean);
+}
+
+function discoverFramesFromSvg(root) {
+  const svg = root.querySelector("svg");
+  if (!svg) return null;
+  const matches = [];
+  svg.querySelectorAll("g[id]").forEach((g) => {
+    if (g.closest("defs")) return;
+    const id = g.id;
+    const m =
+      id.match(/^(?:replay[_-]?)?frame[_-]?(\d+)$/i) ||
+      id.match(/^(?:step|layer|seq|scene|overlay)[_-]?(\d+)$/i) ||
+      id.match(/^f(?:rame)?(\d+)$/i);
+    if (m) matches.push({ n: Number(m[1]), groupId: id });
+  });
+  if (matches.length < 2) return null;
+  const minN = Math.min.apply(null, matches.map((x) => x.n));
+  const useZero = minN === 0;
+  const byIndex = [];
+  matches.forEach((x) => {
+    const idx = useZero ? x.n : x.n - minN;
+    if (!byIndex[idx]) {
+      byIndex[idx] = { groupId: x.groupId, title: "Étape " + (idx + 1), label: "Étape " + (idx + 1) };
+    }
+  });
+  return byIndex.filter(Boolean);
+}
+
+function resolveFrames(configFrames, root) {
+  let frames = configFrames && configFrames.length ? configFrames.slice() : null;
+  const fromButtons = framesFromReplayButtons(root);
+  const fromSvg = discoverFramesFromSvg(root);
+
+  if (!frames || !frames.length) frames = fromButtons;
+  if (!frames || !frames.length) frames = fromSvg;
+
+  if (frames && frames.length) {
+    frames = frames.map((fr, i) => {
+      const out = { ...fr };
+      if (!out.groupId && fromSvg && fromSvg[i]) out.groupId = fromSvg[i].groupId;
+      if (fromButtons && fromButtons[i]) {
+        out.label = out.label || fromButtons[i].label;
+        out.title = out.title || fromButtons[i].title;
+      }
+      return out;
+    });
+  }
+  return frames;
+}
+
+function ensureReplayLayout(root) {
+  let layout = root.querySelector(".elite-replay-layout");
+  if (layout) return layout;
+
+  layout = document.createElement("div");
+  layout.className = "elite-replay-layout";
+
+  const skip = (el) =>
+    el.classList.contains("replay-story-bar") ||
+    el.tagName === "H2" ||
+    el.classList.contains("elite-replay-intro");
+
+  Array.from(root.children).forEach((el) => {
+    if (skip(el)) return;
+    layout.appendChild(el);
+  });
+
+  if (!layout.children.length) return null;
+  root.appendChild(layout);
+  return layout;
+}
+
+function upgradeStaleReplay(root) {
+  if (root.dataset.replayPedagogy === FORGE_REPLAY_VERSION) return false;
+  if (root._forgeReplayNav && !root.querySelector(".replay-story-bar")) {
+    delete root._forgeReplayNav;
+    root.dataset.replayBooted = "0";
+    return true;
+  }
+  return false;
 }
 
 function applyReplayFrames(frames, current, options) {
@@ -263,15 +342,21 @@ function fitReplayCharts(root) {
   root.querySelectorAll(".forge-chart, .tv-frame").forEach((host) => window.ForgeChartFit(host));
 }
 
-function ensurePedagogyChrome(root, frames) {
+function ensurePedagogyChrome(root, frames, uid) {
   root.classList.add("replay-pedagogy-mode");
+  root.dataset.replayPedagogy = FORGE_REPLAY_VERSION;
+
+  const storyId = uid + "-story-text";
+  const progressFillId = uid + "-progress-fill";
 
   if (!root.querySelector(".replay-story-bar")) {
     const bar = document.createElement("div");
     bar.className = "replay-story-bar";
     bar.innerHTML =
       '<div class="replay-story-badge">Lecture guidée</div>' +
-      '<p class="replay-story-text" id="replay-story-text"></p>' +
+      '<p class="replay-story-text" id="' +
+      storyId +
+      '"></p>' +
       '<p class="replay-story-hint">Utilisez ← → ou les pastilles · surlignage doré = nouveauté de l\'étape</p>';
     const layout = root.querySelector(".elite-replay-layout");
     if (layout) {
@@ -284,22 +369,34 @@ function ensurePedagogyChrome(root, frames) {
   if (!root.querySelector(".replay-progress-track")) {
     const track = document.createElement("div");
     track.className = "replay-progress-track";
-    track.innerHTML = '<div class="replay-progress-fill" id="replay-progress-pedagogy"></div>';
+    track.innerHTML = '<div class="replay-progress-fill" id="' + progressFillId + '"></div>';
     const story = root.querySelector(".replay-story-bar");
     if (story) story.appendChild(track);
   }
 
-  if (!root.querySelector("#replay-prev") && !root.querySelector(".replay-controls")) {
+  const prevId = uid + "-prev";
+  const nextId = uid + "-next";
+  const counterId = uid + "-counter";
+
+  if (!root.querySelector(".replay-controls-pedagogy")) {
     const nav = document.createElement("div");
     nav.className = "replay-controls replay-controls-pedagogy";
     nav.innerHTML =
-      '<button type="button" id="replay-prev" class="replay-nav-btn">← Étape précédente</button>' +
-      '<span id="replay-counter" class="replay-counter-pedagogy"></span>' +
-      '<button type="button" id="replay-next" class="replay-nav-btn replay-nav-btn-primary">Étape suivante →</button>';
+      '<button type="button" id="' +
+      prevId +
+      '" class="replay-nav-btn">← Étape précédente</button>' +
+      '<span id="' +
+      counterId +
+      '" class="replay-counter-pedagogy"></span>' +
+      '<button type="button" id="' +
+      nextId +
+      '" class="replay-nav-btn replay-nav-btn-primary">Étape suivante →</button>';
     const layout = root.querySelector(".elite-replay-layout");
     if (layout) layout.appendChild(nav);
     else root.appendChild(nav);
   }
+
+  return { storyId, progressFillId, prevId, nextId, counterId };
 }
 
 function bindReplayNav(root, frames, goTo) {
@@ -335,26 +432,38 @@ function initEliteReplay(config) {
   const {
     frames: configFrames,
     rootSelector = ".elite-replay",
-    counterId = "replay-counter",
     captionId = "replay-caption",
-    progressId = "replay-progress",
-    guideTitleId = "replay-guide-title",
-    guideSeeId = "replay-see-list",
-    guideMeansId = "replay-guide-means",
-    guideWarnId = "replay-guide-warn",
+    guideTitleId,
+    guideSeeId,
+    guideMeansId,
+    guideWarnId,
     replayMode,
   } = config || {};
 
   const root = document.querySelector(rootSelector);
   if (!root) return;
 
-  let frames = configFrames && configFrames.length ? configFrames.slice() : framesFromReplayButtons(root);
+  upgradeStaleReplay(root);
+
+  if (!root.id) {
+    root.id = "forge-replay-" + Math.random().toString(36).slice(2, 9);
+  }
+  const uid = root.id.replace(/[^a-zA-Z0-9_-]/g, "");
+
+  let frames = resolveFrames(configFrames, root);
   if (!frames || !frames.length) return;
+
+  ensureReplayLayout(root);
 
   const mode = getReplayMode(root, { replayMode });
   root.dataset.replayMode = mode;
   frames = enrichFrames(frames, root);
-  ensurePedagogyChrome(root, frames);
+  const chromeIds = ensurePedagogyChrome(root, frames, uid);
+
+  const gTitleId = guideTitleId || uid + "-guide-title";
+  const gSeeId = guideSeeId || uid + "-see-list";
+  const gMeansId = guideMeansId || uid + "-guide-means";
+  const gWarnId = guideWarnId || uid + "-guide-warn";
 
   let narrative = root.querySelector(".elite-replay-guide");
   if (!narrative) {
@@ -363,20 +472,20 @@ function initEliteReplay(config) {
       narrative = document.createElement("aside");
       narrative.className = "elite-replay-guide";
       narrative.innerHTML =
-        '<div class="erg-step">Étape <span id="erg-step-num">1</span> / ' +
+        '<div class="erg-step">Étape <span class="erg-step-num">1</span> / ' +
         frames.length +
         "</div>" +
         '<h3 id="' +
-        guideTitleId +
+        gTitleId +
         '"></h3>' +
         '<div class="erg-block erg-see"><h4>Sur le chart (lisible)</h4><ul id="' +
-        guideSeeId +
+        gSeeId +
         '"></ul></div>' +
         '<div class="erg-block erg-means"><h4>En langage clair</h4><p id="' +
-        guideMeansId +
+        gMeansId +
         '"></p></div>' +
         '<div class="erg-block erg-warn"><h4>Erreur fréquente</h4><p id="' +
-        guideWarnId +
+        gWarnId +
         '"></p></div>';
       layout.appendChild(narrative);
     }
@@ -384,14 +493,15 @@ function initEliteReplay(config) {
 
   const buttons = root.querySelectorAll("[data-replay]");
   const captionEl = document.getElementById(captionId) || root.querySelector(".replay-caption-inline");
-  const counterEl = document.getElementById(counterId);
-  const progressEl = document.getElementById(progressId) || document.getElementById("replay-progress-pedagogy");
-  const titleEl = document.getElementById(guideTitleId);
-  const seeEl = document.getElementById(guideSeeId);
-  const meansEl = document.getElementById(guideMeansId);
-  const warnEl = document.getElementById(guideWarnId);
-  const storyEl = root.querySelector("#replay-story-text") || document.getElementById("replay-story-text");
-  const stepNumEl = root.querySelector("#erg-step-num");
+  const counterEl = document.getElementById(chromeIds.counterId);
+  const progressEl =
+    document.getElementById(chromeIds.progressFillId) || document.getElementById("replay-progress-pedagogy");
+  const titleEl = document.getElementById(gTitleId) || root.querySelector(".elite-replay-guide h3");
+  const seeEl = document.getElementById(gSeeId);
+  const meansEl = document.getElementById(gMeansId);
+  const warnEl = document.getElementById(gWarnId);
+  const storyEl = document.getElementById(chromeIds.storyId);
+  const stepNumEl = root.querySelector(".elite-replay-guide .erg-step-num");
   let current = 0;
   let navApi = null;
 
@@ -432,8 +542,8 @@ function initEliteReplay(config) {
       tag.classList.toggle("active", i === current);
     });
 
-    const prevBtn = root.querySelector("#replay-prev");
-    const nextBtn = root.querySelector("#replay-next");
+    const prevBtn = root.querySelector("#" + chromeIds.prevId);
+    const nextBtn = root.querySelector("#" + chromeIds.nextId);
     if (prevBtn) prevBtn.disabled = current <= 0;
     if (nextBtn) nextBtn.disabled = current >= frames.length - 1;
 
@@ -450,8 +560,8 @@ function initEliteReplay(config) {
   buttons.forEach((btn) => {
     btn.addEventListener("click", () => goTo(Number(btn.dataset.replay)));
   });
-  root.querySelector("#replay-prev")?.addEventListener("click", () => goTo(current - 1));
-  root.querySelector("#replay-next")?.addEventListener("click", () => goTo(current + 1));
+  root.querySelector("#" + chromeIds.prevId)?.addEventListener("click", () => goTo(current - 1));
+  root.querySelector("#" + chromeIds.nextId)?.addEventListener("click", () => goTo(current + 1));
 
   root.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") goTo(current - 1);
@@ -483,10 +593,14 @@ function initChartReplay(config) {
 }
 
 function bootAllReplays() {
-  document.querySelectorAll(".elite-replay, .chart-replay-section.elite-replay").forEach((root) => {
-    if (root.dataset.replayBooted === "1" || root._forgeReplayNav) return;
-    const frames = framesFromReplayButtons(root);
+  document.querySelectorAll(".elite-replay, .chart-replay-section.elite-replay, .chart-replay-section").forEach((root) => {
+    upgradeStaleReplay(root);
+    if (root.dataset.replayBooted === "1" && root.dataset.replayPedagogy === FORGE_REPLAY_VERSION) return;
+    if (root._forgeReplayNav && root.querySelector(".replay-story-bar")) return;
+
+    const frames = resolveFrames(null, root);
     if (!frames || !frames.length) return;
+
     root.dataset.replayBooted = "1";
     initEliteReplayForRoot(root, { frames });
   });
@@ -496,6 +610,7 @@ window.initEliteReplay = initEliteReplay;
 window.initChartReplay = initChartReplay;
 window.applyReplayFrames = applyReplayFrames;
 window.bootAllReplays = bootAllReplays;
+window.FORGE_REPLAY_VERSION = FORGE_REPLAY_VERSION;
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => setTimeout(bootAllReplays, 50));

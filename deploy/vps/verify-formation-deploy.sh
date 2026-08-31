@@ -58,6 +58,8 @@ echo "==> Signatures clés"
 grep -q 'initForgeProgress' "$APP_DIR/public/js/progress.js" && echo "  OK initForgeProgress" || { echo "  MISSING initForgeProgress"; FAIL=$((FAIL + 1)); }
 grep -q 'viewBox' "$APP_DIR/public/js/lesson-core.js" && echo "  OK lesson-core viewBox" || { echo "  MISSING viewBox fit"; FAIL=$((FAIL + 1)); }
 grep -q 'bindReplayNav' "$APP_DIR/public/js/forge-replay.js" && echo "  OK replay nav" || { echo "  MISSING replay nav"; FAIL=$((FAIL + 1)); }
+grep -q 'enrichFrames' "$APP_DIR/public/js/forge-replay.js" && echo "  OK replay enrichFrames" || { echo "  MISSING enrichFrames — replay pas à jour"; FAIL=$((FAIL + 1)); }
+grep -q 'FORGE_REPLAY_VERSION' "$APP_DIR/public/js/forge-replay.js" && echo "  OK FORGE_REPLAY_VERSION" || { echo "  MISSING replay version"; FAIL=$((FAIL + 1)); }
 grep -q 'module-list' "$APP_DIR/public/course/index.html" && echo "  OK course index shell" || { echo "  MISSING course index"; FAIL=$((FAIL + 1)); }
 grep -q 'forge-unlock.js' "$APP_DIR/public/course/index.html" && echo "  OK unlock scripts index" || { echo "  MISSING forge-unlock on index"; FAIL=$((FAIL + 1)); }
 grep -q 'isModuleUnlocked' "$APP_DIR/public/js/forge-unlock.js" && echo "  OK forge-unlock" || { echo "  MISSING forge-unlock logic"; FAIL=$((FAIL + 1)); }
