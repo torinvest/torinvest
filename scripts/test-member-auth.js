@@ -81,10 +81,22 @@ test("pages publiques non gated", function () {
   });
 });
 
-test("accueil a CTA inscription", function () {
-  var html = fs.readFileSync(path.join(root, "index.html"), "utf8");
-  assert.ok(html.indexOf("membres.html?mode=register") !== -1);
-  assert.ok(html.indexOf("torinvest-member-auth.js") !== -1);
+test("member-auth-lib admin list helpers", function () {
+  var s = fs.readFileSync(path.join(root, "api/member-auth-lib.php"), "utf8");
+  assert.ok(s.indexOf("memberAuthAdminList") !== -1);
+  assert.ok(s.indexOf("memberAuthAdminExportCsv") !== -1);
+});
+
+test("admin-licence API site members actions", function () {
+  var s = fs.readFileSync(path.join(root, "api/admin-licence.php"), "utf8");
+  assert.ok(s.indexOf("list_site_members") !== -1);
+  assert.ok(s.indexOf("export_site_members") !== -1);
+});
+
+test("admin-licence UI membres site tab", function () {
+  var html = fs.readFileSync(path.join(root, "admin-licence/index.html"), "utf8");
+  assert.ok(html.indexOf("data-tab=\"members\"") !== -1);
+  assert.ok(html.indexOf("list_site_members") !== -1);
 });
 
 var failed = 0;

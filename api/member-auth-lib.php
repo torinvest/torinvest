@@ -131,6 +131,7 @@ function memberAuthPublicMember(array $row): array
         'email' => (string) ($row['email'] ?? ''),
         'displayName' => (string) ($row['display_name'] ?? ''),
         'createdAt' => (string) ($row['created_at'] ?? ''),
+        'lastLoginAt' => (string) ($row['last_login_at'] ?? ''),
         'status' => (string) ($row['status'] ?? 'active'),
     ];
 }
@@ -282,4 +283,83 @@ function memberAuthLogout(): array
 {
     torinvestSessionClearCookie('member');
     return ['ok' => true, 'loggedOut' => true];
+}
+
+/** Admin CRM — liste membres site (sans mot de passe). */
+function memberAuthAdminList(int $limit = 500, int $offset = 0): array
+{
+    $limit = max(1, min($limit, 2000));
+    $offset = max(0, $offset);
+    $pdo = memberAuthPdo();
+    $total = (int) $pdo->query('SELECT COUNT(*) FROM site_members')->fetchColumn();
+    $stmt = $pdo->prepare(
+        'SELECT id, email, display_name, created_at, last_login_at, status
+         FROM site_members
+         ORDER BY created_at DESC
+         LIMIT :limit OFFSET :offset'
+    );
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
+    $rows = [];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $rows[] = memberAuthPublicMember($row);
+    }
+    return [
+        'ok' => true,
+        'total' => $total,
+        'count' => count($rows),
+        'offset' => $offset,
+        'members' => $rows,
+    ];
+}
+
+function memberAuthAdminExportCsv(): string
+{
+    $pdo = memberAuthPdo();
+    $stmt = $pdo->query(
+        'SELECT id, email, display_name, created_at, last_login_at, status
+         FROM site_members ORDER BY created_at DESC'
+    );
+    $lines = ['id,email,display_name,created_at,last_login_at,status'];
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $cells = [
+            (int) $row['id'],
+            (string) $row['email'],
+            (string) ($row['display_name'] ?? ''),
+            (string) ($row['created_at'] ?? ''),
+            (string) ($row['last_login_at'] ?? ''),
+            (string) ($row['status'] ?? ''),
+        ];
+        $lines[] = implode(',', array_map(static function ($v) {
+            $v = str_replace('"', '""', (string) $v);
+            return '"' . $v . '"';
+        }, $cells));
+    }
+    return implode("\n", $lines);
+}
+
+function memberAuthAdminSetStatus(int $memberId, string $status): array
+{
+    $status = strtolower(trim($status));
+    if (!in_array($status, ['active', 'suspended'], true)) {
+        throw new InvalidArgumentException('status_invalide');
+    }
+    if ($memberId < 1) {
+        throw new InvalidArgumentException('id_invalide');
+    }
+    $pdo = memberAuthPdo();
+    $stmt = $pdo->prepare('SELECT id, email, display_name, created_at, last_login_at, status FROM site_members WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $memberId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        throw new RuntimeException('membre_introuvable');
+    }
+    $pdo->prepare('UPDATE site_members SET status = :status WHERE id = :id')
+        ->execute([':status' => $status, ':id' => $memberId]);
+    $row['status'] = $status;
+    return [
+        'ok' => true,
+        'member' => memberAuthPublicMember($row),
+    ];
 }
