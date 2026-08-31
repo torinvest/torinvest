@@ -50,6 +50,8 @@
 
     chartEl.dataset.annoInit = "1";
     const inReplay = chartEl.closest(".elite-replay, .chart-replay-section");
+    const replayRoot = inReplay;
+    const replayMode = replayRoot?.dataset?.replayMode || "cumulative";
 
     const toolbar = document.createElement("div");
     toolbar.className = "anno-toolbar";
@@ -125,7 +127,7 @@
       el: chartEl,
       callouts: entries,
       stepIndex: 0,
-      filterMode: inReplay ? "exclusive" : "exclusive",
+      filterMode: inReplay ? (replayMode === "exclusive" ? "exclusive" : "progressive") : "exclusive",
     };
     charts.push(chart);
     applyStepFilter(chart, 0);
@@ -144,9 +146,11 @@
     }
   }
 
-  function setReplayStep(stepIndex) {
+  function setReplayStep(stepIndex, mode) {
+    const filterMode = mode === "exclusive" ? "exclusive" : "progressive";
     charts.forEach((chart) => {
       if (!chart.el.closest(".elite-replay, .chart-replay-section")) return;
+      chart.filterMode = filterMode;
       chart.stepIndex = stepIndex;
       applyStepFilter(chart, stepIndex);
       refit(chart);
