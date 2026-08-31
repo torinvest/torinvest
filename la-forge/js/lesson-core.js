@@ -140,7 +140,8 @@ function resolveLabelCollisions(svg) {
 function autoTagLessonLayers(svg) {
   if (!svg || svg.dataset.lessonLayersTagged === "1") return;
   svg.dataset.lessonLayersTagged = "1";
-  if (svg.querySelector("[data-lesson-step]")) return;
+  const inReplay = svg.closest(".elite-replay, .chart-replay-section");
+  if (svg.querySelector("[data-lesson-step]") || svg.querySelector("[data-replay-step]")) return;
   const found = [];
   svg.querySelectorAll("g[id]").forEach((g) => {
     if (g.closest("defs")) return;
@@ -153,7 +154,12 @@ function autoTagLessonLayers(svg) {
   if (found.length < 2) return;
   const min = Math.min.apply(null, found.map((x) => x.n));
   found.forEach((x) => {
-    x.g.setAttribute("data-lesson-step", String(min === 1 ? x.n - 1 : x.n));
+    const step = String(min === 1 ? x.n - 1 : x.n);
+    if (inReplay) {
+      x.g.setAttribute("data-replay-step", step);
+    } else {
+      x.g.setAttribute("data-lesson-step", step);
+    }
   });
 }
 
@@ -167,6 +173,26 @@ function getFitBBox(svg, chartRoot) {
       if (isHiddenChartEl(el)) return;
       try {
         merged = mergeBBox(merged, el.getBBox());
+      } catch (_) {}
+    });
+    svg.querySelectorAll(".fc-callout:not(.anno-step-hidden):not(.anno-off)").forEach((el) => {
+      if (isHiddenChartEl(el)) return;
+      try {
+        merged = mergeBBox(merged, el.getBBox());
+      } catch (_) {}
+    });
+    const orig = parseOrigViewBox(svg);
+    if (orig) merged = mergeBBox(merged, { x: orig.x, y: orig.y, width: orig.w, height: orig.h });
+    if (merged) return merged;
+  }
+
+  if (isReplay) {
+    svg.querySelectorAll("g[id]").forEach((g) => {
+      if (g.closest("defs")) return;
+      if (isHiddenChartEl(g)) return;
+      try {
+        const bb = g.getBBox();
+        if (bb.width > 2 && bb.height > 2) merged = mergeBBox(merged, bb);
       } catch (_) {}
     });
     svg.querySelectorAll(".fc-callout:not(.anno-step-hidden):not(.anno-off)").forEach((el) => {
