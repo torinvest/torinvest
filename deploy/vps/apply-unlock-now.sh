@@ -1,22 +1,56 @@
 #!/usr/bin/env bash
 # Déploiement unlock — URLs fixes sur main (pas de variable SHA).
 #
-# Sur le VPS, copier-coller TOUT le bloc :
+# Sur le VPS Ubuntu (user ubuntu), copier-coller TOUT le bloc :
 #
-#   cd ~/torinvest-formation
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/apply-unlock-now.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/apply-unlock-now.sh" | bash -s -- ~/torinvest-formation
+#   pm2 restart la-forge
 #
-# Attention : -fsSL en minuscules (pas -fSSL)
+# Attention : -fsSL en minuscules (pas -fSSL). Avec pipe | bash, passer le chemin via bash -s --
 
 set -euo pipefail
 
-APP_DIR="${1:-/home/ubuntu/torinvest-formation}"
+resolve_app_dir() {
+  local candidate="${1:-}"
+  if [[ -n "$candidate" && -d "$candidate/public/js" ]]; then
+    echo "$candidate"
+    return 0
+  fi
+  if [[ -n "${APP_DIR:-}" && -d "$APP_DIR/public/js" ]]; then
+    echo "$APP_DIR"
+    return 0
+  fi
+  for candidate in \
+    "$HOME/torinvest-formation" \
+    "/home/ubuntu/torinvest-formation" \
+    "$HOME/torinvest/torinvest-formation"; do
+    if [[ -d "$candidate/public/js" ]]; then
+      echo "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
+APP_DIR="$(resolve_app_dir "${1:-}")" || APP_DIR="${1:-${APP_DIR:-$HOME/torinvest-formation}}"
 SHA="${SHA:-main}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${SHA}"
 
 if [[ ! -d "$APP_DIR/public/js" ]]; then
   echo "ERREUR: $APP_DIR/public/js introuvable"
-  echo "Essayez: bash apply-unlock-now.sh /chemin/vers/torinvest-formation"
+  echo ""
+  echo "Ce script doit s'exécuter sur le VPS où La Forge est installée"
+  echo "(dossier avec public/js/, server.js, PM2 la-forge)."
+  echo ""
+  echo "Sur votre PC Windows/WSL il n'y a souvent PAS ce dossier — connectez-vous au VPS :"
+  echo "  ssh ubuntu@<ip-du-vps>"
+  echo ""
+  echo "Puis sur le VPS :"
+  echo "  curl -fsSL \"$BASE/deploy/vps/apply-unlock-now.sh\" | bash -s -- ~/torinvest-formation"
+  echo "  pm2 restart la-forge"
+  echo ""
+  echo "Ou avec chemin explicite :"
+  echo "  bash apply-unlock-now.sh /chemin/vers/torinvest-formation"
   exit 1
 fi
 
