@@ -7,7 +7,7 @@
 
   var WWW = "https://www.torinvest-trading.com";
   var FONDA_API = WWW + "/api/fondamental-access.php";
-  var FONDA_APP = "/fondamental-embed/";
+  var FONDA_APP = "/applifonda/";
 
   function setStatus(text, kind) {
     var el = document.getElementById("fonda-status");
@@ -19,6 +19,7 @@
   }
 
   function showGate() {
+    document.body.classList.remove("fonda-app-open");
     var g = document.getElementById("fonda-krm-gate");
     if (g) g.hidden = false;
   }
@@ -30,6 +31,7 @@
 
   function showFrame() {
     hideGate();
+    document.body.classList.add("fonda-app-open");
     var wrap = document.getElementById("fonda-frame-wrap");
     var frame = document.getElementById("fonda-frame");
     if (wrap) wrap.hidden = false;
@@ -219,6 +221,12 @@
     }
 
     var sess = await pingFondaSession();
+
+    if (isPremium) {
+      await openPremiumFondamental();
+      return;
+    }
+
     if (sess && sess.ok) {
       if (sess.source === "formation") {
         setStatus("Accès Premium La Forge — ouverture de Fondamental…", "ok");
@@ -228,11 +236,6 @@
         setStatus("Session active — ouverture de Fondamental…", "ok");
       }
       showFrame();
-      return;
-    }
-
-    if (isPremium) {
-      await openPremiumFondamental();
       return;
     }
 

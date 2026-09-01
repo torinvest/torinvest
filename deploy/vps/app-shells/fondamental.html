@@ -48,12 +48,37 @@
       border: 0;
       background: #0a0c12;
     }
+    /* Plein écran app (comme parcours formation immersif) */
+    body.fonda-app-open footer[data-forge-footer] {
+      display: none;
+    }
+    body.fonda-app-open .container.fonda-shell {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+    body.fonda-app-open .fonda-chrome {
+      display: none;
+    }
+    body.fonda-app-open #fonda-frame-wrap {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      min-height: calc(100vh - 3.25rem);
+      height: calc(100vh - 3.25rem);
+    }
+    body.fonda-app-open #fonda-frame {
+      height: 100%;
+      min-height: 100%;
+    }
   </style>
 </head>
 <body>
   <header class="site-header" data-forge-member-header="fondamental"></header>
 
-  <div class="container">
+  <div class="container fonda-shell">
+    <div class="fonda-chrome">
     <div class="fonda-hero">
       <span class="forge-hero-tag">Espace membre · application pédagogique</span>
       <h1>Fondamental</h1>
@@ -61,6 +86,7 @@
         Macro, pricing et fondamentaux marchés — au même endroit que votre formation La Forge,
         pour suivre le parcours complet sans changer de site.
       </p>
+      <p id="fonda-hours" style="color:var(--muted);font-size:0.88rem;margin:0.5rem 0 0;line-height:1.5"></p>
       <div class="fonda-access-pills">
         <span class="fonda-pill">La Forge Premium (349€/an)</span>
         <span class="fonda-pill">TorPass ACADEMY · ≥ 250 KRM</span>
@@ -85,6 +111,7 @@
       <a id="fonda-pricing-link" class="btn btn-secondary" href="https://www.torinvest-trading.com/la-forge/pricing.html" style="margin-left:0.5rem">Souscrire La Forge Premium</a>
       <a class="btn btn-secondary" href="https://www.torinvest-trading.com/torpass" style="margin-left:0.5rem" target="_blank" rel="noopener noreferrer">TorPass · KRM</a>
     </div>
+    </div>
 
     <div id="fonda-frame-wrap" hidden>
       <iframe id="fonda-frame" title="Application Fondamental" loading="lazy"></iframe>
@@ -96,6 +123,15 @@
   <script src="/js/forge-brand.js"></script>
   <script src="/js/auth.js?v=6"></script>
   <script src="/js/forge-gate.js"></script>
-  <script src="/js/forge-fondamental.js?v=4"></script>
+  <script src="/js/fondamental-data.js?v=1"></script>
+  <script src="/js/forge-fondamental.js?v=9"></script>
+  <script>
+    (function () {
+      var el = document.getElementById("fonda-hours");
+      if (el && typeof getFondaMetaLabel === "function") {
+        el.textContent = getFondaMetaLabel() + " · macro, taux, liquidité et lecture des marchés.";
+      }
+    })();
+  </script>
 </body>
 </html>

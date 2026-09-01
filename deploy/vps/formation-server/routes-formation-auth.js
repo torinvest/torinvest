@@ -9,6 +9,7 @@
 const express = require("express");
 const users = require("./formation-users-lib");
 const worker = require("./accompagnement-worker-lib");
+const createFondamentalBridgeRouter = require("./routes-fondamental-bridge");
 
 function sessionUser(email, subscribed) {
   return {
@@ -46,7 +47,8 @@ function matchDemoLogin(email, password) {
 }
 
 function mePayload(user) {
-  const subscribed = !!user?.subscribed;
+  if (!user?.email) return null;
+  const subscribed = !!user.subscribed;
   return {
     email: user.email,
     subscribed,
@@ -95,11 +97,19 @@ function createFormationAuthRouter(options) {
 
   const router = express.Router();
 
+  router.use(
+    createFondamentalBridgeRouter({
+      bridgeSecret:
+        process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET || process.env.AI_ACCESS_HMAC_SECRET,
+    })
+  );
+
   router.get("/api/me", (req, res, next) => {
     if (!req.session?.user?.email) {
       return next();
     }
     const me = mePayload(req.session.user);
+    if (!me) return next();
     return res.json({ ok: true, user: me, ...me });
   });
 

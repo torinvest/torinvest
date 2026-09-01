@@ -15,11 +15,69 @@ function bridgeSecret(opts) {
 }
 
 function radarBaseUrl() {
-  return String(
+  const explicit = String(
     process.env.FORGE_FONDAMENTAL_RADAR_URL ||
       process.env.FORGE_RADAR_URL ||
-      "https://radar.torinvest-trading.com"
+      ""
   ).replace(/\/$/, "");
+  if (explicit) return explicit;
+  return "https://radar.torinvest-trading.com";
+}
+
+function radarHostHeader(baseUrl) {
+  try {
+    const u = new URL(baseUrl);
+    if (u.hostname === "127.0.0.1" || u.hostname === "localhost") {
+      return process.env.FORGE_FONDAMENTAL_RADAR_HOST || "radar.torinvest-trading.com";
+    }
+    return u.hostname;
+  } catch (_) {
+    return "radar.torinvest-trading.com";
+  }
+}
+
+function radarFetchHeaders(baseUrl, extra) {
+  const headers = { ...(extra || {}) };
+  const host = radarHostHeader(baseUrl);
+  if (host) headers.Host = host;
+  return headers;
+}
+
+function rewriteFondaEmbedHtml(html) {
+  let out = String(html);
+  // La Forge Premium : session radar OK — supprimer gate Phantom (gate.js 404 sur app.*)
+  out = out.replace(/\btf-fonda-locked\b/g, "");
+  out = out.replace(/<style id="tf-fonda-gate-style">[\s\S]*?<\/style>/i, "");
+  out = out.replace(/<div id="tf-fonda-gate">[\s\S]*?(?=<div id="root">)/i, "");
+  out = out.replace(
+    /<script[^>]+src=["']\/assets\/torinvest-fondamental-gate\.js[^"']*["'][^>]*>\s*<\/script>/gi,
+    ""
+  );
+  out = out.replace(
+    /<script[^>]+src=["']\/assets\/torinvest-fondamental-back\.js[^"']*["'][^>]*>\s*<\/script>/gi,
+    ""
+  );
+  return out;
+}
+
+/** Injecte le total d'heures dans les chunks applifonda (aligné fondamental-data.js). */
+function rewriteFondaEmbedJs(body, subPath) {
+  let out = String(body);
+  const hours = Number(process.env.FORGE_FONDA_TOTAL_HOURS || 13);
+  const levels = Number(process.env.FORGE_FONDA_LEVEL_COUNT || 9);
+  const hoursTag = "~" + hours + " h";
+
+  if (/HomePage-[^/]+\.js$/i.test(subPath)) {
+    out = out.replace(
+      / cours pour comprendre/g,
+      " cours · " + hoursTag + " pour comprendre"
+    );
+  }
+  if (/LearnPage-[^/]+\.js$/i.test(subPath)) {
+    out = out.replace(/ sur 8 niveaux/g, " · " + hoursTag + " sur " + levels + " niveaux");
+    out = out.replace(/ sur 9 niveaux/g, " · " + hoursTag + " sur " + levels + " niveaux");
+  }
+  return out;
 }
 
 function internalProvisionKey() {
@@ -85,9 +143,42 @@ function parseFondamentalCookie(setCookieHeaders) {
   return null;
 }
 
+const FORGE_FONDA_COOKIE = "forge_fondamental_embed";
+
+function readReqCookie(req, name) {
+  const raw = String(req.headers.cookie || "");
+  const re = new RegExp("(?:^|;\\s*)" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)");
+  const m = raw.match(re);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function fondamentalToken(req) {
+  return req.session?.fondamentalAccessToken || readReqCookie(req, FORGE_FONDA_COOKIE) || null;
+}
+
+function storeFondamentalAccess(req, res, token, email, expiresAt) {
+  if (req.session) {
+    req.session.fondamentalAccessToken = token;
+    req.session.fondamentalEmail = email;
+    req.session.fondamentalExpiresAt = expiresAt || null;
+  }
+  const maxAgeMs = 12 * 60 * 60 * 1000;
+  res.cookie(FORGE_FONDA_COOKIE, token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    maxAge: maxAgeMs,
+    path: "/",
+  });
+}
+
 async function activateOnRadar(bridgeToken, secret) {
-  const url = radarBaseUrl() + "/api/fondamental-access.php";
-  const headers = { "Content-Type": "application/json", Accept: "application/json" };
+  const base = radarBaseUrl();
+  const url = base + "/api/fondamental-access.php";
+  const headers = radarFetchHeaders(base, {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  });
   const internal = internalProvisionKey();
   if (internal) {
     headers["X-Forge-Fondamental-Internal"] = internal;
@@ -103,11 +194,17 @@ async function activateOnRadar(bridgeToken, secret) {
     signal: AbortSignal.timeout(25000),
   });
 
-  const data = await res.json().catch(() => ({}));
+  const rawText = await res.text();
+  let data = {};
+  try {
+    data = JSON.parse(rawText);
+  } catch (_) {
+    data = { ok: false, error: "bridge_non_json", body: rawText.slice(0, 200) };
+  }
   if (!res.ok || !data.ok) {
     const err = new Error(data.error || "bridge_activate_failed");
     err.status = res.status;
-    err.payload = data;
+    err.payload = { ...data, httpStatus: res.status, radarUrl: url };
     throw err;
   }
 
@@ -127,19 +224,113 @@ async function activateOnRadar(bridgeToken, secret) {
   return { sessionToken, data };
 }
 
+function createEmbedProxy() {
+  return async function embedProxy(req, res) {
+    const token = fondamentalToken(req);
+    if (!token) {
+      res.status(401);
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      return res.send("Session Fondamental requise — rechargez la page depuis La Forge.");
+    }
+
+    let subPath = req.path || "/";
+    if (subPath === "/" || subPath === "") {
+      subPath = "/index.html";
+    }
+    subPath = subPath.replace(/^\//, "");
+
+    const radar = radarBaseUrl();
+    const query = new URLSearchParams();
+    query.set("path", subPath);
+    query.set("access_token", token);
+    const rawQs = req.originalUrl.includes("?")
+      ? req.originalUrl.slice(req.originalUrl.indexOf("?") + 1)
+      : "";
+    if (rawQs) {
+      const extra = new URLSearchParams(rawQs);
+      for (const [k, v] of extra.entries()) {
+        if (k !== "path") query.append(k, v);
+      }
+    }
+
+    const target = `${radar}/api/fondamental-serve.php?${query.toString()}`;
+
+    const upstreamHeaders = radarFetchHeaders(radar, {
+      Accept: req.headers.accept || "*/*",
+      Cookie: `torinvest_fondamental=${token}`,
+    });
+
+    try {
+      const upstream = await fetch(target, {
+        method: "GET",
+        headers: upstreamHeaders,
+        signal: AbortSignal.timeout(60000),
+      });
+
+      res.status(upstream.status);
+      const skip = new Set([
+        "connection",
+        "transfer-encoding",
+        "content-encoding",
+        "content-length",
+      ]);
+      upstream.headers.forEach((value, key) => {
+        if (!skip.has(key.toLowerCase())) {
+          res.setHeader(key, value);
+        }
+      });
+
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      const ctype = String(upstream.headers.get("content-type") || "");
+      if (upstream.status === 404) {
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        return res.status(502).send(
+          "Radar Fondamental 404 — vérifier radar.torinvest-trading.com et applifonda sur le VPS."
+        );
+      }
+      if (ctype.includes("text/html")) {
+        const html = rewriteFondaEmbedHtml(buf.toString("utf8"));
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.send(html);
+      }
+      if (
+        ctype.includes("javascript") ||
+        ctype.includes("ecmascript") ||
+        subPath.endsWith(".js")
+      ) {
+        const js = rewriteFondaEmbedJs(buf.toString("utf8"), subPath);
+        res.setHeader("Content-Type", ctype || "application/javascript; charset=utf-8");
+        return res.send(js);
+      }
+      return res.send(buf);
+    } catch (e) {
+      return res.status(502).send("Proxy Fondamental indisponible : " + String(e.message || e));
+    }
+  };
+}
+
 module.exports = function createFondamentalBridgeRouter(options) {
   const opts = options || {};
   const router = express.Router();
 
+  router.get("/api/fondamental-bridge/ping", (req, res) => {
+    res.json({ ok: true, mounted: true, cookieFallback: true });
+  });
+
   router.get("/api/fondamental-bridge/status", (req, res) => {
-    if (!req.session?.fondamentalAccessToken) {
+    const token = fondamentalToken(req);
+    if (!token) {
       return res.status(401).json({ ok: false, error: "fondamental_session_required" });
     }
     return res.json({
       ok: true,
       source: "formation",
-      email: req.session.fondamentalEmail || req.session?.user?.email || "",
-      expiresAt: req.session.fondamentalExpiresAt || null,
+      email:
+        req.session?.fondamentalEmail ||
+        req.session?.user?.email ||
+        readReqCookie(req, "forge_fondamental_email") ||
+        "",
+      expiresAt: req.session?.fondamentalExpiresAt || null,
     });
   });
 
@@ -161,30 +352,21 @@ module.exports = function createFondamentalBridgeRouter(options) {
       });
     }
 
-    if (!req.session) {
-      return res.status(500).json({
-        ok: false,
-        error: "session_middleware_missing",
-        hint: "node deploy/vps/relocate-fondamental-bridge.js ~/torinvest-formation puis pm2 restart",
-      });
-    }
-
     try {
       const { bridgeToken } = generateBridgeToken(user.email, secret, 120);
       const activated = await activateOnRadar(bridgeToken, secret);
-      req.session.fondamentalAccessToken = activated.sessionToken;
-      req.session.fondamentalEmail = user.email;
-      req.session.fondamentalExpiresAt = activated.data.expiresAt || null;
+      const expiresAt = activated.data.expiresAt || null;
+      storeFondamentalAccess(req, res, activated.sessionToken, user.email, expiresAt);
 
       const finish = () =>
         res.json({
           ok: true,
           source: "formation",
           email: user.email,
-          expiresAt: req.session.fondamentalExpiresAt,
+          expiresAt,
         });
 
-      if (typeof req.session.save === "function") {
+      if (req.session && typeof req.session.save === "function") {
         return req.session.save((err) => {
           if (err) {
             return res.status(500).json({ ok: false, error: "session_save_failed" });
@@ -230,64 +412,9 @@ module.exports = function createFondamentalBridgeRouter(options) {
     });
   });
 
-  router.use("/fondamental-embed", async (req, res) => {
-    const token = req.session?.fondamentalAccessToken;
-    if (!token) {
-      res.status(401);
-      res.setHeader("Content-Type", "text/plain; charset=utf-8");
-      return res.send("Session Fondamental requise — rechargez la page depuis La Forge.");
-    }
-
-    let subPath = req.path || "/";
-    if (subPath === "/" || subPath === "") {
-      subPath = "/index.html";
-    }
-    subPath = subPath.replace(/^\//, "");
-
-    const radar = radarBaseUrl();
-    const query = new URLSearchParams();
-    query.set("path", subPath);
-    const rawQs = req.originalUrl.includes("?")
-      ? req.originalUrl.slice(req.originalUrl.indexOf("?") + 1)
-      : "";
-    if (rawQs) {
-      const extra = new URLSearchParams(rawQs);
-      for (const [k, v] of extra.entries()) {
-        if (k !== "path") query.append(k, v);
-      }
-    }
-
-    const target = `${radar}/api/fondamental-serve.php?${query.toString()}`;
-
-    try {
-      const upstream = await fetch(target, {
-        method: "GET",
-        headers: {
-          Cookie: `torinvest_fondamental=${token}`,
-          Accept: req.headers.accept || "*/*",
-        },
-        signal: AbortSignal.timeout(60000),
-      });
-
-      res.status(upstream.status);
-      const skip = new Set([
-        "connection",
-        "transfer-encoding",
-        "content-encoding",
-        "content-length",
-      ]);
-      upstream.headers.forEach((value, key) => {
-        if (!skip.has(key.toLowerCase())) {
-          res.setHeader(key, value);
-        }
-      });
-
-      const buf = Buffer.from(await upstream.arrayBuffer());
-      return res.send(buf);
-    } catch (e) {
-      return res.status(502).send("Proxy Fondamental indisponible : " + String(e.message || e));
-    }
-  });
+  const embedProxy = createEmbedProxy();
+  router.use("/applifonda", embedProxy);
+  router.use("/fondamental-embed", embedProxy);
 
   return router;
 };

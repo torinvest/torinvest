@@ -62,7 +62,8 @@
       <div class="card" id="fondamental-access">
         <h3>Fondamental</h3>
         <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
-          Application macro & fondamentaux — <strong>Premium La Forge</strong> ou
+          Application macro & fondamentaux — <strong id="fonda-dash-meta">61 cours · ~13 h</strong>.
+          Accès <strong>Premium La Forge</strong> ou
           <strong>TorPass ACADEMY</strong> (Phantom + ≥ 250 KRM).
         </p>
         <a class="btn btn-primary" href="/fondamental.html" id="fondamental-link">Ouvrir Fondamental</a>
@@ -86,12 +87,17 @@
   <script src="/js/forge-gate.js"></script>
   <script src="/js/progress.js"></script>
   <script src="/js/course-data.js"></script>
+  <script src="/js/fondamental-data.js"></script>
   <script src="/js/forge-unlock.js"></script>
   <script>
     const MODULE_IDS = getAllModuleIds();
     document.getElementById("dash-hours").textContent = "~" + FORGE_TOTAL_HOURS + " h";
     document.getElementById("dash-meta").textContent =
       FORGE_TOTAL_HOURS + " h · " + MODULES.length + " modules · " + COURSE_PARTS.length + " parties";
+    const fondaMeta = document.getElementById("fonda-dash-meta");
+    if (fondaMeta && typeof getFondaMetaLabel === "function") {
+      fondaMeta.textContent = getFondaMetaLabel();
+    }
     const dcl = document.getElementById("dash-course-line");
     if (dcl) dcl.textContent = "Module 0 → " + MODULES.length + " · ICT/SMC · macro · pro avancé · mindset";
     const pills = document.getElementById("dash-live-pills");

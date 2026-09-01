@@ -41,7 +41,7 @@ $validTarget = $target !== false && str_starts_with($target, $root . DIRECTORY_S
 
 $sessionOk = false;
 try {
-    $session = fondaReadSession();
+    $session = fondaResolveSession();
     if ($session !== null) {
         fondaPing($session);
         $sessionOk = true;

@@ -259,6 +259,32 @@ function fondaReadSession(): ?array
     return $session;
 }
 
+/** Cookie navigateur ou access_token (proxy La Forge embed). */
+function fondaResolveSession(): ?array
+{
+    $session = fondaReadSession();
+    if ($session !== null) {
+        return $session;
+    }
+
+    $token = trim((string) ($_GET['access_token'] ?? ''));
+    if ($token === '') {
+        return null;
+    }
+
+    try {
+        $secret = aiAccessHmacSecret();
+        $session = aiAccessVerifyToken($token, $secret);
+        if ($session === null) {
+            return null;
+        }
+        $session['token'] = $token;
+        return $session;
+    } catch (Throwable $e) {
+        return null;
+    }
+}
+
 function fondaLoginWallet(string $wallet, string $signatureBase64, string $message, string $nonce): array
 {
     torinvestRateLimitGuard('fondamental_login', 20, 60);
