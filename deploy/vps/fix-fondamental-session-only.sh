@@ -36,8 +36,8 @@ grep -q access_token "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || 
   echo "ERREUR: routes-fondamental-bridge sans access_token embed"
   exit 1
 }
-grep -q rewriteFondaEmbedHtml "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
-  echo "ERREUR: routes-fondamental-bridge sans rewrite HTML embed"
+grep -q 'activate-wallet' "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
+  echo "ERREUR: routes-fondamental-bridge sans activate-wallet (Phantom KRM)"
   exit 1
 }
 echo "OK — formation server-patches"

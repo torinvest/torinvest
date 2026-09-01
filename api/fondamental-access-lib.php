@@ -333,6 +333,7 @@ function fondaLoginWallet(string $wallet, string $signatureBase64, string $messa
         'krm' => $bal,
         'minKrm' => $min,
         'expiresAt' => $expiresAt,
+        'sessionToken' => $token,
     ];
 }
 

@@ -55,12 +55,12 @@ else
   echo "   ERREUR — login La Forge"
 fi
 
-ACTIVATE=$(curl -s -b "$COOKIE" -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate')
+ACTIVATE=$(curl -s -b "$COOKIE" -c "$COOKIE" -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate')
 echo "   activate: $ACTIVATE"
 if echo "$ACTIVATE" | grep -q '"ok"'; then
   echo "   OK — pont Fondamental activé"
   EMBED=$(curl -s -o /tmp/fonda-embed.html -w "%{http_code}" -b "$COOKIE" \
-    'https://app.torinvest-trading.com/fondamental-embed/index.html')
+    'https://app.torinvest-trading.com/applifonda/index.html')
   echo "   embed HTTP: $EMBED"
   if [ "$EMBED" = "200" ]; then
     echo "   OK — modules accessibles via embed"

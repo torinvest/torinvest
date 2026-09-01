@@ -38,6 +38,10 @@ function demoAccounts() {
 }
 
 function matchDemoLogin(email, password) {
+  const enabled =
+    process.env.FORGE_DEMO_ENABLED === "1" ||
+    process.env.FORGE_DEMO_ENABLED === "true";
+  if (!enabled) return null;
   for (const demo of demoAccounts()) {
     if (email === demo.email && password === demo.password) {
       return demo;
