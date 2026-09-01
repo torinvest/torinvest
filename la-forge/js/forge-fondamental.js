@@ -1,5 +1,6 @@
 /**
- * La Forge — Fondamental intégré : accès Premium uniquement.
+ * La Forge — hub Fondamental dans l'app formation.
+ * Accès : abonnement Premium La Forge OU Phantom + KRM TorPass ACADEMY (≥ seuil).
  */
 (function () {
   "use strict";
@@ -17,7 +18,18 @@
     el.hidden = !text;
   }
 
+  function showGate() {
+    var g = document.getElementById("fonda-krm-gate");
+    if (g) g.hidden = false;
+  }
+
+  function hideGate() {
+    var g = document.getElementById("fonda-krm-gate");
+    if (g) g.hidden = true;
+  }
+
   function showFrame() {
+    hideGate();
     var wrap = document.getElementById("fonda-frame-wrap");
     var frame = document.getElementById("fonda-frame");
     if (wrap) wrap.hidden = false;
@@ -25,7 +37,9 @@
   }
 
   function apiJson(url, options) {
-    return fetch(url, options || {}).then(function (r) {
+    var opts = options || {};
+    opts.credentials = "include";
+    return fetch(url, opts).then(function (r) {
       return r.json().then(function (j) {
         if (!r.ok || j && j.ok === false) {
           var err = new Error((j && (j.error || j.message)) || "HTTP " + r.status);
@@ -38,61 +52,166 @@
     });
   }
 
+  function fmtKrm(n) {
+    try {
+      return Number(n).toLocaleString("fr-FR", { maximumFractionDigits: 2 });
+    } catch (e) {
+      return String(n);
+    }
+  }
+
+  function bytesToBase64(bytes) {
+    var bin = "";
+    var u8 = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+    for (var i = 0; i < u8.length; i++) bin += String.fromCharCode(u8[i]);
+    return btoa(bin);
+  }
+
+  function getProvider() {
+    var p = window.solana || (window.phantom && window.phantom.solana);
+    if (p && p.isPhantom) return p;
+    return null;
+  }
+
+  async function pingFondaSession() {
+    try {
+      return await apiJson(FONDA_API + "?action=ping", { method: "GET" });
+    } catch (e) {
+      return null;
+    }
+  }
+
   async function tryFormationBridge() {
-    setStatus("Connexion à Fondamental via votre abonnement Premium…", "ok");
-    var bridge = await apiJson("/api/fondamental-bridge", { credentials: "include" });
+    var bridge = await apiJson("/api/fondamental-bridge", { method: "GET" });
     await apiJson(FONDA_API, {
       method: "POST",
-      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "login_formation_bridge",
         bridgeToken: bridge.bridgeToken,
       }),
     });
-    setStatus("Accès Fondamental ouvert — chargement de l'application…", "ok");
-    showFrame();
+    return true;
   }
 
-  async function initFondamentalEmbed() {
-    var locked = document.getElementById("fonda-locked");
+  async function loginWalletKrm(provider, wallet) {
+    setStatus("Challenge serveur KRM…", "ok");
+    var ch = await apiJson(FONDA_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "challenge", wallet: wallet }),
+    });
+    setStatus("Signature Phantom…", "ok");
+    var encoded = new TextEncoder().encode(ch.message);
+    var signed = await provider.signMessage(encoded, "utf8");
+    var sig = signed.signature || signed;
+    setStatus("Vérification solde KRM (serveur)…", "ok");
+    await apiJson(FONDA_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "login_wallet",
+        wallet: wallet,
+        message: ch.message,
+        nonce: ch.nonce,
+        signature: bytesToBase64(sig),
+      }),
+    });
+  }
+
+  async function connectPhantomKrm() {
+    var btn = document.getElementById("fonda-krm-connect");
+    if (btn) btn.disabled = true;
+    try {
+      var provider = getProvider();
+      if (!provider) {
+        setStatus("Installe Phantom pour vérifier ton niveau TorPass ACADEMY.", "warn");
+        window.open("https://phantom.app/", "_blank", "noopener,noreferrer");
+        return;
+      }
+      setStatus("Connexion Phantom…", "ok");
+      var res = await provider.connect();
+      var pk = (res && res.publicKey) || provider.publicKey;
+      if (!pk) throw new Error("Wallet non détecté");
+      await loginWalletKrm(provider, pk.toString());
+      setStatus("Accès KRM validé — chargement de Fondamental…", "ok");
+      showFrame();
+    } catch (e) {
+      var p = (e && e.payload) || {};
+      if (p.code === "INSUFFICIENT_KRM" || (p.krm != null && p.minKrm != null)) {
+        setStatus(
+          "Solde insuffisant — " +
+            fmtKrm(p.krm) +
+            " KRM. Il faut ≥ " +
+            fmtKrm(p.minKrm) +
+            " KRM (TorPass ACADEMY) ou l'abonnement La Forge Premium.",
+          "warn"
+        );
+      } else if ((e.payload && e.payload.error) === "premium_required") {
+        setStatus("Utilise Phantom + KRM ou souscrivez à La Forge Premium.", "warn");
+      } else {
+        setStatus((e && e.message) || "Connexion impossible", "warn");
+      }
+      showGate();
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  async function initFondamentalHub() {
     var me = typeof getMe === "function" ? await getMe() : null;
     if (!me) {
       window.location.href = "/login.html?next=" + encodeURIComponent("/fondamental.html");
       return;
     }
-    if (!me.subscribed) {
-      if (locked) locked.hidden = false;
-      setStatus(
-        "Fondamental est réservé aux abonnés La Forge Premium (349€/an).",
-        "warn"
-      );
+
+    var sess = await pingFondaSession();
+    if (sess && sess.ok) {
+      if (sess.source === "formation") {
+        setStatus("Accès Premium La Forge — ouverture de Fondamental…", "ok");
+      } else if (sess.krm != null) {
+        setStatus("Session TorPass — " + fmtKrm(sess.krm) + " KRM. Ouverture…", "ok");
+      } else {
+        setStatus("Session active — ouverture de Fondamental…", "ok");
+      }
+      showFrame();
       return;
     }
-    try {
-      await tryFormationBridge();
-    } catch (e) {
-      var code = (e.payload && e.payload.error) || e.message || "";
-      if (code === "premium_required") {
-        if (locked) locked.hidden = false;
-        setStatus("Abonnement Premium requis pour Fondamental.", "warn");
+
+    if (me.subscribed) {
+      try {
+        setStatus("Connexion automatique (abonnement Premium La Forge)…", "ok");
+        await tryFormationBridge();
+        setStatus("Accès Premium — chargement de Fondamental…", "ok");
+        showFrame();
         return;
+      } catch (e) {
+        var err = (e.payload && e.payload.error) || e.message || "";
+        if (err === "bridge_not_configured") {
+          setStatus(
+            "Premium actif — pont serveur en cours d'activation. Connecte Phantom (KRM) ci-dessous ou réessaie plus tard.",
+            "warn"
+          );
+        } else {
+          setStatus("Premium actif — utilise Phantom ci-dessous si l'ouverture auto échoue.", "warn");
+        }
       }
-      if (code === "bridge_not_configured") {
-        setStatus(
-          "Accès Premium activé — configuration serveur en cours. Réessayez dans quelques minutes ou contactez le support.",
-          "warn"
-        );
-      } else {
-        setStatus(
-          "Impossible d'ouvrir Fondamental pour le moment. Réessayez ou contactez le support.",
-          "warn"
-        );
-      }
-      var retry = document.getElementById("fonda-retry");
-      if (retry) retry.hidden = false;
+    } else {
+      setStatus(
+        "Deux accès : abonnement La Forge Premium (349€/an) ou TorPass ACADEMY (≥ 250 KRM via Phantom).",
+        "ok"
+      );
     }
+
+    showGate();
+    var btn = document.getElementById("fonda-krm-connect");
+    if (btn && !btn._fondaBound) {
+      btn._fondaBound = true;
+      btn.addEventListener("click", connectPhantomKrm);
+    }
+    var pricing = document.getElementById("fonda-pricing-link");
+    if (pricing && me.subscribed) pricing.hidden = true;
   }
 
-  document.addEventListener("DOMContentLoaded", initFondamentalEmbed);
+  document.addEventListener("DOMContentLoaded", initFondamentalHub);
 })();
