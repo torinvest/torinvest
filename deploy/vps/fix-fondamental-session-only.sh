@@ -1,53 +1,16 @@
 #!/usr/bin/env bash
-# Réparer la-forge + fix définitif session Fondamental (req.session OK)
-# Le correctif server.js est EMBARQUÉ (pas de cache GitHub raw sur ensure-fb.js).
+# Fix server.js seul — si repair-la-forge-502 échoue sur ensure (cache GitHub).
+# Usage: curl -fsSL .../fix-fondamental-session-only.sh | bash
 set -euo pipefail
-
 FORM_DIR="${1:-$HOME/torinvest-formation}"
-REF="${TORINVEST_DEPLOY_REF:-cursor/fondamental-activate-fix-691a}"
-# Commit pin pour les fichiers curl (évite cache raw 5 min sur branche)
-ENSURE_COMMIT="${TORINVEST_ENSURE_COMMIT:-b14eb55}"
-BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
-BASE_PIN="https://raw.githubusercontent.com/torinvest/torinvest/${ENSURE_COMMIT}"
-
-echo "==> repair la-forge ($REF / ensure $ENSURE_COMMIT)"
-
-mkdir -p "$FORM_DIR/server-patches" "$FORM_DIR/public/js"
-
-curl -fsSL "$BASE/deploy/vps/formation-server/routes-fondamental-bridge.js" \
-  -o "$FORM_DIR/server-patches/routes-fondamental-bridge.js"
-curl -fsSL "$BASE/deploy/vps/formation-server/routes-formation-auth.js" \
-  -o "$FORM_DIR/server-patches/routes-formation-auth.js"
-curl -fsSL "$BASE/la-forge/js/forge-fondamental.js" \
-  -o "$FORM_DIR/public/js/forge-fondamental.js"
-curl -fsSL "$BASE/la-forge/js/auth.js" \
-  -o "$FORM_DIR/public/js/auth.js"
-curl -fsSL "$BASE/deploy/vps/app-shells/fondamental.html" \
-  -o "$FORM_DIR/public/fondamental.html"
-
-grep -q premiumUserViaMe "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
-  echo "ERREUR: routes-fondamental-bridge.js sans premiumUserViaMe"
-  exit 1
-}
-echo "OK — patches + frontend Fondamental"
-
-node --check "$FORM_DIR/server.js"
-node --check "$FORM_DIR/server-patches/routes-fondamental-bridge.js"
-
-echo "==> ensure fondamental après express-session"
 export APP_DIR="$FORM_DIR"
-if curl -fsSL "$BASE_PIN/deploy/vps/ensure-fondamental-after-session.js" -o /tmp/ensure-fb.js; then
-  if grep -q 'app\.use(createFondamentalBridgeRouter' /tmp/ensure-fb.js; then
-    echo "OK — ensure-fb.js (validation app.use)"
-    node /tmp/ensure-fb.js "$FORM_DIR"
-  else
-    echo "WARN — ensure-fb.js obsolète (cache?) → script embarqué"
-    node - "$FORM_DIR" <<'ENSURE_NODE'
+echo "==> fix-fondamental-session-only → $FORM_DIR"
+node - "$FORM_DIR" <<'NODE'
 "use strict";
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
-const APP_DIR = process.argv[2] || process.env.APP_DIR;
+const APP_DIR = process.argv[2];
 const serverPath = path.join(APP_DIR, "server.js");
 let content = fs.readFileSync(serverPath, "utf8");
 const original = content;
@@ -115,10 +78,9 @@ if (countMounts(content) === 0) {
   content = content.slice(0, insertAt) + standaloneBlock + content.slice(insertAt);
   console.log("OK — bloc fondamental inséré après session");
 }
-if (countMounts(content) !== 1) {
-  console.error("ERREUR:", countMounts(content), "montages fondamental");
-  process.exit(1);
-}
+const mounts = countMounts(content);
+console.log("montages fondamental:", mounts);
+if (mounts !== 1) { console.error("ERREUR: attendu 1 montage"); process.exit(1); }
 if (content !== original) {
   const backup = serverPath + ".bak." + Date.now();
   fs.writeFileSync(backup, original);
@@ -126,31 +88,16 @@ if (content !== original) {
   execSync("node --check " + JSON.stringify(serverPath), { stdio: "pipe" });
   console.log("Sauvegarde:", backup);
 } else {
-  console.log("OK — server.js déjà correct");
+  console.log("OK — déjà correct");
 }
-ENSURE_NODE
-  fi
-else
-  echo "ERREUR: impossible de télécharger ensure-fondamental-after-session.js"
-  exit 1
-fi
-
+NODE
 source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env
-sleep 4
-
+sleep 3
 rm -f /tmp/t.cookie
-LOGIN=$(curl -s -c /tmp/t.cookie -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/login' \
+curl -s -c /tmp/t.cookie -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/login' \
   -H 'Content-Type: application/json' \
-  -d '{"email":"abonne@torinvest-trading.com","password":"Forge2026!"}')
-echo "$LOGIN"
-ACTIVATE=$(curl -s -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate')
-echo "$ACTIVATE"
-
-if echo "$ACTIVATE" | grep -q '"ok":true'; then
-  echo "==> SUCCÈS activate — Ctrl+Shift+R sur fondamental.html"
-else
-  echo "==> ÉCHEC activate — vérifier pm2 logs la-forge"
-  pm2 logs la-forge --lines 15 --nostream 2>/dev/null | tail -20 || true
-  exit 1
-fi
+  -d '{"email":"abonne@torinvest-trading.com","password":"Forge2026!"}'
+echo ""
+curl -s -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate'
+echo ""
