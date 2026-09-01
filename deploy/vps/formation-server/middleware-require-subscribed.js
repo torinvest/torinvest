@@ -32,22 +32,31 @@ function readProgressModules(email, dataDir) {
 
 module.exports = function requireSubscribedForCourse(req, res, next) {
   const coursePath = req.path || "";
-  if (
-    !coursePath.startsWith("/course/") &&
-    coursePath !== "/course" &&
-    coursePath !== "/course/index.html"
-  ) {
+  const isFondamental =
+    coursePath === "/fondamental.html" || coursePath === "/fondamental";
+  const isCourse =
+    coursePath.startsWith("/course/") ||
+    coursePath === "/course" ||
+    coursePath === "/course/index.html";
+
+  if (!isCourse && !isFondamental) {
     return next();
   }
 
   const user = req.session?.user || req.user;
   if (!user) {
-    const nextUrl = encodeURIComponent(req.originalUrl || "/course/index.html");
+    const nextUrl = encodeURIComponent(
+      req.originalUrl || (isFondamental ? "/fondamental.html" : "/course/index.html")
+    );
     return res.redirect("/login.html?next=" + nextUrl);
   }
 
   if (!user.subscribed) {
     return res.redirect("/dashboard.html?locked=1");
+  }
+
+  if (!isCourse) {
+    return next();
   }
 
   if (
