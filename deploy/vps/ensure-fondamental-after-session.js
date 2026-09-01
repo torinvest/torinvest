@@ -111,13 +111,20 @@ function findInsertAfterSession(text) {
   return -1;
 }
 
-function findInsertAfterAccompagnement(text) {
-  const marker = "/* TORINVEST_ACCOMPAGNEMENT_AUTH_END */";
-  const idx = text.indexOf(marker);
-  if (idx < 0) return -1;
-  let at = idx + marker.length;
-  const nl = text.indexOf("\n", at);
-  return nl >= 0 ? nl + 1 : at;
+function findInsertPoint(text) {
+  const accMarker = "/* TORINVEST_ACCOMPAGNEMENT_AUTH_END */";
+  const accIdx = text.indexOf(accMarker);
+  if (accIdx >= 0) {
+    let at = accIdx + accMarker.length;
+    const nl = text.indexOf("\n", at);
+    return nl >= 0 ? nl + 1 : at;
+  }
+
+  const loginRe = /app\.post\s*\(\s*["']\/api\/login["']/m;
+  const loginM = text.match(loginRe);
+  if (loginM && loginM.index >= 0) return loginM.index;
+
+  return findInsertAfterSession(text);
 }
 
 function countMounts(text) {
@@ -127,25 +134,16 @@ function countMounts(text) {
 const stripped = stripAllFondamentalBridge(content);
 content = stripped.out;
 
-let insertAt = findInsertAfterSession(content);
+let insertAt = findInsertPoint(content);
 if (insertAt < 0) {
-  insertAt = findInsertAfterAccompagnement(content);
-}
-if (insertAt < 0) {
-  const loginRe = /app\.post\s*\(\s*["']\/api\/login["']/m;
-  const m = content.match(loginRe);
-  if (m && m.index >= 0) insertAt = m.index;
-}
-
-if (insertAt < 0) {
-  console.error("ERREUR: point d'insertion introuvable (session / accompagnement / login)");
+  console.error("ERREUR: point d'insertion introuvable (accompagnement / login / session)");
   process.exit(1);
 }
 
 const mountsBefore = countMounts(content);
 if (mountsBefore === 0) {
   content = content.slice(0, insertAt) + standaloneBlock + content.slice(insertAt);
-  console.log("OK — bloc fondamental inséré après express-session (insertAt=" + insertAt + ")");
+  console.log("OK — bloc fondamental inséré après accompagnement auth (insertAt=" + insertAt + ")");
 } else if (mountsBefore === 1) {
   console.log("OK — un seul montage fondamental déjà présent");
 } else {

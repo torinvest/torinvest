@@ -1,10 +1,24 @@
 #!/usr/bin/env bash
-# Fix server.js seul — si repair-la-forge-502 échoue sur ensure (cache GitHub).
-# Usage: curl -fsSL .../fix-fondamental-session-only.sh | bash
+# Fix server.js + routes cookie fallback (req.session optionnel).
+# Usage: curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/<SHA>/deploy/vps/fix-fondamental-session-only.sh" | bash
 set -euo pipefail
 FORM_DIR="${1:-$HOME/torinvest-formation}"
+REF="${TORINVEST_DEPLOY_REF:-cursor/fondamental-activate-fix-691a}"
+SHA="${TORINVEST_DEPLOY_SHA:-HEAD}"
+BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 export APP_DIR="$FORM_DIR"
+
 echo "==> fix-fondamental-session-only → $FORM_DIR"
+
+mkdir -p "$FORM_DIR/server-patches"
+curl -fsSL "$BASE/deploy/vps/formation-server/routes-fondamental-bridge.js" \
+  -o "$FORM_DIR/server-patches/routes-fondamental-bridge.js"
+grep -q FORGE_FONDA_COOKIE "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
+  echo "ERREUR: routes-fondamental-bridge.js sans cookie fallback"
+  exit 1
+}
+echo "OK — routes-fondamental-bridge.js (cookie fallback)"
+
 node - "$FORM_DIR" <<'NODE'
 "use strict";
 const fs = require("fs");
@@ -41,7 +55,16 @@ function stripAll(text) {
   out = out.replace(/\n?app\.use\(createFondamentalBridgeRouter\(\{[^}]*\}\)\);\s*/g, "\n");
   return out;
 }
-function findInsertAfterSession(text) {
+function findInsertPoint(text) {
+  const accMarker = "/* TORINVEST_ACCOMPAGNEMENT_AUTH_END */";
+  const accIdx = text.indexOf(accMarker);
+  if (accIdx >= 0) {
+    let at = accIdx + accMarker.length;
+    const nl = text.indexOf("\n", at);
+    return nl >= 0 ? nl + 1 : at;
+  }
+  const m = text.match(/app\.post\s*\(\s*["']\/api\/login["']/m);
+  if (m) return m.index;
   const sessionUse = text.match(/app\.use\s*\(\s*session\s*\(/m);
   if (!sessionUse) return -1;
   let i = sessionUse.index, depth = 0, started = false;
@@ -63,23 +86,19 @@ function countMounts(text) {
   return (text.match(/app\.use\(\s*createFondamentalBridgeRouter/g) || []).length;
 }
 content = stripAll(content);
-let insertAt = findInsertAfterSession(content);
-if (insertAt < 0) {
-  const marker = "/* TORINVEST_ACCOMPAGNEMENT_AUTH_END */";
-  const idx = content.indexOf(marker);
-  if (idx >= 0) insertAt = idx + marker.length;
-}
-if (insertAt < 0) {
-  const m = content.match(/app\.post\s*\(\s*["']\/api\/login["']/m);
-  if (m) insertAt = m.index;
-}
+let insertAt = findInsertPoint(content);
 if (insertAt < 0) { console.error("ERREUR: insertion introuvable"); process.exit(1); }
 if (countMounts(content) === 0) {
   content = content.slice(0, insertAt) + standaloneBlock + content.slice(insertAt);
-  console.log("OK — bloc fondamental inséré après session");
+  console.log("OK — bloc fondamental inséré (insertAt=" + insertAt + ")");
 }
 const mounts = countMounts(content);
 console.log("montages fondamental:", mounts);
+const sessionIdx = content.indexOf("app.use(session");
+const fbIdx = content.indexOf("FONDAMENTAL_BRIDGE_BEGIN");
+if (sessionIdx >= 0 && fbIdx >= 0) {
+  console.log("session idx:", sessionIdx, "fondamental idx:", fbIdx, "session avant fb:", sessionIdx < fbIdx);
+}
 if (mounts !== 1) { console.error("ERREUR: attendu 1 montage"); process.exit(1); }
 if (content !== original) {
   const backup = serverPath + ".bak." + Date.now();
@@ -88,16 +107,23 @@ if (content !== original) {
   execSync("node --check " + JSON.stringify(serverPath), { stdio: "pipe" });
   console.log("Sauvegarde:", backup);
 } else {
-  console.log("OK — déjà correct");
+  console.log("OK — server.js déjà correct");
 }
 NODE
+
 source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env
-sleep 3
+sleep 4
 rm -f /tmp/t.cookie
 curl -s -c /tmp/t.cookie -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/login' \
   -H 'Content-Type: application/json' \
   -d '{"email":"abonne@torinvest-trading.com","password":"Forge2026!"}'
 echo ""
-curl -s -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate'
-echo ""
+ACTIVATE=$(curl -s -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate')
+echo "$ACTIVATE"
+if echo "$ACTIVATE" | grep -q '"ok":true'; then
+  echo "==> SUCCÈS — Ctrl+Shift+R fondamental.html"
+else
+  echo "==> ÉCHEC activate"
+  exit 1
+fi

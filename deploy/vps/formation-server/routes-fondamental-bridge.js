@@ -85,6 +85,35 @@ function parseFondamentalCookie(setCookieHeaders) {
   return null;
 }
 
+const FORGE_FONDA_COOKIE = "forge_fondamental_embed";
+
+function readReqCookie(req, name) {
+  const raw = String(req.headers.cookie || "");
+  const re = new RegExp("(?:^|;\\s*)" + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)");
+  const m = raw.match(re);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+function fondamentalToken(req) {
+  return req.session?.fondamentalAccessToken || readReqCookie(req, FORGE_FONDA_COOKIE) || null;
+}
+
+function storeFondamentalAccess(req, res, token, email, expiresAt) {
+  if (req.session) {
+    req.session.fondamentalAccessToken = token;
+    req.session.fondamentalEmail = email;
+    req.session.fondamentalExpiresAt = expiresAt || null;
+  }
+  const maxAgeMs = 12 * 60 * 60 * 1000;
+  res.cookie(FORGE_FONDA_COOKIE, token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    maxAge: maxAgeMs,
+    path: "/",
+  });
+}
+
 async function activateOnRadar(bridgeToken, secret) {
   const url = radarBaseUrl() + "/api/fondamental-access.php";
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
@@ -132,14 +161,19 @@ module.exports = function createFondamentalBridgeRouter(options) {
   const router = express.Router();
 
   router.get("/api/fondamental-bridge/status", (req, res) => {
-    if (!req.session?.fondamentalAccessToken) {
+    const token = fondamentalToken(req);
+    if (!token) {
       return res.status(401).json({ ok: false, error: "fondamental_session_required" });
     }
     return res.json({
       ok: true,
       source: "formation",
-      email: req.session.fondamentalEmail || req.session?.user?.email || "",
-      expiresAt: req.session.fondamentalExpiresAt || null,
+      email:
+        req.session?.fondamentalEmail ||
+        req.session?.user?.email ||
+        readReqCookie(req, "forge_fondamental_email") ||
+        "",
+      expiresAt: req.session?.fondamentalExpiresAt || null,
     });
   });
 
@@ -161,30 +195,21 @@ module.exports = function createFondamentalBridgeRouter(options) {
       });
     }
 
-    if (!req.session) {
-      return res.status(500).json({
-        ok: false,
-        error: "session_middleware_missing",
-        hint: "node deploy/vps/relocate-fondamental-bridge.js ~/torinvest-formation puis pm2 restart",
-      });
-    }
-
     try {
       const { bridgeToken } = generateBridgeToken(user.email, secret, 120);
       const activated = await activateOnRadar(bridgeToken, secret);
-      req.session.fondamentalAccessToken = activated.sessionToken;
-      req.session.fondamentalEmail = user.email;
-      req.session.fondamentalExpiresAt = activated.data.expiresAt || null;
+      const expiresAt = activated.data.expiresAt || null;
+      storeFondamentalAccess(req, res, activated.sessionToken, user.email, expiresAt);
 
       const finish = () =>
         res.json({
           ok: true,
           source: "formation",
           email: user.email,
-          expiresAt: req.session.fondamentalExpiresAt,
+          expiresAt,
         });
 
-      if (typeof req.session.save === "function") {
+      if (req.session && typeof req.session.save === "function") {
         return req.session.save((err) => {
           if (err) {
             return res.status(500).json({ ok: false, error: "session_save_failed" });
@@ -231,7 +256,7 @@ module.exports = function createFondamentalBridgeRouter(options) {
   });
 
   router.use("/fondamental-embed", async (req, res) => {
-    const token = req.session?.fondamentalAccessToken;
+    const token = fondamentalToken(req);
     if (!token) {
       res.status(401);
       res.setHeader("Content-Type", "text/plain; charset=utf-8");
