@@ -49,7 +49,12 @@ fi
 curl -fsSL --retry 3 "$BASE/deploy/vps/formation-server/accompagnement-worker-lib.js" \
   -o "$APP_DIR/server-patches/accompagnement-worker-lib.js" || true
 
-export APP_DIR
+for jsdir in "$APP_DIR/public/js" "$APP_DIR/js"; do
+  if [ -d "$jsdir" ] || [ "$jsdir" = "$APP_DIR/public/js" ]; then
+    mkdir -p "$jsdir"
+    curl -fsSL --retry 3 "$BASE/la-forge/js/auth.js" -o "$jsdir/auth.js" && echo "OK — $jsdir/auth.js"
+  fi
+done
 node <<'NODE'
 const fs = require("fs");
 const path = require("path");
