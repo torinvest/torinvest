@@ -342,13 +342,26 @@ function fondaLoginFormationBridge(string $bridgeToken): array
     $token = aiAccessGenerateToken($expiresAt, 'client', $sessionMeta, $secret);
     torinvestSessionSetCookie('fondamental_access', $token, $expiresAt);
 
-    return [
+    $result = [
         'ok' => true,
         'role' => 'client',
         'source' => 'formation',
         'email' => $email,
         'expiresAt' => $expiresAt,
     ];
+
+    $cfg = fondaConfig();
+    $internalHeader = trim((string) ($_SERVER['HTTP_X_FORGE_FONDAMENTAL_INTERNAL'] ?? ''));
+    $internalExpected = trim((string) ($cfg['formation_provision_secret'] ?? ''));
+    if (
+        $internalHeader !== ''
+        && $internalExpected !== ''
+        && hash_equals($internalExpected, $internalHeader)
+    ) {
+        $result['sessionToken'] = $token;
+    }
+
+    return $result;
 }
 
 function fondaLoginAdmin(string $pin): array

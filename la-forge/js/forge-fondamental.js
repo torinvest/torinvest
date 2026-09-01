@@ -7,7 +7,7 @@
 
   var WWW = "https://www.torinvest-trading.com";
   var FONDA_API = WWW + "/api/fondamental-access.php";
-  var FONDA_APP = WWW + "/applifonda/";
+  var FONDA_APP = "/fondamental-embed/";
 
   function setStatus(text, kind) {
     var el = document.getElementById("fonda-status");
@@ -75,22 +75,18 @@
 
   async function pingFondaSession() {
     try {
-      return await apiJson(FONDA_API + "?action=ping", { method: "GET" });
+      return await apiJson("/api/fondamental-bridge/status", { method: "GET" });
     } catch (e) {
-      return null;
+      try {
+        return await apiJson(FONDA_API + "?action=ping", { method: "GET" });
+      } catch (e2) {
+        return null;
+      }
     }
   }
 
   async function tryFormationBridge() {
-    var bridge = await apiJson("/api/fondamental-bridge", { method: "GET" });
-    await apiJson(FONDA_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "login_formation_bridge",
-        bridgeToken: bridge.bridgeToken,
-      }),
-    });
+    await apiJson("/api/fondamental-bridge/activate", { method: "POST" });
     return true;
   }
 
@@ -190,11 +186,14 @@
         var err = (e.payload && e.payload.error) || e.message || "";
         if (err === "bridge_not_configured") {
           setStatus(
-            "Premium actif — pont serveur en cours d'activation. Connecte Phantom (KRM) ci-dessous ou réessaie plus tard.",
+            "Premium actif — configurez FORGE_FONDAMENTAL_BRIDGE_SECRET sur le VPS (= ai_access_hmac_secret radar).",
             "warn"
           );
         } else {
-          setStatus("Premium actif — utilise Phantom ci-dessous si l'ouverture auto échoue.", "warn");
+          setStatus(
+            "Ouverture auto échouée (" + err + ") — Phantom ci-dessous ou réessayez après deploy.",
+            "warn"
+          );
         }
       }
     } else if (me) {
@@ -212,6 +211,10 @@
     }
 
     showGate();
+    var loginHintEl = document.getElementById("fonda-login-hint");
+    if (loginHintEl) {
+      loginHintEl.hidden = !!(me && me.subscribed);
+    }
     var btn = document.getElementById("fonda-krm-connect");
     if (btn && !btn._fondaBound) {
       btn._fondaBound = true;
