@@ -55,6 +55,14 @@ for jsdir in "$APP_DIR/public/js" "$APP_DIR/js"; do
     curl -fsSL --retry 3 "$BASE/la-forge/js/auth.js" -o "$jsdir/auth.js" && echo "OK — $jsdir/auth.js"
   fi
 done
+
+for html in login.html fondamental.html; do
+  for hdir in "$APP_DIR/public" "$APP_DIR"; do
+  if [ -d "$hdir" ] || [ "$hdir" = "$APP_DIR/public" ]; then
+    curl -fsSL --retry 3 "$BASE/deploy/vps/app-shells/$html" -o "$hdir/$html" && echo "OK — $hdir/$html"
+  fi
+  done
+done
 node <<'NODE'
 const fs = require("fs");
 const path = require("path");
