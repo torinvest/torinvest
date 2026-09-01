@@ -19,6 +19,7 @@
   }
 
   function showGate() {
+    document.body.classList.remove("fonda-app-open");
     var g = document.getElementById("fonda-krm-gate");
     if (g) g.hidden = false;
   }
@@ -30,6 +31,7 @@
 
   function showFrame() {
     hideGate();
+    document.body.classList.add("fonda-app-open");
     var wrap = document.getElementById("fonda-frame-wrap");
     var frame = document.getElementById("fonda-frame");
     if (wrap) wrap.hidden = false;
