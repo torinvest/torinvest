@@ -8,6 +8,8 @@ const FONDA_COURSE_COUNT = 61;
 const FONDA_LEVEL_COUNT = 9;
 const FONDA_TOTAL_MINUTES = 775;
 const FONDA_TOTAL_HOURS = 13;
+/** La Forge modules + Fondamental (aligné course-data.js). */
+const FORGE_COMBINED_HOURS = 70;
 
 const FONDA_LEVELS = [
   {
@@ -96,6 +98,7 @@ window.FONDA_COURSE_COUNT = FONDA_COURSE_COUNT;
 window.FONDA_LEVEL_COUNT = FONDA_LEVEL_COUNT;
 window.FONDA_TOTAL_MINUTES = FONDA_TOTAL_MINUTES;
 window.FONDA_TOTAL_HOURS = FONDA_TOTAL_HOURS;
+window.FORGE_COMBINED_HOURS = FORGE_COMBINED_HOURS;
 window.FONDA_LEVELS = FONDA_LEVELS;
 window.getFondaHoursLabel = getFondaHoursLabel;
 window.getFondaMetaLabel = getFondaMetaLabel;

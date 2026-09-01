@@ -28,7 +28,7 @@
 2. Lister 3 **mensonges courants** (influenceurs, « win rate », lifestyle).
 3. Expliquer la différence **investisseur / trader / scalpeur** sans confusion.
 4. Accepter le **parcours guidé** (lots de 3) comme structure, pas punition.
-5. Savoir ce que La Forge couvre (ICT/SMC, macro, XAU, pro) sur ~57 h.
+5. Savoir ce que La Forge couvre (ICT/SMC, macro, XAU, pro, Fondamental) sur ~70 h.
 
 ## Structure suggérée — 12 sections (mapping contenu leçon)
 
@@ -42,7 +42,7 @@
 | 6 | Marchés & actifs | FX, indices, or — pourquoi XAU central dans La Forge | 8 min |
 | 7 | Outils vs edge | Plateforme ≠ edge ; journal, process | 8 min |
 | 8 | Accompagnement TORINVEST | Formation + Discord + replays ; pas robot par défaut | 7 min |
-| 9 | Parcours guidé | Lots de 3, validation, ~57 h, pas sprint | 8 min |
+| 9 | Parcours guidé | Lots de 3, validation, ~70 h, pas sprint | 8 min |
 | 10 | Risques & légal | Pas conseil en investissement ; AMF, perte possible | 8 min |
 | 11 | Quiz prep | Récap 5 points clés | 5 min |
 | 12 | Engagement | « Je commence Module 0 sérieusement » + lien F1 | 5 min |
@@ -58,7 +58,7 @@
 
 1. Le trading est principalement… → **gestion du risque et discipline**
 2. Un win rate élevé garantit… → **non, taille pertes / R:R compte**
-3. La Forge couvre… → **macro, ICT/SMC, XAU, pro (~57 h)**
+3. La Forge couvre… → **macro, ICT/SMC, XAU, pro, Fondamental (~70 h)**
 4. Parcours guidé signifie… → **lots de 3 validés pour débloquer**
 5. TORINVEST formation ≠ → **service de signaux / conseil personnalisé**
 6. Avant technique, priorité → **attentes réalistes + process**

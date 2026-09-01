@@ -2,7 +2,7 @@
 # Fix Fondamental Premium : routes + API radar (access_token embed) + test
 set -euo pipefail
 FORM_DIR="${1:-$HOME/torinvest-formation}"
-REF="${TORINVEST_DEPLOY_REF:-cursor/fondamental-activate-fix-691a}"
+REF="${TORINVEST_DEPLOY_REF:-b15d540}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 RADAR_API="/var/www/torinvest/api"
 
@@ -17,10 +17,20 @@ curl -fsSL "$BASE/la-forge/js/forge-fondamental.js" \
   -o "$FORM_DIR/public/js/forge-fondamental.js"
 curl -fsSL "$BASE/la-forge/js/fondamental-data.js" \
   -o "$FORM_DIR/public/js/fondamental-data.js"
+curl -fsSL "$BASE/la-forge/js/course-data.js" \
+  -o "$FORM_DIR/public/js/course-data.js"
+curl -fsSL "$BASE/la-forge/js/course-index.js" \
+  -o "$FORM_DIR/public/js/course-index.js"
 curl -fsSL "$BASE/deploy/vps/app-shells/fondamental.html" \
   -o "$FORM_DIR/public/fondamental.html"
 curl -fsSL "$BASE/deploy/vps/app-shells/dashboard.html" \
   -o "$FORM_DIR/public/dashboard.html"
+
+grep -q 'FORGE_TOTAL_HOURS = 70' "$FORM_DIR/public/js/course-data.js" || {
+  echo "ERREUR: course-data.js sans FORGE_TOTAL_HOURS=70 (branche $REF incorrecte ?)"
+  exit 1
+}
+echo "OK — course-data.js FORGE_TOTAL_HOURS=70"
 
 grep -q access_token "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
   echo "ERREUR: routes-fondamental-bridge sans access_token embed"
@@ -75,5 +85,5 @@ if grep -qi 'Connecter Phantom' /tmp/embed.html; then
 fi
 echo "OK — embed session Premium (pas gate wallet)"
 
-echo "==> SUCCÈS — Ctrl+Shift+R https://app.torinvest-trading.com/fondamental.html"
-echo "   Login email Premium → Fondamental s'ouvre sans Phantom"
+echo "==> SUCCÈS — Ctrl+Shift+R https://app.torinvest-trading.com/dashboard.html"
+echo "   Vérif: curl -s https://app.torinvest-trading.com/js/course-data.js | grep FORGE_TOTAL_HOURS"
