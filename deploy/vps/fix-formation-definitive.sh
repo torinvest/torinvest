@@ -1,18 +1,22 @@
 #!/usr/bin/env bash
 # Fix définitif crash la-forge — tout en un seul curl (pas de 2e fichier relocate).
 #
-# Usage :
+# Usage (préférer le commit figé — raw GitHub met en cache « main » plusieurs minutes) :
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/501cb3e/deploy/vps/fix-formation-definitive.sh" | bash -s -- ~/torinvest-formation
+#
+# Ou main (si le script affiche encore « dede4e3 », le cache n’est pas à jour — utiliser l’URL ci-dessus) :
 #   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/fix-formation-definitive.sh" | bash -s -- ~/torinvest-formation
 
 set -euo pipefail
 
+FIX_SCRIPT_VERSION="3"
 APP_DIR="${1:-$HOME/torinvest-formation}"
 # Défaut main ; repli commit si raw GitHub encore en cache (401 sur users.json existants)
 REF="${TORINVEST_DEPLOY_REF:-main}"
 FALLBACK_REF="${TORINVEST_DEPLOY_FALLBACK_REF:-e33541a}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 
-echo "==> fix-formation-definitive (git $REF) → $APP_DIR"
+echo "==> fix-formation-definitive v${FIX_SCRIPT_VERSION} (git $REF) → $APP_DIR"
 
 mkdir -p "$APP_DIR/server-patches" "$APP_DIR/deploy/vps"
 
