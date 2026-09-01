@@ -310,6 +310,47 @@ function fondaLoginWallet(string $wallet, string $signatureBase64, string $messa
     ];
 }
 
+function fondaLoginFormationBridge(string $bridgeToken): array
+{
+    torinvestRateLimitGuard('fondamental_login_formation', 30, 60);
+    $bridgeToken = trim($bridgeToken);
+    if ($bridgeToken === '') {
+        torinvestRateLimitHit('fondamental_login_formation');
+        throw new InvalidArgumentException('bridgeToken requis');
+    }
+
+    $secret = aiAccessHmacSecret();
+    $bridge = aiAccessVerifyToken($bridgeToken, $secret);
+    if ($bridge === null) {
+        torinvestRateLimitHit('fondamental_login_formation');
+        throw new RuntimeException('Bridge formation invalide ou expiré');
+    }
+
+    $meta = is_array($bridge['meta'] ?? null) ? $bridge['meta'] : [];
+    if (($meta['source'] ?? '') !== 'forge_formation' || trim((string) ($meta['email'] ?? '')) === '') {
+        torinvestRateLimitHit('fondamental_login_formation');
+        throw new RuntimeException('Bridge formation invalide');
+    }
+
+    $email = trim((string) $meta['email']);
+    $expiresAt = time() + fondaSessionTtl();
+    $sessionMeta = [
+        'source' => 'formation',
+        'email' => $email,
+        'level' => 'FORGE_PREMIUM',
+    ];
+    $token = aiAccessGenerateToken($expiresAt, 'client', $sessionMeta, $secret);
+    torinvestSessionSetCookie('fondamental_access', $token, $expiresAt);
+
+    return [
+        'ok' => true,
+        'role' => 'client',
+        'source' => 'formation',
+        'email' => $email,
+        'expiresAt' => $expiresAt,
+    ];
+}
+
 function fondaLoginAdmin(string $pin): array
 {
     torinvestRateLimitGuard('fondamental_login_admin', 10, 60);
@@ -348,7 +389,20 @@ function fondaPing(array $session): array
             'minKrm' => fondaMinKrm(),
         ];
     }
-    $wallet = (string) ($session['meta']['wallet'] ?? '');
+
+    $meta = is_array($session['meta'] ?? null) ? $session['meta'] : [];
+    if (($meta['source'] ?? '') === 'formation') {
+        return [
+            'ok' => true,
+            'role' => 'client',
+            'source' => 'formation',
+            'email' => (string) ($meta['email'] ?? ''),
+            'expiresAt' => $session['expiresAt'],
+            'minKrm' => fondaMinKrm(),
+        ];
+    }
+
+    $wallet = (string) ($meta['wallet'] ?? '');
     if ($wallet === '') {
         throw new RuntimeException('Session sans wallet');
     }

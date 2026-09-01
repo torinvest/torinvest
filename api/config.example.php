@@ -152,6 +152,7 @@ return [
     'fondamental_min_krm' => 250,
     // Durée session cookie HttpOnly torinvest_fondamental (secondes) — 12 h
     'fondamental_access_session_ttl' => 43200,
+    // Pont La Forge Premium → Fondamental (secret identique sur VPS formation : FORGE_FONDAMENTAL_BRIDGE_SECRET)
     // Fichiers app hors accès HTTP direct (recommandé : /var/lib/torinvest/applifonda)
     'fondamental_app_dir' => '/var/lib/torinvest/applifonda',
 

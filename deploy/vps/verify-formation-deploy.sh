@@ -23,6 +23,7 @@ for f in \
   public/js/forge-unlock.js \
   public/js/forge-calendar.js \
   public/dashboard.html \
+  public/fondamental.html \
   public/login.html \
   public/calendar.html \
   public/calendar-day.html \

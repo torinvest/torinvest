@@ -74,10 +74,13 @@ dl "la-forge/js/forge-annotations.js" "js/forge-annotations.js"
 dl "la-forge/css/forge-charts.css" "css/forge-charts.css"
 dl "deploy/vps/app-shells/course/index.html" "course/index.html"
 dl "deploy/vps/app-shells/dashboard.html" "dashboard.html"
+dl "deploy/vps/app-shells/fondamental.html" "fondamental.html"
+dl "la-forge/js/forge-fondamental.js" "js/forge-fondamental.js"
+dl "la-forge/js/forge-brand.js" "js/forge-brand.js"
 
 PATCHES="$APP_DIR/server-patches"
 mkdir -p "$PATCHES"
-for src in middleware-require-subscribed.js forge-unlock-server.js forge-progress-rules.js routes-progress.js course-module-order.json; do
+for src in middleware-require-subscribed.js forge-unlock-server.js forge-progress-rules.js routes-progress.js course-module-order.json fondamental-bridge-lib.js routes-fondamental-bridge.js; do
   echo "  server-patches/$src"
   curl -fsSL "$BASE/deploy/vps/formation-server/$src" -o "$PATCHES/$src" || echo "  WARN — $src"
 done

@@ -47,6 +47,14 @@
         <a class="btn btn-primary" href="/course/index.html" id="course-link">Ouvrir la formation</a>
         <a class="btn btn-secondary" href="/calendar.html" id="calendar-link" style="margin-left:0.5rem">Calendrier</a>
       </div>
+      <div class="card" id="fondamental-access">
+        <h3>Fondamental</h3>
+        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
+          Application macro & fondamentaux — accessible depuis votre espace membre (Premium).
+        </p>
+        <a class="btn btn-primary" href="/fondamental.html" id="fondamental-link">Ouvrir Fondamental</a>
+        <a class="btn btn-secondary" href="https://www.torinvest-trading.com/applifonda/" target="_blank" rel="noopener noreferrer" style="margin-left:0.5rem">Site principal</a>
+      </div>
       <div class="card">
         <h3>Live & communauté</h3>
         <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem">Complétez la formation par le terrain — sessions live chart.</p>
@@ -109,6 +117,13 @@
           cal.classList.add("btn-secondary");
           cal.textContent = "Calendrier (Premium)";
           cal.href = "https://www.torinvest-trading.com/la-forge/pricing.html";
+        }
+        const fonda = document.getElementById("fondamental-link");
+        if (fonda) {
+          fonda.classList.remove("btn-primary");
+          fonda.classList.add("btn-secondary");
+          fonda.textContent = "Fondamental (Premium)";
+          fonda.href = "https://www.torinvest-trading.com/la-forge/pricing.html";
         }
       } else {
         document.getElementById("plan-text").textContent = "Plan Premium actif — accès La Forge débloqué.";
