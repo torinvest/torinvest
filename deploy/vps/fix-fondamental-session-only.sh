@@ -56,11 +56,8 @@ ACTIVATE=$(curl -s -m 25 -b /tmp/t.cookie -X POST 'http://127.0.0.1:3001/api/fon
 echo "$ACTIVATE"
 echo "$ACTIVATE" | grep -q '"ok":true' || { echo "ÉCHEC activate"; exit 1; }
 
-TOKEN=$(node -e "const j=JSON.parse(process.argv[1]);" "$ACTIVATE" 2>/dev/null || true)
-# Test embed index via proxy (doit avoir X-Fondamental-Gate: session, pas login)
-EMBED=$(curl -s -m 20 -b /tmp/t.cookie -D /tmp/embed.hdr -o /tmp/embed.html \
-  'http://127.0.0.1:3001/fondamental-embed/index.html' | head -c 1)
-grep -qi 'X-Fondamental-Gate: session' /tmp/embed.hdr || grep -qi 'X-Fondamental-Gate: session' /tmp/embed.hdr 2>/dev/null || true
+curl -s -m 20 -b /tmp/t.cookie -D /tmp/embed.hdr -o /tmp/embed.html \
+  'http://127.0.0.1:3001/fondamental-embed/index.html' >/dev/null
 if grep -qi 'X-Fondamental-Gate: login' /tmp/embed.hdr; then
   echo "ERREUR: embed retourne gate Phantom (session radar non reconnue)"
   head -5 /tmp/embed.hdr

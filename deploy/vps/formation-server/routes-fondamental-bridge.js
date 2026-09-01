@@ -21,11 +21,26 @@ function radarBaseUrl() {
       ""
   ).replace(/\/$/, "");
   if (explicit) return explicit;
-  // Même VPS : PHP radar en local (évite TLS / cookie cross-host)
-  if (process.env.FORGE_FONDAMENTAL_RADAR_INTERNAL) {
-    return String(process.env.FORGE_FONDAMENTAL_RADAR_INTERNAL).replace(/\/$/, "");
+  return "https://radar.torinvest-trading.com";
+}
+
+function radarHostHeader(baseUrl) {
+  try {
+    const u = new URL(baseUrl);
+    if (u.hostname === "127.0.0.1" || u.hostname === "localhost") {
+      return process.env.FORGE_FONDAMENTAL_RADAR_HOST || "radar.torinvest-trading.com";
+    }
+    return u.hostname;
+  } catch (_) {
+    return "radar.torinvest-trading.com";
   }
-  return "http://127.0.0.1";
+}
+
+function radarFetchHeaders(baseUrl, extra) {
+  const headers = { ...(extra || {}) };
+  const host = radarHostHeader(baseUrl);
+  if (host) headers.Host = host;
+  return headers;
 }
 
 function rewriteFondaEmbedHtml(html) {
@@ -127,8 +142,12 @@ function storeFondamentalAccess(req, res, token, email, expiresAt) {
 }
 
 async function activateOnRadar(bridgeToken, secret) {
-  const url = radarBaseUrl() + "/api/fondamental-access.php";
-  const headers = { "Content-Type": "application/json", Accept: "application/json" };
+  const base = radarBaseUrl();
+  const url = base + "/api/fondamental-access.php";
+  const headers = radarFetchHeaders(base, {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  });
   const internal = internalProvisionKey();
   if (internal) {
     headers["X-Forge-Fondamental-Internal"] = internal;
@@ -144,11 +163,17 @@ async function activateOnRadar(bridgeToken, secret) {
     signal: AbortSignal.timeout(25000),
   });
 
-  const data = await res.json().catch(() => ({}));
+  const rawText = await res.text();
+  let data = {};
+  try {
+    data = JSON.parse(rawText);
+  } catch (_) {
+    data = { ok: false, error: "bridge_non_json", body: rawText.slice(0, 200) };
+  }
   if (!res.ok || !data.ok) {
     const err = new Error(data.error || "bridge_activate_failed");
     err.status = res.status;
-    err.payload = data;
+    err.payload = { ...data, httpStatus: res.status, radarUrl: url };
     throw err;
   }
 
@@ -301,13 +326,10 @@ module.exports = function createFondamentalBridgeRouter(options) {
 
     const target = `${radar}/api/fondamental-serve.php?${query.toString()}`;
 
-    const upstreamHeaders = {
+    const upstreamHeaders = radarFetchHeaders(radar, {
       Accept: req.headers.accept || "*/*",
       Cookie: `torinvest_fondamental=${token}`,
-    };
-    if (radar.includes("127.0.0.1") || radar.includes("localhost")) {
-      upstreamHeaders.Host = "radar.torinvest-trading.com";
-    }
+    });
 
     try {
       const upstream = await fetch(target, {
@@ -331,6 +353,12 @@ module.exports = function createFondamentalBridgeRouter(options) {
 
       const buf = Buffer.from(await upstream.arrayBuffer());
       const ctype = String(upstream.headers.get("content-type") || "");
+      if (upstream.status === 404) {
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        return res.status(502).send(
+          "Radar Fondamental 404 — vérifier radar.torinvest-trading.com et applifonda sur le VPS."
+        );
+      }
       if (ctype.includes("text/html")) {
         const html = rewriteFondaEmbedHtml(buf.toString("utf8"));
         res.setHeader("Content-Type", "text/html; charset=utf-8");
