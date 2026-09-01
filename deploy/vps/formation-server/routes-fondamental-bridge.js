@@ -160,6 +160,10 @@ module.exports = function createFondamentalBridgeRouter(options) {
   const opts = options || {};
   const router = express.Router();
 
+  router.get("/api/fondamental-bridge/ping", (req, res) => {
+    res.json({ ok: true, mounted: true, cookieFallback: true });
+  });
+
   router.get("/api/fondamental-bridge/status", (req, res) => {
     const token = fondamentalToken(req);
     if (!token) {
