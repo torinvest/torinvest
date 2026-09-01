@@ -1,5 +1,6 @@
 /**
  * Bloque /course/* si l'utilisateur connecté n'est pas subscribed (serveur).
+ * /fondamental.html : login membre requis (accès Premium ou KRM côté client).
  * Débloque les modules par lots de 3 selon la progression enregistrée.
  * Monter AVANT express.static('public') sur le VPS.
  */
@@ -51,12 +52,12 @@ module.exports = function requireSubscribedForCourse(req, res, next) {
     return res.redirect("/login.html?next=" + nextUrl);
   }
 
-  if (!user.subscribed) {
-    return res.redirect("/dashboard.html?locked=1");
+  if (isFondamental) {
+    return next();
   }
 
-  if (!isCourse) {
-    return next();
+  if (!user.subscribed) {
+    return res.redirect("/dashboard.html?locked=1");
   }
 
   if (

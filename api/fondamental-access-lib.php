@@ -348,9 +348,10 @@ function fondaLoginFormationBridge(string $bridgeToken): array
         'source' => 'formation',
         'email' => $email,
         'expiresAt' => $expiresAt,
-        'premiumOnly' => true,
     ];
 }
+
+function fondaLoginAdmin(string $pin): array
 {
     torinvestRateLimitGuard('fondamental_login_admin', 10, 60);
     $cfg = fondaConfig();
