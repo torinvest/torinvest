@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-REF="${TORINVEST_DEPLOY_REF:-cursor/fondamental-embed-proxy-691a}"
+REF="${TORINVEST_DEPLOY_REF:-cursor/fondamental-activate-fix-691a}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 FORM_DIR="${FORM_DIR:-$HOME/torinvest-formation}"
 RADAR_API="/var/www/torinvest/api"
@@ -53,11 +53,11 @@ grep -q 'fondamental-embed' "$FORM_DIR/server-patches/routes-fondamental-bridge.
 }
 echo "OK — routes-fondamental-bridge.js (embed)"
 
-if ! grep -q 'fondamental-bridge' "$FORM_DIR/server.js"; then
-  echo "WARN — bloc fondamental-bridge absent dans server.js"
-  curl -fsSL "$BASE/deploy/vps/wire-fondamental-bridge-only.js" -o /tmp/wire-fb.js
-  node /tmp/wire-fb.js "$FORM_DIR" || true
-fi
+curl -fsSL "$BASE/la-forge/js/auth.js" \
+  -o "$FORM_DIR/public/js/auth.js"
+
+curl -fsSL "$BASE/deploy/vps/ensure-fondamental-after-session.js" -o /tmp/ensure-fb.js
+node /tmp/ensure-fb.js "$FORM_DIR"
 
 echo ""
 echo "==> si secrets manquants, ajouter à ~/.profile puis :"
@@ -65,6 +65,7 @@ echo "   export FORGE_FONDAMENTAL_BRIDGE_SECRET=\"<ai_access_hmac_secret>\""
 echo "   export FORGE_FORMATION_PROVISION_SECRET=\"<formation_provision_secret>\""
 echo "   source ~/.profile && pm2 restart la-forge --update-env"
 
+source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env || true
 
 echo ""

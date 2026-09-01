@@ -34,8 +34,9 @@ dl "deploy/vps/formation-server/routes-fondamental-bridge.js" "$APP_DIR/server-p
 dl "deploy/vps/app-shells/fondamental.html" "$APP_DIR/public/fondamental.html"
 dl "la-forge/js/forge-fondamental.js" "$APP_DIR/public/js/forge-fondamental.js"
 
-echo "==> wire server.js (paywall + fondamental-bridge)"
-node "$APP_DIR/deploy/vps/wire-formation-server-patches.js" "$APP_DIR"
+echo "==> wire fondamental-bridge"
+node "$APP_DIR/deploy/vps/wire-fondamental-bridge-only.js" "$APP_DIR" || \
+  node "$APP_DIR/deploy/vps/wire-formation-server-patches.js" "$APP_DIR"
 
 if [[ -n "${FORGE_FONDAMENTAL_BRIDGE_SECRET:-}" ]]; then
   export FORGE_FONDAMENTAL_BRIDGE_SECRET

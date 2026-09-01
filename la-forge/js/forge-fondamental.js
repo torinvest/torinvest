@@ -73,6 +73,15 @@
     return null;
   }
 
+  function isPremiumMe(me) {
+    if (!me) return false;
+    if (me.subscribed === true || me.subscribed === 1 || me.subscribed === "true") {
+      return true;
+    }
+    var plan = String(me.plan || "").toLowerCase();
+    return plan === "premium" || plan === "subscribed";
+  }
+
   function formatActivateError(e) {
     var p = (e && e.payload) || {};
     var parts = [];
@@ -111,19 +120,21 @@
     } catch (e) {
       setStatus("Ouverture Premium échouée : " + formatActivateError(e), "warn");
       showGate();
-      updatePremiumUi(true);
+      updatePremiumUi({ subscribed: true, plan: "premium" });
     } finally {
       if (btn) btn.disabled = false;
     }
   }
 
-  function updatePremiumUi(isPremium) {
+  function updatePremiumUi(me) {
+    var isPremium = isPremiumMe(me);
+    var loggedIn = !!(me && me.email);
     var loginHint = document.getElementById("fonda-login-hint");
     var openPremium = document.getElementById("fonda-open-premium");
     var pricing = document.getElementById("fonda-pricing-link");
-    if (loginHint) loginHint.hidden = !!isPremium;
+    if (loginHint) loginHint.hidden = loggedIn || isPremium;
     if (openPremium) openPremium.hidden = !isPremium;
-    if (pricing) pricing.hidden = !!isPremium;
+    if (pricing) pricing.hidden = isPremium;
   }
 
   async function loginWalletKrm(provider, wallet) {
@@ -198,8 +209,8 @@
       me = null;
     }
 
-    var isPremium = !!(me && me.subscribed);
-    updatePremiumUi(isPremium);
+    var isPremium = isPremiumMe(me);
+    updatePremiumUi(me);
 
     var openBtn = document.getElementById("fonda-open-premium");
     if (openBtn && !openBtn._fondaBound) {
@@ -235,8 +246,6 @@
         "TorPass ACADEMY : connecte Phantom ci-dessous. Abonnés La Forge : connectez-vous avec l'email Stripe.",
         "ok"
       );
-      var loginHint = document.getElementById("fonda-login-hint");
-      if (loginHint) loginHint.hidden = false;
     }
 
     showGate();
