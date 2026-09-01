@@ -73,6 +73,16 @@
     return null;
   }
 
+  function formatActivateError(e) {
+    var p = (e && e.payload) || {};
+    var parts = [];
+    if (p.error) parts.push(String(p.error));
+    if (p.detail) parts.push(String(p.detail));
+    if (p.hint) parts.push(String(p.hint));
+    if (e && e.message && parts.indexOf(e.message) === -1) parts.push(e.message);
+    return parts.join(" — ") || "activation impossible";
+  }
+
   async function pingFondaSession() {
     try {
       return await apiJson("/api/fondamental-bridge/status", { method: "GET" });
@@ -88,6 +98,32 @@
   async function tryFormationBridge() {
     await apiJson("/api/fondamental-bridge/activate", { method: "POST" });
     return true;
+  }
+
+  async function openPremiumFondamental() {
+    var btn = document.getElementById("fonda-open-premium");
+    if (btn) btn.disabled = true;
+    try {
+      setStatus("Activation Fondamental (abonnement Premium)…", "ok");
+      await tryFormationBridge();
+      setStatus("Fondamental ouvert — chargement des modules…", "ok");
+      showFrame();
+    } catch (e) {
+      setStatus("Ouverture Premium échouée : " + formatActivateError(e), "warn");
+      showGate();
+      updatePremiumUi(true);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function updatePremiumUi(isPremium) {
+    var loginHint = document.getElementById("fonda-login-hint");
+    var openPremium = document.getElementById("fonda-open-premium");
+    var pricing = document.getElementById("fonda-pricing-link");
+    if (loginHint) loginHint.hidden = !!isPremium;
+    if (openPremium) openPremium.hidden = !isPremium;
+    if (pricing) pricing.hidden = !!isPremium;
   }
 
   async function loginWalletKrm(provider, wallet) {
@@ -162,6 +198,15 @@
       me = null;
     }
 
+    var isPremium = !!(me && me.subscribed);
+    updatePremiumUi(isPremium);
+
+    var openBtn = document.getElementById("fonda-open-premium");
+    if (openBtn && !openBtn._fondaBound) {
+      openBtn._fondaBound = true;
+      openBtn.addEventListener("click", openPremiumFondamental);
+    }
+
     var sess = await pingFondaSession();
     if (sess && sess.ok) {
       if (sess.source === "formation") {
@@ -175,28 +220,12 @@
       return;
     }
 
-    if (me && me.subscribed) {
-      try {
-        setStatus("Connexion automatique (abonnement Premium La Forge)…", "ok");
-        await tryFormationBridge();
-        setStatus("Accès Premium — chargement de Fondamental…", "ok");
-        showFrame();
-        return;
-      } catch (e) {
-        var err = (e.payload && e.payload.error) || e.message || "";
-        if (err === "bridge_not_configured") {
-          setStatus(
-            "Premium actif — configurez FORGE_FONDAMENTAL_BRIDGE_SECRET sur le VPS (= ai_access_hmac_secret radar).",
-            "warn"
-          );
-        } else {
-          setStatus(
-            "Ouverture auto échouée (" + err + ") — Phantom ci-dessous ou réessayez après deploy.",
-            "warn"
-          );
-        }
-      }
-    } else if (me) {
+    if (isPremium) {
+      await openPremiumFondamental();
+      return;
+    }
+
+    if (me) {
       setStatus(
         "Deux accès : abonnement La Forge Premium (349€/an) ou TorPass ACADEMY (≥ 250 KRM via Phantom).",
         "ok"
@@ -211,18 +240,13 @@
     }
 
     showGate();
-    var loginHintEl = document.getElementById("fonda-login-hint");
-    if (loginHintEl) {
-      loginHintEl.hidden = !!(me && me.subscribed);
-    }
     var btn = document.getElementById("fonda-krm-connect");
     if (btn && !btn._fondaBound) {
       btn._fondaBound = true;
       btn.addEventListener("click", connectPhantomKrm);
     }
-    var pricing = document.getElementById("fonda-pricing-link");
-    if (pricing && me && me.subscribed) pricing.hidden = true;
   }
 
   document.addEventListener("DOMContentLoaded", initFondamentalHub);
+  window.openPremiumFondamental = openPremiumFondamental;
 })();

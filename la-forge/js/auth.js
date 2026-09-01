@@ -83,9 +83,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const nextParam = new URLSearchParams(window.location.search).get("next");
     if (nextParam) {
       const already = await getMe();
-      if (already) {
+      if (already && nextParam.indexOf("fondamental") === -1) {
         window.location.replace(forgeNextUrl(nextParam));
         return;
+      }
+      if (already && nextParam.indexOf("fondamental") !== -1) {
+        showAlert(
+          alertEl,
+          "Vous êtes déjà connecté. Retournez sur Fondamental et cliquez « Ouvrir Fondamental (Premium) ».",
+          "success"
+        );
       }
     }
     loginForm.addEventListener("submit", async (e) => {

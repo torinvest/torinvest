@@ -66,7 +66,6 @@ echo "   export FORGE_FORMATION_PROVISION_SECRET=\"<formation_provision_secret>\
 echo "   source ~/.profile && pm2 restart la-forge --update-env"
 
 pm2 restart la-forge --update-env || true
-sleep 2
 
 echo ""
 echo "==> test activate (nécessite cookie session — faire login navigateur avant)"

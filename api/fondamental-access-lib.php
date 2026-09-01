@@ -348,18 +348,8 @@ function fondaLoginFormationBridge(string $bridgeToken): array
         'source' => 'formation',
         'email' => $email,
         'expiresAt' => $expiresAt,
+        'sessionToken' => $token,
     ];
-
-    $cfg = fondaConfig();
-    $internalHeader = trim((string) ($_SERVER['HTTP_X_FORGE_FONDAMENTAL_INTERNAL'] ?? ''));
-    $internalExpected = trim((string) ($cfg['formation_provision_secret'] ?? ''));
-    if (
-        $internalHeader !== ''
-        && $internalExpected !== ''
-        && hash_equals($internalExpected, $internalHeader)
-    ) {
-        $result['sessionToken'] = $token;
-    }
 
     return $result;
 }
