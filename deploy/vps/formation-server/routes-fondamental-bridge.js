@@ -26,10 +26,18 @@ function internalProvisionKey() {
   return String(process.env.FORGE_FORMATION_PROVISION_SECRET || "");
 }
 
+function isPremiumSessionUser(user) {
+  if (!user?.email) return false;
+  if (user.subscribed === true || user.subscribed === 1 || user.subscribed === "true") {
+    return true;
+  }
+  const plan = String(user.plan || "").toLowerCase();
+  return plan === "premium" || plan === "subscribed";
+}
+
 function premiumUser(req) {
   const user = req.session?.user || req.user;
-  if (!user?.email) return null;
-  if (!user.subscribed) return null;
+  if (!isPremiumSessionUser(user)) return null;
   return user;
 }
 
