@@ -161,16 +161,33 @@ sleep 3
 echo "==> PM2"
 pm2 list | grep la-forge || true
 
-echo "==> login (provisionné AdminFonda2026!)"
-LOGIN_PROV=$(curl -s -m 20 -X POST 'https://app.torinvest-trading.com/api/login' \
+echo "==> login démo Premium (Forge2026!)"
+LOGIN_DEMO=$(curl -s -m 20 -X POST 'https://app.torinvest-trading.com/api/login' \
   -H 'Content-Type: application/json' \
-  -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!"}')
-echo "$LOGIN_PROV"
-if echo "$LOGIN_PROV" | grep -q '"ok"'; then
-  echo "OK — login provisionné"
+  -d '{"email":"abonne@torinvest-trading.com","password":"Forge2026!"}')
+echo "$LOGIN_DEMO"
+if echo "$LOGIN_DEMO" | grep -q '"ok"'; then
+  echo "OK — login démo Premium"
 else
-  echo "WARN — login provisionné KO — essai mot de passe démo natif (grep server.js) :"
-  grep -E 'abonne@|password.*abonne|DEMO|demoPassword' "$APP_DIR/server.js" 2>/dev/null | head -5 || true
+  echo "WARN — login démo KO"
+fi
+
+if [ -n "${FORGE_FORMATION_PROVISION_SECRET:-}" ]; then
+  echo "==> reprovision admin (AdminFonda2026!)"
+  curl -s -m 20 -X POST 'http://127.0.0.1:3001/api/internal/formation-provision' \
+    -H 'Content-Type: application/json' \
+    -H "x-formation-provision-key: $FORGE_FORMATION_PROVISION_SECRET" \
+    -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!","subscribed":true}'
+  echo ""
+  LOGIN_PROV=$(curl -s -m 20 -X POST 'https://app.torinvest-trading.com/api/login' \
+    -H 'Content-Type: application/json' \
+    -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!"}')
+  echo "$LOGIN_PROV"
+  if echo "$LOGIN_PROV" | grep -q '"ok"'; then
+    echo "OK — login provisionné AdminFonda2026!"
+  fi
+else
+  echo "INFO — FORGE_FORMATION_PROVISION_SECRET absent : skip reprovision AdminFonda2026!"
 fi
 pm2 logs la-forge --lines 8 --nostream 2>/dev/null | tail -12 || true
 echo "==> terminé"
