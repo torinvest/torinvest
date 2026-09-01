@@ -2,7 +2,7 @@
 # Fix Fondamental Premium : routes + API radar (access_token embed) + test
 set -euo pipefail
 FORM_DIR="${1:-$HOME/torinvest-formation}"
-REF="${TORINVEST_DEPLOY_REF:-b15d540}"
+REF="${TORINVEST_DEPLOY_REF:-main}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 RADAR_API="/var/www/torinvest/api"
 
