@@ -99,7 +99,8 @@ function createFormationAuthRouter(options) {
     if (!req.session?.user?.email) {
       return next();
     }
-    return res.json(mePayload(req.session.user));
+    const me = mePayload(req.session.user);
+    return res.json({ ok: true, user: me, ...me });
   });
 
   router.post("/api/login", async (req, res, next) => {

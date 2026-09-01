@@ -88,11 +88,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
       }
       if (already && nextParam.indexOf("fondamental") !== -1) {
-        showAlert(
-          alertEl,
-          "Vous êtes déjà connecté. Retournez sur Fondamental et cliquez « Ouvrir Fondamental (Premium) ».",
-          "success"
-        );
+        window.location.replace(forgeNextUrl(nextParam));
+        return;
       }
     }
     loginForm.addEventListener("submit", async (e) => {

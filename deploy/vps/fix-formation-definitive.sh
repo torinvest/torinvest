@@ -173,6 +173,10 @@ if ! grep -q 'fondamental-bridge' "$APP_DIR/server.js"; then
   node /tmp/wire-fb.js "$APP_DIR" || true
 fi
 
+# Fondamental bridge — un seul montage après express-session
+curl -fsSL "$BASE/deploy/vps/ensure-fondamental-after-session.js" -o /tmp/ensure-fb.js
+node /tmp/ensure-fb.js "$APP_DIR"
+
 source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env || pm2 restart la-forge
 sleep 3
