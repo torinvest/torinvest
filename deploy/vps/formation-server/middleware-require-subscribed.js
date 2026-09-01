@@ -1,6 +1,6 @@
 /**
  * Bloque /course/* si l'utilisateur connecté n'est pas subscribed (serveur).
- * /fondamental.html : login membre requis (accès Premium ou KRM côté client).
+ * /fondamental.html : page publique — accès Premium ou KRM géré côté client.
  * Débloque les modules par lots de 3 selon la progression enregistrée.
  * Monter AVANT express.static('public') sur le VPS.
  */
@@ -33,27 +33,18 @@ function readProgressModules(email, dataDir) {
 
 module.exports = function requireSubscribedForCourse(req, res, next) {
   const coursePath = req.path || "";
-  const isFondamental =
-    coursePath === "/fondamental.html" || coursePath === "/fondamental";
-  const isCourse =
-    coursePath.startsWith("/course/") ||
-    coursePath === "/course" ||
-    coursePath === "/course/index.html";
-
-  if (!isCourse && !isFondamental) {
+  if (
+    !coursePath.startsWith("/course/") &&
+    coursePath !== "/course" &&
+    coursePath !== "/course/index.html"
+  ) {
     return next();
   }
 
   const user = req.session?.user || req.user;
   if (!user) {
-    const nextUrl = encodeURIComponent(
-      req.originalUrl || (isFondamental ? "/fondamental.html" : "/course/index.html")
-    );
+    const nextUrl = encodeURIComponent(req.originalUrl || "/course/index.html");
     return res.redirect("/login.html?next=" + nextUrl);
-  }
-
-  if (isFondamental) {
-    return next();
   }
 
   if (!user.subscribed) {

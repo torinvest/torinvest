@@ -81,7 +81,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         const next =
           new URLSearchParams(window.location.search).get("next") ||
           APP_ORIGIN + "/dashboard.html";
-        window.location.href = next;
+        if (next.indexOf("fondamental") !== -1) {
+          window.location.href = next.startsWith("http") ? next : APP_ORIGIN + next;
+        } else {
+          window.location.href = next;
+        }
       } catch (err) {
         showAlert(alertEl, err.message);
       }
