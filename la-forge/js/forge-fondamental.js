@@ -1,5 +1,5 @@
 /**
- * La Forge — intégration appli Fondamental (session Premium → www/applifonda).
+ * La Forge — Fondamental intégré : accès Premium uniquement.
  */
 (function () {
   "use strict";
@@ -12,7 +12,8 @@
     var el = document.getElementById("fonda-status");
     if (!el) return;
     el.textContent = text || "";
-    el.className = "alert " + (kind === "ok" ? "alert-success" : kind === "warn" ? "alert-warn" : "alert-error");
+    el.className =
+      "alert " + (kind === "ok" ? "alert-success" : kind === "warn" ? "alert-warn" : "alert-error");
     el.hidden = !text;
   }
 
@@ -38,7 +39,7 @@
   }
 
   async function tryFormationBridge() {
-    setStatus("Connexion à Fondamental via votre abonnement La Forge…", "ok");
+    setStatus("Connexion à Fondamental via votre abonnement Premium…", "ok");
     var bridge = await apiJson("/api/fondamental-bridge", { credentials: "include" });
     await apiJson(FONDA_API, {
       method: "POST",
@@ -57,14 +58,13 @@
     var locked = document.getElementById("fonda-locked");
     var me = typeof getMe === "function" ? await getMe() : null;
     if (!me) {
-      window.location.href =
-        "/login.html?next=" + encodeURIComponent("/fondamental.html");
+      window.location.href = "/login.html?next=" + encodeURIComponent("/fondamental.html");
       return;
     }
     if (!me.subscribed) {
       if (locked) locked.hidden = false;
       setStatus(
-        "Fondamental est inclus dans l'abonnement La Forge Premium (349€/an).",
+        "Fondamental est réservé aux abonnés La Forge Premium (349€/an).",
         "warn"
       );
       return;
@@ -73,27 +73,26 @@
       await tryFormationBridge();
     } catch (e) {
       var code = (e.payload && e.payload.error) || e.message || "";
+      if (code === "premium_required") {
+        if (locked) locked.hidden = false;
+        setStatus("Abonnement Premium requis pour Fondamental.", "warn");
+        return;
+      }
       if (code === "bridge_not_configured") {
         setStatus(
-          "Pont serveur en cours d'activation — ouvrez Fondamental sur le site principal (Phantom + KRM).",
+          "Accès Premium activé — configuration serveur en cours. Réessayez dans quelques minutes ou contactez le support.",
           "warn"
         );
       } else {
         setStatus(
-          "Ouverture via le site principal : Phantom ou session KRM TorPass ACADEMY.",
+          "Impossible d'ouvrir Fondamental pour le moment. Réessayez ou contactez le support.",
           "warn"
         );
       }
-      var fallback = document.getElementById("fonda-fallback");
-      if (fallback) fallback.hidden = false;
+      var retry = document.getElementById("fonda-retry");
+      if (retry) retry.hidden = false;
     }
   }
 
   document.addEventListener("DOMContentLoaded", initFondamentalEmbed);
-
-  window.ForgeFondamental = {
-    openExternal: function () {
-      window.open(FONDA_APP, "_blank", "noopener,noreferrer");
-    },
-  };
 })();
