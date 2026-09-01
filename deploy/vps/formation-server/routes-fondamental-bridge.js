@@ -36,9 +36,24 @@ function isPremiumSessionUser(user) {
 }
 
 function premiumUser(req) {
-  const user = req.session?.user || req.user;
-  if (!isPremiumSessionUser(user)) return null;
-  return user;
+  const s = req.session;
+  if (!s) return null;
+
+  if (isPremiumSessionUser(s.user)) return s.user;
+  if (isPremiumSessionUser(req.user)) return req.user;
+
+  const email = String(s.user?.email || s.email || "").trim();
+  if (!email) return null;
+
+  const synthetic = {
+    email,
+    subscribed: s.user?.subscribed ?? s.subscribed,
+    plan: s.user?.plan ?? s.plan,
+    name: s.user?.name ?? s.name,
+  };
+  if (isPremiumSessionUser(synthetic)) return synthetic;
+
+  return null;
 }
 
 function parseFondamentalCookie(setCookieHeaders) {
@@ -110,9 +125,18 @@ module.exports = function createFondamentalBridgeRouter(options) {
   });
 
   router.post("/api/fondamental-bridge/activate", async (req, res) => {
+    const s = req.session;
+    if (!s || (!s.user?.email && !s.email)) {
+      return res.status(401).json({ ok: false, error: "login_required" });
+    }
+
     const user = premiumUser(req);
     if (!user) {
-      return res.status(403).json({ ok: false, error: "premium_required" });
+      return res.status(403).json({
+        ok: false,
+        error: "premium_required",
+        hint: "Session sans Premium — reconnectez-vous ou vérifiez users.json subscribed",
+      });
     }
 
     const secret = bridgeSecret(opts);
@@ -163,7 +187,7 @@ module.exports = function createFondamentalBridgeRouter(options) {
     if (!user?.email) {
       return res.status(401).json({ ok: false, error: "login_required" });
     }
-    if (!user.subscribed) {
+    if (!isPremiumSessionUser(user)) {
       return res.status(403).json({ ok: false, error: "premium_required" });
     }
 
