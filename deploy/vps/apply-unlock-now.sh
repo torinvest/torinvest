@@ -75,12 +75,14 @@ dl "la-forge/css/forge-charts.css" "css/forge-charts.css"
 dl "deploy/vps/app-shells/course/index.html" "course/index.html"
 dl "deploy/vps/app-shells/dashboard.html" "dashboard.html"
 dl "deploy/vps/app-shells/fondamental.html" "fondamental.html"
+dl "deploy/vps/app-shells/login.html" "login.html"
 dl "la-forge/js/forge-fondamental.js" "js/forge-fondamental.js"
 dl "la-forge/js/forge-brand.js" "js/forge-brand.js"
+dl "la-forge/js/auth.js" "js/auth.js"
 
 PATCHES="$APP_DIR/server-patches"
 mkdir -p "$PATCHES"
-for src in middleware-require-subscribed.js forge-unlock-server.js forge-progress-rules.js routes-progress.js course-module-order.json fondamental-bridge-lib.js routes-fondamental-bridge.js; do
+for src in middleware-require-subscribed.js forge-unlock-server.js forge-progress-rules.js routes-progress.js course-module-order.json fondamental-bridge-lib.js routes-fondamental-bridge.js formation-users-lib.js accompagnement-worker-lib.js routes-formation-auth.js; do
   echo "  server-patches/$src"
   curl -fsSL "$BASE/deploy/vps/formation-server/$src" -o "$PATCHES/$src" || echo "  WARN — $src"
 done
@@ -117,4 +119,6 @@ else
   echo "  WARN — forge-replay.js ancien : curl deploy-replay-now.sh"
 fi
 echo "→ pm2 restart la-forge"
+echo "→ node deploy/vps/wire-formation-accompagnement-auth.js $APP_DIR  # login accompagnement"
+echo "→ export FORGE_FORMATION_PROVISION_SECRET=...  # = formation_provision_secret radar"
 echo "→ wc -c public/js/progress.js  (attendu ~6700, unlock dans forge-unlock.js)"

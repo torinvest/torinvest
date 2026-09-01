@@ -80,6 +80,11 @@ return [
     'telegram_vip_url' => 'https://t.me/+2qMkEX3KnhowNTU0',
     'app_formation_login_url' => 'https://app.torinvest-trading.com/login.html',
 
+    // Provision compte formation La Forge (app) après accompagnement Stripe — ≠ membre site
+  // Même secret que FORGE_FORMATION_PROVISION_SECRET sur le VPS formation (pm2)
+    'formation_provision_secret' => 'CHANGEZ_MOI_LONG_RANDOM_IDENTIQUE_VPS',
+    'formation_provision_url' => 'https://app.torinvest-trading.com/api/internal/formation-provision',
+
     // --- Membres du site (inscription / soft gate contenus) ---
     // Secret HMAC dédié (sinon repli ai_access_hmac_secret / PIN)
     'member_hmac_secret' => 'CHANGEZ_MOI_MEMBER_HMAC_LONG',

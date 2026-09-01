@@ -3,7 +3,7 @@
   Brevo → Campagnes → Transactionnel → Modèles → Coller le HTML
   Objet : TORINVEST — Votre clé Accompagnement Trading
   Variables : {{ params.PRENOM }} {{ params.LICENCE }} {{ params.ACTIVATION_URL }}
-              {{ params.FORMATION_URL }} {{ params.DISCORD_URL }}
+              {{ params.FORMATION_URL }} {{ params.FORMATION_PASSWORD }} {{ params.DISCORD_URL }}
 -->
 <!DOCTYPE html>
 <html lang="fr">
@@ -47,6 +47,22 @@
                   <td style="background:linear-gradient(180deg,#1a1608,#0f0e0a);border:1px solid #ffb400;border-radius:12px;padding:22px;text-align:center;">
                     <p style="margin:0 0 8px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#ffd36a;font-weight:bold;">Clé TOR-ACCOMPAGNEMENT</p>
                     <p style="margin:0;font-size:18px;line-height:1.45;color:#ffffff;font-family:Consolas,Monaco,monospace;letter-spacing:0.03em;word-break:break-all;">{{ params.LICENCE }}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Mot de passe formation (si généré) -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 24px;">
+                <tr>
+                  <td style="background:#0f0e0a;border:1px solid #3d3010;border-radius:12px;padding:18px;text-align:center;">
+                    <p style="margin:0 0 8px;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#ffd36a;font-weight:bold;">Connexion La Forge (app)</p>
+                    <p style="margin:0;font-size:14px;line-height:1.55;color:#c8c0b0;">
+                      Email Stripe + mot de passe ci-dessous sur
+                      <a href="{{ params.FORMATION_URL }}" style="color:#ffb400;">app.torinvest-trading.com</a>
+                      <br><span style="font-size:12px;color:#888;">(distinct de l’inscription « membre » sur le site)</span>
+                    </p>
+                    <p style="margin:12px 0 0;font-size:17px;color:#ffffff;font-family:Consolas,Monaco,monospace;">{{ params.FORMATION_PASSWORD }}</p>
+                    <p style="margin:10px 0 0;font-size:12px;color:#888;">Sinon : utilise la clé TOR ci-dessus dans le champ « mot de passe ».</p>
                   </td>
                 </tr>
               </table>
