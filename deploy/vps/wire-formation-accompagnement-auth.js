@@ -71,20 +71,32 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
   );
   console.log("Bloc TORINVEST_ACCOMPAGNEMENT_AUTH mis à jour.");
 } else if (/createFormationAuthRouter|routes-formation-auth/.test(content)) {
+  const relocate = path.join(APP_DIR, "deploy/vps/relocate-accompagnement-auth.js");
+  if (fs.existsSync(relocate)) {
+    const { execSync } = require("child_process");
+    execSync("node " + JSON.stringify(relocate) + " " + JSON.stringify(APP_DIR), { stdio: "inherit" });
+    process.exit(0);
+  }
   console.log("OK — accompagnement auth déjà présent dans", serverPath);
   process.exit(0);
 } else {
-  const insertMarkers = [
-    "/* TORINVEST_FORMATION_PATCHES_BEGIN */",
-    "express.static",
-    "app.listen",
-  ];
+  const loginRe = /app\.post\s*\(\s*["']\/api\/login["']/m;
+  const loginMatch = content.match(loginRe);
   let insertPoint = -1;
-  for (const marker of insertMarkers) {
-    const idx = content.indexOf(marker);
-    if (idx >= 0) {
-      insertPoint = idx;
-      break;
+  if (loginMatch && loginMatch.index >= 0) {
+    insertPoint = loginMatch.index;
+  } else {
+    const insertMarkers = [
+      "/* TORINVEST_FORMATION_PATCHES_BEGIN */",
+      "express.static",
+      "app.listen",
+    ];
+    for (const marker of insertMarkers) {
+      const idx = content.indexOf(marker);
+      if (idx >= 0) {
+        insertPoint = idx;
+        break;
+      }
     }
   }
   if (insertPoint < 0) {
@@ -96,7 +108,9 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
   const prefix = needsPath ? "const path = require(\"path\");\n" : "";
   content =
     content.slice(0, insertPoint) + prefix + authBlock(dataDirExpr()) + content.slice(insertPoint);
-  console.log("Bloc accompagnement auth inséré.");
+  console.log(
+    loginMatch ? "Bloc accompagnement auth inséré (avant app.post(/api/login))." : "Bloc accompagnement auth inséré."
+  );
 }
 
 if (content === original) {
