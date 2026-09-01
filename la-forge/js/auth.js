@@ -22,9 +22,16 @@ async function api(path, options = {}) {
   return data;
 }
 
+function normalizeMe(data) {
+  if (!data || typeof data !== "object") return null;
+  if (data.user && typeof data.user === "object") return data.user;
+  if (data.email) return data;
+  return null;
+}
+
 async function getMe() {
   try {
-    return await api("/api/me");
+    return normalizeMe(await api("/api/me"));
   } catch {
     return null;
   }
