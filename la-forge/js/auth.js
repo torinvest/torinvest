@@ -14,7 +14,7 @@ async function api(path, options = {}) {
     });
   } catch {
     throw new Error(
-      "Espace membres indisponible pour le moment. Le serveur app.torinvest-trading.com est en cours d'activation — réessayez après réception de vos identifiants par email."
+      "Connexion La Forge indisponible pour le moment. Réessayez après réception de vos identifiants par email, ou utilisez votre clé TOR-ACCOMPAGNEMENT dans le champ mot de passe."
     );
   }
   const data = await res.json().catch(() => ({}));

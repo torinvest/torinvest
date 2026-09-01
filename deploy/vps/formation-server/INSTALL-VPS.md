@@ -121,7 +121,35 @@ Test (membre Premium connecté) :
 curl -b cookies.txt -s https://app.torinvest-trading.com/api/fondamental-bridge
 ```
 
-## 5. Wire automatique server.js
+## 5. Login accompagnement (≠ membre site www)
+
+Après paiement Stripe 349€, le CRM provisionne un compte sur `app.torinvest-trading.com` (email + mot de passe).
+Les clients peuvent aussi se connecter avec **email Stripe + clé TOR-ACCOMPAGNEMENT** (champ mot de passe).
+
+Sur le VPS formation :
+
+```bash
+export FORGE_FORMATION_PROVISION_SECRET='identique_formation_provision_secret_radar'
+node /home/ubuntu/torinvest-formation/deploy/vps/wire-formation-accompagnement-auth.js
+pm2 restart la-forge
+```
+
+Sur radar (`api/config.local.php`) :
+
+```php
+'formation_provision_secret' => '...', // même valeur
+```
+
+Test provision (depuis radar, secret connu) :
+
+```bash
+curl -s -X POST https://app.torinvest-trading.com/api/internal/formation-provision \
+  -H 'Content-Type: application/json' \
+  -H 'X-Formation-Provision-Key: VOTRE_SECRET' \
+  -d '{"email":"client@example.com","subscribed":true}'
+```
+
+## 6. Wire automatique server.js (progress + paywall)
 
 Si les patches ne sont pas encore dans `server.js` :
 
@@ -130,7 +158,7 @@ node /home/ubuntu/torinvest-formation/deploy/vps/wire-formation-server-patches.j
 bash /home/ubuntu/torinvest-formation/deploy/vps/verify-formation-live.sh
 ```
 
-## 6. Redémarrage
+## 7. Redémarrage
 
 **Obligatoire derrière nginx** — sans ça `express-rate-limit` peut crasher en boucle (ERR_ERL_UNEXPECTED_X_FORWARDED_FOR) :
 

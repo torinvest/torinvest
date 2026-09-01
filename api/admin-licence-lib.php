@@ -369,6 +369,23 @@ function licenceCrmAccessLinks(): array
     ];
 }
 
+/**
+ * Provision compte login formation (app) — distinct du compte membre site www.
+ */
+function licenceCrmProvisionFormationAccount(string $email): array
+{
+    static $provisionLibLoaded = false;
+    if (!$provisionLibLoaded) {
+        require_once __DIR__ . '/formation-provision-lib.php';
+        $provisionLibLoaded = true;
+    }
+    try {
+        return formationProvisionAccompagnementUser($email, ['subscribed' => true]);
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => $e->getMessage()];
+    }
+}
+
 function licenceProvisionWebhookSecret(): string
 {
     $cfg = licenceCrmConfig();
@@ -833,6 +850,7 @@ function licenceCrmCreateAccompagnement(array $input): array
 
     $existing = licenceCrmFindActiveByEmailPlan($email, 'ACCOMPAGNEMENT');
     if ($existing && !empty($existing['license_code'])) {
+        $formationProvision = licenceCrmProvisionFormationAccount($email);
         return [
             'ok' => true,
             'reused' => true,
@@ -845,6 +863,8 @@ function licenceCrmCreateAccompagnement(array $input): array
             'plan' => 'ACCOMPAGNEMENT',
             'days' => (int) ($existing['days'] ?? $days),
             'accessLinks' => licenceCrmAccessLinks(),
+            'formation' => $formationProvision,
+            'formation_password' => $formationProvision['password'] ?? null,
         ];
     }
 
@@ -890,6 +910,8 @@ function licenceCrmCreateAccompagnement(array $input): array
         'worker_response' => json_encode(['create' => $create], JSON_UNESCAPED_UNICODE),
     ]);
 
+    $formationProvision = licenceCrmProvisionFormationAccount($email);
+
     return [
         'ok' => true,
         'reused' => false,
@@ -902,6 +924,8 @@ function licenceCrmCreateAccompagnement(array $input): array
         'plan' => 'ACCOMPAGNEMENT',
         'days' => $days,
         'accessLinks' => licenceCrmAccessLinks(),
+        'formation' => $formationProvision,
+        'formation_password' => $formationProvision['password'] ?? null,
     ];
 }
 

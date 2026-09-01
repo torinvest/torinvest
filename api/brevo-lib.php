@@ -151,6 +151,9 @@ function brevoSendLicenseEmail(string $planType, array $context): array
                 'ACTIVATION_URL' => $planType === 'ACCOMPAGNEMENT'
                     ? 'https://www.torinvest-trading.com/activation-accompagnement.html'
                     : 'https://www.torinvest-trading.com/activation.html',
+                'FORMATION_PASSWORD' => trim((string) ($context['formation_password'] ?? '')),
+                'MOT_DE_PASSE' => trim((string) ($context['formation_password'] ?? '')),
+                'PASSWORD' => trim((string) ($context['formation_password'] ?? '')),
             ],
         ]);
     }
@@ -226,6 +229,7 @@ function brevoSyncAfterProvision(string $planType, array $provisionResult): arra
             'license' => (string) ($provisionResult['license'] ?? $provisionResult['code'] ?? ''),
             'activation_code' => (string) ($provisionResult['activationCode'] ?? ''),
             'access_links' => $provisionResult['accessLinks'] ?? licenceCrmAccessLinks(),
+            'formation_password' => (string) ($provisionResult['formation_password'] ?? ''),
         ]);
     } catch (Throwable $e) {
         $out['brevo']['email_error'] = $e->getMessage();
