@@ -18,52 +18,51 @@ mkdir -p "$PATCHES"
 curl -fsSL "$BASE/deploy/vps/formation-server/routes-formation-auth.js" -o "$PATCHES/routes-formation-auth.js"
 
 if ! grep -q 'if (!req.session)' "$PATCHES/routes-formation-auth.js"; then
-  echo "ERREUR: routes-formation-auth.js sans garde session — ref GitHub invalide"
+  echo "ERREUR: routes-formation-auth.js sans garde session"
   exit 1
 fi
-echo "OK — routes-formation-auth.js (garde session présente)"
+echo "OK — routes-formation-auth.js (garde session)"
 
 if [[ ! -f "$SERVER" ]]; then
   echo "ERREUR: $SERVER introuvable"
   exit 1
 fi
 
-python3 <<'PY' "$SERVER"
-import re, sys, pathlib
-path = pathlib.Path(sys.argv[1])
-content = path.read_text()
-original = content
+node - "$SERVER" <<'NODE'
+const fs = require("fs");
+const serverPath = process.argv[2];
+let content = fs.readFileSync(serverPath, "utf8");
 
-block_re = re.compile(
-    r"/\* TORINVEST_ACCOMPAGNEMENT_AUTH_BEGIN \*/.*?/\* TORINVEST_ACCOMPAGNEMENT_AUTH_END \*/\s*",
-    re.DOTALL,
-)
-session_re = re.compile(r"app\.use\s*\(\s*session\s*\([\s\S]*?\)\s*;\s*", re.MULTILINE)
+const blockRe = /\/\* TORINVEST_ACCOMPAGNEMENT_AUTH_BEGIN \*\/[\s\S]*?\/\* TORINVEST_ACCOMPAGNEMENT_AUTH_END \*\/\s*/;
+const sessionRe = /app\.use\s*\(\s*session\s*\([\s\S]*?\)\s*;\s*/m;
 
-m = block_re.search(content)
-if not m:
-    print("WARN — bloc ACCOMPAGNEMENT_AUTH absent (déjà déplacé ou non installé)")
-    sys.exit(0)
+const m = content.match(blockRe);
+if (!m) {
+  console.log("WARN — bloc ACCOMPAGNEMENT_AUTH absent");
+  process.exit(0);
+}
 
-block = m.group(0)
-content_wo = content[:m.start()] + content[m.end():]
+const block = m[0];
+const without = content.slice(0, m.index) + content.slice(m.index + block.length);
+const sm = without.match(sessionRe);
+if (!sm) {
+  console.error("ERREUR: app.use(session…) introuvable");
+  process.exit(1);
+}
 
-sm = session_re.search(content_wo)
-if not sm:
-    print("ERREUR: app.use(session…) introuvable dans server.js")
-    sys.exit(1)
+const insertAt = sm.index + sm[0].length;
+if (without.slice(insertAt, insertAt + 120).includes("ACCOMPAGNEMENT_AUTH_BEGIN")) {
+  console.log("OK — bloc déjà après session");
+  process.exit(0);
+}
 
-insert_at = sm.end()
-# déjà juste après session ?
-after = content_wo[insert_at:insert_at + 80]
-if "TORINVEST_ACCOMPAGNEMENT_AUTH_BEGIN" in after:
-    print("OK — bloc accompagnement déjà après session")
-    sys.exit(0)
-
-new_content = content_wo[:insert_at] + "\n" + block + content_wo[insert_at:]
-path.write_text(new_content)
-print("OK — bloc accompagnement déplacé après express-session")
-PY
+const backup = serverPath + ".bak." + Date.now();
+fs.writeFileSync(backup, content);
+const newContent = without.slice(0, insertAt) + "\n" + block + without.slice(insertAt);
+fs.writeFileSync(serverPath, newContent);
+console.log("OK — bloc accompagnement déplacé après express-session");
+console.log("Sauvegarde:", backup);
+NODE
 
 node --check "$SERVER"
 
@@ -71,10 +70,11 @@ source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env 2>/dev/null || pm2 restart la-forge
 
 sleep 2
-echo "==> test login (doit répondre JSON, pas 502)"
+echo "==> test login"
 curl -s -X POST 'https://app.torinvest-trading.com/api/login' \
   -H 'Content-Type: application/json' \
-  -d '{"email":"wrong@x.com","password":"x"}' | head -c 120
+  -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!"}' | head -c 200
 echo ""
-pm2 logs la-forge --lines 5 --nostream 2>/dev/null | tail -8
-echo "OK — fix appliqué"
+echo "==> logs"
+pm2 logs la-forge --lines 6 --nostream 2>/dev/null | tail -10 || true
+echo "OK — fix terminé"
