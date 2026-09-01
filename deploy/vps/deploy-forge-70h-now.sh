@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Déploie course-data.js (70 h) + dashboard sur l'app formation VPS.
 set -euo pipefail
-REF="${TORINVEST_DEPLOY_REF:-1e29467}"
+REF="${TORINVEST_DEPLOY_REF:-b15d540}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 FORM_DIR="${1:-$HOME/torinvest-formation}"
 JS="$FORM_DIR/public/js"
