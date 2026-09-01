@@ -60,6 +60,26 @@ function rewriteFondaEmbedHtml(html) {
   return out;
 }
 
+/** Injecte le total d'heures dans les chunks applifonda (aligné fondamental-data.js). */
+function rewriteFondaEmbedJs(body, subPath) {
+  let out = String(body);
+  const hours = Number(process.env.FORGE_FONDA_TOTAL_HOURS || 13);
+  const levels = Number(process.env.FORGE_FONDA_LEVEL_COUNT || 9);
+  const hoursTag = "~" + hours + " h";
+
+  if (/HomePage-[^/]+\.js$/i.test(subPath)) {
+    out = out.replace(
+      / cours pour comprendre/g,
+      " cours · " + hoursTag + " pour comprendre"
+    );
+  }
+  if (/LearnPage-[^/]+\.js$/i.test(subPath)) {
+    out = out.replace(/ sur 8 niveaux/g, " · " + hoursTag + " sur " + levels + " niveaux");
+    out = out.replace(/ sur 9 niveaux/g, " · " + hoursTag + " sur " + levels + " niveaux");
+  }
+  return out;
+}
+
 function internalProvisionKey() {
   return String(process.env.FORGE_FORMATION_PROVISION_SECRET || "");
 }
@@ -272,6 +292,15 @@ function createEmbedProxy() {
         const html = rewriteFondaEmbedHtml(buf.toString("utf8"));
         res.setHeader("Content-Type", "text/html; charset=utf-8");
         return res.send(html);
+      }
+      if (
+        ctype.includes("javascript") ||
+        ctype.includes("ecmascript") ||
+        subPath.endsWith(".js")
+      ) {
+        const js = rewriteFondaEmbedJs(buf.toString("utf8"), subPath);
+        res.setHeader("Content-Type", ctype || "application/javascript; charset=utf-8");
+        return res.send(js);
       }
       return res.send(buf);
     } catch (e) {

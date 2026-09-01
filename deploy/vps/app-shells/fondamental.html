@@ -86,6 +86,7 @@
         Macro, pricing et fondamentaux marchés — au même endroit que votre formation La Forge,
         pour suivre le parcours complet sans changer de site.
       </p>
+      <p id="fonda-hours" style="color:var(--muted);font-size:0.88rem;margin:0.5rem 0 0;line-height:1.5"></p>
       <div class="fonda-access-pills">
         <span class="fonda-pill">La Forge Premium (349€/an)</span>
         <span class="fonda-pill">TorPass ACADEMY · ≥ 250 KRM</span>
@@ -122,6 +123,15 @@
   <script src="/js/forge-brand.js"></script>
   <script src="/js/auth.js?v=6"></script>
   <script src="/js/forge-gate.js"></script>
-  <script src="/js/forge-fondamental.js?v=8"></script>
+  <script src="/js/fondamental-data.js?v=1"></script>
+  <script src="/js/forge-fondamental.js?v=9"></script>
+  <script>
+    (function () {
+      var el = document.getElementById("fonda-hours");
+      if (el && typeof getFondaMetaLabel === "function") {
+        el.textContent = getFondaMetaLabel() + " · macro, taux, liquidité et lecture des marchés.";
+      }
+    })();
+  </script>
 </body>
 </html>

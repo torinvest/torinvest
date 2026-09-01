@@ -28,6 +28,7 @@ JS_FILES=(
   auth.js
   chart-exercise-registry.js
   course-data.js
+  fondamental-data.js
   course-index.js
   forge-annotations.js
   forge-brand.js

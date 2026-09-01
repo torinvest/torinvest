@@ -15,8 +15,12 @@ curl -fsSL "$BASE/deploy/vps/formation-server/routes-formation-auth.js" \
   -o "$FORM_DIR/server-patches/routes-formation-auth.js"
 curl -fsSL "$BASE/la-forge/js/forge-fondamental.js" \
   -o "$FORM_DIR/public/js/forge-fondamental.js"
+curl -fsSL "$BASE/la-forge/js/fondamental-data.js" \
+  -o "$FORM_DIR/public/js/fondamental-data.js"
 curl -fsSL "$BASE/deploy/vps/app-shells/fondamental.html" \
   -o "$FORM_DIR/public/fondamental.html"
+curl -fsSL "$BASE/deploy/vps/app-shells/dashboard.html" \
+  -o "$FORM_DIR/public/dashboard.html"
 
 grep -q access_token "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
   echo "ERREUR: routes-fondamental-bridge sans access_token embed"
