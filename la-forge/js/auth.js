@@ -45,6 +45,12 @@ function showAlert(el, message, type = "error") {
   el.hidden = false;
 }
 
+function forgeNextUrl(raw) {
+  const next = raw || "/dashboard.html";
+  if (next.startsWith("http")) return next;
+  return next.startsWith("/") ? next : "/" + next;
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const loginForm = document.getElementById("login-form");
   const logoutBtn = document.getElementById("logout-btn");
@@ -67,6 +73,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (loginForm) {
     const alertEl = document.getElementById("login-alert");
+    const nextParam = new URLSearchParams(window.location.search).get("next");
+    if (nextParam) {
+      const already = await getMe();
+      if (already) {
+        window.location.replace(forgeNextUrl(nextParam));
+        return;
+      }
+    }
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(loginForm);
@@ -78,14 +92,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             password: fd.get("password"),
           }),
         });
-        const next =
-          new URLSearchParams(window.location.search).get("next") ||
-          APP_ORIGIN + "/dashboard.html";
-        if (next.indexOf("fondamental") !== -1) {
-          window.location.href = next.startsWith("http") ? next : APP_ORIGIN + next;
-        } else {
-          window.location.href = next;
-        }
+        window.location.href = forgeNextUrl(
+          new URLSearchParams(window.location.search).get("next")
+        );
       } catch (err) {
         showAlert(alertEl, err.message);
       }

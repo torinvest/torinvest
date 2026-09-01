@@ -45,6 +45,39 @@ function matchDemoLogin(email, password) {
   return null;
 }
 
+function mePayload(user) {
+  const subscribed = !!user?.subscribed;
+  return {
+    email: user.email,
+    subscribed,
+    name: user.name || (subscribed ? "Membre Premium" : "Visiteur"),
+    plan: subscribed ? "premium" : "free",
+  };
+}
+
+function finishLogin(req, res, next, fields) {
+  const user = req.session?.user;
+  if (!user?.email) {
+    return next(new Error("session_user_missing"));
+  }
+  const me = mePayload(user);
+  const body = {
+    ok: true,
+    email: me.email,
+    subscribed: me.subscribed,
+    user: me,
+  };
+  if (fields?.via) body.via = fields.via;
+
+  if (typeof req.session.save === "function") {
+    return req.session.save((err) => {
+      if (err) return next(err);
+      return res.json(body);
+    });
+  }
+  return res.json(body);
+}
+
 function createFormationAuthRouter(options) {
   const dataDir = options.dataDir;
   const workerUrl =
@@ -61,6 +94,13 @@ function createFormationAuthRouter(options) {
   }
 
   const router = express.Router();
+
+  router.get("/api/me", (req, res, next) => {
+    if (!req.session?.user?.email) {
+      return next();
+    }
+    return res.json(mePayload(req.session.user));
+  });
 
   router.post("/api/login", async (req, res, next) => {
     if (!req.session) {
@@ -79,34 +119,20 @@ function createFormationAuthRouter(options) {
 
     if (hash && (await users.verifyPassword(hash, password))) {
       req.session.user = sessionUser(email, existing.subscribed);
-      return res.json({
-        ok: true,
-        email: req.session.user.email,
-        subscribed: req.session.user.subscribed,
-      });
+      return finishLogin(req, res, next, { via: "password" });
     }
 
     const lic = await worker.validateAccompagnementLicense(workerUrl, email, password);
     if (lic.ok) {
       users.upsertUser(dataDir, email, { subscribed: true });
       req.session.user = sessionUser(email, true);
-      return res.json({
-        ok: true,
-        email: req.session.user.email,
-        subscribed: true,
-        via: "accompagnement_license",
-      });
+      return finishLogin(req, res, next, { via: "accompagnement_license" });
     }
 
     const demo = matchDemoLogin(email, password);
     if (demo) {
       req.session.user = sessionUser(email, demo.subscribed);
-      return res.json({
-        ok: true,
-        email: req.session.user.email,
-        subscribed: demo.subscribed,
-        via: "demo",
-      });
+      return finishLogin(req, res, next, { via: "demo" });
     }
 
     return next();
