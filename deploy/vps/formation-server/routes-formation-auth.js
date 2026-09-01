@@ -70,10 +70,6 @@ function createFormationAuthRouter(options) {
       });
     }
 
-    if (existing) {
-      return res.status(401).json({ error: "Identifiants incorrects" });
-    }
-
     return next();
   });
 
