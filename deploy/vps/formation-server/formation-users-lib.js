@@ -93,17 +93,32 @@ async function hashPassword(password) {
 
 async function verifyPassword(hash, password) {
   if (!hash || !password) return false;
+
+  const libs = [];
   try {
-    const bcrypt = require("bcrypt");
-    return await bcrypt.compare(password, hash);
+    libs.push(require("bcrypt"));
   } catch {
+    /* optional native bcrypt */
+  }
+  try {
+    libs.push(require("bcryptjs"));
+  } catch {
+    /* optional bcryptjs */
+  }
+
+  for (const lib of libs) {
     try {
-      const bcryptjs = require("bcryptjs");
-      return bcryptjs.compareSync(password, hash);
+      if (typeof lib.compare === "function") {
+        const ok = await lib.compare(password, hash);
+        if (ok) return true;
+      } else if (typeof lib.compareSync === "function") {
+        if (lib.compareSync(password, hash)) return true;
+      }
     } catch {
-      return false;
+      /* try next lib */
     }
   }
+  return false;
 }
 
 function passwordHashFromUser(user) {
