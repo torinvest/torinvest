@@ -20,6 +20,9 @@ echo "OK — routes-fondamental-bridge.js (activate via /api/me)"
 node --check "$FORM_DIR/server.js"
 node --check "$FORM_DIR/server-patches/routes-fondamental-bridge.js"
 
+curl -fsSL "$BASE/deploy/vps/relocate-fondamental-bridge.js" -o /tmp/relocate-fb.js
+node /tmp/relocate-fb.js "$FORM_DIR"
+
 source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env
 sleep 3

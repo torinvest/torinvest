@@ -161,6 +161,14 @@ module.exports = function createFondamentalBridgeRouter(options) {
       });
     }
 
+    if (!req.session) {
+      return res.status(500).json({
+        ok: false,
+        error: "session_middleware_missing",
+        hint: "node deploy/vps/relocate-fondamental-bridge.js ~/torinvest-formation puis pm2 restart",
+      });
+    }
+
     try {
       const { bridgeToken } = generateBridgeToken(user.email, secret, 120);
       const activated = await activateOnRadar(bridgeToken, secret);
