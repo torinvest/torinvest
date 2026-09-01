@@ -15,11 +15,23 @@ function bridgeSecret(opts) {
 }
 
 function radarBaseUrl() {
-  return String(
+  const explicit = String(
     process.env.FORGE_FONDAMENTAL_RADAR_URL ||
       process.env.FORGE_RADAR_URL ||
-      "https://radar.torinvest-trading.com"
+      ""
   ).replace(/\/$/, "");
+  if (explicit) return explicit;
+  // Même VPS : PHP radar en local (évite TLS / cookie cross-host)
+  if (process.env.FORGE_FONDAMENTAL_RADAR_INTERNAL) {
+    return String(process.env.FORGE_FONDAMENTAL_RADAR_INTERNAL).replace(/\/$/, "");
+  }
+  return "http://127.0.0.1";
+}
+
+function rewriteFondaEmbedHtml(html) {
+  return String(html)
+    .replace(/(["'])\/applifonda\//gi, "$1/fondamental-embed/")
+    .replace(/<base\s+href=["']\/applifonda\/["']/gi, "<base href=\"/fondamental-embed/\"");
 }
 
 function internalProvisionKey() {
@@ -276,6 +288,7 @@ module.exports = function createFondamentalBridgeRouter(options) {
     const radar = radarBaseUrl();
     const query = new URLSearchParams();
     query.set("path", subPath);
+    query.set("access_token", token);
     const rawQs = req.originalUrl.includes("?")
       ? req.originalUrl.slice(req.originalUrl.indexOf("?") + 1)
       : "";
@@ -288,13 +301,18 @@ module.exports = function createFondamentalBridgeRouter(options) {
 
     const target = `${radar}/api/fondamental-serve.php?${query.toString()}`;
 
+    const upstreamHeaders = {
+      Accept: req.headers.accept || "*/*",
+      Cookie: `torinvest_fondamental=${token}`,
+    };
+    if (radar.includes("127.0.0.1") || radar.includes("localhost")) {
+      upstreamHeaders.Host = "radar.torinvest-trading.com";
+    }
+
     try {
       const upstream = await fetch(target, {
         method: "GET",
-        headers: {
-          Cookie: `torinvest_fondamental=${token}`,
-          Accept: req.headers.accept || "*/*",
-        },
+        headers: upstreamHeaders,
         signal: AbortSignal.timeout(60000),
       });
 
@@ -312,6 +330,12 @@ module.exports = function createFondamentalBridgeRouter(options) {
       });
 
       const buf = Buffer.from(await upstream.arrayBuffer());
+      const ctype = String(upstream.headers.get("content-type") || "");
+      if (ctype.includes("text/html")) {
+        const html = rewriteFondaEmbedHtml(buf.toString("utf8"));
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.send(html);
+      }
       return res.send(buf);
     } catch (e) {
       return res.status(502).send("Proxy Fondamental indisponible : " + String(e.message || e));

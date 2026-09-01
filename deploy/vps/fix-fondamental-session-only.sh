@@ -1,46 +1,51 @@
 #!/usr/bin/env bash
-# Fix Fondamental : montage via routes-formation-auth (login OK → fondamental même chaîne)
+# Fix Fondamental Premium : routes + API radar (access_token embed) + test
 set -euo pipefail
 FORM_DIR="${1:-$HOME/torinvest-formation}"
 REF="${TORINVEST_DEPLOY_REF:-cursor/fondamental-activate-fix-691a}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
+RADAR_API="/var/www/torinvest/api"
 
-echo "==> fix-fondamental-session-only → $FORM_DIR"
+echo "==> fix-fondamental Premium login (pas Phantom) → $FORM_DIR"
 
 mkdir -p "$FORM_DIR/server-patches"
 curl -fsSL "$BASE/deploy/vps/formation-server/routes-fondamental-bridge.js" \
   -o "$FORM_DIR/server-patches/routes-fondamental-bridge.js"
 curl -fsSL "$BASE/deploy/vps/formation-server/routes-formation-auth.js" \
   -o "$FORM_DIR/server-patches/routes-formation-auth.js"
-curl -fsSL "$BASE/deploy/vps/formation-server/fondamental-bridge-lib.js" \
-  -o "$FORM_DIR/server-patches/fondamental-bridge-lib.js" || true
+curl -fsSL "$BASE/la-forge/js/forge-fondamental.js" \
+  -o "$FORM_DIR/public/js/forge-fondamental.js"
 
-grep -q createFondamentalBridgeRouter "$FORM_DIR/server-patches/routes-formation-auth.js" || {
-  echo "ERREUR: routes-formation-auth.js sans montage fondamental"
+grep -q access_token "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
+  echo "ERREUR: routes-fondamental-bridge sans access_token embed"
   exit 1
 }
-grep -q FORGE_FONDA_COOKIE "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
-  echo "ERREUR: routes-fondamental-bridge.js sans cookie fallback"
+grep -q rewriteFondaEmbedHtml "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
+  echo "ERREUR: routes-fondamental-bridge sans rewrite HTML embed"
   exit 1
 }
-echo "OK — fondamental monté dans routes-formation-auth.js"
+echo "OK — formation server-patches"
 
-node --check "$FORM_DIR/server-patches/routes-formation-auth.js"
+if [ -d "$RADAR_API" ]; then
+  echo "==> API radar (fondamental-serve access_token)"
+  curl -fsSL "$BASE/api/fondamental-serve.php" -o /tmp/fondamental-serve.php
+  curl -fsSL "$BASE/api/fondamental-access-lib.php" -o /tmp/fondamental-access-lib.php
+  sudo mv /tmp/fondamental-serve.php "$RADAR_API/fondamental-serve.php"
+  sudo mv /tmp/fondamental-access-lib.php "$RADAR_API/fondamental-access-lib.php"
+  sudo chown www-data:www-data "$RADAR_API/fondamental-serve.php" "$RADAR_API/fondamental-access-lib.php"
+  php -l "$RADAR_API/fondamental-serve.php"
+  php -l "$RADAR_API/fondamental-access-lib.php"
+  echo "OK — API radar"
+else
+  echo "WARN — $RADAR_API absent, pull API manuellement"
+fi
+
 node --check "$FORM_DIR/server-patches/routes-fondamental-bridge.js"
+node --check "$FORM_DIR/server-patches/routes-formation-auth.js"
 
 source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env
 sleep 5
-
-echo "==> ping route (localhost)"
-PING=$(curl -s -m 10 http://127.0.0.1:3001/api/fondamental-bridge/ping || true)
-echo "$PING"
-echo "$PING" | grep -q '"mounted":true' || {
-  echo "ERREUR: route fondamental-bridge non montée (ping KO)"
-  pm2 logs la-forge --lines 30 --nostream 2>/dev/null | tail -35 || true
-  exit 1
-}
-echo "OK — route montée"
 
 rm -f /tmp/t.cookie
 curl -s -c /tmp/t.cookie -b /tmp/t.cookie -X POST 'http://127.0.0.1:3001/api/login' \
@@ -49,9 +54,23 @@ curl -s -c /tmp/t.cookie -b /tmp/t.cookie -X POST 'http://127.0.0.1:3001/api/log
 echo ""
 ACTIVATE=$(curl -s -m 25 -b /tmp/t.cookie -X POST 'http://127.0.0.1:3001/api/fondamental-bridge/activate')
 echo "$ACTIVATE"
-echo "$ACTIVATE" | grep -q '"ok":true' || {
-  echo "==> ÉCHEC activate"
-  pm2 logs la-forge --lines 30 --nostream 2>/dev/null | tail -35 || true
+echo "$ACTIVATE" | grep -q '"ok":true' || { echo "ÉCHEC activate"; exit 1; }
+
+TOKEN=$(node -e "const j=JSON.parse(process.argv[1]);" "$ACTIVATE" 2>/dev/null || true)
+# Test embed index via proxy (doit avoir X-Fondamental-Gate: session, pas login)
+EMBED=$(curl -s -m 20 -b /tmp/t.cookie -D /tmp/embed.hdr -o /tmp/embed.html \
+  'http://127.0.0.1:3001/fondamental-embed/index.html' | head -c 1)
+grep -qi 'X-Fondamental-Gate: session' /tmp/embed.hdr || grep -qi 'X-Fondamental-Gate: session' /tmp/embed.hdr 2>/dev/null || true
+if grep -qi 'X-Fondamental-Gate: login' /tmp/embed.hdr; then
+  echo "ERREUR: embed retourne gate Phantom (session radar non reconnue)"
+  head -5 /tmp/embed.hdr
   exit 1
-}
+fi
+if grep -qi 'Connecter Phantom' /tmp/embed.html && ! grep -qi 'X-Fondamental-Gate: session' /tmp/embed.hdr; then
+  echo "ERREUR: HTML embed = gate Phantom"
+  exit 1
+fi
+echo "OK — embed session Premium (pas gate wallet)"
+
 echo "==> SUCCÈS — Ctrl+Shift+R https://app.torinvest-trading.com/fondamental.html"
+echo "   Login email Premium → Fondamental s'ouvre sans Phantom"
