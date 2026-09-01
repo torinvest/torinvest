@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Déplace TORINVEST_ACCOMPAGNEMENT_AUTH après app.use(session…).
- * Usage: node deploy/vps/relocate-accompagnement-auth.js /home/ubuntu/torinvest-formation
+ * Place TORINVEST_ACCOMPAGNEMENT_AUTH juste AVANT app.post('/api/login')
+ * (après express-session dans server.js standard).
  */
 "use strict";
 
@@ -17,32 +17,70 @@ if (!fs.existsSync(serverPath)) {
 }
 
 let content = fs.readFileSync(serverPath, "utf8");
+const original = content;
+
 const blockRe =
   /\/\* TORINVEST_ACCOMPAGNEMENT_AUTH_BEGIN \*\/[\s\S]*?\/\* TORINVEST_ACCOMPAGNEMENT_AUTH_END \*\/\s*/;
-const sessionRe = /app\.use\s*\(\s*session\s*\([\s\S]*?\)\s*;\s*/m;
+const loginRe = /app\.post\s*\(\s*["']\/api\/login["']/m;
 
-const m = content.match(blockRe);
-if (!m) {
-  console.log("WARN — bloc ACCOMPAGNEMENT_AUTH absent");
-  process.exit(0);
+let block = null;
+const existing = content.match(blockRe);
+if (existing) {
+  block = existing[0];
+  content = content.slice(0, existing.index) + content.slice(existing.index + block.length);
 }
 
-const block = m[0];
-const without = content.slice(0, m.index) + content.slice(m.index + block.length);
-const sm = without.match(sessionRe);
-if (!sm) {
-  console.error("ERREUR: app.use(session…) introuvable dans server.js");
+if (!block) {
+  block = [
+    "/* TORINVEST_ACCOMPAGNEMENT_AUTH_BEGIN */",
+    "const createFormationAuthRouter = require(\"./server-patches/routes-formation-auth\");",
+    "app.use(",
+    "  createFormationAuthRouter({",
+    "    dataDir: path.join(__dirname, \"data\"),",
+    "    workerUrl: process.env.FORGE_WORKER_URL || process.env.WORKER_URL || \"https://morning-hall-d8f6.onzerimes.workers.dev\",",
+    "    provisionSecret: process.env.FORGE_FORMATION_PROVISION_SECRET,",
+    "  })",
+    ");",
+    "/* TORINVEST_ACCOMPAGNEMENT_AUTH_END */",
+    "",
+  ].join("\n");
+  console.log("Bloc accompagnement absent — création du bloc standard.");
+}
+
+const loginMatch = content.match(loginRe);
+if (!loginMatch || loginMatch.index < 0) {
+  console.error("ERREUR: app.post('/api/login') introuvable dans server.js");
+  console.error("→ Édition manuelle requise ou envoyer server.js au support.");
   process.exit(1);
 }
 
-const insertAt = sm.index + sm[0].length;
-if (without.slice(insertAt, insertAt + 120).includes("ACCOMPAGNEMENT_AUTH_BEGIN")) {
-  console.log("OK — bloc déjà après session");
+const insertAt = loginMatch.index;
+const alreadyThere =
+  content.slice(Math.max(0, insertAt - 400), insertAt).includes("ACCOMPAGNEMENT_AUTH_BEGIN");
+
+if (alreadyThere) {
+  console.log("OK — bloc accompagnement déjà juste avant /api/login");
+  if (content !== original) {
+    const backup = serverPath + ".bak." + Date.now();
+    fs.writeFileSync(backup, original);
+    fs.writeFileSync(serverPath, content);
+    console.log("Sauvegarde:", backup);
+  }
   process.exit(0);
 }
 
 const backup = serverPath + ".bak." + Date.now();
-fs.writeFileSync(backup, content);
-fs.writeFileSync(serverPath, without.slice(0, insertAt) + "\n" + block + without.slice(insertAt));
-console.log("OK — bloc déplacé après express-session");
+fs.writeFileSync(backup, original);
+const newContent = content.slice(0, insertAt) + block + content.slice(insertAt);
+fs.writeFileSync(serverPath, newContent);
+
+try {
+  require("child_process").execSync("node --check " + JSON.stringify(serverPath), { stdio: "pipe" });
+} catch (e) {
+  fs.writeFileSync(serverPath, original);
+  console.error("ERREUR: server.js invalide après patch — restauré");
+  process.exit(1);
+}
+
+console.log("OK — bloc placé avant app.post('/api/login')");
 console.log("Sauvegarde:", backup);
