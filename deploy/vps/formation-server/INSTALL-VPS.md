@@ -85,7 +85,43 @@ Test (connecté) :
 curl -b cookies.txt -s https://app.torinvest-trading.com/api/calendar
 ```
 
-## 4. Wire automatique server.js
+## 4. Fondamental dans l'app formation (`/fondamental.html`)
+
+Pont session Premium → appli `www/applifonda` :
+
+```javascript
+const createFondamentalBridgeRouter = require("./server-patches/routes-fondamental-bridge");
+
+app.use(
+  createFondamentalBridgeRouter({
+    bridgeSecret: process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET,
+  })
+);
+```
+
+Sur le VPS formation, définir **la même valeur** que `ai_access_hmac_secret` dans `api/config.local.php` (radar) :
+
+```bash
+# ~/.profile ou pm2 ecosystem
+export FORGE_FONDAMENTAL_BRIDGE_SECRET='votre_ai_access_hmac_secret'
+pm2 restart la-forge
+```
+
+Déployer page + JS :
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/apply-unlock-now.sh" | bash -s -- ~/torinvest-formation
+```
+
+Sur radar : `bash pull-fondamental.sh` (API `login_formation_bridge`).
+
+Test (membre Premium connecté) :
+
+```bash
+curl -b cookies.txt -s https://app.torinvest-trading.com/api/fondamental-bridge
+```
+
+## 5. Wire automatique server.js
 
 Si les patches ne sont pas encore dans `server.js` :
 
@@ -94,7 +130,7 @@ node /home/ubuntu/torinvest-formation/deploy/vps/wire-formation-server-patches.j
 bash /home/ubuntu/torinvest-formation/deploy/vps/verify-formation-live.sh
 ```
 
-## 5. Redémarrage
+## 6. Redémarrage
 
 **Obligatoire derrière nginx** — sans ça `express-rate-limit` peut crasher en boucle (ERR_ERL_UNEXPECTED_X_FORWARDED_FOR) :
 

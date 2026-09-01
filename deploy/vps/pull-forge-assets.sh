@@ -33,6 +33,7 @@ JS_FILES=(
   forge-brand.js
   forge-calendar.js
   forge-consent.js
+  forge-fondamental.js
   forge-gate.js
   forge-unlock.js
   forge-legal.js

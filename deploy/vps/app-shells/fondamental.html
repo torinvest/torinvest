@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fondamental — La Forge</title>
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <style>
+    .fonda-hero { margin-bottom: 1rem; }
+    .fonda-hero h1 { margin: 0.2rem 0; color: var(--gold); font-size: 1.35rem; }
+    .fonda-hero p { color: var(--muted); font-size: 0.9rem; margin: 0.35rem 0 0; line-height: 1.55; }
+    #fonda-frame-wrap {
+      margin-top: 1rem;
+      border: 1px solid rgba(255, 215, 0, 0.28);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0a0c12;
+      min-height: 70vh;
+    }
+    #fonda-frame {
+      display: block;
+      width: 100%;
+      height: min(78vh, 900px);
+      border: 0;
+      background: #0a0c12;
+    }
+    .fonda-fallback-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="fondamental"></header>
+
+  <div class="container">
+    <div class="fonda-hero">
+      <span class="forge-hero-tag">Application pédagogique</span>
+      <h1>Fondamental</h1>
+      <p>
+        Macro, pricing et fondamentaux marchés — intégré à votre espace La Forge.
+        Accès automatique avec votre abonnement Premium, ou via TorPass ACADEMY (≥ 250 KRM) sur le site principal.
+      </p>
+    </div>
+
+    <div id="fonda-locked" class="alert alert-warn" hidden>
+      Abonnement Premium requis pour l'accès intégré.
+      <a href="https://www.torinvest-trading.com/la-forge/pricing.html">Voir les tarifs</a>
+    </div>
+
+    <div id="fonda-status" class="alert" hidden></div>
+
+    <div id="fonda-fallback" hidden>
+      <p style="color:var(--muted);font-size:0.88rem;margin:0 0 0.5rem">
+        Si l'intégration ne charge pas, utilisez l'application sur le site principal :
+      </p>
+      <div class="fonda-fallback-actions">
+        <a class="btn btn-primary" href="https://www.torinvest-trading.com/applifonda/" target="_blank" rel="noopener noreferrer">Ouvrir Fondamental (site principal)</a>
+        <a class="btn btn-secondary" href="https://www.torinvest-trading.com/torpass">TorPass · KRM</a>
+      </div>
+    </div>
+
+    <div id="fonda-frame-wrap" hidden>
+      <iframe id="fonda-frame" title="Application Fondamental" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-fondamental.js"></script>
+</body>
+</html>

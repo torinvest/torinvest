@@ -240,6 +240,7 @@ function initMemberHeader(active) {
     forgeBackHomeNavHtml() +
     '<a href="https://app.torinvest-trading.com/dashboard.html"' + (active === "dashboard" ? ' class="active"' : "") + ">Dashboard</a>" +
     '<a href="https://app.torinvest-trading.com/course/index.html"' + (active === "course" ? ' class="active"' : "") + ">Formation</a>" +
+    '<a href="https://app.torinvest-trading.com/fondamental.html"' + (active === "fondamental" ? ' class="active"' : "") + ">Fondamental</a>" +
     '<a href="https://app.torinvest-trading.com/calendar.html"' + (active === "calendar" ? ' class="active"' : "") + ">Calendrier</a>" +
     '<a href="' + forgePublicUrl("/la-forge/#live") + '"' + (active === "live" ? ' class="active"' : "") + ">Live</a>" +
     '<a href="#" id="logout-btn">Déconnexion</a>';

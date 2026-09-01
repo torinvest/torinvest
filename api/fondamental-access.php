@@ -12,6 +12,7 @@ $allowedOrigins = [
     'https://torinvest-trading.com',
     'https://torinvest-trading.netlify.app',
     'https://radar.torinvest-trading.com',
+    'https://app.torinvest-trading.com',
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $originHost = parse_url($origin, PHP_URL_HOST) ?? '';
@@ -77,6 +78,12 @@ try {
                 fondaJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
             }
             fondaJson(fondaLoginAdmin((string) ($input['pin'] ?? '')));
+
+        case 'login_formation_bridge':
+            if ($method !== 'POST') {
+                fondaJson(['ok' => false, 'error' => 'method_not_allowed'], 405);
+            }
+            fondaJson(fondaLoginFormationBridge((string) ($input['bridgeToken'] ?? '')));
 
         case 'logout':
             if ($method !== 'POST') {
