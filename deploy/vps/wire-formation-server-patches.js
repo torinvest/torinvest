@@ -14,6 +14,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { execSync } = require("child_process");
 
 const APP_DIR = process.argv[2] || "/home/ubuntu/torinvest-formation";
 const candidates = ["server.js", "app.js", "index.js"];
@@ -46,6 +47,9 @@ function hasCalendar() {
 }
 function hasPaywall() {
   return /requireSubscribedForCourse|middleware-require-subscribed/.test(content);
+}
+function hasFondamentalBridge() {
+  return /createFondamentalBridgeRouter|routes-fondamental-bridge/.test(content);
 }
 
 function extractDataDirFromProgressBlock(block) {
@@ -117,8 +121,44 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
   );
   console.log("Bloc TORINVEST_FORMATION_PATCHES mis à jour.");
 } else if (hasProgress() && hasCalendar() && hasPaywall()) {
-  console.log("OK — paywall + progress + calendar déjà présents dans " + serverPath);
-  process.exit(0);
+  if (hasFondamentalBridge()) {
+    console.log("OK — paywall + progress + calendar + fondamental-bridge déjà présents dans " + serverPath);
+    process.exit(0);
+  }
+  console.log("Paywall/progress/calendar OK — ajout fondamental-bridge seul…");
+  const wireOnly = path.join(APP_DIR, "deploy/vps/wire-fondamental-bridge-only.js");
+  if (fs.existsSync(wireOnly)) {
+    execSync("node " + JSON.stringify(wireOnly) + " " + JSON.stringify(APP_DIR), { stdio: "inherit" });
+    process.exit(0);
+  }
+  const calendarUseRe = /app\.use\(\s*createCalendarRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const calMatch = content.match(calendarUseRe);
+  if (calMatch) {
+    const insertAfter = content.indexOf(calMatch[0]) + calMatch[0].length;
+    const fbBlock = [
+      "const createFondamentalBridgeRouter = require(\"./server-patches/routes-fondamental-bridge\");",
+      "app.use(",
+      "  createFondamentalBridgeRouter({",
+      "    bridgeSecret: process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET || process.env.AI_ACCESS_HMAC_SECRET,",
+      "  })",
+      ");",
+    ].join("\n");
+    if (!/createFondamentalBridgeRouter/.test(content)) {
+      content = content.replace(
+        /(const createCalendarRouter = require\(["']\.\/server-patches\/routes-calendar["']\);)/,
+        "$1\nconst createFondamentalBridgeRouter = require(\"./server-patches/routes-fondamental-bridge\");"
+      );
+    }
+    content =
+      content.slice(0, insertAfter) +
+      "\n" +
+      "app.use(\n  createFondamentalBridgeRouter({\n    bridgeSecret: process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET || process.env.AI_ACCESS_HMAC_SECRET,\n  })\n);\n" +
+      content.slice(insertAfter);
+    console.log("fondamental-bridge ajouté après calendar.");
+  } else {
+    console.error("ERREUR : calendar trouvé mais app.use introuvable — utiliser wire-fondamental-bridge-only.js");
+    process.exit(1);
+  }
 } else if (hasProgress() && !hasCalendar()) {
   const progressUseRe =
     /app\.use\(\s*createProgressRouter\(\{[\s\S]*?\}\)\s*\);/m;

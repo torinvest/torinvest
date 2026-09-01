@@ -28,6 +28,7 @@ dl() {
 mkdir -p "$APP_DIR/deploy/vps" "$APP_DIR/server-patches"
 
 dl "deploy/vps/wire-formation-server-patches.js" "$APP_DIR/deploy/vps/wire-formation-server-patches.js"
+dl "deploy/vps/wire-fondamental-bridge-only.js" "$APP_DIR/deploy/vps/wire-fondamental-bridge-only.js"
 dl "deploy/vps/formation-server/fondamental-bridge-lib.js" "$APP_DIR/server-patches/fondamental-bridge-lib.js"
 dl "deploy/vps/formation-server/routes-fondamental-bridge.js" "$APP_DIR/server-patches/routes-fondamental-bridge.js"
 dl "deploy/vps/app-shells/fondamental.html" "$APP_DIR/public/fondamental.html"
