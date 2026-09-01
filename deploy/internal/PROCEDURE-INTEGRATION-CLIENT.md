@@ -17,7 +17,7 @@ Paiement Stripe (349€/an)
     → Validation complète du lot → lot 2 (F3, F4, F5)…
 ```
 
-**Durée totale formation** : 37 modules · ~57 h · parcours guidé sur ~13 lots.
+**Durée totale formation** : 37 modules + Fondamental · ~70 h · parcours guidé sur ~13 lots.
 
 ---
 

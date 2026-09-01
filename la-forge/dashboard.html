@@ -73,7 +73,7 @@
         <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem">Complétez la formation par le terrain — sessions live chart.</p>
         <div id="dash-live-pills" style="display:flex;flex-wrap:wrap;gap:0.4rem"></div>
         <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">
-          Durée : <strong style="color:var(--gold)" id="dash-hours">~57 h</strong>
+          Durée : <strong style="color:var(--gold)" id="dash-hours">~70 h</strong>
         </p>
         <p id="plan-text" style="color:var(--muted);margin-top:0.5rem">Chargement…</p>
       </div>
@@ -91,9 +91,14 @@
   <script src="/la-forge/js/forge-unlock.js"></script>
   <script>
     const MODULE_IDS = getAllModuleIds();
-    document.getElementById("dash-hours").textContent = "~" + FORGE_TOTAL_HOURS + " h";
+    document.getElementById("dash-hours").textContent =
+      typeof getForgePackageHoursLabel === "function"
+        ? getForgePackageHoursLabel()
+        : "~" + FORGE_TOTAL_HOURS + " h";
     document.getElementById("dash-meta").textContent =
-      FORGE_TOTAL_HOURS + " h · " + MODULES.length + " modules · " + COURSE_PARTS.length + " parties";
+      typeof getForgePackageMetaLabel === "function"
+        ? getForgePackageMetaLabel()
+        : FORGE_TOTAL_HOURS + " h · " + MODULES.length + " modules · " + COURSE_PARTS.length + " parties";
     const fondaMeta = document.getElementById("fonda-dash-meta");
     if (fondaMeta && typeof getFondaMetaLabel === "function") {
       fondaMeta.textContent = getFondaMetaLabel();

@@ -25,8 +25,11 @@ function renderCourseIndex(me) {
   if (sloganEl && typeof FORGE_SLOGAN !== "undefined") sloganEl.textContent = FORGE_SLOGAN;
 
   const hoursEl = document.getElementById("forge-hours");
-  if (hoursEl && typeof FORGE_TOTAL_HOURS !== "undefined") {
-    hoursEl.textContent = FORGE_TOTAL_HOURS + " h · " + MODULES.length + " modules · 18 semaines · mode ÉLITE";
+  if (hoursEl && typeof getForgePackageMetaLabel === "function") {
+    hoursEl.textContent = getForgePackageMetaLabel() + " · 18 semaines · mode ÉLITE";
+  } else if (hoursEl && typeof FORGE_TOTAL_HOURS !== "undefined") {
+    hoursEl.textContent =
+      "~" + FORGE_TOTAL_HOURS + " h · " + MODULES.length + " modules + Fondamental · mode ÉLITE";
   }
 
   const bar = document.getElementById("overall-bar");

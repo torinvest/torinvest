@@ -1,10 +1,15 @@
 /**
- * La Forge ICT-SMC-PRICE ACTION — ÉLITE (~57 h)
+ * La Forge ICT-SMC-PRICE ACTION — ÉLITE + Fondamental (~70 h au total)
  * torinvest-trading.com — La force d'un esprit libre
  */
 const FORGE_TITLE = "La Forge ICT-SMC-PRICE ACTION — ÉLITE";
 const FORGE_SLOGAN = "La force d'un esprit libre";
-const FORGE_TOTAL_HOURS = 57;
+/** Modules ICT-SMC (37 × ~90 min). */
+const FORGE_MODULE_HOURS = 57;
+/** Appli Fondamental (61 cours capsules). */
+const FORGE_FONDA_HOURS = 13;
+/** Premium La Forge : formation + Fondamental. */
+const FORGE_TOTAL_HOURS = 70;
 const FORGE_SITE = "torinvest-trading.com";
 
 const COURSE_PARTS = [
@@ -143,9 +148,29 @@ function getModuleCount() {
   return MODULES.length;
 }
 
+function getForgePackageHoursLabel() {
+  return "~" + FORGE_TOTAL_HOURS + " h";
+}
+
+function getForgePackageMetaLabel() {
+  return (
+    "~" +
+    FORGE_TOTAL_HOURS +
+    " h · " +
+    MODULES.length +
+    " modules + Fondamental · " +
+    COURSE_PARTS.length +
+    " parties"
+  );
+}
+
+window.FORGE_MODULE_HOURS = FORGE_MODULE_HOURS;
+window.FORGE_FONDA_HOURS = FORGE_FONDA_HOURS;
 window.FORGE_TITLE = FORGE_TITLE;
 window.FORGE_SLOGAN = FORGE_SLOGAN;
 window.FORGE_TOTAL_HOURS = FORGE_TOTAL_HOURS;
+window.getForgePackageHoursLabel = getForgePackageHoursLabel;
+window.getForgePackageMetaLabel = getForgePackageMetaLabel;
 window.FORGE_SITE = FORGE_SITE;
 window.COURSE_PARTS = COURSE_PARTS;
 window.MODULES = MODULES;
