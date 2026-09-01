@@ -44,9 +44,22 @@ function radarFetchHeaders(baseUrl, extra) {
 }
 
 function rewriteFondaEmbedHtml(html) {
-  return String(html)
-    .replace(/(["'])\/applifonda\//gi, "$1/fondamental-embed/")
-    .replace(/<base\s+href=["']\/applifonda\/["']/gi, "<base href=\"/fondamental-embed/\"");
+  let out = String(html);
+  out = out.replace(/(["'])\/applifonda\//gi, "$1/fondamental-embed/");
+  out = out.replace(/<base\s+href=["']\/applifonda\/["']/gi, "<base href=\"/fondamental-embed/\"");
+  // La Forge Premium : session radar OK — supprimer gate Phantom (gate.js 404 sur app.*)
+  out = out.replace(/\btf-fonda-locked\b/g, "");
+  out = out.replace(/<style id="tf-fonda-gate-style">[\s\S]*?<\/style>/i, "");
+  out = out.replace(/<div id="tf-fonda-gate">[\s\S]*?(?=<div id="root">)/i, "");
+  out = out.replace(
+    /<script[^>]+src=["']\/assets\/torinvest-fondamental-gate\.js[^"']*["'][^>]*>\s*<\/script>/gi,
+    ""
+  );
+  out = out.replace(
+    /<script[^>]+src=["']\/assets\/torinvest-fondamental-back\.js[^"']*["'][^>]*>\s*<\/script>/gi,
+    ""
+  );
+  return out;
 }
 
 function internalProvisionKey() {

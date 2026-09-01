@@ -219,6 +219,12 @@
     }
 
     var sess = await pingFondaSession();
+
+    if (isPremium) {
+      await openPremiumFondamental();
+      return;
+    }
+
     if (sess && sess.ok) {
       if (sess.source === "formation") {
         setStatus("Accès Premium La Forge — ouverture de Fondamental…", "ok");
@@ -228,11 +234,6 @@
         setStatus("Session active — ouverture de Fondamental…", "ok");
       }
       showFrame();
-      return;
-    }
-
-    if (isPremium) {
-      await openPremiumFondamental();
       return;
     }
 

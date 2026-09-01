@@ -15,6 +15,8 @@ curl -fsSL "$BASE/deploy/vps/formation-server/routes-formation-auth.js" \
   -o "$FORM_DIR/server-patches/routes-formation-auth.js"
 curl -fsSL "$BASE/la-forge/js/forge-fondamental.js" \
   -o "$FORM_DIR/public/js/forge-fondamental.js"
+curl -fsSL "$BASE/deploy/vps/app-shells/fondamental.html" \
+  -o "$FORM_DIR/public/fondamental.html"
 
 grep -q access_token "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
   echo "ERREUR: routes-fondamental-bridge sans access_token embed"
@@ -63,8 +65,8 @@ if grep -qi 'X-Fondamental-Gate: login' /tmp/embed.hdr; then
   head -5 /tmp/embed.hdr
   exit 1
 fi
-if grep -qi 'Connecter Phantom' /tmp/embed.html && ! grep -qi 'X-Fondamental-Gate: session' /tmp/embed.hdr; then
-  echo "ERREUR: HTML embed = gate Phantom"
+if grep -qi 'Connecter Phantom' /tmp/embed.html; then
+  echo "ERREUR: HTML embed contient encore gate Phantom"
   exit 1
 fi
 echo "OK — embed session Premium (pas gate wallet)"
