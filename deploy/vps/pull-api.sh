@@ -15,6 +15,7 @@ FILES=(
   accompagnement-access-lib.php
   admin-licence.php
   admin-licence-lib.php
+  formation-provision-lib.php
   license-provision.php
   stripe-webhook.php
   stripe-lib.php
