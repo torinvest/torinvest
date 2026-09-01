@@ -7,22 +7,47 @@
 set -euo pipefail
 
 APP_DIR="${1:-$HOME/torinvest-formation}"
-# Commit fix connu — évite cache GitHub raw sur main
-REF="${TORINVEST_DEPLOY_REF:-dede4e3}"
+# Défaut main ; repli commit si raw GitHub encore en cache (401 sur users.json existants)
+REF="${TORINVEST_DEPLOY_REF:-main}"
+FALLBACK_REF="${TORINVEST_DEPLOY_FALLBACK_REF:-e33541a}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 
 echo "==> fix-formation-definitive (git $REF) → $APP_DIR"
 
 mkdir -p "$APP_DIR/server-patches" "$APP_DIR/deploy/vps"
 
-curl -fsSL --retry 3 "$BASE/deploy/vps/formation-server/routes-formation-auth.js" \
-  -o "$APP_DIR/server-patches/routes-formation-auth.js"
+fetch_auth_routes() {
+  local ref="$1"
+  curl -fsSL --retry 3 \
+    "https://raw.githubusercontent.com/torinvest/torinvest/${ref}/deploy/vps/formation-server/routes-formation-auth.js" \
+    -o "$APP_DIR/server-patches/routes-formation-auth.js"
+}
+
+fetch_auth_routes "$REF"
+if grep -q 'Identifiants incorrects' "$APP_DIR/server-patches/routes-formation-auth.js"; then
+  echo "WARN — routes obsolètes sur $REF, repli $FALLBACK_REF"
+  fetch_auth_routes "$FALLBACK_REF"
+fi
 
 grep -q 'if (!req.session)' "$APP_DIR/server-patches/routes-formation-auth.js" || {
-  echo "ERREUR: routes-formation-auth.js invalide"
+  echo "ERREUR: routes-formation-auth.js invalide (req.session guard)"
   exit 1
 }
-echo "OK — routes-formation-auth.js"
+grep -q 'Identifiants incorrects' "$APP_DIR/server-patches/routes-formation-auth.js" && {
+  echo "ERREUR: routes-formation-auth.js bloque encore le login natif (401 users.json)"
+  echo "       Définir TORINVEST_DEPLOY_REF=e33541a ou pousser le fix sur main"
+  exit 1
+}
+echo "OK — routes-formation-auth.js (délégation login natif si échec)"
+
+curl -fsSL --retry 3 "$BASE/deploy/vps/formation-server/formation-users-lib.js" \
+  -o "$APP_DIR/server-patches/formation-users-lib.js" || true
+if [ -f "$APP_DIR/server-patches/formation-users-lib.js" ]; then
+  echo "OK — formation-users-lib.js"
+fi
+
+curl -fsSL --retry 3 "$BASE/deploy/vps/formation-server/accompagnement-worker-lib.js" \
+  -o "$APP_DIR/server-patches/accompagnement-worker-lib.js" || true
 
 export APP_DIR
 node <<'NODE'
@@ -136,10 +161,16 @@ sleep 3
 echo "==> PM2"
 pm2 list | grep la-forge || true
 
-echo "==> login"
-curl -s -m 20 -X POST 'https://app.torinvest-trading.com/api/login' \
+echo "==> login (provisionné AdminFonda2026!)"
+LOGIN_PROV=$(curl -s -m 20 -X POST 'https://app.torinvest-trading.com/api/login' \
   -H 'Content-Type: application/json' \
-  -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!"}'
-echo ""
+  -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!"}')
+echo "$LOGIN_PROV"
+if echo "$LOGIN_PROV" | grep -q '"ok"'; then
+  echo "OK — login provisionné"
+else
+  echo "WARN — login provisionné KO — essai mot de passe démo natif (grep server.js) :"
+  grep -E 'abonne@|password.*abonne|DEMO|demoPassword' "$APP_DIR/server.js" 2>/dev/null | head -5 || true
+fi
 pm2 logs la-forge --lines 8 --nostream 2>/dev/null | tail -12 || true
 echo "==> terminé"
