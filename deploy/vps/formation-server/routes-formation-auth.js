@@ -35,6 +35,10 @@ function createFormationAuthRouter(options) {
   const router = express.Router();
 
   router.post("/api/login", async (req, res, next) => {
+    if (!req.session) {
+      return next();
+    }
+
     const email = users.normalizeEmail(req.body?.email);
     const password = String(req.body?.password || "");
     if (!email || !password) {
