@@ -4,14 +4,21 @@
 # Usage sur le VPS formation (ubuntu) :
 #   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/formation-accompagnement-login-691a/deploy/vps/deploy-accompagnement-login-now.sh" | bash -s -- ~/torinvest-formation
 #
-# Avec secret provision (recommandé — même valeur que radar config.local.php) :
-#   FORGE_FORMATION_PROVISION_SECRET='votre_secret' curl -fsSL "..." | bash -s -- ~/torinvest-formation
+# Avec secret provision (générer avec: openssl rand -hex 32) :
+#   FORGE_FORMATION_PROVISION_SECRET='abc123...' curl -fsSL "..." | bash -s -- ~/torinvest-formation
+# Ne pas utiliser le placeholder TON_SECRET_ICI.
 
 set -euo pipefail
 
 APP_DIR="${1:-$HOME/torinvest-formation}"
 SHA="${SHA:-cursor/formation-accompagnement-login-691a}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${SHA}"
+
+if [[ "${FORGE_FORMATION_PROVISION_SECRET:-}" == "TON_SECRET_ICI" ]]; then
+  echo "WARN — FORGE_FORMATION_PROVISION_SECRET est encore le placeholder TON_SECRET_ICI."
+  echo "       Générez un secret : openssl rand -hex 32"
+  unset FORGE_FORMATION_PROVISION_SECRET
+fi
 
 if [[ ! -d "$APP_DIR/public/js" ]]; then
   echo "ERREUR: $APP_DIR/public/js introuvable — mauvais chemin La Forge"
@@ -42,6 +49,8 @@ dl "deploy/vps/app-shells/login.html" "$APP_DIR/public/login.html"
 dl "la-forge/js/auth.js" "$APP_DIR/public/js/auth.js"
 
 bash "$APP_DIR/deploy/vps/apply-unlock-now.sh" "$APP_DIR" || true
+
+export SHA="$SHA"
 
 if [[ -n "${FORGE_FORMATION_PROVISION_SECRET:-}" ]]; then
   export FORGE_FORMATION_PROVISION_SECRET
