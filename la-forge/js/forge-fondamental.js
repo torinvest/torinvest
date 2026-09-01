@@ -159,10 +159,11 @@
   }
 
   async function initFondamentalHub() {
-    var me = typeof getMe === "function" ? await getMe() : null;
-    if (!me) {
-      window.location.href = "/login.html?next=" + encodeURIComponent("/fondamental.html");
-      return;
+    var me = null;
+    try {
+      me = typeof getMe === "function" ? await getMe() : null;
+    } catch (_) {
+      me = null;
     }
 
     var sess = await pingFondaSession();
@@ -178,7 +179,7 @@
       return;
     }
 
-    if (me.subscribed) {
+    if (me && me.subscribed) {
       try {
         setStatus("Connexion automatique (abonnement Premium La Forge)…", "ok");
         await tryFormationBridge();
@@ -196,11 +197,18 @@
           setStatus("Premium actif — utilise Phantom ci-dessous si l'ouverture auto échoue.", "warn");
         }
       }
-    } else {
+    } else if (me) {
       setStatus(
         "Deux accès : abonnement La Forge Premium (349€/an) ou TorPass ACADEMY (≥ 250 KRM via Phantom).",
         "ok"
       );
+    } else {
+      setStatus(
+        "TorPass ACADEMY : connecte Phantom ci-dessous. Abonnés La Forge : connectez-vous avec l'email Stripe.",
+        "ok"
+      );
+      var loginHint = document.getElementById("fonda-login-hint");
+      if (loginHint) loginHint.hidden = false;
     }
 
     showGate();
@@ -210,7 +218,7 @@
       btn.addEventListener("click", connectPhantomKrm);
     }
     var pricing = document.getElementById("fonda-pricing-link");
-    if (pricing && me.subscribed) pricing.hidden = true;
+    if (pricing && me && me.subscribed) pricing.hidden = true;
   }
 
   document.addEventListener("DOMContentLoaded", initFondamentalHub);
