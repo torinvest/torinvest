@@ -17,6 +17,34 @@ function sessionUser(email, subscribed) {
   };
 }
 
+function demoAccounts() {
+  return [
+    {
+      email: users.normalizeEmail(
+        process.env.DEMO_SUBSCRIBER_EMAIL || "abonne@torinvest-trading.com"
+      ),
+      password: String(process.env.DEMO_SUBSCRIBER_PASSWORD || "Forge2026!"),
+      subscribed: true,
+    },
+    {
+      email: users.normalizeEmail(
+        process.env.DEMO_FREE_EMAIL || "visiteur@torinvest-trading.com"
+      ),
+      password: String(process.env.DEMO_FREE_PASSWORD || "Visiteur2026!"),
+      subscribed: false,
+    },
+  ];
+}
+
+function matchDemoLogin(email, password) {
+  for (const demo of demoAccounts()) {
+    if (email === demo.email && password === demo.password) {
+      return demo;
+    }
+  }
+  return null;
+}
+
 function createFormationAuthRouter(options) {
   const dataDir = options.dataDir;
   const workerUrl =
@@ -67,6 +95,17 @@ function createFormationAuthRouter(options) {
         email: req.session.user.email,
         subscribed: true,
         via: "accompagnement_license",
+      });
+    }
+
+    const demo = matchDemoLogin(email, password);
+    if (demo) {
+      req.session.user = sessionUser(email, demo.subscribed);
+      return res.json({
+        ok: true,
+        email: req.session.user.email,
+        subscribed: demo.subscribed,
+        via: "demo",
       });
     }
 

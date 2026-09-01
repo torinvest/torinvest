@@ -83,11 +83,11 @@ function upsertUser(dataDir, email, fields) {
 
 async function hashPassword(password) {
   try {
-    const bcrypt = require("bcrypt");
-    return bcrypt.hash(password, 10);
-  } catch {
     const bcryptjs = require("bcryptjs");
     return bcryptjs.hashSync(password, 10);
+  } catch {
+    const bcrypt = require("bcrypt");
+    return bcrypt.hash(password, 10);
   }
 }
 
