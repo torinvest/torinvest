@@ -36,9 +36,43 @@ function isPremiumSessionUser(user) {
 }
 
 function premiumUser(req) {
-  const user = req.session?.user || req.user;
-  if (!isPremiumSessionUser(user)) return null;
-  return user;
+  const s = req.session;
+  if (!s) return null;
+  const user = s.user || req.user;
+  if (isPremiumSessionUser(user)) return user;
+
+  const email = String(user?.email || s.email || "").trim();
+  if (!email) return null;
+
+  const synthetic = {
+    email,
+    subscribed: user?.subscribed ?? s.subscribed,
+    plan: user?.plan ?? s.plan,
+    name: user?.name ?? s.name,
+  };
+  if (isPremiumSessionUser(synthetic)) return synthetic;
+
+  return null;
+}
+
+/** Lit Premium via /api/me (même logique que le site) si session.user incomplète. */
+async function premiumUserViaMe(req) {
+  const cookie = String(req.headers.cookie || "");
+  if (!cookie) return null;
+  const port = Number(process.env.PORT || 3001);
+  try {
+    const r = await fetch(`http://127.0.0.1:${port}/api/me`, {
+      headers: { cookie, Accept: "application/json" },
+      signal: AbortSignal.timeout(8000),
+    });
+    const data = await r.json().catch(() => ({}));
+    const me = data.user && typeof data.user === "object" ? data.user : data;
+    if (!me?.email) return null;
+    if (isPremiumSessionUser(me)) return me;
+  } catch (_) {
+    /* ignore */
+  }
+  return null;
 }
 
 function parseFondamentalCookie(setCookieHeaders) {
@@ -110,7 +144,10 @@ module.exports = function createFondamentalBridgeRouter(options) {
   });
 
   router.post("/api/fondamental-bridge/activate", async (req, res) => {
-    const user = premiumUser(req);
+    let user = premiumUser(req);
+    if (!user) {
+      user = await premiumUserViaMe(req);
+    }
     if (!user) {
       return res.status(403).json({ ok: false, error: "premium_required" });
     }
@@ -121,6 +158,14 @@ module.exports = function createFondamentalBridgeRouter(options) {
         ok: false,
         error: "bridge_not_configured",
         hint: "FORGE_FONDAMENTAL_BRIDGE_SECRET (= ai_access_hmac_secret radar)",
+      });
+    }
+
+    if (!req.session) {
+      return res.status(500).json({
+        ok: false,
+        error: "session_middleware_missing",
+        hint: "node deploy/vps/relocate-fondamental-bridge.js ~/torinvest-formation puis pm2 restart",
       });
     }
 
@@ -163,7 +208,7 @@ module.exports = function createFondamentalBridgeRouter(options) {
     if (!user?.email) {
       return res.status(401).json({ ok: false, error: "login_required" });
     }
-    if (!user.subscribed) {
+    if (!isPremiumSessionUser(user)) {
       return res.status(403).json({ ok: false, error: "premium_required" });
     }
 
