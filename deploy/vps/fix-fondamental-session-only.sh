@@ -59,7 +59,7 @@ echo "$ACTIVATE"
 echo "$ACTIVATE" | grep -q '"ok":true' || { echo "ÉCHEC activate"; exit 1; }
 
 curl -s -m 20 -b /tmp/t.cookie -D /tmp/embed.hdr -o /tmp/embed.html \
-  'http://127.0.0.1:3001/fondamental-embed/index.html' >/dev/null
+  'http://127.0.0.1:3001/applifonda/index.html' >/dev/null
 if grep -qi 'X-Fondamental-Gate: login' /tmp/embed.hdr; then
   echo "ERREUR: embed retourne gate Phantom (session radar non reconnue)"
   head -5 /tmp/embed.hdr

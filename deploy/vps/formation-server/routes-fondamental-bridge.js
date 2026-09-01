@@ -45,8 +45,6 @@ function radarFetchHeaders(baseUrl, extra) {
 
 function rewriteFondaEmbedHtml(html) {
   let out = String(html);
-  out = out.replace(/(["'])\/applifonda\//gi, "$1/fondamental-embed/");
-  out = out.replace(/<base\s+href=["']\/applifonda\/["']/gi, "<base href=\"/fondamental-embed/\"");
   // La Forge Premium : session radar OK — supprimer gate Phantom (gate.js 404 sur app.*)
   out = out.replace(/\btf-fonda-locked\b/g, "");
   out = out.replace(/<style id="tf-fonda-gate-style">[\s\S]*?<\/style>/i, "");
@@ -206,6 +204,82 @@ async function activateOnRadar(bridgeToken, secret) {
   return { sessionToken, data };
 }
 
+function createEmbedProxy() {
+  return async function embedProxy(req, res) {
+    const token = fondamentalToken(req);
+    if (!token) {
+      res.status(401);
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      return res.send("Session Fondamental requise — rechargez la page depuis La Forge.");
+    }
+
+    let subPath = req.path || "/";
+    if (subPath === "/" || subPath === "") {
+      subPath = "/index.html";
+    }
+    subPath = subPath.replace(/^\//, "");
+
+    const radar = radarBaseUrl();
+    const query = new URLSearchParams();
+    query.set("path", subPath);
+    query.set("access_token", token);
+    const rawQs = req.originalUrl.includes("?")
+      ? req.originalUrl.slice(req.originalUrl.indexOf("?") + 1)
+      : "";
+    if (rawQs) {
+      const extra = new URLSearchParams(rawQs);
+      for (const [k, v] of extra.entries()) {
+        if (k !== "path") query.append(k, v);
+      }
+    }
+
+    const target = `${radar}/api/fondamental-serve.php?${query.toString()}`;
+
+    const upstreamHeaders = radarFetchHeaders(radar, {
+      Accept: req.headers.accept || "*/*",
+      Cookie: `torinvest_fondamental=${token}`,
+    });
+
+    try {
+      const upstream = await fetch(target, {
+        method: "GET",
+        headers: upstreamHeaders,
+        signal: AbortSignal.timeout(60000),
+      });
+
+      res.status(upstream.status);
+      const skip = new Set([
+        "connection",
+        "transfer-encoding",
+        "content-encoding",
+        "content-length",
+      ]);
+      upstream.headers.forEach((value, key) => {
+        if (!skip.has(key.toLowerCase())) {
+          res.setHeader(key, value);
+        }
+      });
+
+      const buf = Buffer.from(await upstream.arrayBuffer());
+      const ctype = String(upstream.headers.get("content-type") || "");
+      if (upstream.status === 404) {
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        return res.status(502).send(
+          "Radar Fondamental 404 — vérifier radar.torinvest-trading.com et applifonda sur le VPS."
+        );
+      }
+      if (ctype.includes("text/html")) {
+        const html = rewriteFondaEmbedHtml(buf.toString("utf8"));
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.send(html);
+      }
+      return res.send(buf);
+    } catch (e) {
+      return res.status(502).send("Proxy Fondamental indisponible : " + String(e.message || e));
+    }
+  };
+}
+
 module.exports = function createFondamentalBridgeRouter(options) {
   const opts = options || {};
   const router = express.Router();
@@ -309,79 +383,9 @@ module.exports = function createFondamentalBridgeRouter(options) {
     });
   });
 
-  router.use("/fondamental-embed", async (req, res) => {
-    const token = fondamentalToken(req);
-    if (!token) {
-      res.status(401);
-      res.setHeader("Content-Type", "text/plain; charset=utf-8");
-      return res.send("Session Fondamental requise — rechargez la page depuis La Forge.");
-    }
-
-    let subPath = req.path || "/";
-    if (subPath === "/" || subPath === "") {
-      subPath = "/index.html";
-    }
-    subPath = subPath.replace(/^\//, "");
-
-    const radar = radarBaseUrl();
-    const query = new URLSearchParams();
-    query.set("path", subPath);
-    query.set("access_token", token);
-    const rawQs = req.originalUrl.includes("?")
-      ? req.originalUrl.slice(req.originalUrl.indexOf("?") + 1)
-      : "";
-    if (rawQs) {
-      const extra = new URLSearchParams(rawQs);
-      for (const [k, v] of extra.entries()) {
-        if (k !== "path") query.append(k, v);
-      }
-    }
-
-    const target = `${radar}/api/fondamental-serve.php?${query.toString()}`;
-
-    const upstreamHeaders = radarFetchHeaders(radar, {
-      Accept: req.headers.accept || "*/*",
-      Cookie: `torinvest_fondamental=${token}`,
-    });
-
-    try {
-      const upstream = await fetch(target, {
-        method: "GET",
-        headers: upstreamHeaders,
-        signal: AbortSignal.timeout(60000),
-      });
-
-      res.status(upstream.status);
-      const skip = new Set([
-        "connection",
-        "transfer-encoding",
-        "content-encoding",
-        "content-length",
-      ]);
-      upstream.headers.forEach((value, key) => {
-        if (!skip.has(key.toLowerCase())) {
-          res.setHeader(key, value);
-        }
-      });
-
-      const buf = Buffer.from(await upstream.arrayBuffer());
-      const ctype = String(upstream.headers.get("content-type") || "");
-      if (upstream.status === 404) {
-        res.setHeader("Content-Type", "text/plain; charset=utf-8");
-        return res.status(502).send(
-          "Radar Fondamental 404 — vérifier radar.torinvest-trading.com et applifonda sur le VPS."
-        );
-      }
-      if (ctype.includes("text/html")) {
-        const html = rewriteFondaEmbedHtml(buf.toString("utf8"));
-        res.setHeader("Content-Type", "text/html; charset=utf-8");
-        return res.send(html);
-      }
-      return res.send(buf);
-    } catch (e) {
-      return res.status(502).send("Proxy Fondamental indisponible : " + String(e.message || e));
-    }
-  });
+  const embedProxy = createEmbedProxy();
+  router.use("/applifonda", embedProxy);
+  router.use("/fondamental-embed", embedProxy);
 
   return router;
 };

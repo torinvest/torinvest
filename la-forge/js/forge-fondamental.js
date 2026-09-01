@@ -7,7 +7,7 @@
 
   var WWW = "https://www.torinvest-trading.com";
   var FONDA_API = WWW + "/api/fondamental-access.php";
-  var FONDA_APP = "/fondamental-embed/";
+  var FONDA_APP = "/applifonda/";
 
   function setStatus(text, kind) {
     var el = document.getElementById("fonda-status");
