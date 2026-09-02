@@ -40,6 +40,10 @@ grep -q rewriteFondaEmbedHtml "$FORM_DIR/server-patches/routes-fondamental-bridg
   echo "ERREUR: routes-fondamental-bridge sans rewrite HTML embed"
   exit 1
 }
+grep -q 'activate-wallet' "$FORM_DIR/server-patches/routes-fondamental-bridge.js" || {
+  echo "ERREUR: routes-fondamental-bridge sans activate-wallet (Phantom KRM)"
+  exit 1
+}
 echo "OK — formation server-patches"
 
 if [ -d "$RADAR_API" ]; then
@@ -63,27 +67,33 @@ source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env
 sleep 5
 
-rm -f /tmp/t.cookie
-curl -s -c /tmp/t.cookie -b /tmp/t.cookie -X POST 'http://127.0.0.1:3001/api/login' \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"abonne@torinvest-trading.com","password":"Forge2026!"}'
-echo ""
-ACTIVATE=$(curl -s -m 25 -b /tmp/t.cookie -X POST 'http://127.0.0.1:3001/api/fondamental-bridge/activate')
-echo "$ACTIVATE"
-echo "$ACTIVATE" | grep -q '"ok":true' || { echo "ÉCHEC activate"; exit 1; }
+DIAG_EMAIL="${FORGE_DIAG_EMAIL:-}"
+DIAG_PASSWORD="${FORGE_DIAG_PASSWORD:-}"
+if [ -n "$DIAG_EMAIL" ] && [ -n "$DIAG_PASSWORD" ]; then
+  rm -f /tmp/t.cookie
+  curl -s -c /tmp/t.cookie -b /tmp/t.cookie -X POST 'http://127.0.0.1:3001/api/login' \
+    -H 'Content-Type: application/json' \
+    -d "{\"email\":\"$DIAG_EMAIL\",\"password\":\"$DIAG_PASSWORD\"}"
+  echo ""
+  ACTIVATE=$(curl -s -m 25 -b /tmp/t.cookie -X POST 'http://127.0.0.1:3001/api/fondamental-bridge/activate')
+  echo "$ACTIVATE"
+  echo "$ACTIVATE" | grep -q '"ok":true' || { echo "ÉCHEC activate"; exit 1; }
 
-curl -s -m 20 -b /tmp/t.cookie -D /tmp/embed.hdr -o /tmp/embed.html \
-  'http://127.0.0.1:3001/applifonda/index.html' >/dev/null
-if grep -qi 'X-Fondamental-Gate: login' /tmp/embed.hdr; then
-  echo "ERREUR: embed retourne gate Phantom (session radar non reconnue)"
-  head -5 /tmp/embed.hdr
-  exit 1
+  curl -s -m 20 -b /tmp/t.cookie -D /tmp/embed.hdr -o /tmp/embed.html \
+    'http://127.0.0.1:3001/applifonda/index.html' >/dev/null
+  if grep -qi 'X-Fondamental-Gate: login' /tmp/embed.hdr; then
+    echo "ERREUR: embed retourne gate Phantom (session radar non reconnue)"
+    head -5 /tmp/embed.hdr
+    exit 1
+  fi
+  if grep -qi 'Connecter Phantom' /tmp/embed.html; then
+    echo "ERREUR: HTML embed contient encore gate Phantom"
+    exit 1
+  fi
+  echo "OK — embed session Premium (pas gate wallet)"
+else
+  echo "SKIP — test login local (définir FORGE_DIAG_EMAIL + FORGE_DIAG_PASSWORD)"
 fi
-if grep -qi 'Connecter Phantom' /tmp/embed.html; then
-  echo "ERREUR: HTML embed contient encore gate Phantom"
-  exit 1
-fi
-echo "OK — embed session Premium (pas gate wallet)"
 
 echo "==> SUCCÈS — Ctrl+Shift+R https://app.torinvest-trading.com/dashboard.html"
 echo "   Vérif: curl -s https://app.torinvest-trading.com/js/course-data.js | grep FORGE_TOTAL_HOURS"

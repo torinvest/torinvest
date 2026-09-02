@@ -43,36 +43,43 @@ fi
 
 echo ""
 echo "4) Test login + activation pont (API)"
-COOKIE=/tmp/fonda-diag.cookie
-rm -f "$COOKIE"
-LOGIN=$(curl -s -c "$COOKIE" -X POST 'https://app.torinvest-trading.com/api/login' \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"abonne@torinvest-trading.com","password":"Forge2026!"}')
-echo "   login: $LOGIN"
-if echo "$LOGIN" | grep -q '"ok"'; then
-  echo "   OK — login La Forge"
+DIAG_EMAIL="${FORGE_DIAG_EMAIL:-}"
+DIAG_PASSWORD="${FORGE_DIAG_PASSWORD:-}"
+if [ -z "$DIAG_EMAIL" ] || [ -z "$DIAG_PASSWORD" ]; then
+  echo "   SKIP — définir FORGE_DIAG_EMAIL + FORGE_DIAG_PASSWORD pour tester le login"
+  echo "   (comptes démo désactivés en prod si FORGE_DEMO_ENABLED≠1)"
 else
-  echo "   ERREUR — login La Forge"
-fi
-
-ACTIVATE=$(curl -s -b "$COOKIE" -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate')
-echo "   activate: $ACTIVATE"
-if echo "$ACTIVATE" | grep -q '"ok"'; then
-  echo "   OK — pont Fondamental activé"
-  EMBED=$(curl -s -o /tmp/fonda-embed.html -w "%{http_code}" -b "$COOKIE" \
-    'https://app.torinvest-trading.com/fondamental-embed/index.html')
-  echo "   embed HTTP: $EMBED"
-  if [ "$EMBED" = "200" ]; then
-    echo "   OK — modules accessibles via embed"
-    head -c 120 /tmp/fonda-embed.html; echo "..."
+  COOKIE=/tmp/fonda-diag.cookie
+  rm -f "$COOKIE"
+  LOGIN=$(curl -s -c "$COOKIE" -X POST 'https://app.torinvest-trading.com/api/login' \
+    -H 'Content-Type: application/json' \
+    -d "{\"email\":\"$DIAG_EMAIL\",\"password\":\"$DIAG_PASSWORD\"}")
+  echo "   login: $LOGIN"
+  if echo "$LOGIN" | grep -q '"ok"'; then
+    echo "   OK — login La Forge"
   else
-    echo "   ERREUR — embed retourne $EMBED (applifonda ou radar)"
-    head -c 200 /tmp/fonda-embed.html 2>/dev/null; echo
+    echo "   ERREUR — login La Forge"
   fi
-else
-  echo "   ERREUR — pont non activé = Fondamental ne peut pas s'ouvrir"
-  echo "   Causes : secret FORGE_FONDAMENTAL_BRIDGE_SECRET ≠ ai_access_hmac_secret radar"
-  echo "            ou API radar pas à jour (pull-fondamental.sh)"
+
+  ACTIVATE=$(curl -s -b "$COOKIE" -c "$COOKIE" -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate')
+  echo "   activate: $ACTIVATE"
+  if echo "$ACTIVATE" | grep -q '"ok"'; then
+    echo "   OK — pont Fondamental activé"
+    EMBED=$(curl -s -o /tmp/fonda-embed.html -w "%{http_code}" -b "$COOKIE" \
+      'https://app.torinvest-trading.com/applifonda/index.html')
+    echo "   embed HTTP: $EMBED"
+    if [ "$EMBED" = "200" ]; then
+      echo "   OK — modules accessibles via embed"
+      head -c 120 /tmp/fonda-embed.html; echo "..."
+    else
+      echo "   ERREUR — embed retourne $EMBED (applifonda ou radar)"
+      head -c 200 /tmp/fonda-embed.html 2>/dev/null; echo
+    fi
+  else
+    echo "   ERREUR — pont non activé = Fondamental ne peut pas s'ouvrir"
+    echo "   Causes : secret FORGE_FONDAMENTAL_BRIDGE_SECRET ≠ ai_access_hmac_secret radar"
+    echo "            ou API radar pas à jour (pull-fondamental.sh)"
+  fi
 fi
 
 echo ""

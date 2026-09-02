@@ -156,10 +156,15 @@ function fondamentalToken(req) {
   return req.session?.fondamentalAccessToken || readReqCookie(req, FORGE_FONDA_COOKIE) || null;
 }
 
-function storeFondamentalAccess(req, res, token, email, expiresAt) {
+function storeFondamentalAccess(req, res, token, identity, expiresAt, extra) {
+  const meta = extra && typeof extra === "object" ? extra : {};
+  const wallet = String(meta.wallet || "").trim();
+  const email = wallet ? "" : String(identity || "").trim();
   if (req.session) {
     req.session.fondamentalAccessToken = token;
-    req.session.fondamentalEmail = email;
+    req.session.fondamentalEmail = email || null;
+    req.session.fondamentalWallet = wallet || null;
+    req.session.fondamentalKrm = meta.krm != null ? meta.krm : null;
     req.session.fondamentalExpiresAt = expiresAt || null;
   }
   const maxAgeMs = 12 * 60 * 60 * 1000;
@@ -222,6 +227,50 @@ async function activateOnRadar(bridgeToken, secret) {
   }
 
   return { sessionToken, data };
+}
+
+async function radarFondaPost(body) {
+  const base = radarBaseUrl();
+  const url = base + "/api/fondamental-access.php";
+  const headers = radarFetchHeaders(base, {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  });
+  const internal = internalProvisionKey();
+  if (internal) {
+    headers["X-Forge-Fondamental-Internal"] = internal;
+  }
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body || {}),
+    signal: AbortSignal.timeout(25000),
+  });
+
+  const rawText = await res.text();
+  let data = {};
+  try {
+    data = JSON.parse(rawText);
+  } catch (_) {
+    data = { ok: false, error: "fonda_non_json", body: rawText.slice(0, 200) };
+  }
+  if (!res.ok || !data.ok) {
+    const err = new Error(data.error || "fonda_api_failed");
+    err.status = res.status;
+    err.payload = { ...data, httpStatus: res.status, radarUrl: url };
+    throw err;
+  }
+
+  let sessionToken = data.sessionToken || null;
+  if (!sessionToken && typeof res.headers.getSetCookie === "function") {
+    sessionToken = parseFondamentalCookie(res.headers.getSetCookie());
+  }
+  if (!sessionToken) {
+    sessionToken = parseFondamentalCookie(res.headers.get("set-cookie"));
+  }
+
+  return { sessionToken, data, httpStatus: res.status };
 }
 
 function createEmbedProxy() {
@@ -322,16 +371,101 @@ module.exports = function createFondamentalBridgeRouter(options) {
     if (!token) {
       return res.status(401).json({ ok: false, error: "fondamental_session_required" });
     }
+    const wallet = req.session?.fondamentalWallet || null;
+    const krm = req.session?.fondamentalKrm ?? null;
+    const email =
+      req.session?.fondamentalEmail ||
+      req.session?.user?.email ||
+      readReqCookie(req, "forge_fondamental_email") ||
+      "";
+    const expiresAt = req.session?.fondamentalExpiresAt || null;
+    if (wallet) {
+      return res.json({
+        ok: true,
+        source: "torpass",
+        wallet,
+        krm,
+        expiresAt,
+      });
+    }
     return res.json({
       ok: true,
       source: "formation",
-      email:
-        req.session?.fondamentalEmail ||
-        req.session?.user?.email ||
-        readReqCookie(req, "forge_fondamental_email") ||
-        "",
-      expiresAt: req.session?.fondamentalExpiresAt || null,
+      email,
+      expiresAt,
     });
+  });
+
+  router.post("/api/fondamental-bridge/wallet-challenge", async (req, res) => {
+    const wallet = String(req.body?.wallet || "").trim();
+    if (!wallet) {
+      return res.status(400).json({ ok: false, error: "wallet_required" });
+    }
+    try {
+      const { data } = await radarFondaPost({ action: "challenge", wallet });
+      return res.json(data);
+    } catch (e) {
+      const status = e.status && e.status >= 400 ? e.status : 502;
+      return res.status(status).json({
+        ok: false,
+        error: e.message || "wallet_challenge_failed",
+        detail: e.payload || undefined,
+      });
+    }
+  });
+
+  router.post("/api/fondamental-bridge/activate-wallet", async (req, res) => {
+    const wallet = String(req.body?.wallet || "").trim();
+    const signature = String(req.body?.signature || "");
+    const message = String(req.body?.message || "");
+    const nonce = String(req.body?.nonce || "");
+    if (!wallet || !signature || !message || !nonce) {
+      return res.status(400).json({ ok: false, error: "wallet_login_incomplete" });
+    }
+    try {
+      const activated = await radarFondaPost({
+        action: "login_wallet",
+        wallet,
+        signature,
+        message,
+        nonce,
+      });
+      if (!activated.sessionToken) {
+        return res.status(502).json({ ok: false, error: "fondamental_cookie_missing" });
+      }
+      const expiresAt = activated.data.expiresAt || null;
+      storeFondamentalAccess(req, res, activated.sessionToken, wallet, expiresAt, {
+        wallet,
+        krm: activated.data.krm,
+      });
+
+      const finish = () =>
+        res.json({
+          ok: true,
+          source: "torpass",
+          wallet,
+          krm: activated.data.krm,
+          minKrm: activated.data.minKrm,
+          expiresAt,
+        });
+
+      if (req.session && typeof req.session.save === "function") {
+        return req.session.save((err) => {
+          if (err) {
+            return res.status(500).json({ ok: false, error: "session_save_failed" });
+          }
+          return finish();
+        });
+      }
+      return finish();
+    } catch (e) {
+      const status = e.status && e.status >= 400 ? e.status : 502;
+      return res.status(status).json({
+        ok: false,
+        error: e.message || "wallet_activate_failed",
+        detail: e.payload || undefined,
+      });
+    }
   });
 
   router.post("/api/fondamental-bridge/activate", async (req, res) => {

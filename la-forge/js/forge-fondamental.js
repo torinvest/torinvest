@@ -9,6 +9,10 @@
   var FONDA_API = WWW + "/api/fondamental-access.php";
   var FONDA_APP = "/applifonda/";
 
+  function isAppHost() {
+    return location.hostname === "app.torinvest-trading.com";
+  }
+
   function setStatus(text, kind) {
     var el = document.getElementById("fonda-status");
     if (!el) return;
@@ -98,17 +102,56 @@
     try {
       return await apiJson("/api/fondamental-bridge/status", { method: "GET" });
     } catch (e) {
-      try {
-        return await apiJson(FONDA_API + "?action=ping", { method: "GET" });
-      } catch (e2) {
-        return null;
+      if (!isAppHost()) {
+        try {
+          return await apiJson(FONDA_API + "?action=ping", { method: "GET" });
+        } catch (e2) {
+          return null;
+        }
       }
+      return null;
     }
   }
 
   async function tryFormationBridge() {
     await apiJson("/api/fondamental-bridge/activate", { method: "POST" });
     return true;
+  }
+
+  async function walletChallenge(wallet) {
+    if (isAppHost()) {
+      return await apiJson("/api/fondamental-bridge/wallet-challenge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet: wallet }),
+      });
+    }
+    return await apiJson(FONDA_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "challenge", wallet: wallet }),
+    });
+  }
+
+  async function walletActivate(wallet, message, nonce, signature) {
+    var body = {
+      wallet: wallet,
+      message: message,
+      nonce: nonce,
+      signature: signature,
+    };
+    if (isAppHost()) {
+      return await apiJson("/api/fondamental-bridge/activate-wallet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+    }
+    return await apiJson(FONDA_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "login_wallet", ...body }),
+    });
   }
 
   async function openPremiumFondamental() {
@@ -141,27 +184,13 @@
 
   async function loginWalletKrm(provider, wallet) {
     setStatus("Challenge serveur KRM…", "ok");
-    var ch = await apiJson(FONDA_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "challenge", wallet: wallet }),
-    });
+    var ch = await walletChallenge(wallet);
     setStatus("Signature Phantom…", "ok");
     var encoded = new TextEncoder().encode(ch.message);
     var signed = await provider.signMessage(encoded, "utf8");
     var sig = signed.signature || signed;
     setStatus("Vérification solde KRM (serveur)…", "ok");
-    await apiJson(FONDA_API, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "login_wallet",
-        wallet: wallet,
-        message: ch.message,
-        nonce: ch.nonce,
-        signature: bytesToBase64(sig),
-      }),
-    });
+    await walletActivate(wallet, ch.message, ch.nonce, bytesToBase64(sig));
   }
 
   async function connectPhantomKrm() {

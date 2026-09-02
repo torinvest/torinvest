@@ -118,7 +118,7 @@
       pills.appendChild(a);
     });
     getMe().then(async (me) => {
-      if (!me) { window.location.href = "/la-forge/login.html"; return; }
+      if (!me) { window.location.href = "https://app.torinvest-trading.com/login.html"; return; }
       const lockedParam = new URLSearchParams(location.search).get("locked") === "1";
       if (typeof initForgeProgress === "function") {
         await initForgeProgress(me.email);
