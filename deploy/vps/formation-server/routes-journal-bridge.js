@@ -1,11 +1,11 @@
 /**
- * Pont La Forge Premium → Trading Journal Pro (PHP sur radar).
- * Proxy same-origin /journal-embed + SSO forge_sso (plus auto-login env en secours).
+ * Pont La Forge Premium → Trading Journal Pro (PHP radar).
+ * Proxy same-origin robuste : query, POST body, redirects, rewrite HTML/JS.
  */
 "use strict";
 
 const express = require("express");
-const { generateBridgeToken } = require("./fondamental-bridge-lib");
+const crypto = require("crypto");
 
 function radarBaseUrl() {
   const explicit = String(
@@ -64,18 +64,15 @@ function premiumUser(req) {
   if (!s) return null;
   const user = s.user || req.user;
   if (isPremiumSessionUser(user)) return user;
-
   const email = String(user?.email || s.email || "").trim();
   if (!email) return null;
-
   const synthetic = {
     email,
     subscribed: user?.subscribed ?? s.subscribed,
     plan: user?.plan ?? s.plan,
     name: user?.name ?? s.name,
   };
-  if (isPremiumSessionUser(synthetic)) return synthetic;
-  return null;
+  return isPremiumSessionUser(synthetic) ? synthetic : null;
 }
 
 async function premiumUserViaMe(req) {
@@ -97,7 +94,14 @@ async function premiumUserViaMe(req) {
   return null;
 }
 
+async function requirePremium(req) {
+  let user = premiumUser(req);
+  if (!user) user = await premiumUserViaMe(req);
+  return user;
+}
+
 const PHPSESS_COOKIE = "forge_tj_phpsessid";
+const EMBED_PATH = "/journal-embed/";
 
 function readReqCookie(req, name) {
   const raw = String(req.headers.cookie || "");
@@ -122,37 +126,21 @@ function looksLikeLoginPage(html) {
   const h = String(html || "");
   return (
     /name=["']login_action["']/i.test(h) ||
-    (/Trading Journal Pro/i.test(h) && /name=["']password["']/i.test(h) && /name=["']username["']/i.test(h))
+    (/Trading Journal Pro/i.test(h) &&
+      /name=["']password["']/i.test(h) &&
+      /name=["']username["']/i.test(h))
   );
-}
-
-function rewriteJournalHtml(html) {
-  let out = String(html);
-  out = out.replace(
-    /(<form[^>]*\saction=["'])\/?trading_journal\.php(["'][^>]*>)/gi,
-    "$1/journal-embed/$2"
-  );
-  out = out.replace(/(<form)([^>]*>)/gi, (full, open, rest) => {
-    if (/\saction=/i.test(rest)) return full;
-    return open + ' action="/journal-embed/"' + rest;
-  });
-  out = out.replace(/href=(["'])\/?trading_journal\.php\1/gi, 'href="/journal-embed/"');
-  return out;
 }
 
 function makeSsoToken(email) {
   const secret = bridgeSecret();
   if (!secret || !email) return null;
-  const crypto = require("crypto");
   const expiresAt = Math.floor(Date.now() / 1000) + 600;
   const payload = JSON.stringify({
     exp: expiresAt,
     nonce: crypto.randomBytes(12).toString("hex"),
     role: "client",
-    meta: {
-      source: "forge_journal_sso",
-      email: String(email || "").trim(),
-    },
+    meta: { source: "forge_journal_sso", email: String(email || "").trim() },
   });
   const b64 = Buffer.from(payload)
     .toString("base64")
@@ -161,12 +149,6 @@ function makeSsoToken(email) {
     .replace(/=+$/g, "");
   const sig = crypto.createHmac("sha256", secret).update(b64).digest("hex");
   return `${b64}.${sig}`;
-}
-
-async function requirePremium(req) {
-  let user = premiumUser(req);
-  if (!user) user = await premiumUserViaMe(req);
-  return user;
 }
 
 function storePhpSess(req, res, newSess) {
@@ -179,6 +161,125 @@ function storePhpSess(req, res, newSess) {
     maxAge: 12 * 60 * 60 * 1000,
     path: "/",
   });
+}
+
+function clientQueryString(req) {
+  const i = String(req.originalUrl || "").indexOf("?");
+  if (i < 0) return "";
+  return String(req.originalUrl).slice(i + 1);
+}
+
+function buildUpstreamUrl(req, ssoToken) {
+  const u = new URL(radarBaseUrl() + journalPhpPath());
+  const qs = clientQueryString(req);
+  if (qs) {
+    const extra = new URLSearchParams(qs);
+    for (const [k, v] of extra.entries()) {
+      if (k === "forge_sso") continue;
+      u.searchParams.append(k, v);
+    }
+  }
+  if (ssoToken) u.searchParams.set("forge_sso", ssoToken);
+  return u.toString();
+}
+
+function mapRedirectToEmbed(location) {
+  if (!location) return EMBED_PATH;
+  const loc = String(location).trim();
+
+  if (loc.startsWith("?")) {
+    return "/journal-embed/" + loc;
+  }
+
+  try {
+    const abs = new URL(loc, radarBaseUrl());
+    const isJournal =
+      /trading_journal\.php$/i.test(abs.pathname) ||
+      abs.pathname === "/" ||
+      abs.hostname.includes("radar.torinvest-trading.com");
+    if (isJournal || /trading_journal\.php/i.test(loc)) {
+      return "/journal-embed/" + (abs.search || "");
+    }
+  } catch (_) {
+    /* ignore */
+  }
+
+  if (/trading_journal\.php/i.test(loc)) {
+    const q = loc.includes("?") ? loc.slice(loc.indexOf("?")) : "";
+    return "/journal-embed/" + q;
+  }
+
+  return null;
+}
+
+function injectProxyShim(html) {
+  const shim = `<script>(function(){
+  if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
+  var P = "/journal-embed/";
+  function fix(u){
+    if (!u || typeof u !== "string") return u;
+    if (/^https?:\\/\\/radar\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(u)) {
+      var q = u.indexOf("?"); return P + (q>=0 ? u.slice(q) : "");
+    }
+    if (/^\\/?trading_journal\\.php/i.test(u)) {
+      var q2 = u.indexOf("?"); return P + (q2>=0 ? u.slice(q2) : "");
+    }
+    return u;
+  }
+  document.addEventListener("submit", function(e){
+    var f = e.target; if (!f || !f.action) return;
+    var a = fix(f.getAttribute("action") || f.action);
+    if (a && a !== f.action) f.action = a;
+  }, true);
+  var ofetch = window.fetch;
+  if (ofetch) {
+    window.fetch = function(input, init){
+      if (typeof input === "string") input = fix(input);
+      else if (input && typeof input.url === "string") {
+        try { input = new Request(fix(input.url), input); } catch(e){}
+      }
+      return ofetch.call(this, input, init);
+    };
+  }
+  var oOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(m, url){
+    arguments[1] = fix(url);
+    return oOpen.apply(this, arguments);
+  };
+})();</script>`;
+  if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, shim + "</head>");
+  if (/<body[^>]*>/i.test(html)) return html.replace(/<body([^>]*)>/i, "<body$1>" + shim);
+  return shim + html;
+}
+
+function rewriteJournalHtml(html) {
+  let out = String(html);
+  const radar = radarBaseUrl().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  out = out.replace(
+    new RegExp(`https?:\\/\\/${radar.replace(/\\\//g, "/")}\\/trading_journal\\.php`, "gi"),
+    "/journal-embed/"
+  );
+  // simpler absolute replace
+  out = out.replace(
+    /https?:\/\/radar\.torinvest-trading\.com\/trading_journal\.php/gi,
+    "/journal-embed/"
+  );
+  out = out.replace(
+    /(<form[^>]*\saction=["'])\/?trading_journal\.php([^"']*)(["'][^>]*>)/gi,
+    "$1/journal-embed/$2$3"
+  );
+  out = out.replace(/(<form)((?![^>]*\saction=)[^>]*>)/gi, '$1 action="/journal-embed/"$2');
+  out = out.replace(
+    /href=(["'])\/?trading_journal\.php([^"']*)\1/gi,
+    'href="/journal-embed/$2"'
+  );
+  out = out.replace(
+    /action=(["'])\/?trading_journal\.php([^"']*)\1/gi,
+    'action="/journal-embed/$2"'
+  );
+
+  return injectProxyShim(out);
 }
 
 async function upstreamFetch(target, method, headers, body) {
@@ -203,18 +304,40 @@ async function tryEnvAutoLogin(target, baseHeaders, phpSess) {
   const user = String(process.env.FORGE_JOURNAL_USER || process.env.TJ_USER || "").trim();
   const pass = String(process.env.FORGE_JOURNAL_PASSWORD || process.env.TJ_PASSWORD || "");
   if (!user || !pass) return null;
-
   const headers = { ...baseHeaders };
   headers["Content-Type"] = "application/x-www-form-urlencoded";
   if (phpSess) headers.Cookie = "PHPSESSID=" + phpSess;
-
   const body = new URLSearchParams({
     login_action: "1",
     username: user,
     password: pass,
   }).toString();
-
   return upstreamFetch(target, "POST", headers, body);
+}
+
+function readRawBody(req) {
+  return new Promise((resolve, reject) => {
+    if (Buffer.isBuffer(req.body)) return resolve(req.body);
+    if (typeof req.body === "string") return resolve(Buffer.from(req.body));
+    // already parsed object — re-encode
+    if (req.body && typeof req.body === "object" && Object.keys(req.body).length) {
+      const ctype = String(req.headers["content-type"] || "");
+      if (ctype.includes("application/json")) {
+        return resolve(Buffer.from(JSON.stringify(req.body)));
+      }
+      return resolve(
+        Buffer.from(
+          new URLSearchParams(
+            Object.entries(req.body).map(([k, v]) => [k, v == null ? "" : String(v)])
+          ).toString()
+        )
+      );
+    }
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
 }
 
 function createPhpProxy() {
@@ -231,70 +354,70 @@ function createPhpProxy() {
       );
     }
 
-    const radar = radarBaseUrl();
-    const phpPath = journalPhpPath();
-    let target = radar + phpPath;
-
     let phpSess =
       (req.session && req.session.tjPhpSessid) || readReqCookie(req, PHPSESS_COOKIE) || "";
 
     const method = (req.method || "GET").toUpperCase();
-    const upstreamHeaders = radarFetchHeaders(radar, {
-      Accept: req.headers.accept || "text/html,application/xhtml+xml,*/*",
+    const sso = makeSsoToken(user.email);
+    const target = buildUpstreamUrl(req, method === "GET" || method === "HEAD" ? sso : null);
+
+    const upstreamHeaders = radarFetchHeaders(radarBaseUrl(), {
+      Accept: req.headers.accept || "text/html,application/xhtml+xml,application/json,*/*",
       "User-Agent": req.headers["user-agent"] || "TorInvest-Journal-Proxy",
     });
-
-    const sso = makeSsoToken(user.email);
-    if (sso) {
-      upstreamHeaders["X-Forge-Journal-Sso"] = sso;
-      if (method === "GET" || method === "HEAD") {
-        const u = new URL(target);
-        u.searchParams.set("forge_sso", sso);
-        target = u.toString();
-      }
-    }
-
-    if (phpSess) {
-      upstreamHeaders.Cookie = "PHPSESSID=" + phpSess;
-    }
+    if (sso) upstreamHeaders["X-Forge-Journal-Sso"] = sso;
+    if (phpSess) upstreamHeaders.Cookie = "PHPSESSID=" + phpSess;
 
     let body;
-    if (method === "POST" || method === "PUT" || method === "PATCH") {
-      const ctype = String(req.headers["content-type"] || "");
-      upstreamHeaders["Content-Type"] = ctype || "application/x-www-form-urlencoded";
-      if (Buffer.isBuffer(req.body)) {
-        body = req.body;
-      } else if (typeof req.body === "string") {
-        body = req.body;
-      } else if (req.body && typeof req.body === "object") {
-        if (ctype.includes("application/json")) {
-          body = JSON.stringify(req.body);
-        } else {
-          body = new URLSearchParams(
-            Object.entries(req.body).map(([k, v]) => [k, v == null ? "" : String(v)])
-          ).toString();
-          upstreamHeaders["Content-Type"] = "application/x-www-form-urlencoded";
+    if (method !== "GET" && method !== "HEAD") {
+      const ctype = String(req.headers["content-type"] || "application/x-www-form-urlencoded");
+      upstreamHeaders["Content-Type"] = ctype;
+      try {
+        body = await readRawBody(req);
+        if (body && body.length) {
+          upstreamHeaders["Content-Length"] = String(body.length);
+        }
+      } catch (e) {
+        body = undefined;
+      }
+      // POST also needs SSO in query for session refresh
+      if (sso) {
+        const u = new URL(target);
+        u.searchParams.set("forge_sso", sso);
+        // rebuild — buildUpstreamUrl already used; add sso for POST
+      }
+    }
+
+    let finalTarget = target;
+    if (sso && method !== "GET" && method !== "HEAD") {
+      const u = new URL(radarBaseUrl() + journalPhpPath());
+      const qs = clientQueryString(req);
+      if (qs) {
+        const extra = new URLSearchParams(qs);
+        for (const [k, v] of extra.entries()) {
+          if (k !== "forge_sso") u.searchParams.append(k, v);
         }
       }
+      u.searchParams.set("forge_sso", sso);
+      finalTarget = u.toString();
     }
 
     try {
-      let result = await upstreamFetch(target, method, upstreamHeaders, body);
+      let result = await upstreamFetch(finalTarget, method, upstreamHeaders, body);
       storePhpSess(req, res, result.newSess);
       if (result.newSess) phpSess = result.newSess;
 
       if (result.upstream.status >= 300 && result.upstream.status < 400) {
         const loc = result.upstream.headers.get("location") || "";
-        if (/trading_journal\.php/i.test(loc) || loc === "/" || loc === phpPath) {
-          res.redirect(302, "/journal-embed/");
+        const mapped = mapRedirectToEmbed(loc);
+        if (mapped) {
+          res.redirect(302, mapped.replace(/([^:]\/)\/+/g, "$1"));
           return;
         }
       }
 
-      let html =
-        result.ctype.includes("text/html") ? result.buf.toString("utf8") : null;
+      let html = result.ctype.includes("text/html") ? result.buf.toString("utf8") : null;
 
-      // SSO pas encore patché côté PHP → auto-login admin via env (une fois)
       if (
         html &&
         looksLikeLoginPage(html) &&
@@ -302,7 +425,11 @@ function createPhpProxy() {
         !req.session?.tjAutoLoginTried
       ) {
         if (req.session) req.session.tjAutoLoginTried = true;
-        const auto = await tryEnvAutoLogin(radar + phpPath, upstreamHeaders, phpSess);
+        const auto = await tryEnvAutoLogin(
+          radarBaseUrl() + journalPhpPath(),
+          upstreamHeaders,
+          phpSess
+        );
         if (auto) {
           storePhpSess(req, res, auto.newSess);
           result = auto;
@@ -314,9 +441,8 @@ function createPhpProxy() {
       res.setHeader("Content-Type", result.ctype);
       res.setHeader("Cache-Control", "private, no-store");
 
-      if (html != null) {
-        return res.send(rewriteJournalHtml(html));
-      }
+      // JSON APIs éventuelles — ne pas réécrire
+      if (html != null) return res.send(rewriteJournalHtml(html));
       return res.send(result.buf);
     } catch (e) {
       return res
@@ -326,12 +452,24 @@ function createPhpProxy() {
   };
 }
 
-module.exports = function createJournalBridgeRouter(options) {
+module.exports = function createJournalBridgeRouter() {
   const router = express.Router();
   const proxy = createPhpProxy();
 
-  router.use(["/journal-embed", "/appjournal"], express.urlencoded({ extended: true }));
-  router.use(["/journal-embed", "/appjournal"], express.json());
+  // Ne pas parser avant : on lit le body brut pour ne rien perdre (multipart / fields)
+  router.use(["/journal-embed", "/appjournal"], (req, res, next) => {
+    if (req.method === "GET" || req.method === "HEAD") return next();
+    if (req._body === true || Buffer.isBuffer(req.body) || typeof req.body === "string") {
+      return next();
+    }
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => {
+      req.body = Buffer.concat(chunks);
+      next();
+    });
+    req.on("error", next);
+  });
 
   router.get("/api/journal-bridge/ping", (req, res) => {
     res.json({
@@ -340,47 +478,36 @@ module.exports = function createJournalBridgeRouter(options) {
       app: "trading_journal_pro",
       upstream: radarBaseUrl() + journalPhpPath(),
       sso: !!bridgeSecret(),
-      autoLoginEnv: !!(
-        process.env.FORGE_JOURNAL_PASSWORD || process.env.TJ_PASSWORD
-      ),
+      autoLoginEnv: !!(process.env.FORGE_JOURNAL_PASSWORD || process.env.TJ_PASSWORD),
     });
   });
 
   router.get("/api/journal-bridge/status", async (req, res) => {
     const user = await requirePremium(req);
-    if (!user?.email) {
-      return res.json({ ok: false, active: false, premium: false });
-    }
+    if (!user?.email) return res.json({ ok: false, active: false, premium: false });
     return res.json({
       ok: true,
       active: true,
       premium: true,
       email: user.email,
-      embed: "/journal-embed/",
+      embed: EMBED_PATH,
     });
   });
 
   router.post("/api/journal-bridge/activate", async (req, res) => {
     const user = await requirePremium(req);
     if (!user?.email) {
-      return res.status(403).json({
-        ok: false,
-        error: "premium_required",
-        hint: "Connexion La Forge Premium requise pour le Trading Journal.",
-      });
+      return res.status(403).json({ ok: false, error: "premium_required" });
     }
-    return res.json({
-      ok: true,
-      email: user.email,
-      embed: "/journal-embed/",
-      note: "sso_or_proxy",
-    });
+    return res.json({ ok: true, email: user.email, embed: EMBED_PATH });
   });
 
   router.all("/journal-embed", proxy);
   router.all("/journal-embed/", proxy);
+  router.all("/journal-embed/*", proxy);
   router.all("/appjournal", proxy);
   router.all("/appjournal/", proxy);
+  router.all("/appjournal/*", proxy);
 
   return router;
 };
