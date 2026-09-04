@@ -1,11 +1,11 @@
 /**
  * Pont La Forge Premium → Trading Journal Pro (PHP sur radar).
- * Proxy same-origin /journal-embed → https://radar…/trading_journal.php
- * (évite le CSP Helmet frame-src qui bloque les iframes cross-origin)
+ * Proxy same-origin /journal-embed + SSO forge_sso (plus auto-login env en secours).
  */
 "use strict";
 
 const express = require("express");
+const { generateBridgeToken } = require("./fondamental-bridge-lib");
 
 function radarBaseUrl() {
   const explicit = String(
@@ -20,6 +20,15 @@ function radarBaseUrl() {
 
 function journalPhpPath() {
   return String(process.env.FORGE_JOURNAL_PHP_PATH || "/trading_journal.php");
+}
+
+function bridgeSecret() {
+  return String(
+    process.env.FORGE_JOURNAL_BRIDGE_SECRET ||
+      process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET ||
+      process.env.AI_ACCESS_HMAC_SECRET ||
+      ""
+  );
 }
 
 function radarHostHeader(baseUrl) {
@@ -109,9 +118,16 @@ function parsePhpSessid(setCookieHeaders) {
   return null;
 }
 
+function looksLikeLoginPage(html) {
+  const h = String(html || "");
+  return (
+    /name=["']login_action["']/i.test(h) ||
+    (/Trading Journal Pro/i.test(h) && /name=["']password["']/i.test(h) && /name=["']username["']/i.test(h))
+  );
+}
+
 function rewriteJournalHtml(html) {
   let out = String(html);
-  // Garder les POST dans le proxy same-origin
   out = out.replace(
     /(<form[^>]*\saction=["'])\/?trading_journal\.php(["'][^>]*>)/gi,
     "$1/journal-embed/$2"
@@ -120,18 +136,85 @@ function rewriteJournalHtml(html) {
     if (/\saction=/i.test(rest)) return full;
     return open + ' action="/journal-embed/"' + rest;
   });
-  // Liens relatifs éventuels
-  out = out.replace(
-    /href=(["'])\/?trading_journal\.php\1/gi,
-    'href="/journal-embed/"'
-  );
+  out = out.replace(/href=(["'])\/?trading_journal\.php\1/gi, 'href="/journal-embed/"');
   return out;
+}
+
+function makeSsoToken(email) {
+  const secret = bridgeSecret();
+  if (!secret || !email) return null;
+  const crypto = require("crypto");
+  const expiresAt = Math.floor(Date.now() / 1000) + 600;
+  const payload = JSON.stringify({
+    exp: expiresAt,
+    nonce: crypto.randomBytes(12).toString("hex"),
+    role: "client",
+    meta: {
+      source: "forge_journal_sso",
+      email: String(email || "").trim(),
+    },
+  });
+  const b64 = Buffer.from(payload)
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/g, "");
+  const sig = crypto.createHmac("sha256", secret).update(b64).digest("hex");
+  return `${b64}.${sig}`;
 }
 
 async function requirePremium(req) {
   let user = premiumUser(req);
   if (!user) user = await premiumUserViaMe(req);
   return user;
+}
+
+function storePhpSess(req, res, newSess) {
+  if (!newSess) return;
+  if (req.session) req.session.tjPhpSessid = newSess;
+  res.cookie(PHPSESS_COOKIE, newSess, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    maxAge: 12 * 60 * 60 * 1000,
+    path: "/",
+  });
+}
+
+async function upstreamFetch(target, method, headers, body) {
+  const upstream = await fetch(target, {
+    method,
+    headers,
+    body: method === "GET" || method === "HEAD" ? undefined : body,
+    redirect: "manual",
+    signal: AbortSignal.timeout(60000),
+  });
+  let newSess = null;
+  if (typeof upstream.headers.getSetCookie === "function") {
+    newSess = parsePhpSessid(upstream.headers.getSetCookie());
+  }
+  if (!newSess) newSess = parsePhpSessid(upstream.headers.get("set-cookie"));
+  const buf = Buffer.from(await upstream.arrayBuffer());
+  const ctype = String(upstream.headers.get("content-type") || "text/html; charset=utf-8");
+  return { upstream, newSess, buf, ctype };
+}
+
+async function tryEnvAutoLogin(target, baseHeaders, phpSess) {
+  const user = String(process.env.FORGE_JOURNAL_USER || process.env.TJ_USER || "").trim();
+  const pass = String(process.env.FORGE_JOURNAL_PASSWORD || process.env.TJ_PASSWORD || "");
+  if (!user || !pass) return null;
+
+  const headers = { ...baseHeaders };
+  headers["Content-Type"] = "application/x-www-form-urlencoded";
+  if (phpSess) headers.Cookie = "PHPSESSID=" + phpSess;
+
+  const body = new URLSearchParams({
+    login_action: "1",
+    username: user,
+    password: pass,
+  }).toString();
+
+  return upstreamFetch(target, "POST", headers, body);
 }
 
 function createPhpProxy() {
@@ -150,9 +233,9 @@ function createPhpProxy() {
 
     const radar = radarBaseUrl();
     const phpPath = journalPhpPath();
-    const target = radar + phpPath;
+    let target = radar + phpPath;
 
-    const phpSess =
+    let phpSess =
       (req.session && req.session.tjPhpSessid) || readReqCookie(req, PHPSESS_COOKIE) || "";
 
     const method = (req.method || "GET").toUpperCase();
@@ -160,6 +243,17 @@ function createPhpProxy() {
       Accept: req.headers.accept || "text/html,application/xhtml+xml,*/*",
       "User-Agent": req.headers["user-agent"] || "TorInvest-Journal-Proxy",
     });
+
+    const sso = makeSsoToken(user.email);
+    if (sso) {
+      upstreamHeaders["X-Forge-Journal-Sso"] = sso;
+      if (method === "GET" || method === "HEAD") {
+        const u = new URL(target);
+        u.searchParams.set("forge_sso", sso);
+        target = u.toString();
+      }
+    }
+
     if (phpSess) {
       upstreamHeaders.Cookie = "PHPSESSID=" + phpSess;
     }
@@ -168,10 +262,6 @@ function createPhpProxy() {
     if (method === "POST" || method === "PUT" || method === "PATCH") {
       const ctype = String(req.headers["content-type"] || "");
       upstreamHeaders["Content-Type"] = ctype || "application/x-www-form-urlencoded";
-      if (req.readable && !req.readableEnded && req.body == null) {
-        // raw body via express may already be parsed; fall back
-        body = undefined;
-      }
       if (Buffer.isBuffer(req.body)) {
         body = req.body;
       } else if (typeof req.body === "string") {
@@ -189,51 +279,45 @@ function createPhpProxy() {
     }
 
     try {
-      const upstream = await fetch(target, {
-        method,
-        headers: upstreamHeaders,
-        body: method === "GET" || method === "HEAD" ? undefined : body,
-        redirect: "manual",
-        signal: AbortSignal.timeout(60000),
-      });
+      let result = await upstreamFetch(target, method, upstreamHeaders, body);
+      storePhpSess(req, res, result.newSess);
+      if (result.newSess) phpSess = result.newSess;
 
-      let newSess = null;
-      if (typeof upstream.headers.getSetCookie === "function") {
-        newSess = parsePhpSessid(upstream.headers.getSetCookie());
-      }
-      if (!newSess) {
-        newSess = parsePhpSessid(upstream.headers.get("set-cookie"));
-      }
-      if (newSess) {
-        if (req.session) req.session.tjPhpSessid = newSess;
-        res.cookie(PHPSESS_COOKIE, newSess, {
-          httpOnly: true,
-          secure: true,
-          sameSite: "lax",
-          maxAge: 12 * 60 * 60 * 1000,
-          path: "/",
-        });
-      }
-
-      // Follow one redirect to same journal if needed
-      if (upstream.status >= 300 && upstream.status < 400) {
-        const loc = upstream.headers.get("location") || "";
+      if (result.upstream.status >= 300 && result.upstream.status < 400) {
+        const loc = result.upstream.headers.get("location") || "";
         if (/trading_journal\.php/i.test(loc) || loc === "/" || loc === phpPath) {
           res.redirect(302, "/journal-embed/");
           return;
         }
       }
 
-      res.status(upstream.status);
-      const ctype = String(upstream.headers.get("content-type") || "text/html; charset=utf-8");
-      res.setHeader("Content-Type", ctype);
+      let html =
+        result.ctype.includes("text/html") ? result.buf.toString("utf8") : null;
+
+      // SSO pas encore patché côté PHP → auto-login admin via env (une fois)
+      if (
+        html &&
+        looksLikeLoginPage(html) &&
+        method === "GET" &&
+        !req.session?.tjAutoLoginTried
+      ) {
+        if (req.session) req.session.tjAutoLoginTried = true;
+        const auto = await tryEnvAutoLogin(radar + phpPath, upstreamHeaders, phpSess);
+        if (auto) {
+          storePhpSess(req, res, auto.newSess);
+          result = auto;
+          html = auto.ctype.includes("text/html") ? auto.buf.toString("utf8") : null;
+        }
+      }
+
+      res.status(result.upstream.status);
+      res.setHeader("Content-Type", result.ctype);
       res.setHeader("Cache-Control", "private, no-store");
 
-      const buf = Buffer.from(await upstream.arrayBuffer());
-      if (ctype.includes("text/html")) {
-        return res.send(rewriteJournalHtml(buf.toString("utf8")));
+      if (html != null) {
+        return res.send(rewriteJournalHtml(html));
       }
-      return res.send(buf);
+      return res.send(result.buf);
     } catch (e) {
       return res
         .status(502)
@@ -243,11 +327,9 @@ function createPhpProxy() {
 }
 
 module.exports = function createJournalBridgeRouter(options) {
-  const opts = options || {};
   const router = express.Router();
   const proxy = createPhpProxy();
 
-  // Body parser for journal POSTs (login form) — only on embed paths
   router.use(["/journal-embed", "/appjournal"], express.urlencoded({ extended: true }));
   router.use(["/journal-embed", "/appjournal"], express.json());
 
@@ -257,6 +339,10 @@ module.exports = function createJournalBridgeRouter(options) {
       mounted: true,
       app: "trading_journal_pro",
       upstream: radarBaseUrl() + journalPhpPath(),
+      sso: !!bridgeSecret(),
+      autoLoginEnv: !!(
+        process.env.FORGE_JOURNAL_PASSWORD || process.env.TJ_PASSWORD
+      ),
     });
   });
 
@@ -274,7 +360,6 @@ module.exports = function createJournalBridgeRouter(options) {
     });
   });
 
-  // Compat : plus besoin d'activate HMAC pour le PHP journal
   router.post("/api/journal-bridge/activate", async (req, res) => {
     const user = await requirePremium(req);
     if (!user?.email) {
@@ -288,7 +373,7 @@ module.exports = function createJournalBridgeRouter(options) {
       ok: true,
       email: user.email,
       embed: "/journal-embed/",
-      note: "proxy_php_radar",
+      note: "sso_or_proxy",
     });
   });
 

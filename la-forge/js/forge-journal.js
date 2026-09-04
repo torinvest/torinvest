@@ -87,10 +87,7 @@
       return;
     }
 
-    setStatus(
-      "Session Premium OK — Trading Journal Pro (login journal si demandé).",
-      "ok"
-    );
+    setStatus("Ouverture automatique — session La Forge Premium.", "ok");
     showFrame();
   }
 
