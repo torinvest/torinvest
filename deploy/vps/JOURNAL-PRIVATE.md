@@ -1,55 +1,54 @@
 # Trading Journal Pro — intégration La Forge
 
-## Source live (réelle)
+## Source live
 
-- URL : https://radar.torinvest-trading.com/trading_journal.php
-- Fichier VPS : `/var/www/torinvest/trading_journal.php` (hors repo Git public)
-- Auth propre : login **Trading Journal Pro** (identifiant / mot de passe journal)
-- Local Laragon (copie) : `C:\laragon\www\autoresearch-main\trading_journal.php`
+- URL radar : https://radar.torinvest-trading.com/trading_journal.php
+- Fichier VPS : `/var/www/torinvest/trading_journal.php`
+- Local Laragon : `C:\laragon\www\autoresearch-main\trading_journal.php`
 
-Ce n’est **pas** le fichier statique `C:\laragon\www\torinvest-journal\trading-journal.html`.
+## Pourquoi pas d’iframe radar directe ?
 
-## Hub formation
+Helmet sur `app.torinvest-trading.com` a :
 
-- https://app.torinvest-trading.com/journal.html
-- Gate : session **La Forge Premium**
-- Iframe → `trading_journal.php` sur radar (comme Fondamental ouvre applifonda)
+`frame-src 'self' https://www.tradingview.com`
 
-## Déployer le hub (VPS ubuntu)
+→ l’iframe vers radar est **bloquée** (« Ce contenu a été bloqué »).
 
-```bash
-curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/deploy-la-forge-full.sh" \
-  | bash -s -- /home/ubuntu/torinvest-formation
-pm2 restart la-forge --update-env
+## Solution
+
+Proxy same-origin :
+
+```
+/journal-embed/  →  https://radar.torinvest-trading.com/trading_journal.php
 ```
 
-Ou pull partiel :
+Gate Premium La Forge → iframe `/journal-embed/` (passe le CSP).
+
+## Déployer (VPS ubuntu)
 
 ```bash
 APP=/home/ubuntu/torinvest-formation
-curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/la-forge/js/forge-journal.js" \
+REF=main   # ou cursor/journal-radar-embed-691a si pas encore mergé
+
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/formation-server/routes-journal-bridge.js" \
+  -o "$APP/server-patches/routes-journal-bridge.js"
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/la-forge/js/forge-journal.js" \
   -o "$APP/public/js/forge-journal.js"
-curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/app-shells/journal.html" \
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/app-shells/journal.html" \
   -o "$APP/public/journal.html"
+
+# optionnel secours CSP
+node "$APP/deploy/vps/patch-helmet-journal-frames.js" "$APP" 2>/dev/null || \
+  curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/patch-helmet-journal-frames.js" | node - "$APP"
+
 pm2 restart la-forge --update-env
 ```
 
-## Mettre à jour le PHP journal sur radar
-
-Depuis le PC (Laragon) :
-
-```powershell
-scp "C:\laragon\www\autoresearch-main\trading_journal.php" ubuntu@vps-eb3cfb2f:/tmp/trading_journal.php
-```
-
-Sur le VPS :
+Test :
 
 ```bash
-sudo mv /tmp/trading_journal.php /var/www/torinvest/trading_journal.php
-sudo chown www-data:www-data /var/www/torinvest/trading_journal.php
+curl -s https://app.torinvest-trading.com/api/journal-bridge/ping
+# → upstream trading_journal.php
 ```
 
-## SSO (plus tard, optionnel)
-
-Aujourd’hui : 2 logins (La Forge + Journal Pro).  
-Plus tard : accepter la session formation (bridge) pour skip le login Journal.
+Puis Ctrl+Shift+R https://app.torinvest-trading.com/journal.html
