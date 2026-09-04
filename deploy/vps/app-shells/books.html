@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Livres — Espace La Forge</title>
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <style>
+    .books-hero { margin-bottom: 1.25rem; }
+    .books-hero h1 { margin: 0.2rem 0; color: var(--gold); font-size: 1.35rem; }
+    .books-hero p { color: var(--muted); font-size: 0.92rem; margin: 0.4rem 0 0; line-height: 1.55; max-width: 42rem; }
+    .books-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin: 1rem 0 1.25rem;
+    }
+    .books-toolbar input {
+      flex: 1 1 220px;
+      min-width: 180px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.92rem;
+    }
+    .books-meta { color: var(--muted); font-size: 0.85rem; }
+    #books-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .book-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel2);
+      padding: 1rem 1.05rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      min-height: 100%;
+    }
+    .book-card h3 {
+      margin: 0;
+      font-size: 1.02rem;
+      line-height: 1.35;
+      color: var(--text);
+    }
+    .book-author { margin: 0.35rem 0 0; color: var(--muted); font-size: 0.88rem; }
+    .book-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.65rem; }
+    .book-tag {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 215, 0, 0.28);
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.06);
+    }
+    .book-card-actions { margin-top: auto; }
+    .books-empty { color: var(--muted); }
+    #books-locked {
+      margin-bottom: 1rem;
+      border-color: rgba(255, 180, 0, 0.35);
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="books"></header>
+
+  <div class="container">
+    <div class="books-hero">
+      <span class="forge-hero-tag">Espace membre · bibliothèque</span>
+      <h1>Livres</h1>
+      <p>
+        Sélection pédagogique (trading, monnaie, macro, psychologie) — PDF réservés
+        aux abonnés <strong>La Forge Premium</strong>.
+      </p>
+    </div>
+
+    <div id="books-locked" class="alert alert-warn" hidden>
+      Ouverture des PDF réservée aux abonnés Premium.
+      <a href="https://www.torinvest-trading.com/la-forge/pricing.html">Voir les offres</a>
+      · tu peux parcourir le catalogue en lecture seule.
+    </div>
+
+    <div class="books-toolbar">
+      <input id="books-search" type="search" placeholder="Rechercher un titre, auteur, thème…" autocomplete="off" />
+      <span class="books-meta"><span id="books-count">0</span> ouvrage(s)</span>
+    </div>
+
+    <div id="books-list"></div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=6"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/books-data.js?v=1"></script>
+  <script src="/js/forge-books.js?v=1"></script>
+</body>
+</html>
