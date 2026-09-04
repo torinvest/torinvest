@@ -1,11 +1,12 @@
 /**
- * La Forge — hub Trading Journal (Trading Journal Pro sur radar).
- * Accès hub : Premium La Forge. App : https://radar.torinvest-trading.com/trading_journal.php
+ * La Forge — hub Trading Journal Pro (proxy same-origin → radar PHP).
+ * CSP Helmet bloque les iframes radar : on passe par /journal-embed/
  */
 (function () {
   "use strict";
 
-  var JOURNAL_APP = "https://radar.torinvest-trading.com/trading_journal.php";
+  var JOURNAL_APP = "/journal-embed/";
+  var JOURNAL_TAB = "https://radar.torinvest-trading.com/trading_journal.php";
 
   function setStatus(text, kind) {
     var el = document.getElementById("journal-status");
@@ -33,7 +34,7 @@
     var wrap = document.getElementById("journal-frame-wrap");
     var frame = document.getElementById("journal-frame");
     if (wrap) wrap.hidden = false;
-    if (frame && frame.src !== JOURNAL_APP) frame.src = JOURNAL_APP;
+    if (frame) frame.src = JOURNAL_APP;
   }
 
   function isPremiumMe(me) {
@@ -71,7 +72,7 @@
     if (openBtn) openBtn.hidden = !premium;
     if (openTab) {
       openTab.hidden = !premium;
-      openTab.href = JOURNAL_APP;
+      openTab.href = JOURNAL_TAB;
     }
 
     if (!me) {
@@ -87,7 +88,7 @@
     }
 
     setStatus(
-      "Session La Forge Premium OK — connecte-toi ensuite à Trading Journal Pro si demandé.",
+      "Session Premium OK — Trading Journal Pro (login journal si demandé).",
       "ok"
     );
     showFrame();

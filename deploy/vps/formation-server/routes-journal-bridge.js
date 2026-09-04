@@ -1,21 +1,11 @@
 /**
- * Pont La Forge Premium → Trading Journal (session radar + embed same-origin).
- * Secret : FORGE_FONDAMENTAL_BRIDGE_SECRET (= ai_access_hmac_secret radar).
+ * Pont La Forge Premium → Trading Journal Pro (PHP sur radar).
+ * Proxy same-origin /journal-embed → https://radar…/trading_journal.php
+ * (évite le CSP Helmet frame-src qui bloque les iframes cross-origin)
  */
 "use strict";
 
 const express = require("express");
-const { generateBridgeToken } = require("./fondamental-bridge-lib");
-
-function bridgeSecret(opts) {
-  return String(
-    opts.bridgeSecret ||
-      process.env.FORGE_JOURNAL_BRIDGE_SECRET ||
-      process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET ||
-      process.env.AI_ACCESS_HMAC_SECRET ||
-      ""
-  );
-}
 
 function radarBaseUrl() {
   const explicit = String(
@@ -26,6 +16,10 @@ function radarBaseUrl() {
   ).replace(/\/$/, "");
   if (explicit) return explicit;
   return "https://radar.torinvest-trading.com";
+}
+
+function journalPhpPath() {
+  return String(process.env.FORGE_JOURNAL_PHP_PATH || "/trading_journal.php");
 }
 
 function radarHostHeader(baseUrl) {
@@ -94,17 +88,7 @@ async function premiumUserViaMe(req) {
   return null;
 }
 
-function parseJournalCookie(setCookieHeaders) {
-  const list = Array.isArray(setCookieHeaders) ? setCookieHeaders : [setCookieHeaders];
-  for (const raw of list) {
-    if (!raw) continue;
-    const m = String(raw).match(/torinvest_journal=([^;]+)/);
-    if (m) return m[1];
-  }
-  return null;
-}
-
-const FORGE_JOURNAL_COOKIE = "forge_journal_embed";
+const PHPSESS_COOKIE = "forge_tj_phpsessid";
 
 function readReqCookie(req, name) {
   const raw = String(req.headers.cookie || "");
@@ -115,144 +99,145 @@ function readReqCookie(req, name) {
   return m ? decodeURIComponent(m[1]) : null;
 }
 
-function journalToken(req) {
-  return req.session?.journalAccessToken || readReqCookie(req, FORGE_JOURNAL_COOKIE) || null;
+function parsePhpSessid(setCookieHeaders) {
+  const list = Array.isArray(setCookieHeaders) ? setCookieHeaders : [setCookieHeaders];
+  for (const raw of list) {
+    if (!raw) continue;
+    const m = String(raw).match(/PHPSESSID=([^;]+)/i);
+    if (m) return m[1];
+  }
+  return null;
 }
 
-function storeJournalAccess(req, res, token, email, expiresAt) {
-  if (req.session) {
-    req.session.journalAccessToken = token;
-    req.session.journalEmail = String(email || "").trim() || null;
-    req.session.journalExpiresAt = expiresAt || null;
-  }
-  res.cookie(FORGE_JOURNAL_COOKIE, token, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "lax",
-    maxAge: 12 * 60 * 60 * 1000,
-    path: "/",
+function rewriteJournalHtml(html) {
+  let out = String(html);
+  // Garder les POST dans le proxy same-origin
+  out = out.replace(
+    /(<form[^>]*\saction=["'])\/?trading_journal\.php(["'][^>]*>)/gi,
+    "$1/journal-embed/$2"
+  );
+  out = out.replace(/(<form)([^>]*>)/gi, (full, open, rest) => {
+    if (/\saction=/i.test(rest)) return full;
+    return open + ' action="/journal-embed/"' + rest;
   });
+  // Liens relatifs éventuels
+  out = out.replace(
+    /href=(["'])\/?trading_journal\.php\1/gi,
+    'href="/journal-embed/"'
+  );
+  return out;
 }
 
-async function activateOnRadar(bridgeToken) {
-  const base = radarBaseUrl();
-  const url = base + "/api/journal-access.php";
-  const headers = radarFetchHeaders(base, {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  });
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      action: "login_formation_bridge",
-      bridgeToken,
-    }),
-    signal: AbortSignal.timeout(25000),
-  });
-
-  const rawText = await res.text();
-  let data = {};
-  try {
-    data = JSON.parse(rawText);
-  } catch (_) {
-    data = { ok: false, error: "bridge_non_json", body: rawText.slice(0, 200) };
-  }
-  if (!res.ok || !data.ok) {
-    const err = new Error(data.error || "bridge_activate_failed");
-    err.status = res.status;
-    err.payload = { ...data, httpStatus: res.status, radarUrl: url };
-    throw err;
-  }
-
-  let sessionToken = data.sessionToken || null;
-  if (!sessionToken && typeof res.headers.getSetCookie === "function") {
-    sessionToken = parseJournalCookie(res.headers.getSetCookie());
-  }
-  if (!sessionToken) {
-    sessionToken = parseJournalCookie(res.headers.get("set-cookie"));
-  }
-  if (!sessionToken) {
-    const err = new Error("journal_cookie_missing");
-    err.payload = data;
-    throw err;
-  }
-
-  return { sessionToken, data };
+async function requirePremium(req) {
+  let user = premiumUser(req);
+  if (!user) user = await premiumUserViaMe(req);
+  return user;
 }
 
-function createEmbedProxy() {
-  return async function embedProxy(req, res) {
-    const token = journalToken(req);
-    if (!token) {
-      res.status(401);
-      res.setHeader("Content-Type", "text/plain; charset=utf-8");
-      return res.send("Session Journal requise — rechargez depuis La Forge (Premium).");
+function createPhpProxy() {
+  return async function phpProxy(req, res) {
+    const user = await requirePremium(req);
+    if (!user?.email) {
+      res.status(403);
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.send(
+        "<!doctype html><html lang=fr><body style='font-family:system-ui;padding:2rem'>" +
+          "<p>Session La Forge Premium requise.</p>" +
+          "<p><a href='/login.html?next=%2Fjournal.html'>Connexion</a></p>" +
+          "</body></html>"
+      );
     }
-
-    let subPath = req.path || "/";
-    if (subPath === "/" || subPath === "") {
-      subPath = "/index.html";
-    }
-    subPath = subPath.replace(/^\//, "");
 
     const radar = radarBaseUrl();
-    const query = new URLSearchParams();
-    query.set("path", subPath);
-    query.set("access_token", token);
-    const rawQs = req.originalUrl.includes("?")
-      ? req.originalUrl.slice(req.originalUrl.indexOf("?") + 1)
-      : "";
-    if (rawQs) {
-      const extra = new URLSearchParams(rawQs);
-      for (const [k, v] of extra.entries()) {
-        if (k !== "path") query.append(k, v);
-      }
+    const phpPath = journalPhpPath();
+    const target = radar + phpPath;
+
+    const phpSess =
+      (req.session && req.session.tjPhpSessid) || readReqCookie(req, PHPSESS_COOKIE) || "";
+
+    const method = (req.method || "GET").toUpperCase();
+    const upstreamHeaders = radarFetchHeaders(radar, {
+      Accept: req.headers.accept || "text/html,application/xhtml+xml,*/*",
+      "User-Agent": req.headers["user-agent"] || "TorInvest-Journal-Proxy",
+    });
+    if (phpSess) {
+      upstreamHeaders.Cookie = "PHPSESSID=" + phpSess;
     }
 
-    const target = `${radar}/api/journal-serve.php?${query.toString()}`;
-    const upstreamHeaders = radarFetchHeaders(radar, {
-      Accept: req.headers.accept || "*/*",
-      Cookie: `torinvest_journal=${token}`,
-    });
+    let body;
+    if (method === "POST" || method === "PUT" || method === "PATCH") {
+      const ctype = String(req.headers["content-type"] || "");
+      upstreamHeaders["Content-Type"] = ctype || "application/x-www-form-urlencoded";
+      if (req.readable && !req.readableEnded && req.body == null) {
+        // raw body via express may already be parsed; fall back
+        body = undefined;
+      }
+      if (Buffer.isBuffer(req.body)) {
+        body = req.body;
+      } else if (typeof req.body === "string") {
+        body = req.body;
+      } else if (req.body && typeof req.body === "object") {
+        if (ctype.includes("application/json")) {
+          body = JSON.stringify(req.body);
+        } else {
+          body = new URLSearchParams(
+            Object.entries(req.body).map(([k, v]) => [k, v == null ? "" : String(v)])
+          ).toString();
+          upstreamHeaders["Content-Type"] = "application/x-www-form-urlencoded";
+        }
+      }
+    }
 
     try {
       const upstream = await fetch(target, {
-        method: "GET",
+        method,
         headers: upstreamHeaders,
+        body: method === "GET" || method === "HEAD" ? undefined : body,
+        redirect: "manual",
         signal: AbortSignal.timeout(60000),
       });
 
-      res.status(upstream.status);
-      const skip = new Set([
-        "connection",
-        "transfer-encoding",
-        "content-encoding",
-        "content-length",
-      ]);
-      upstream.headers.forEach((value, key) => {
-        if (!skip.has(key.toLowerCase())) {
-          res.setHeader(key, value);
+      let newSess = null;
+      if (typeof upstream.headers.getSetCookie === "function") {
+        newSess = parsePhpSessid(upstream.headers.getSetCookie());
+      }
+      if (!newSess) {
+        newSess = parsePhpSessid(upstream.headers.get("set-cookie"));
+      }
+      if (newSess) {
+        if (req.session) req.session.tjPhpSessid = newSess;
+        res.cookie(PHPSESS_COOKIE, newSess, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge: 12 * 60 * 60 * 1000,
+          path: "/",
+        });
+      }
+
+      // Follow one redirect to same journal if needed
+      if (upstream.status >= 300 && upstream.status < 400) {
+        const loc = upstream.headers.get("location") || "";
+        if (/trading_journal\.php/i.test(loc) || loc === "/" || loc === phpPath) {
+          res.redirect(302, "/journal-embed/");
+          return;
         }
-      });
+      }
+
+      res.status(upstream.status);
+      const ctype = String(upstream.headers.get("content-type") || "text/html; charset=utf-8");
+      res.setHeader("Content-Type", ctype);
+      res.setHeader("Cache-Control", "private, no-store");
 
       const buf = Buffer.from(await upstream.arrayBuffer());
-      if (upstream.status === 404) {
-        res.setHeader("Content-Type", "text/plain; charset=utf-8");
-        return res
-          .status(502)
-          .send(
-            "Radar Journal 404 — déployer appjournal sur le VPS (/var/lib/torinvest/appjournal)."
-          );
-      }
-      if (upstream.status === 503) {
-        res.setHeader("Content-Type", "text/plain; charset=utf-8");
-        return res.status(503).send(buf.toString("utf8") || "Journal non déployé sur le VPS.");
+      if (ctype.includes("text/html")) {
+        return res.send(rewriteJournalHtml(buf.toString("utf8")));
       }
       return res.send(buf);
     } catch (e) {
-      return res.status(502).send("Proxy Journal indisponible : " + String(e.message || e));
+      return res
+        .status(502)
+        .send("Proxy Trading Journal indisponible : " + String(e.message || e));
     }
   };
 }
@@ -260,76 +245,57 @@ function createEmbedProxy() {
 module.exports = function createJournalBridgeRouter(options) {
   const opts = options || {};
   const router = express.Router();
-  const secret = bridgeSecret(opts);
+  const proxy = createPhpProxy();
+
+  // Body parser for journal POSTs (login form) — only on embed paths
+  router.use(["/journal-embed", "/appjournal"], express.urlencoded({ extended: true }));
+  router.use(["/journal-embed", "/appjournal"], express.json());
 
   router.get("/api/journal-bridge/ping", (req, res) => {
-    res.json({ ok: true, mounted: true, app: "journal" });
+    res.json({
+      ok: true,
+      mounted: true,
+      app: "trading_journal_pro",
+      upstream: radarBaseUrl() + journalPhpPath(),
+    });
   });
 
-  router.get("/api/journal-bridge/status", (req, res) => {
-    const token = journalToken(req);
-    if (!token) {
-      return res.json({ ok: false, active: false });
+  router.get("/api/journal-bridge/status", async (req, res) => {
+    const user = await requirePremium(req);
+    if (!user?.email) {
+      return res.json({ ok: false, active: false, premium: false });
     }
     return res.json({
       ok: true,
       active: true,
-      email: req.session?.journalEmail || null,
-      expiresAt: req.session?.journalExpiresAt || null,
+      premium: true,
+      email: user.email,
+      embed: "/journal-embed/",
     });
   });
 
+  // Compat : plus besoin d'activate HMAC pour le PHP journal
   router.post("/api/journal-bridge/activate", async (req, res) => {
-    try {
-      let user = premiumUser(req);
-      if (!user) user = await premiumUserViaMe(req);
-      if (!user?.email) {
-        return res.status(403).json({
-          ok: false,
-          error: "premium_required",
-          hint: "Connexion La Forge Premium requise pour le Trading Journal.",
-        });
-      }
-      if (!secret) {
-        return res.status(503).json({
-          ok: false,
-          error: "bridge_secret_missing",
-          hint: "FORGE_FONDAMENTAL_BRIDGE_SECRET (ou FORGE_JOURNAL_BRIDGE_SECRET) manquant.",
-        });
-      }
-
-      const { bridgeToken } = generateBridgeToken(user.email, secret);
-      const { sessionToken, data } = await activateOnRadar(bridgeToken);
-      storeJournalAccess(req, res, sessionToken, user.email, data.expiresAt);
-
-      const finish = () =>
-        res.json({
-          ok: true,
-          email: user.email,
-          expiresAt: data.expiresAt,
-          embed: "/appjournal/",
-        });
-
-      if (typeof req.session?.save === "function") {
-        return req.session.save((err) => {
-          if (err) return res.status(500).json({ ok: false, error: "session_save_failed" });
-          return finish();
-        });
-      }
-      return finish();
-    } catch (e) {
-      const status = e.status && e.status >= 400 ? e.status : 502;
-      return res.status(status).json({
+    const user = await requirePremium(req);
+    if (!user?.email) {
+      return res.status(403).json({
         ok: false,
-        error: String(e.message || e),
-        detail: e.payload || null,
+        error: "premium_required",
+        hint: "Connexion La Forge Premium requise pour le Trading Journal.",
       });
     }
+    return res.json({
+      ok: true,
+      email: user.email,
+      embed: "/journal-embed/",
+      note: "proxy_php_radar",
+    });
   });
 
-  const embedProxy = createEmbedProxy();
-  router.use("/appjournal", embedProxy);
-  router.use("/journal-embed", embedProxy);
+  router.all("/journal-embed", proxy);
+  router.all("/journal-embed/", proxy);
+  router.all("/appjournal", proxy);
+  router.all("/appjournal/", proxy);
 
   return router;
 };
