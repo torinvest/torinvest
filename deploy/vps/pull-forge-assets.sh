@@ -35,6 +35,7 @@ JS_FILES=(
   forge-calendar.js
   forge-consent.js
   forge-fondamental.js
+  forge-journal.js
   forge-gate.js
   forge-unlock.js
   forge-legal.js

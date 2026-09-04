@@ -78,4 +78,12 @@
 /api/dev-auth.php             https://radar.torinvest-trading.com/api/dev-auth.php                  200!
 /api/fondamental-access.php   https://radar.torinvest-trading.com/api/fondamental-access.php    200!
 /api/fondamental-serve.php    https://radar.torinvest-trading.com/api/fondamental-serve.php     200!
+/api/journal-access.php       https://radar.torinvest-trading.com/api/journal-access.php       200!
+/api/journal-serve.php        https://radar.torinvest-trading.com/api/journal-serve.php        200!
+# Trading Journal — proxy forcé VPS (session Premium formation)
+/journal             https://app.torinvest-trading.com/journal.html   302
+/journal/            https://app.torinvest-trading.com/journal.html   302
+/appjournal          https://radar.torinvest-trading.com/api/journal-serve.php 200!
+/appjournal/         https://radar.torinvest-trading.com/api/journal-serve.php 200!
+/appjournal/*        https://radar.torinvest-trading.com/api/journal-serve.php?path=:splat 200!
 /api/*                        https://app.torinvest-trading.com/api/:splat                          302!

@@ -10,6 +10,7 @@ const express = require("express");
 const users = require("./formation-users-lib");
 const worker = require("./accompagnement-worker-lib");
 const createFondamentalBridgeRouter = require("./routes-fondamental-bridge");
+const createJournalBridgeRouter = require("./routes-journal-bridge");
 
 function sessionUser(email, subscribed) {
   return {
@@ -105,6 +106,15 @@ function createFormationAuthRouter(options) {
     createFondamentalBridgeRouter({
       bridgeSecret:
         process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET || process.env.AI_ACCESS_HMAC_SECRET,
+    })
+  );
+
+  router.use(
+    createJournalBridgeRouter({
+      bridgeSecret:
+        process.env.FORGE_JOURNAL_BRIDGE_SECRET ||
+        process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET ||
+        process.env.AI_ACCESS_HMAC_SECRET,
     })
   );
 

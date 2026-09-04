@@ -33,6 +33,9 @@ FILES=(
   fondamental-access.php
   fondamental-access-lib.php
   fondamental-serve.php
+  journal-access.php
+  journal-access-lib.php
+  journal-serve.php
 )
 
 for f in "${FILES[@]}"; do
