@@ -11,6 +11,7 @@ const users = require("./formation-users-lib");
 const worker = require("./accompagnement-worker-lib");
 const createFondamentalBridgeRouter = require("./routes-fondamental-bridge");
 const createJournalBridgeRouter = require("./routes-journal-bridge");
+const createBooksRouter = require("./routes-books");
 
 function sessionUser(email, subscribed) {
   return {
@@ -117,6 +118,8 @@ function createFormationAuthRouter(options) {
         process.env.AI_ACCESS_HMAC_SECRET,
     })
   );
+
+  router.use(createBooksRouter());
 
   router.get("/api/me", (req, res, next) => {
     if (!req.session?.user?.email) {

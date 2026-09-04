@@ -36,6 +36,8 @@ JS_FILES=(
   forge-consent.js
   forge-fondamental.js
   forge-journal.js
+  books-data.js
+  forge-books.js
   forge-gate.js
   forge-unlock.js
   forge-legal.js
