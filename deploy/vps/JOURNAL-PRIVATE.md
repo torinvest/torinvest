@@ -1,83 +1,55 @@
-# Trading Journal — hors GitHub public
+# Trading Journal Pro — intégration La Forge
 
-Le build `appjournal/` **ne doit pas** être dans le dépôt GitHub (repo public),
-comme `applifonda/`.
+## Source live (réelle)
 
-Il vit uniquement sur le VPS : `/var/lib/torinvest/appjournal`.
+- URL : https://radar.torinvest-trading.com/trading_journal.php
+- Fichier VPS : `/var/www/torinvest/trading_journal.php` (hors repo Git public)
+- Auth propre : login **Trading Journal Pro** (identifiant / mot de passe journal)
+- Local Laragon (copie) : `C:\laragon\www\autoresearch-main\trading_journal.php`
 
-## Architecture (comme Fondamental)
+Ce n’est **pas** le fichier statique `C:\laragon\www\torinvest-journal\trading-journal.html`.
 
-```
-Premium La Forge sur app.*
-  → POST /api/journal-bridge/activate
-  → HMAC bridge → radar /api/journal-access.php
-  → cookie forge_journal_embed + sessionToken
-  → iframe src=/appjournal/
-  → Express proxy → radar /api/journal-serve.php
-```
+## Hub formation
 
-URL hub : https://app.torinvest-trading.com/journal.html
+- https://app.torinvest-trading.com/journal.html
+- Gate : session **La Forge Premium**
+- Iframe → `trading_journal.php` sur radar (comme Fondamental ouvre applifonda)
 
-## Déployer l’API (sur le VPS)
+## Déployer le hub (VPS ubuntu)
 
 ```bash
-cd /tmp
-curl -fsSL -o pull-api.sh \
-  https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/pull-api.sh
-bash pull-api.sh
-# ou :
-curl -fsSL -o pull-journal.sh \
-  https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/pull-journal.sh
-bash pull-journal.sh main
-```
-
-Optionnel dans `api/config.local.php` :
-
-```php
-'journal_app_dir' => '/var/lib/torinvest/appjournal',
-'journal_access_session_ttl' => 43200,
-```
-
-## Déployer l’app Journal (depuis ton PC)
-
-Place le build (index.html + assets) sur le VPS :
-
-```powershell
-.\deploy\vps\push-appjournal.ps1 -Source "C:\chemin\vers\ton-journal\dist"
-```
-
-Ou manuellement :
-
-```bash
-sudo mkdir -p /var/lib/torinvest/appjournal
-# scp / rsync du build → /var/lib/torinvest/appjournal/
-sudo chown -R www-data:www-data /var/lib/torinvest/appjournal
-```
-
-## Déployer le hub formation
-
-```bash
-BRANCH=main curl -fsSL \
-  "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/deploy-la-forge-full.sh" | bash
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/deploy-la-forge-full.sh" \
+  | bash -s -- /home/ubuntu/torinvest-formation
 pm2 restart la-forge --update-env
 ```
 
-## Smoke test
+Ou pull partiel :
 
 ```bash
-# ping bridge
-curl -s https://app.torinvest-trading.com/api/journal-bridge/ping
-
-# après login Premium + activate
-curl -s -b cookies.txt https://app.torinvest-trading.com/api/journal-bridge/status
+APP=/home/ubuntu/torinvest-formation
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/la-forge/js/forge-journal.js" \
+  -o "$APP/public/js/forge-journal.js"
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/app-shells/journal.html" \
+  -o "$APP/public/journal.html"
+pm2 restart la-forge --update-env
 ```
 
-## Si ton journal est déjà ailleurs sur le VPS
+## Mettre à jour le PHP journal sur radar
 
-Indique le chemin réel dans `config.local.php` :
+Depuis le PC (Laragon) :
 
-```php
-'journal_app_dir' => '/chemin/existant/vers/ton-journal',
+```powershell
+scp "C:\laragon\www\autoresearch-main\trading_journal.php" ubuntu@vps-eb3cfb2f:/tmp/trading_journal.php
 ```
 
-Le serveur cherche aussi : `/var/www/torinvest/private/appjournal` et `/var/www/torinvest/appjournal`.
+Sur le VPS :
+
+```bash
+sudo mv /tmp/trading_journal.php /var/www/torinvest/trading_journal.php
+sudo chown www-data:www-data /var/www/torinvest/trading_journal.php
+```
+
+## SSO (plus tard, optionnel)
+
+Aujourd’hui : 2 logins (La Forge + Journal Pro).  
+Plus tard : accepter la session formation (bridge) pour skip le login Journal.
