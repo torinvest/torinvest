@@ -4,10 +4,18 @@
 set -euo pipefail
 
 REF="${1:-main}"
-API_DIR="/var/www/torinvest/api"
+API_DIR="${2:-/var/www/torinvest/api}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}/api"
 
 echo "==> pull-journal ($REF) → $API_DIR"
+
+if [ ! -d "$API_DIR" ]; then
+  echo "ERREUR: $API_DIR introuvable"
+  echo "Connecte-toi en ubuntu (sudo -iu ubuntu) puis :"
+  echo "  ls -ld /var/www/torinvest /var/www/torinvest/api"
+  echo "Ou passe le chemin : bash pull-journal.sh main /chemin/api"
+  exit 1
+fi
 
 for f in http-session.php journal-access.php journal-access-lib.php journal-serve.php; do
   echo "  $f"
