@@ -1,33 +1,13 @@
 /**
- * Catalogue bibliothèque La Forge (PDF hors Git — stockés sur VPS).
- * Fichiers : /var/lib/torinvest/books/<file> (ou FORGE_BOOKS_DIR).
+ * Catalogue bibliothèque La Forge — Fondamental / économie / monnaie / macro.
+ * PDF hors Git : /var/lib/torinvest/books/<file> (ou FORGE_BOOKS_DIR).
+ * Les autres PDF du dossier VPS ne sont pas listés ici.
  */
 (function (global) {
   "use strict";
 
   /** @type {Array<{id:string,file:string,title:string,author:string,topics:string[]}>} */
   var FORGE_BOOKS = [
-    {
-      id: "elder-vivre-du-trading",
-      file: "386961563-Alexandre-Elder-Vivre-Du-Trading.pdf",
-      title: "Vivre du trading",
-      author: "Alexandre Elder",
-      topics: ["trading", "psychologie", "méthode"],
-    },
-    {
-      id: "kabbaj-psychologie-grands-traders",
-      file: "363761278-Psychologie-Des-Grands-Traders-Thami-Kabbaj.pdf",
-      title: "Psychologie des grands traders",
-      author: "Thami Kabbaj",
-      topics: ["psychologie", "trading"],
-    },
-    {
-      id: "bible-speculateur",
-      file: "153457426-La-bible-du-speculateur.pdf",
-      title: "La bible du spéculateur",
-      author: "—",
-      topics: ["spéculation", "marchés"],
-    },
     {
       id: "gayraud-art-guerre-financiere",
       file: "355382178-Jean-Francois-Gayraud-L-Art-de-La-Guerre-Financiere.pdf",
@@ -104,34 +84,6 @@
       title: "Capitalisme et pulsion de mort",
       author: "—",
       topics: ["philosophie", "économie"],
-    },
-    {
-      id: "philosophie-pratique",
-      file: "223423553-42-Philosophie-Pratique.pdf",
-      title: "Philosophie pratique",
-      author: "—",
-      topics: ["philosophie"],
-    },
-    {
-      id: "psychologie-en-images",
-      file: "318234116-La-Psychologie-en-Images.pdf",
-      title: "La psychologie en images",
-      author: "—",
-      topics: ["psychologie"],
-    },
-    {
-      id: "programmer-pour-les-nuls",
-      file: "392361108-Programmer-Pour-Les-Nuls-3e-Edition-Mai-2017.pdf",
-      title: "Programmer pour les Nuls (3e éd.)",
-      author: "—",
-      topics: ["programmation", "outils"],
-    },
-    {
-      id: "doc-7d349701",
-      file: "7d349701-169c-4252-a712-655aee5c5bb5.pdf",
-      title: "Document PDF (archive)",
-      author: "—",
-      topics: ["divers"],
     },
   ];
 
