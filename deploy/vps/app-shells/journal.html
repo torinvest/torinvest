@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trading Journal — Espace La Forge</title>
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <style>
+    .journal-hero { margin-bottom: 1rem; }
+    .journal-hero h1 { margin: 0.2rem 0; color: var(--gold); font-size: 1.35rem; }
+    .journal-hero p { color: var(--muted); font-size: 0.9rem; margin: 0.35rem 0 0; line-height: 1.55; }
+    .journal-access-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .journal-pill {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 215, 0, 0.35);
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.08);
+    }
+    #journal-gate {
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+    }
+    #journal-gate h3 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--gold); }
+    #journal-frame-wrap {
+      margin-top: 1rem;
+      border: 1px solid rgba(255, 215, 0, 0.28);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0a0c12;
+      min-height: 70vh;
+    }
+    #journal-frame {
+      display: block;
+      width: 100%;
+      height: min(78vh, 900px);
+      border: 0;
+      background: #0a0c12;
+    }
+    body.journal-app-open footer[data-forge-footer] { display: none; }
+    body.journal-app-open .container.journal-shell {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+    body.journal-app-open .journal-chrome { display: none; }
+    body.journal-app-open #journal-frame-wrap {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      min-height: calc(100vh - 3.25rem);
+      height: calc(100vh - 3.25rem);
+    }
+    body.journal-app-open #journal-frame {
+      height: 100%;
+      min-height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="journal"></header>
+
+  <div class="container journal-shell">
+    <div class="journal-chrome">
+      <div class="journal-hero">
+        <span class="forge-hero-tag">Espace membre · outil pédagogique</span>
+        <h1>Trading Journal</h1>
+        <p>
+          Journalise tes trades, revue et métriques — au même endroit que la formation La Forge,
+          avec la même session Premium.
+        </p>
+        <div class="journal-access-pills">
+          <span class="journal-pill">La Forge Premium (349€/an)</span>
+        </div>
+      </div>
+
+      <div id="journal-status" class="alert" hidden></div>
+
+      <div id="journal-gate" hidden>
+        <h3>Accéder au Trading Journal</h3>
+        <p style="color:var(--muted);font-size:0.88rem;line-height:1.55;margin:0 0 0.75rem">
+          Réservé aux <strong>abonnés Premium La Forge</strong>. Connexion email Stripe sur l’app formation.
+        </p>
+        <button type="button" id="journal-open-premium" class="btn btn-primary" hidden>
+          Ouvrir le Journal (Premium)
+        </button>
+        <a id="journal-login-hint" class="btn btn-secondary" href="/login.html?next=%2Fjournal.html" style="margin-left:0.5rem" hidden>
+          Connexion La Forge
+        </a>
+        <a class="btn btn-secondary" href="https://www.torinvest-trading.com/la-forge/pricing.html" style="margin-left:0.5rem">
+          Souscrire La Forge Premium
+        </a>
+      </div>
+    </div>
+
+    <div id="journal-frame-wrap" hidden>
+      <iframe id="journal-frame" title="Trading Journal" loading="lazy"></iframe>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=6"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-journal.js?v=1"></script>
+</body>
+</html>

@@ -161,6 +161,10 @@ return [
     // Fichiers app hors accès HTTP direct (recommandé : /var/lib/torinvest/applifonda)
     'fondamental_app_dir' => '/var/lib/torinvest/applifonda',
 
+    // --- Trading Journal (hub La Forge Premium, même bridge HMAC) ---
+    'journal_access_session_ttl' => 43200,
+    'journal_app_dir' => '/var/lib/torinvest/appjournal',
+
     // --- KRM Services Treasury (paiements on-chain TorPass) ---
     // PUBLIC KEY Solana uniquement (jamais de private key).
     // Laisser vide pour désactiver les paiements côté serveur.

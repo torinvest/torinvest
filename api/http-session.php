@@ -18,6 +18,9 @@ function torinvestSessionCookieName(string $service): string
     if ($service === 'fondamental_access') {
         return 'torinvest_fondamental';
     }
+    if ($service === 'journal_access') {
+        return 'torinvest_journal';
+    }
     if ($service === 'member') {
         return 'torinvest_member';
     }
