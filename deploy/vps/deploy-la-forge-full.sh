@@ -2,13 +2,33 @@
 # Déploiement complet La Forge (assets + shells + auth + fondamental + verify).
 set -euo pipefail
 
-APP_DIR="${1:-$HOME/torinvest-formation}"
+APP_DIR="${1:-}"
+if [ -z "$APP_DIR" ]; then
+  if [ -d "/home/ubuntu/torinvest-formation/public/js" ]; then
+    APP_DIR="/home/ubuntu/torinvest-formation"
+  elif [ -d "$HOME/torinvest-formation/public/js" ]; then
+    APP_DIR="$HOME/torinvest-formation"
+  else
+    APP_DIR="/home/ubuntu/torinvest-formation"
+  fi
+fi
 BRANCH="${BRANCH:-main}"
 SHA="${SHA:-}"
 SCRIPT_REF="${SHA:-$BRANCH}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}/deploy/vps"
 
 echo "==> deploy-la-forge-full ($SCRIPT_REF) → $APP_DIR"
+
+if [ ! -d "$APP_DIR/public/js" ]; then
+  echo "ERREUR: $APP_DIR/public/js introuvable"
+  echo "Tu es probablement connecté en mauvais user (besoin: ubuntu)."
+  echo "Essaie :"
+  echo "  sudo -iu ubuntu"
+  echo "  ou : curl ... | bash -s -- /home/ubuntu/torinvest-formation"
+  echo "Chemins possibles :"
+  ls -ld /home/ubuntu/torinvest-formation /home/*/torinvest-formation 2>/dev/null || true
+  exit 1
+fi
 
 export BRANCH SHA
 bash <(curl -fsSL "${BASE}/pull-forge-all.sh") "$APP_DIR"
