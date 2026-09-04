@@ -9,6 +9,13 @@
   /** @type {Array<{id:string,file:string,title:string,author:string,topics:string[]}>} */
   var FORGE_BOOKS = [
     {
+      id: "kabbaj-psychologie-grands-traders",
+      file: "363761278-Psychologie-Des-Grands-Traders-Thami-Kabbaj.pdf",
+      title: "Psychologie des grands traders",
+      author: "Thami Kabbaj",
+      topics: ["psychologie", "trading"],
+    },
+    {
       id: "gayraud-art-guerre-financiere",
       file: "355382178-Jean-Francois-Gayraud-L-Art-de-La-Guerre-Financiere.pdf",
       title: "L'art de la guerre financière",
