@@ -71,6 +71,7 @@ function managedBlock(dataDirExpr) {
     MARK_BEGIN,
     "const createProgressRouter = require(\"./server-patches/routes-progress\");",
     "const createCalendarRouter = require(\"./server-patches/routes-calendar\");",
+    "const createCoachingLivesRouter = require(\"./server-patches/routes-coaching-lives\");",
     "const requireSubscribedForCourse = require(\"./server-patches/middleware-require-subscribed\");",
     "",
     "// Paywall Premium — avant express.static(\"public\")",
@@ -84,6 +85,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createCalendarRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createCoachingLivesRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -201,6 +208,32 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
   );
   console.error("progress:", hasProgress(), "calendar:", hasCalendar(), "paywall:", hasPaywall());
   process.exit(1);
+}
+
+
+// Ensure coaching lives router is mounted when calendar is present
+if (/createCalendarRouter/.test(content) && !/createCoachingLivesRouter|routes-coaching-lives/.test(content)) {
+  if (!/createCoachingLivesRouter/.test(content)) {
+    content = content.replace(
+      /(const createCalendarRouter = require\(["']\.\/server-patches\/routes-calendar["']\);)/,
+      '$1\nconst createCoachingLivesRouter = require("./server-patches/routes-coaching-lives");'
+    );
+  }
+  const calendarUseRe = /app\.use\(\s*createCalendarRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const calMatch = content.match(calendarUseRe);
+  if (calMatch) {
+    const dataDirExpr = (calMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] || 'path.join(__dirname, "data")';
+    const coachingUse = [
+      "app.use(",
+      "  createCoachingLivesRouter({",
+      "    dataDir: " + dataDirExpr.trim() + ",",
+      "    requireAuth,",
+      "  })",
+      ");",
+    ].join("\n");
+    content = content.replace(calendarUseRe, calMatch[0] + "\n" + coachingUse);
+    console.log("Coaching lives router ajouté après calendar.");
+  }
 }
 
 if (content === original) {

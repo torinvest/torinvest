@@ -123,11 +123,18 @@ function matchDemoLogin(email, password) {
 function mePayload(user) {
   if (!user?.email) return null;
   const subscribed = !!user.subscribed;
+  const email = String(user.email).trim().toLowerCase();
+  const adminList = String(process.env.FORGE_ADMIN_EMAILS || "")
+    .split(/[,;\s]+/)
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  const isAdmin = adminList.includes(email);
   return {
     email: user.email,
     subscribed,
     name: user.name || (subscribed ? "Membre Premium" : "Visiteur"),
     plan: subscribed ? "premium" : "free",
+    isAdmin,
   };
 }
 

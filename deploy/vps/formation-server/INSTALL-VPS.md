@@ -205,3 +205,30 @@ curl -sI https://app.torinvest-trading.com/img/forge-anvil.png | head -5
 
 Attendu : `HTTP/1.1 200`.
 
+
+
+## Lives coaching 1:1 (`/api/coaching-lives`)
+
+Créneaux partagés dans le calendrier : **admin propose**, **élève confirme**.
+
+1. Déclarer ton email admin sur le VPS (PM2 / `.env`) :
+
+```bash
+export FORGE_ADMIN_EMAILS="ton-email@exemple.com"
+# optionnel — horaires par défaut : 2 dimanches + 1 samedi
+# export FORGE_COACHING_SLOTS_JSON='[{"id":"sun-am","weekday":0,"start":"10:00","end":"11:00","label":"Live dimanche matin"},{"id":"sun-pm","weekday":0,"start":"18:00","end":"19:00","label":"Live dimanche soir"},{"id":"sat-pm","weekday":6,"start":"18:00","end":"19:00","label":"Live samedi"}]'
+pm2 restart torinvest-formation --update-env
+```
+
+2. Déployer patches + assets (`pull-forge-all.sh`) puis :
+
+```bash
+node deploy/vps/wire-formation-server-patches.js /home/ubuntu/torinvest-formation
+pm2 restart torinvest-formation
+```
+
+3. Sur `/calendar.html` (compte Premium) :
+   - **Toi (admin)** : « Proposer la semaine » ou formulaire créneau + date (+ email élève optionnel)
+   - **Élève** : bouton **Confirmer ma présence**
+
+Données : `data/coaching-lives/sessions.json`
