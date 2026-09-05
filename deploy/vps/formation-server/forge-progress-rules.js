@@ -26,7 +26,8 @@ function computeModuleCompleted(raw) {
 
 function sanitizeModuleProgress(raw) {
   if (!raw || typeof raw !== "object") return null;
-  const totalSteps = Number(raw.totalSteps) || DEFAULT_TOTAL_STEPS;
+  // Plancher anti-forge : totalSteps=1 côté client ne doit pas valider un module.
+  const totalSteps = Math.max(DEFAULT_TOTAL_STEPS, Number(raw.totalSteps) || 0);
   const stepsDone = Math.max(0, Math.min(Number(raw.stepsDone) || 0, totalSteps));
   const quizTotal = Math.max(0, Number(raw.quizTotal) || 0);
   const quizScore =
@@ -69,9 +70,21 @@ function mergeModuleProgress(existingRaw, clientRaw) {
   const incoming = sanitizeModuleProgress({ ...prev, ...(clientRaw || {}) });
   if (!incoming) return prev;
 
+  // totalSteps : plancher serveur + jamais abaissé par le client (anti unlock instantané)
+  let totalSteps = Math.max(
+    DEFAULT_TOTAL_STEPS,
+    prev.totalSteps || 0,
+    incoming.totalSteps || 0
+  );
+  // Hausse seulement si le client annonce plus d'étapes (module long) — plafonné
+  if ((incoming.totalSteps || 0) > totalSteps) {
+    totalSteps = Math.min(100, incoming.totalSteps);
+  }
+  totalSteps = Math.max(totalSteps, prev.totalSteps || DEFAULT_TOTAL_STEPS, DEFAULT_TOTAL_STEPS);
+
   // Ne jamais diminuer (sauf reset admin — pas exposé ici)
   let stepsDone = Math.max(prev.stepsDone, incoming.stepsDone);
-  stepsDone = Math.min(stepsDone, prev.stepsDone + MAX_STEPS_DELTA, incoming.totalSteps);
+  stepsDone = Math.min(stepsDone, prev.stepsDone + MAX_STEPS_DELTA, totalSteps);
 
   let quizTotal = Math.max(prev.quizTotal, incoming.quizTotal);
   let quizScore = Math.max(prev.quizScore, incoming.quizScore);
@@ -87,7 +100,7 @@ function mergeModuleProgress(existingRaw, clientRaw) {
 
   const out = {
     stepsDone,
-    totalSteps: incoming.totalSteps || prev.totalSteps,
+    totalSteps,
     quizScore,
     quizTotal,
     practiceScore,

@@ -16,7 +16,8 @@ $allowedOrigins = [
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $originHost = parse_url($origin, PHP_URL_HOST) ?? '';
-$isNetlifyPreview = (bool) preg_match('/\.netlify\.app$/', $originHost);
+// Previews *.netlify.app désactivés : CORS + credentials = risque CSRF/lecture session
+$isNetlifyPreview = false;
 if (in_array($origin, $allowedOrigins, true) || $isNetlifyPreview) {
     header('Access-Control-Allow-Origin: ' . $origin);
     header('Access-Control-Allow-Credentials: true');
