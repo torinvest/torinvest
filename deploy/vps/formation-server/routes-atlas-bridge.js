@@ -3,7 +3,7 @@
  *
  * Embed : /atlas-embed/ et /appliatlas/
  * Statique : FORGE_ATLAS_APP_DIR (build apps/web/dist)
- * API     : proxy …/api/* → FORGE_ATLAS_API_URL (défaut http://127.0.0.1:3001)
+ * API     : proxy …/api/* → FORGE_ATLAS_API_URL (défaut http://127.0.0.1:3011)
  */
 "use strict";
 
@@ -22,7 +22,8 @@ function atlasAppDir() {
 }
 
 function atlasApiBase() {
-  return String(process.env.FORGE_ATLAS_API_URL || "http://127.0.0.1:3001").replace(
+  // Port 3011 : ≠ process formation (la-forge = 3001)
+  return String(process.env.FORGE_ATLAS_API_URL || "http://127.0.0.1:3011").replace(
     /\/$/,
     ""
   );
