@@ -91,6 +91,17 @@
 /api/fondamental-serve.php    https://radar.torinvest-trading.com/api/fondamental-serve.php     200!
 /api/journal-access.php       https://radar.torinvest-trading.com/api/journal-access.php       200!
 /api/journal-serve.php        https://radar.torinvest-trading.com/api/journal-serve.php        200!
+# USA War Atlas — hub app + SPA gated radar
+/atlas               https://app.torinvest-trading.com/atlas.html   302
+/atlas/              https://app.torinvest-trading.com/atlas.html   302
+/atlas.html          https://app.torinvest-trading.com/atlas.html   302!
+/la-forge/atlas.html https://app.torinvest-trading.com/atlas.html   302!
+/appliatlas          https://radar.torinvest-trading.com/api/atlas-serve.php 200!
+/appliatlas/         https://radar.torinvest-trading.com/api/atlas-serve.php 200!
+/appliatlas/*        https://radar.torinvest-trading.com/api/atlas-serve.php?path=:splat 200!
+/api/atlas-access.php https://radar.torinvest-trading.com/api/atlas-access.php 200!
+/api/atlas-serve.php  https://radar.torinvest-trading.com/api/atlas-serve.php  200!
+
 # Trading Journal — proxy forcé VPS (session Premium formation)
 /journal             https://app.torinvest-trading.com/journal.html   302
 /journal/            https://app.torinvest-trading.com/journal.html   302

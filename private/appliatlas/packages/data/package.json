@@ -1,0 +1,12 @@
+{
+  "name": "@usa-war-atlas/data",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Données initiales de seed : conflits, pays, sources, territoires. Contenu de démonstration à enrichir et à faire vérifier.",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./seed/*.json": "./seed/*.json"
+  }
+}

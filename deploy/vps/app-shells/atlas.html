@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>USA War Atlas — Espace La Forge</title>
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <style>
+    .atlas-hero { margin-bottom: 1rem; }
+    .atlas-hero h1 { margin: 0.2rem 0; color: var(--gold); font-size: 1.35rem; }
+    .atlas-hero p { color: var(--muted); font-size: 0.9rem; margin: 0.35rem 0 0; line-height: 1.55; }
+    .atlas-access-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .atlas-pill {
+      font-size: 0.75rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 215, 0, 0.35);
+      color: var(--gold);
+      background: rgba(255, 215, 0, 0.08);
+    }
+    #atlas-gate {
+      margin-top: 1rem;
+      padding: 1rem 1.1rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+    }
+    #atlas-gate h3 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--gold); }
+    #atlas-frame-wrap {
+      margin-top: 1rem;
+      border: 1px solid rgba(255, 215, 0, 0.28);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0a0c12;
+      min-height: 70vh;
+    }
+    #atlas-frame {
+      display: block;
+      width: 100%;
+      height: min(78vh, 900px);
+      border: 0;
+      background: #0a0c12;
+    }
+    body.atlas-app-open footer[data-forge-footer] { display: none; }
+    body.atlas-app-open .container.atlas-shell {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+      width: 100%;
+    }
+    body.atlas-app-open .atlas-chrome { display: none; }
+    body.atlas-app-open #atlas-frame-wrap {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      min-height: calc(100vh - 3.25rem);
+      height: calc(100vh - 3.25rem);
+    }
+    body.atlas-app-open #atlas-frame {
+      height: 100%;
+      min-height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="atlas"></header>
+
+  <div class="container atlas-shell">
+    <div class="atlas-chrome">
+      <div class="atlas-hero">
+        <span class="forge-hero-tag">Espace membre · géopolitique sourcée</span>
+        <h1>USA War Atlas</h1>
+        <p>
+          Atlas pédagogique des interventions, conflits et acquisitions territoriales
+          des États-Unis — carte, timeline et sources, dans le même espace que La Forge.
+        </p>
+        <div class="atlas-access-pills">
+          <span class="atlas-pill">La Forge Premium (349€/an)</span>
+          <span class="atlas-pill">Faits · sources · distinctions éditoriales</span>
+        </div>
+      </div>
+
+      <div id="atlas-status" class="alert" hidden></div>
+
+      <div id="atlas-gate" hidden>
+        <h3>Accéder à USA War Atlas</h3>
+        <p style="color:var(--muted);font-size:0.88rem;line-height:1.55;margin:0 0 0.75rem">
+          Réservé aux <strong>abonnés Premium La Forge</strong>.
+          Ouverture en iframe same-origin (session formation).
+        </p>
+        <button type="button" id="atlas-open-premium" class="btn btn-primary" hidden>
+          Ouvrir Atlas (Premium)
+        </button>
+        <a id="atlas-login-hint" class="btn btn-secondary" href="/login.html?next=%2Fatlas.html" style="margin-left:0.5rem" hidden>
+          Connexion La Forge
+        </a>
+        <a class="btn btn-secondary" href="https://www.torinvest-trading.com/la-forge/pricing.html" style="margin-left:0.5rem">
+          Souscrire La Forge Premium
+        </a>
+      </div>
+    </div>
+
+    <div id="atlas-frame-wrap" hidden>
+      <iframe id="atlas-frame" title="USA War Atlas" loading="lazy" allow="clipboard-read; clipboard-write"></iframe>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=7"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-onboarding.js?v=2"></script>
+  <script src="/js/forge-atlas.js?v=1"></script>
+</body>
+</html>

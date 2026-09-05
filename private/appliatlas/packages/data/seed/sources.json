@@ -1,0 +1,232 @@
+[
+  {
+    "key": "office-historian-mexican-war",
+    "title": "The Annexation of Texas, the Mexican-American War, and the Treaty of Guadalupe-Hidalgo, 1845–1848",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1830-1860/texas-annexation",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle américaine sur l'annexion du Texas et la guerre américano-mexicaine. Présente le point de vue institutionnel américain."
+  },
+  {
+    "key": "national-archives-guadalupe",
+    "title": "Treaty of Guadalupe Hidalgo (1848)",
+    "publisher": "U.S. National Archives",
+    "url": "https://www.archives.gov/milestone-documents/treaty-of-guadalupe-hidalgo",
+    "publicationDate": null,
+    "sourceType": "ARCHIVE",
+    "reliabilityLevel": "HIGH",
+    "notes": "Texte et présentation du traité de Guadalupe Hidalgo, incluant le paiement de 15 millions de dollars au Mexique."
+  },
+  {
+    "key": "crs-costs-major-wars",
+    "title": "Costs of Major U.S. Wars (RS22926)",
+    "publisher": "Congressional Research Service",
+    "url": "https://sgp.fas.org/crs/natsec/RS22926.pdf",
+    "publicationDate": "2010-06-29",
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Estimations du coût budgétaire des grandes guerres américaines, en dollars courants et constants. Méthodologie détaillée dans le rapport."
+  },
+  {
+    "key": "crs-american-war-casualties",
+    "title": "American War and Military Operations Casualties: Lists and Statistics (RL32492)",
+    "publisher": "Congressional Research Service",
+    "url": "https://sgp.fas.org/crs/natsec/RL32492.pdf",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Statistiques officielles des pertes militaires américaines par conflit. Ne couvre pas les pertes adverses ni civiles."
+  },
+  {
+    "key": "office-historian-vietnam",
+    "title": "U.S. Involvement in the Vietnam War: the Gulf of Tonkin and Escalation, 1964",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1961-1968/gulf-of-tonkin",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle sur l'incident du golfe du Tonkin et l'escalade américaine au Vietnam."
+  },
+  {
+    "key": "un-charter",
+    "title": "Charte des Nations unies",
+    "publisher": "Organisation des Nations unies",
+    "url": "https://www.un.org/fr/about-us/un-charter",
+    "publicationDate": "1945-06-26",
+    "sourceType": "INTERNATIONAL_ORGANIZATION",
+    "reliabilityLevel": "HIGH",
+    "notes": "Cadre juridique international de référence sur l'usage de la force (articles 2§4 et 51, chapitre VII)."
+  },
+  {
+    "key": "unsc-1441",
+    "title": "Résolution 1441 (2002) du Conseil de sécurité",
+    "publisher": "Conseil de sécurité des Nations unies",
+    "url": "https://documents.un.org/doc/undoc/gen/n02/682/26/pdf/n0268226.pdf",
+    "publicationDate": "2002-11-08",
+    "sourceType": "INTERNATIONAL_ORGANIZATION",
+    "reliabilityLevel": "HIGH",
+    "notes": "Résolution offrant à l'Irak une « dernière possibilité » de se conformer aux obligations de désarmement. Son interprétation comme base juridique de l'invasion de 2003 est débattue."
+  },
+  {
+    "key": "duelfer-report",
+    "title": "Comprehensive Report of the Special Advisor to the DCI on Iraq's WMD (rapport Duelfer)",
+    "publisher": "Central Intelligence Agency / Iraq Survey Group",
+    "url": "https://www.cia.gov/readingroom/collection/comprehensive-report-special-advisor-dci-iraqs-wmd",
+    "publicationDate": "2004-09-30",
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Rapport final concluant à l'absence de stocks d'armes de destruction massive en Irak en 2003."
+  },
+  {
+    "key": "iraq-body-count",
+    "title": "Iraq Body Count",
+    "publisher": "Iraq Body Count project",
+    "url": "https://www.iraqbodycount.org/",
+    "publicationDate": null,
+    "sourceType": "DATABASE",
+    "reliabilityLevel": "MEDIUM",
+    "notes": "Base de données recensant les décès civils documentés en Irak depuis 2003. Méthodologie fondée sur les décès rapportés : considérée comme un plancher, pas un total."
+  },
+  {
+    "key": "census-2020",
+    "title": "2020 Census: Resident Population of the 50 States",
+    "publisher": "U.S. Census Bureau",
+    "url": "https://www.census.gov/data/tables/2020/dec/2020-apportionment-data.html",
+    "publicationDate": "2021-04-26",
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Population résidente par État issue du recensement décennal 2020. Donnée officielle. Périmètre : État moderne entier."
+  },
+  {
+    "key": "office-historian-gadsden",
+    "title": "Gadsden Purchase, 1853–1854",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1830-1860/gadsden-purchase",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle sur l'achat Gadsden : bande de territoire au sud de l'Arizona et du Nouveau-Mexique actuels, achetée 10 millions de dollars au Mexique (traité de la Mesilla, 1853-1854)."
+  },
+  {
+    "key": "office-historian-war-1812",
+    "title": "The War of 1812",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1801-1829/war-of-1812",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle américaine sur la guerre de 1812 : causes maritimes, invasions du Canada, traité de Gand."
+  },
+  {
+    "key": "office-historian-spanish-american",
+    "title": "The Spanish-American War, 1898",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1866-1898/spanish-american-war",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle sur la guerre hispano-américaine et le traité de Paris de 1898 (Cuba, Porto Rico, Guam, Philippines)."
+  },
+  {
+    "key": "office-historian-philippine",
+    "title": "The Philippine-American War, 1899–1902",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1899-1913/war",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle sur la guerre américano-philippine. Mentionne des ordres de grandeur de pertes (les totaux civils restent débattus)."
+  },
+  {
+    "key": "office-historian-wwi",
+    "title": "U.S. Entry into World War I, 1917",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1914-1920/wwi",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle sur l'entrée en guerre des États-Unis en 1917 (guerre sous-marine, télégramme Zimmermann)."
+  },
+  {
+    "key": "office-historian-wwii",
+    "title": "Japan, China, the United States and the Road to Pearl Harbor, 1937–41",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1937-1945/pearl-harbor",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle sur la marche vers la guerre du Pacifique et l'attaque de Pearl Harbor."
+  },
+  {
+    "key": "office-historian-korea",
+    "title": "The Korean War, 1950–1953",
+    "publisher": "Office of the Historian, U.S. Department of State",
+    "url": "https://history.state.gov/milestones/1945-1952/korean-war-2",
+    "publicationDate": null,
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Synthèse officielle sur la guerre de Corée, l'intervention sous mandat de l'ONU et l'armistice de 1953."
+  },
+  {
+    "key": "unsc-678",
+    "title": "Résolution 678 (1990) du Conseil de sécurité",
+    "publisher": "Conseil de sécurité des Nations unies",
+    "url": "https://digitallibrary.un.org/record/102245",
+    "publicationDate": "1990-11-29",
+    "sourceType": "INTERNATIONAL_ORGANIZATION",
+    "reliabilityLevel": "HIGH",
+    "notes": "Autorise les États membres à employer « tous les moyens nécessaires » pour faire appliquer le retrait irakien du Koweït après le 15 janvier 1991."
+  },
+  {
+    "key": "unsc-1973",
+    "title": "Résolution 1973 (2011) du Conseil de sécurité",
+    "publisher": "Conseil de sécurité des Nations unies",
+    "url": "https://digitallibrary.un.org/record/699777",
+    "publicationDate": "2011-03-17",
+    "sourceType": "INTERNATIONAL_ORGANIZATION",
+    "reliabilityLevel": "HIGH",
+    "notes": "Autorise une zone d'exclusion aérienne et « toutes mesures nécessaires » pour protéger les civils en Libye. La portée donnée à ce mandat (jusqu'à la chute du régime) est débattue."
+  },
+  {
+    "key": "aumf-2001",
+    "title": "Authorization for Use of Military Force (Public Law 107-40)",
+    "publisher": "Congrès des États-Unis (GovInfo)",
+    "url": "https://www.govinfo.gov/app/details/PLAW-107publ40",
+    "publicationDate": "2001-09-18",
+    "sourceType": "GOVERNMENT",
+    "reliabilityLevel": "HIGH",
+    "notes": "Autorisation d'emploi de la force votée après le 11 septembre 2001. Base juridique interne invoquée pour l'Afghanistan puis, de façon extensive et débattue, pour d'autres opérations antiterroristes."
+  },
+  {
+    "key": "nato-kosovo",
+    "title": "NATO's role in Kosovo",
+    "publisher": "Organisation du traité de l'Atlantique Nord",
+    "url": "https://www.nato.int/cps/en/natolive/topics_48818.htm",
+    "publicationDate": null,
+    "sourceType": "INTERNATIONAL_ORGANIZATION",
+    "reliabilityLevel": "HIGH",
+    "notes": "Présentation par l'OTAN de l'opération Allied Force (1999) et de la KFOR. Point de vue institutionnel de l'alliance ; la licéité de la campagne sans mandat du Conseil de sécurité reste débattue."
+  },
+  {
+    "key": "icj-nicaragua",
+    "title": "Activités militaires et paramilitaires au Nicaragua et contre celui-ci (Nicaragua c. États-Unis d'Amérique), arrêt du 27 juin 1986",
+    "publisher": "Cour internationale de justice",
+    "url": "https://www.icj-cij.org/fr/affaire/70",
+    "publicationDate": "1986-06-27",
+    "sourceType": "INTERNATIONAL_ORGANIZATION",
+    "reliabilityLevel": "HIGH",
+    "notes": "Arrêt concluant que les États-Unis ont violé le droit international par leur soutien aux Contras et le minage des ports nicaraguayens. Les États-Unis ont refusé de participer à la phase de fond et de se conformer à l'arrêt."
+  },
+  {
+    "key": "costs-of-war-project",
+    "title": "Costs of War Project",
+    "publisher": "Watson Institute, Brown University",
+    "url": "https://watson.brown.edu/costsofwar/",
+    "publicationDate": null,
+    "sourceType": "ACADEMIC",
+    "reliabilityLevel": "HIGH",
+    "notes": "Projet de recherche universitaire sur les coûts humains et budgétaires des guerres post-2001. Les estimations incluent des projections débattues."
+  }
+]

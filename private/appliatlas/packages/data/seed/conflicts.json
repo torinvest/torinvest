@@ -1,0 +1,1520 @@
+[
+  {
+    "slug": "guerre-americano-mexicaine",
+    "title": "Guerre américano-mexicaine",
+    "shortTitle": "Guerre USA-Mexique",
+    "summary": "Conflit armé entre les États-Unis et le Mexique (1846-1848), déclenché après l'annexion du Texas et un différend frontalier entre le Rio Grande et le fleuve Nueces. La victoire américaine aboutit au traité de Guadalupe Hidalgo, par lequel le Mexique cède environ la moitié de son territoire d'alors contre un paiement de 15 millions de dollars.",
+    "startDate": "1846-04-25",
+    "endDate": "1848-02-02",
+    "isOngoing": false,
+    "region": "Amérique du Nord",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "Le président Polk a présenté au Congrès l'accrochage du 25 avril 1846 sur la rive nord du Rio Grande comme une agression mexicaine ayant « versé le sang américain sur le sol américain ». Cette qualification était contestée à l'époque même, notamment par le représentant Abraham Lincoln (résolutions dites « Spot Resolutions »), le sol en question étant disputé.",
+    "strategicContext": "Expansion territoriale vers l'ouest portée par l'idéologie de la « Destinée manifeste », volonté d'acquérir la Californie et ses ports sur le Pacifique, tensions consécutives à l'annexion du Texas en 1845, que le Mexique n'avait pas reconnue.",
+    "militaryResult": "Victoire militaire américaine. Occupation de Mexico en septembre 1847.",
+    "politicalResult": "Traité de Guadalupe Hidalgo (2 février 1848) : le Mexique cède la Californie, le Nevada, l'Utah et des parties de l'actuel Arizona, Nouveau-Mexique, Colorado et Wyoming ; les États-Unis versent 15 millions de dollars et assument certaines créances. Le débat sur l'extension de l'esclavage aux nouveaux territoires contribue à la crise qui mène à la guerre de Sécession.",
+    "humanConsequences": "Environ 13 000 morts militaires américains selon les statistiques officielles, dont une majorité par maladie. Les pertes mexicaines, militaires et civiles, sont moins bien documentées et font l'objet d'estimations variables. Les populations mexicaines et autochtones des territoires cédés passent sous souveraineté américaine, avec des pertes de terres et de droits substantielles dans les décennies suivantes.",
+    "economicConsequences": "Coût budgétaire de la guerre estimé par le Congressional Research Service à environ 71 millions de dollars courants. Acquisition d'environ 1,36 million de km² (cession mexicaine de 1848, hors Texas et hors achat Gadsden de 1853). Le développement économique ultérieur de ces territoires (or californien dès 1848, agriculture, ressources) ne peut pas être présenté comme un simple « bénéfice net » de la guerre : voir la méthodologie.",
+    "territorialConsequences": "Cession mexicaine de 1848 : Californie, Nevada, Utah, majeure partie de l'Arizona, une grande partie du Nouveau-Mexique, parties du Colorado et du Wyoming. La frontière Texas-Mexique est fixée au Rio Grande.",
+    "legalBasis": "Déclaration de guerre votée par le Congrès des États-Unis le 13 mai 1846.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Contenu à faire relire par un historien ; chiffres des pertes mexicaines à documenter avec des sources académiques.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "États-Unis", "description": "Puissance attaquante ; déclaration de guerre du 13 mai 1846." },
+      { "iso3": "MEX", "role": "BELLIGERENT", "side": "Mexique", "description": "Puissance défenderesse ; perd environ la moitié de son territoire d'alors." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Invasion du nord du Mexique et campagne de Mexico",
+        "description": "Campagnes de Zachary Taylor dans le nord (Monterrey, Buena Vista) et de Winfield Scott depuis Veracruz jusqu'à Mexico.",
+        "startDate": "1846-04-25",
+        "endDate": "1848-02-02",
+        "agency": "U.S. Army / U.S. Navy",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 13000,
+        "maximumValue": 13300,
+        "bestEstimate": 13283,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains toutes causes (dont environ 11 500 hors combat, principalement par maladie), selon les statistiques compilées par le CRS.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "MILITARY_OPPONENT",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : les pertes mexicaines (militaires et civiles) sont mal documentées et les estimations publiées varient fortement.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1845-12-29", "title": "Annexion du Texas", "description": "Le Texas devient le 28e État américain ; le Mexique ne reconnaît pas cette annexion.", "eventType": "POLITICAL" },
+      { "date": "1846-04-25", "title": "Accrochage de Thornton", "description": "Affrontement entre cavaleries américaine et mexicaine dans la zone disputée entre Nueces et Rio Grande.", "eventType": "BATTLE" },
+      { "date": "1846-05-13", "title": "Déclaration de guerre", "description": "Le Congrès américain déclare la guerre au Mexique.", "eventType": "DECLARATION" },
+      { "date": "1847-02-22", "title": "Bataille de Buena Vista", "description": "Les forces de Taylor repoussent l'armée de Santa Anna dans le nord du Mexique.", "eventType": "BATTLE" },
+      { "date": "1847-03-09", "title": "Débarquement et siège de Veracruz", "description": "Première grande opération amphibie de l'armée américaine ; point de départ de la campagne de Scott vers Mexico.", "eventType": "BATTLE" },
+      { "date": "1847-09-14", "title": "Prise de Mexico", "description": "Les troupes de Winfield Scott occupent la capitale mexicaine.", "eventType": "BATTLE" },
+      { "date": "1847-12-22", "title": "« Spot Resolutions » de Lincoln", "description": "Le représentant Abraham Lincoln conteste au Congrès la version du président Polk sur le lieu exact de l'accrochage initial, illustrant l'opposition intérieure à la guerre.", "eventType": "POLITICAL" },
+      { "date": "1848-02-02", "title": "Traité de Guadalupe Hidalgo", "description": "Fin de la guerre ; cession territoriale contre 15 millions de dollars et prise en charge de créances (articles VIII et IX : garanties de propriété et de citoyenneté pour les habitants mexicains, inégalement respectées ensuite).", "eventType": "TREATY" },
+      { "date": "1853-12-30", "title": "Achat Gadsden (traité de la Mesilla)", "description": "Achat postérieur à la guerre : bande sud des actuels Arizona et Nouveau-Mexique contre 10 millions de dollars.", "eventType": "TREATY" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-mexican-war", "usageDescription": "Contexte de l'annexion du Texas et déroulement diplomatique." },
+      { "sourceKey": "national-archives-guadalupe", "usageDescription": "Termes du traité de Guadalupe Hidalgo, paiement de 15 millions de dollars." },
+      { "sourceKey": "crs-costs-major-wars", "usageDescription": "Coût budgétaire de la guerre (~71 M$ courants)." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "office-historian-gadsden", "usageDescription": "Achat Gadsden (1853), consécutif à la guerre et complétant la frontière actuelle." }
+    ]
+  },
+  {
+    "slug": "guerre-du-vietnam",
+    "title": "Guerre du Vietnam",
+    "shortTitle": "Vietnam",
+    "summary": "Engagement militaire américain croissant au Vietnam dans le cadre de la guerre froide, d'abord sous forme de conseillers et d'aide au Sud-Vietnam, puis d'une guerre directe massive à partir de 1965, jusqu'au retrait américain de 1973 et à la chute de Saïgon en 1975. Conflit emblématique de la catégorie hybride : guerre directe, opérations clandestines (notamment au Laos et au Cambodge) et soutien indirect s'y superposent.",
+    "startDate": "1955-11-01",
+    "endDate": "1973-03-29",
+    "isOngoing": false,
+    "region": "Asie du Sud-Est",
+    "primaryCategory": "HYBRID_CONFLICT",
+    "officialJustification": "La justification officielle principale reposait sur l'endiguement du communisme et la « théorie des dominos » : empêcher que la chute du Sud-Vietnam n'entraîne celle de l'Asie du Sud-Est. La résolution du golfe du Tonkin (août 1964) fut adoptée après des incidents navals dont la matérialité du second (4 août 1964) est aujourd'hui largement remise en cause par les historiens et par des documents déclassifiés.",
+    "strategicContext": "Guerre froide, politique d'endiguement, engagement croissant depuis le soutien à la France en Indochine, puis au régime de Saïgon après 1954. Escalade sous Kennedy (conseillers) puis Johnson (troupes au sol, bombardements) et extension régionale sous Nixon.",
+    "militaryResult": "Retrait américain après les accords de Paris (janvier 1973). Chute de Saïgon et victoire du Nord-Vietnam en avril 1975. Échec des objectifs militaires et politiques américains.",
+    "politicalResult": "Réunification du Vietnam sous régime communiste (1976). Crise de confiance majeure aux États-Unis (« syndrome vietnamien »), adoption de la War Powers Resolution (1973) limitant les pouvoirs de guerre présidentiels.",
+    "humanConsequences": "58 220 militaires américains morts selon les statistiques officielles. Les estimations des morts vietnamiens (militaires et civils, Nord et Sud), laotiens et cambodgiens varient fortement selon les études, de l'ordre de plusieurs centaines de milliers à plusieurs millions ; ces chiffres restent débattus. Séquelles durables : agent orange, munitions non explosées, réfugiés (« boat people »).",
+    "economicConsequences": "Coût budgétaire direct estimé par le CRS à environ 111 milliards de dollars courants (environ 738 milliards de dollars constants de 2011). Effets macroéconomiques (inflation de la fin des années 1960) discutés par les économistes.",
+    "territorialConsequences": "Aucune acquisition territoriale américaine. Réunification du Vietnam en 1976.",
+    "legalBasis": "Aucune déclaration de guerre. Résolution du golfe du Tonkin (7 août 1964) autorisant le président à prendre « toutes les mesures nécessaires », abrogée en 1971. La base juridique de l'engagement et son extension au Laos et au Cambodge sont débattues.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Les fourchettes de pertes vietnamiennes, laotiennes et cambodgiennes doivent être documentées étude par étude avant publication.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Sud-Vietnam et alliés", "description": "Engagement direct massif de 1965 à 1973 ; jusqu'à environ 543 000 militaires déployés en 1969." },
+      { "iso3": "VNM", "role": "BELLIGERENT", "side": "Nord-Vietnam / FNL", "description": "Le pays actuel réunit les deux belligérants vietnamiens de l'époque (République démocratique du Vietnam au Nord, République du Vietnam au Sud)." }
+    ],
+    "interventions": [
+      {
+        "type": "INDIRECT_CONFLICT",
+        "title": "Conseillers militaires et aide au Sud-Vietnam",
+        "description": "Aide financière, matérielle et envoi de conseillers militaires au régime de Saïgon, en croissance constante de 1955 à 1964.",
+        "startDate": "1955-11-01",
+        "endDate": "1965-03-08",
+        "agency": "MAAG / MACV",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "DIRECT_WAR",
+        "title": "Engagement direct : troupes au sol et bombardements",
+        "description": "Débarquement des Marines à Da Nang (mars 1965), opération Rolling Thunder, engagement terrestre massif jusqu'au retrait de 1973.",
+        "startDate": "1965-03-08",
+        "endDate": "1973-03-29",
+        "agency": "U.S. Army / U.S. Air Force / U.S. Navy / U.S. Marine Corps",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "COVERT_OPERATION",
+        "title": "Guerre secrète au Laos et opérations clandestines régionales",
+        "description": "Bombardements et soutien clandestin à des forces supplétives au Laos, longtemps niés publiquement ; documentés depuis par des sources officielles déclassifiées.",
+        "startDate": "1964-01-01",
+        "endDate": "1973-02-22",
+        "agency": "CIA / U.S. Air Force",
+        "isCovert": true,
+        "certaintyLevel": "HIGH_CONFIDENCE"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 58220,
+        "maximumValue": 58220,
+        "bestEstimate": 58220,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains (toutes causes), statistique officielle du Department of Defense compilée par le CRS.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "TOTAL",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : le total des morts vietnamiens, laotiens et cambodgiens fait l'objet d'estimations très divergentes selon les études (démographiques, gouvernementales, académiques).",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1964-08-04", "title": "Incidents du golfe du Tonkin", "description": "Incidents navals rapportés ; la réalité de l'attaque du 4 août est aujourd'hui largement contestée.", "eventType": "EVENT" },
+      { "date": "1964-08-07", "title": "Résolution du golfe du Tonkin", "description": "Le Congrès autorise le président à employer la force en Asie du Sud-Est.", "eventType": "POLITICAL" },
+      { "date": "1965-03-08", "title": "Débarquement à Da Nang", "description": "Premières unités de combat américaines au sol.", "eventType": "EVENT" },
+      { "date": "1968-01-30", "title": "Offensive du Têt", "description": "Offensive générale du Nord-Vietnam et du FNL ; tournant politique et médiatique du conflit.", "eventType": "BATTLE" },
+      { "date": "1973-01-27", "title": "Accords de Paris", "description": "Accord de cessez-le-feu et retrait des forces américaines.", "eventType": "TREATY" },
+      { "date": "1975-04-30", "title": "Chute de Saïgon", "description": "Prise de Saïgon par le Nord-Vietnam ; fin de la guerre (après le retrait américain).", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-vietnam", "usageDescription": "Incident du golfe du Tonkin et escalade de 1964-1965." },
+      { "sourceKey": "crs-costs-major-wars", "usageDescription": "Coût budgétaire de la guerre." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines (58 220 morts)." }
+    ]
+  },
+  {
+    "slug": "guerre-d-irak-2003",
+    "title": "Guerre d'Irak (2003-2011)",
+    "shortTitle": "Irak 2003",
+    "summary": "Invasion de l'Irak par une coalition menée par les États-Unis en mars 2003, renversement du régime de Saddam Hussein, puis longue occupation marquée par une insurrection et des violences intercommunautaires, jusqu'au retrait américain de décembre 2011.",
+    "startDate": "2003-03-20",
+    "endDate": "2011-12-18",
+    "isOngoing": false,
+    "region": "Moyen-Orient",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "L'existence présumée d'armes de destruction massive et les liens allégués entre le régime irakien et le terrorisme faisaient partie des principales justifications officielles présentées avant l'invasion. Le rapport Duelfer (2004) de l'Iraq Survey Group a conclu à l'absence de stocks d'armes de destruction massive au moment de l'invasion.",
+    "strategicContext": "Contexte post-11 septembre et « guerre contre le terrorisme », doctrine d'action préventive, volonté affichée de changement de régime en Irak (Iraq Liberation Act de 1998) et de remodelage régional. Les motivations profondes (sécurité, ressources, positionnement régional) font l'objet d'analyses divergentes.",
+    "militaryResult": "Renversement rapide du régime (Bagdad prise le 9 avril 2003), suivi d'une insurrection prolongée et d'une guerre civile. Retrait des forces américaines en décembre 2011. Un retour militaire américain a eu lieu à partir de 2014 contre l'État islamique (traité comme un dossier distinct).",
+    "politicalResult": "Chute du régime baasiste, nouvelle constitution (2005), gouvernements dominés par les partis chiites, influence iranienne accrue, déstabilisation régionale durable. Le lien entre l'invasion et l'émergence ultérieure de l'État islamique est une analyse largement partagée mais dont les pondérations restent débattues.",
+    "humanConsequences": "4 418 militaires américains morts selon les statistiques officielles. Pour les morts irakiens, les estimations divergent fortement selon les méthodologies : Iraq Body Count documente environ 185 000 à 210 000 décès civils violents sur 2003-2023 (plancher documentaire) ; des études par enquêtes d'échantillonnage ont produit des estimations bien supérieures, fortement débattues. Des millions de personnes déplacées.",
+    "economicConsequences": "Coût budgétaire direct pour les États-Unis estimé par le CRS à environ 715 milliards de dollars sur 2003-2010 ; le Costs of War Project (Brown University) produit des estimations plus larges incluant intérêts et soins aux vétérans. Destructions massives d'infrastructures en Irak.",
+    "territorialConsequences": "Aucune annexion territoriale. Occupation militaire (Coalition Provisional Authority) de 2003 à 2004, puis présence sous mandat de l'ONU et accords bilatéraux jusqu'en 2011.",
+    "legalBasis": "Autorisation du Congrès américain (AUMF Irak, octobre 2002). Aucune résolution du Conseil de sécurité n'a explicitement autorisé l'invasion ; l'argument fondé sur les résolutions 678, 687 et 1441 est contesté, et la licéité de l'invasion au regard du droit international demeure fortement débattue.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Les fourchettes de mortalité irakienne (IBC vs études Lancet/PLOS) doivent être présentées étude par étude avec leurs méthodologies.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Coalition", "description": "Nation cadre de la coalition ; invasion, occupation, puis retrait en 2011." },
+      { "iso3": "GBR", "role": "ALLY", "side": "Coalition", "description": "Principal allié de l'invasion de 2003 (opération Telic)." },
+      { "iso3": "IRQ", "role": "TARGET", "side": "Régime irakien puis État irakien", "description": "État envahi ; le régime de Saddam Hussein est renversé en avril 2003." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Invasion de l'Irak (opération Iraqi Freedom)",
+        "description": "Invasion terrestre et aérienne à partir du 20 mars 2003 ; prise de Bagdad le 9 avril.",
+        "startDate": "2003-03-20",
+        "endDate": "2003-05-01",
+        "agency": "U.S. Armed Forces / coalition",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "DIRECT_WAR",
+        "title": "Occupation et contre-insurrection",
+        "description": "Occupation, lutte contre l'insurrection, « surge » de 2007, transfert progressif de la sécurité aux forces irakiennes, retrait fin 2011.",
+        "startDate": "2003-05-01",
+        "endDate": "2011-12-18",
+        "agency": "U.S. Armed Forces / Multi-National Force – Iraq",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "ECONOMIC_PRESSURE",
+        "title": "Sanctions préalables contre l'Irak (contexte)",
+        "description": "Régime de sanctions internationales de 1990 à 2003 (résolution 661 et suivantes), antérieur à l'invasion mais structurant le contexte économique et humanitaire irakien.",
+        "startDate": "1990-08-06",
+        "endDate": "2003-05-22",
+        "agency": "ONU (sanctions soutenues par les États-Unis)",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 4418,
+        "maximumValue": 4418,
+        "bestEstimate": 4418,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains (opération Iraqi Freedom, toutes causes), statistique officielle compilée par le CRS.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "CIVILIAN",
+        "minimumValue": 185000,
+        "maximumValue": 210000,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Décès civils violents documentés par Iraq Body Count (2003-2023). Méthodologie documentaire : ce chiffre constitue un plancher ; les études par enquêtes produisent des estimations supérieures et débattues.",
+        "needsReview": true,
+        "sourceKey": "iraq-body-count"
+      }
+    ],
+    "timelineEvents": [
+      { "date": "2002-10-16", "title": "Autorisation du Congrès (AUMF Irak)", "description": "Le Congrès autorise l'usage de la force contre l'Irak.", "eventType": "POLITICAL" },
+      { "date": "2002-11-08", "title": "Résolution 1441", "description": "Le Conseil de sécurité offre à l'Irak une « dernière possibilité » de désarmement.", "eventType": "POLITICAL" },
+      { "date": "2003-03-20", "title": "Début de l'invasion", "description": "Frappes initiales et invasion terrestre depuis le Koweït.", "eventType": "BATTLE" },
+      { "date": "2003-04-09", "title": "Chute de Bagdad", "description": "Prise de la capitale ; effondrement du régime.", "eventType": "BATTLE" },
+      { "date": "2003-05-01", "title": "Discours « Mission Accomplished »", "description": "Fin annoncée des opérations de combat majeures ; l'insurrection s'intensifie ensuite.", "eventType": "POLITICAL" },
+      { "date": "2006-12-30", "title": "Exécution de Saddam Hussein", "description": "Exécution après condamnation par le Tribunal spécial irakien.", "eventType": "POLITICAL" },
+      { "date": "2007-01-10", "title": "Annonce du « surge »", "description": "Renfort d'environ 30 000 soldats américains.", "eventType": "POLITICAL" },
+      { "date": "2011-12-18", "title": "Retrait américain", "description": "Départ des dernières troupes de combat américaines.", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "unsc-1441", "usageDescription": "Cadre diplomatique préalable à l'invasion." },
+      { "sourceKey": "duelfer-report", "usageDescription": "Conclusion sur l'absence d'armes de destruction massive." },
+      { "sourceKey": "iraq-body-count", "usageDescription": "Plancher documenté des décès civils." },
+      { "sourceKey": "costs-of-war-project", "usageDescription": "Estimations élargies des coûts humains et budgétaires." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "un-charter", "usageDescription": "Référence du débat sur la licéité de l'invasion." }
+    ]
+  },
+  {
+    "slug": "guerre-de-1812",
+    "title": "Guerre de 1812",
+    "shortTitle": "Guerre de 1812",
+    "summary": "Guerre entre les États-Unis et le Royaume-Uni (1812-1815), déclenchée sur fond d'entraves britanniques au commerce américain, d'enrôlement forcé de marins américains et de tensions sur la frontière du Nord-Ouest. Après des invasions américaines ratées du Canada, l'incendie de Washington et la bataille de La Nouvelle-Orléans, le traité de Gand rétablit le statu quo territorial.",
+    "startDate": "1812-06-18",
+    "endDate": "1815-02-17",
+    "isOngoing": false,
+    "region": "Amérique du Nord",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "Le président Madison a invoqué devant le Congrès les atteintes britanniques à la neutralité américaine : blocus et saisies de navires, enrôlement forcé (« impressment ») de marins, et soutien supposé aux résistances amérindiennes de la frontière du Nord-Ouest.",
+    "strategicContext": "Guerres napoléoniennes en Europe ; volonté d'une partie du Congrès (les « War Hawks ») d'annexer des territoires canadiens et de briser les alliances entre le Royaume-Uni et les nations amérindiennes ; affirmation de la souveraineté de la jeune république.",
+    "militaryResult": "Résultat militaire globalement indécis : échec des invasions américaines du Canada, incendie de Washington par les Britanniques (1814), victoires navales américaines et victoire de La Nouvelle-Orléans (janvier 1815, après la signature du traité).",
+    "politicalResult": "Traité de Gand (24 décembre 1814, ratifié en février 1815) : retour au statu quo ante bellum, sans gain territorial. Affaiblissement décisif des confédérations amérindiennes alliées aux Britanniques (mort de Tecumseh en 1813), ouvrant l'expansion vers l'ouest. Montée du sentiment national américain.",
+    "humanConsequences": "Environ 2 260 morts au combat côté américain selon les statistiques compilées par le CRS ; le total toutes causes (maladies incluses) est sensiblement plus élevé et moins bien documenté. Les pertes britanniques, canadiennes et amérindiennes font l'objet d'estimations variables. Conséquences durables pour les nations amérindiennes, principales perdantes du conflit.",
+    "economicConsequences": "Coût budgétaire estimé par le CRS à environ 90 millions de dollars courants. Perturbation majeure du commerce maritime ; essor des manufactures américaines favorisé par le blocus.",
+    "territorialConsequences": "Aucun changement de frontière entre les États-Unis et les possessions britanniques (statu quo ante bellum). Recul majeur des territoires contrôlés par les nations amérindiennes du Nord-Ouest et du Sud-Est dans les années suivantes.",
+    "legalBasis": "Déclaration de guerre votée par le Congrès le 18 juin 1812 — la première de l'histoire des États-Unis.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Pertes totales (toutes causes) et pertes amérindiennes à documenter.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "États-Unis", "description": "Déclare la guerre en juin 1812." },
+      { "iso3": "GBR", "role": "BELLIGERENT", "side": "Royaume-Uni et alliés amérindiens", "description": "Défend ses colonies canadiennes ; mène des raids côtiers, dont l'incendie de Washington." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Campagnes du Canada, des Grands Lacs et de la côte atlantique",
+        "description": "Invasions du Haut-Canada, guerre navale sur les Grands Lacs et l'Atlantique, défense contre les raids britanniques (Washington, Baltimore, La Nouvelle-Orléans).",
+        "startDate": "1812-06-18",
+        "endDate": "1815-02-17",
+        "agency": "U.S. Army / U.S. Navy",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 2260,
+        "maximumValue": 2260,
+        "bestEstimate": 2260,
+        "unit": "PERSONS",
+        "description": "Morts au combat américains selon le CRS. Le total toutes causes (maladies) est nettement supérieur et moins bien documenté.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1812-06-18", "title": "Déclaration de guerre", "description": "Le Congrès déclare la guerre au Royaume-Uni.", "eventType": "DECLARATION" },
+      { "date": "1813-09-10", "title": "Bataille du lac Érié", "description": "Victoire navale américaine assurant le contrôle du lac.", "eventType": "BATTLE" },
+      { "date": "1814-08-24", "title": "Incendie de Washington", "description": "Les troupes britanniques brûlent la Maison-Blanche et le Capitole.", "eventType": "BATTLE" },
+      { "date": "1814-12-24", "title": "Traité de Gand", "description": "Fin de la guerre, statu quo territorial.", "eventType": "TREATY" },
+      { "date": "1815-01-08", "title": "Bataille de La Nouvelle-Orléans", "description": "Victoire d'Andrew Jackson, livrée avant que la nouvelle du traité ne parvienne en Amérique.", "eventType": "BATTLE" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-war-1812", "usageDescription": "Causes, déroulement et traité de Gand." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "crs-costs-major-wars", "usageDescription": "Coût budgétaire de la guerre." }
+    ]
+  },
+  {
+    "slug": "guerre-hispano-americaine",
+    "title": "Guerre hispano-américaine",
+    "shortTitle": "Hispano-américaine",
+    "summary": "Guerre courte entre les États-Unis et l'Espagne (avril-août 1898), déclenchée dans le contexte de l'insurrection cubaine et de l'explosion du cuirassé USS Maine à La Havane. La victoire américaine fait basculer Cuba, Porto Rico, Guam et les Philippines hors de l'empire espagnol et marque l'entrée des États-Unis parmi les puissances impériales.",
+    "startDate": "1898-04-25",
+    "endDate": "1898-12-10",
+    "isOngoing": false,
+    "region": "Amérique latine et Caraïbes",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "Les justifications officielles portaient sur le soutien à l'indépendance cubaine face à la répression espagnole et sur l'explosion du USS Maine (15 février 1898), attribuée à l'époque à une mine espagnole. Les enquêtes ultérieures, dont celle de l'US Navy en 1976, considèrent qu'une explosion interne accidentelle est l'explication la plus probable.",
+    "strategicContext": "Montée de l'expansionnisme américain, presse à sensation (« yellow journalism »), intérêts sucriers à Cuba, doctrine de la puissance navale d'Alfred Mahan et volonté d'acquérir des points d'appui dans les Caraïbes et le Pacifique.",
+    "militaryResult": "Victoire américaine rapide : destruction des escadres espagnoles à Manille (1er mai) et à Santiago de Cuba (3 juillet), capitulation de Santiago le 17 juillet 1898.",
+    "politicalResult": "Traité de Paris (10 décembre 1898) : l'Espagne renonce à Cuba et cède Porto Rico, Guam et les Philippines (contre 20 millions de dollars pour ces dernières). Cuba passe sous tutelle américaine (amendement Platt en 1901). Début de l'empire colonial américain d'outre-mer.",
+    "humanConsequences": "2 446 morts militaires américains selon le CRS, dont 385 au combat — la grande majorité par maladie (fièvre jaune, typhoïde). Les pertes espagnoles et cubaines, ainsi que les morts civils de l'insurrection cubaine qui a précédé, font l'objet d'estimations variables.",
+    "economicConsequences": "Coût budgétaire estimé par le CRS à environ 283 millions de dollars courants. Acquisition de positions stratégiques et commerciales dans les Caraïbes et le Pacifique.",
+    "territorialConsequences": "Cession de Porto Rico et de Guam (toujours territoires américains), achat des Philippines (indépendantes en 1946), tutelle sur Cuba (indépendance formelle en 1902, base de Guantánamo conservée).",
+    "legalBasis": "Résolution conjointe du Congrès (20 avril 1898) exigeant le retrait espagnol de Cuba, suivie d'une déclaration de guerre le 25 avril 1898.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Pertes espagnoles et cubaines à documenter.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "États-Unis", "description": "Déclare la guerre après l'explosion du USS Maine." },
+      { "iso3": "ESP", "role": "BELLIGERENT", "side": "Espagne", "description": "Perd les restes de son empire colonial américain et pacifique." },
+      { "iso3": "CUB", "role": "HOST_COUNTRY", "side": "Insurgés cubains", "description": "Théâtre principal ; les indépendantistes cubains combattaient l'Espagne depuis 1895." },
+      { "iso3": "PHL", "role": "HOST_COUNTRY", "side": "Insurgés philippins", "description": "Théâtre pacifique ; les indépendantistes d'Aguinaldo assiégeaient Manille aux côtés des Américains." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Campagnes de Cuba et des Philippines",
+        "description": "Blocus et débarquement à Cuba (Santiago, San Juan Hill), destruction de la flotte espagnole à Manille, prise de Porto Rico et de Guam.",
+        "startDate": "1898-04-25",
+        "endDate": "1898-08-12",
+        "agency": "U.S. Army / U.S. Navy",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 2446,
+        "maximumValue": 2446,
+        "bestEstimate": 2446,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains toutes causes selon le CRS, dont 385 au combat ; la majorité par maladie.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1898-02-15", "title": "Explosion du USS Maine", "description": "266 morts à La Havane ; cause attribuée à l'Espagne à l'époque, explosion interne accidentelle jugée la plus probable depuis.", "eventType": "EVENT" },
+      { "date": "1898-04-25", "title": "Déclaration de guerre", "description": "Le Congrès déclare la guerre à l'Espagne.", "eventType": "DECLARATION" },
+      { "date": "1898-05-01", "title": "Bataille de la baie de Manille", "description": "Destruction de l'escadre espagnole du Pacifique par Dewey.", "eventType": "BATTLE" },
+      { "date": "1898-07-03", "title": "Bataille navale de Santiago", "description": "Destruction de l'escadre espagnole des Caraïbes.", "eventType": "BATTLE" },
+      { "date": "1898-12-10", "title": "Traité de Paris", "description": "L'Espagne renonce à Cuba et cède Porto Rico, Guam et les Philippines.", "eventType": "TREATY" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-spanish-american", "usageDescription": "Déroulement diplomatique et traité de Paris." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "crs-costs-major-wars", "usageDescription": "Coût budgétaire de la guerre." }
+    ]
+  },
+  {
+    "slug": "guerre-americano-philippine",
+    "title": "Guerre américano-philippine",
+    "shortTitle": "Philippines",
+    "summary": "Guerre entre les États-Unis et la Première République philippine (1899-1902, avec des résistances prolongées ensuite), née du refus américain de reconnaître l'indépendance proclamée par les Philippins après la défaite espagnole. Conflit colonial marqué par une guérilla longue et des violences importantes contre les civils.",
+    "startDate": "1899-02-04",
+    "endDate": "1902-07-04",
+    "isOngoing": false,
+    "region": "Asie du Sud-Est",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "L'administration McKinley a justifié l'annexion par un devoir de « civilisation » et d'« assimilation bienveillante » des Philippines, ainsi que par l'incapacité supposée des Philippins à se gouverner et par le risque qu'une autre puissance ne s'empare de l'archipel. Ces justifications relèvent du discours colonial de l'époque.",
+    "strategicContext": "Suite directe de la guerre hispano-américaine : les États-Unis achètent l'archipel à l'Espagne (traité de Paris) alors que la République philippine d'Emilio Aguinaldo est déjà proclamée. Intérêt stratégique pour un point d'appui vers les marchés chinois.",
+    "militaryResult": "Victoire militaire américaine : capture d'Aguinaldo (mars 1901), fin officielle des hostilités le 4 juillet 1902. Des résistances (Moros du Sud notamment) se prolongent jusque vers 1913.",
+    "politicalResult": "Administration coloniale américaine des Philippines ; autonomie progressive (Commonwealth en 1935) et indépendance en 1946.",
+    "humanConsequences": "Environ 4 200 morts militaires américains (chiffre couramment cité, à confirmer contre les compilations officielles). Environ 20 000 combattants philippins tués selon les estimations usuelles. Les morts civils philippins — combats, famines, épidémies dont le choléra — font l'objet d'estimations très divergentes, de l'ordre de 200 000 selon les évaluations les plus citées ; ces chiffres restent débattus.",
+    "economicConsequences": "Donnée à vérifier : coût budgétaire non consolidé dans les compilations CRS utilisées par ce seed.",
+    "territorialConsequences": "Consolidation de la souveraineté américaine sur l'archipel philippin jusqu'à l'indépendance de 1946.",
+    "legalBasis": "Aucune déclaration de guerre : les États-Unis considéraient l'archipel comme un territoire acquis par le traité de Paris et ont traité le conflit comme une « insurrection ».",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Toutes les fourchettes de pertes à documenter étude par étude ; le total civil est particulièrement débattu.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "États-Unis", "description": "Puissance coloniale après l'achat de l'archipel à l'Espagne." },
+      { "iso3": "PHL", "role": "TARGET", "side": "Première République philippine", "description": "République proclamée en 1899, non reconnue par les États-Unis ; vaincue militairement." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Guerre conventionnelle puis contre-guérilla",
+        "description": "Combats conventionnels autour de Manille (1899), puis longue campagne de contre-insurrection avec regroupements de populations et représailles documentées (Samar, 1901).",
+        "startDate": "1899-02-04",
+        "endDate": "1902-07-04",
+        "agency": "U.S. Army",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": 4200,
+        "unit": "PERSONS",
+        "description": "Ordre de grandeur couramment cité (~4 200 morts toutes causes). À confirmer contre les compilations officielles.",
+        "needsReview": true,
+        "sourceKey": "office-historian-philippine"
+      },
+      {
+        "category": "CIVILIAN",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : les morts civils (combats, famine, choléra) font l'objet d'estimations très divergentes, l'ordre de 200 000 étant le plus cité.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1899-02-04", "title": "Début des hostilités à Manille", "description": "Premiers combats entre troupes américaines et philippines.", "eventType": "BATTLE" },
+      { "date": "1901-03-23", "title": "Capture d'Aguinaldo", "description": "Le président de la République philippine est capturé par la ruse.", "eventType": "EVENT" },
+      { "date": "1901-09-28", "title": "Attaque de Balangiga et représailles de Samar", "description": "Attaque contre une garnison américaine, suivie d'une campagne de représailles restée tristement célèbre.", "eventType": "BATTLE" },
+      { "date": "1902-07-04", "title": "Fin officielle des hostilités", "description": "Proclamation présidentielle ; des résistances locales se poursuivent des années.", "eventType": "POLITICAL" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-philippine", "usageDescription": "Déroulement général et contexte colonial." }
+    ]
+  },
+  {
+    "slug": "premiere-guerre-mondiale",
+    "title": "Première Guerre mondiale (engagement américain)",
+    "shortTitle": "1re Guerre mondiale",
+    "summary": "Entrée en guerre des États-Unis aux côtés de l'Entente en avril 1917, après la reprise de la guerre sous-marine allemande à outrance et le télégramme Zimmermann. Le corps expéditionnaire américain (plus de 2 millions d'hommes en France) contribue de manière décisive aux offensives finales de 1918.",
+    "startDate": "1917-04-06",
+    "endDate": "1918-11-11",
+    "isOngoing": false,
+    "region": "Europe",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "Le président Wilson a présenté l'entrée en guerre comme une réponse à la guerre sous-marine allemande contre la navigation neutre et comme un combat pour « rendre le monde sûr pour la démocratie ». Le télégramme Zimmermann (proposition allemande d'alliance au Mexique) a pesé sur l'opinion.",
+    "strategicContext": "Liens économiques et financiers croissants avec l'Entente, torpillages de navires (Lusitania en 1915), reprise de la guerre sous-marine illimitée en janvier 1917 ; volonté de Wilson de peser sur l'ordre d'après-guerre.",
+    "militaryResult": "Contribution décisive à la victoire de l'Entente : blocage des offensives allemandes du printemps 1918 (Château-Thierry, Belleau), offensives de Saint-Mihiel et de Meuse-Argonne. Armistice le 11 novembre 1918.",
+    "politicalResult": "Rôle central de Wilson à la conférence de Paris (Quatorze Points, Société des Nations), mais le Sénat américain refuse de ratifier le traité de Versailles et l'adhésion à la SDN. Repli relatif vers l'isolationnisme dans l'entre-deux-guerres.",
+    "humanConsequences": "116 516 morts militaires américains selon le CRS (dont 53 402 au combat, le reste principalement de maladie, notamment la grippe de 1918). Bilan global du conflit : plusieurs millions de morts, hors du périmètre de ce dossier centré sur l'engagement américain.",
+    "economicConsequences": "Coût budgétaire estimé par le CRS à environ 20 milliards de dollars courants (environ 334 milliards de dollars constants de 2011). Les États-Unis deviennent créanciers de l'Europe et première puissance financière mondiale.",
+    "territorialConsequences": "Aucune acquisition territoriale américaine.",
+    "legalBasis": "Déclaration de guerre du Congrès contre l'Allemagne (6 avril 1917), puis contre l'Autriche-Hongrie (7 décembre 1917).",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration, centré sur l'engagement américain.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Entente", "description": "Corps expéditionnaire de plus de 2 millions d'hommes en France en 1918." },
+      { "iso3": "DEU", "role": "BELLIGERENT", "side": "Puissances centrales", "description": "Principal adversaire ; la guerre sous-marine motive l'entrée en guerre américaine." },
+      { "iso3": "FRA", "role": "ALLY", "side": "Entente", "description": "Principal théâtre d'engagement des troupes américaines." },
+      { "iso3": "GBR", "role": "ALLY", "side": "Entente", "description": "Allié majeur, notamment pour la guerre navale et les convois." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Corps expéditionnaire américain en France",
+        "description": "Déploiement de l'AEF sous Pershing : Cantigny, Château-Thierry, Saint-Mihiel, Meuse-Argonne.",
+        "startDate": "1917-06-26",
+        "endDate": "1918-11-11",
+        "agency": "American Expeditionary Forces",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 116516,
+        "maximumValue": 116516,
+        "bestEstimate": 116516,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains toutes causes selon le CRS (53 402 au combat ; forte mortalité de la grippe de 1918).",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1917-01-31", "title": "Guerre sous-marine à outrance", "description": "L'Allemagne annonce la reprise des attaques sans restriction contre la navigation.", "eventType": "EVENT" },
+      { "date": "1917-04-06", "title": "Déclaration de guerre", "description": "Le Congrès déclare la guerre à l'Allemagne.", "eventType": "DECLARATION" },
+      { "date": "1918-09-26", "title": "Offensive de Meuse-Argonne", "description": "Plus grande opération de l'armée américaine à cette date (1,2 million d'hommes engagés).", "eventType": "BATTLE" },
+      { "date": "1918-11-11", "title": "Armistice", "description": "Fin des combats sur le front occidental.", "eventType": "TREATY" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-wwi", "usageDescription": "Causes de l'entrée en guerre américaine." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "crs-costs-major-wars", "usageDescription": "Coût budgétaire de la guerre." }
+    ]
+  },
+  {
+    "slug": "seconde-guerre-mondiale",
+    "title": "Seconde Guerre mondiale (engagement américain)",
+    "shortTitle": "2de Guerre mondiale",
+    "summary": "Engagement des États-Unis dans la Seconde Guerre mondiale après l'attaque japonaise de Pearl Harbor (7 décembre 1941), sur deux théâtres majeurs : l'Europe contre l'Allemagne nazie et l'Italie, le Pacifique contre le Japon. La guerre s'achève par la capitulation allemande (mai 1945) puis japonaise (septembre 1945), après les bombardements atomiques d'Hiroshima et de Nagasaki.",
+    "startDate": "1941-12-08",
+    "endDate": "1945-09-02",
+    "isOngoing": false,
+    "region": "Mondial",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "Réponse à l'attaque de Pearl Harbor et aux déclarations de guerre allemande et italienne (11 décembre 1941). Le cadre officiel plus large — défense de la démocratie contre les puissances de l'Axe — s'appuyait sur la Charte de l'Atlantique (août 1941).",
+    "strategicContext": "Soutien croissant aux Alliés avant même l'entrée en guerre (Lend-Lease, mars 1941), embargo pétrolier contre le Japon (été 1941) en réponse à son expansion en Asie, planification « Germany first » avec le Royaume-Uni.",
+    "militaryResult": "Victoire alliée totale : capitulation sans condition de l'Allemagne (8 mai 1945) et du Japon (2 septembre 1945). Contribution américaine décisive en production industrielle, guerre navale et aérienne, et sur les fronts d'Europe de l'Ouest et du Pacifique.",
+    "politicalResult": "Les États-Unis deviennent superpuissance : création de l'ONU, système de Bretton Woods, occupation de l'Allemagne et du Japon, monopole nucléaire initial, début de la rivalité avec l'URSS qui structure la guerre froide.",
+    "humanConsequences": "405 399 morts militaires américains selon le CRS (dont 291 557 au combat). Le bilan mondial du conflit — de l'ordre de plusieurs dizaines de millions de morts, majoritairement civils — dépasse le périmètre de ce dossier. Les bombardements stratégiques alliés, dont Hiroshima et Nagasaki (environ 110 000 à 210 000 morts selon les estimations), restent l'objet de débats historiques et éthiques importants.",
+    "economicConsequences": "Coût budgétaire estimé par le CRS à environ 296 milliards de dollars courants (environ 4 100 milliards de dollars constants de 2011), de très loin la guerre la plus coûteuse de l'histoire américaine. Sortie définitive de la Grande Dépression par la mobilisation industrielle.",
+    "territorialConsequences": "Pas d'annexion, mais occupation de l'Allemagne et du Japon, tutelle sur de nombreuses îles du Pacifique (Trust Territory) et réseau durable de bases militaires outre-mer.",
+    "legalBasis": "Déclarations de guerre du Congrès contre le Japon (8 décembre 1941), puis contre l'Allemagne et l'Italie (11 décembre 1941) — les dernières déclarations de guerre formelles des États-Unis à ce jour.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration, centré sur l'engagement américain. Fourchettes d'Hiroshima/Nagasaki à documenter étude par étude.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Alliés", "description": "Plus de 16 millions d'Américains sous les drapeaux ; deux théâtres majeurs." },
+      { "iso3": "DEU", "role": "BELLIGERENT", "side": "Axe", "description": "Déclare la guerre aux États-Unis le 11 décembre 1941 ; capitule le 8 mai 1945." },
+      { "iso3": "JPN", "role": "BELLIGERENT", "side": "Axe", "description": "Attaque Pearl Harbor ; capitule le 2 septembre 1945 après Hiroshima et Nagasaki." },
+      { "iso3": "GBR", "role": "ALLY", "side": "Alliés", "description": "Allié le plus proche (Charte de l'Atlantique, débarquements communs)." },
+      { "iso3": "RUS", "role": "ALLY", "side": "Alliés (URSS)", "description": "L'URSS porte l'essentiel de la guerre terrestre contre l'Allemagne ; alliance de circonstance qui se mue en rivalité dès 1945." }
+    ],
+    "interventions": [
+      {
+        "type": "INDIRECT_CONFLICT",
+        "title": "Lend-Lease et soutien aux Alliés avant l'entrée en guerre",
+        "description": "Fourniture massive de matériel au Royaume-Uni, à l'URSS et à la Chine à partir de mars 1941, avant même l'engagement direct.",
+        "startDate": "1941-03-11",
+        "endDate": "1945-09-02",
+        "agency": "Administration Roosevelt",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "DIRECT_WAR",
+        "title": "Guerre sur les théâtres européen et pacifique",
+        "description": "Afrique du Nord, Italie, débarquement de Normandie et campagne d'Allemagne ; guerre navale et amphibie du Pacifique jusqu'à Okinawa ; bombardements stratégiques, dont les bombes atomiques d'août 1945.",
+        "startDate": "1941-12-08",
+        "endDate": "1945-09-02",
+        "agency": "U.S. Armed Forces",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 405399,
+        "maximumValue": 405399,
+        "bestEstimate": 405399,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains toutes causes selon le CRS (291 557 au combat).",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1941-12-07", "title": "Attaque de Pearl Harbor", "description": "Attaque surprise japonaise contre la flotte américaine du Pacifique (2 403 morts).", "eventType": "BATTLE" },
+      { "date": "1941-12-08", "title": "Déclaration de guerre au Japon", "description": "Discours du « jour d'infamie » de Roosevelt ; déclarations allemande et italienne le 11 décembre.", "eventType": "DECLARATION" },
+      { "date": "1942-06-04", "title": "Bataille de Midway", "description": "Tournant de la guerre du Pacifique.", "eventType": "BATTLE" },
+      { "date": "1944-06-06", "title": "Débarquement de Normandie", "description": "Ouverture du second front à l'Ouest.", "eventType": "BATTLE" },
+      { "date": "1945-08-06", "title": "Hiroshima puis Nagasaki", "description": "Premiers bombardements atomiques de l'histoire (6 et 9 août) ; leur nécessité militaire reste débattue par les historiens.", "eventType": "BATTLE" },
+      { "date": "1945-09-02", "title": "Capitulation du Japon", "description": "Signature à bord du USS Missouri ; fin de la guerre.", "eventType": "TREATY" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-wwii", "usageDescription": "Marche vers la guerre du Pacifique et Pearl Harbor." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "crs-costs-major-wars", "usageDescription": "Coût budgétaire de la guerre." }
+    ]
+  },
+  {
+    "slug": "guerre-de-coree",
+    "title": "Guerre de Corée",
+    "shortTitle": "Corée",
+    "summary": "Intervention américaine massive, sous mandat de l'ONU, après l'invasion de la Corée du Sud par la Corée du Nord (25 juin 1950). Après l'entrée en guerre de la Chine fin 1950, le front se fige autour du 38e parallèle ; l'armistice de Panmunjom (27 juillet 1953) gèle le conflit sans traité de paix à ce jour.",
+    "startDate": "1950-06-27",
+    "endDate": "1953-07-27",
+    "isOngoing": false,
+    "region": "Asie de l'Est",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "Réponse à l'agression nord-coréenne dans le cadre des résolutions 83 et 84 du Conseil de sécurité (adoptées en l'absence de l'URSS), présentée comme une action de sécurité collective de l'ONU et comme l'application de la politique d'endiguement du communisme.",
+    "strategicContext": "Début de la guerre froide : partition de la péninsule en 1945, victoire communiste en Chine (1949), doctrine Truman et NSC-68. La Corée devient le premier affrontement armé majeur de la guerre froide.",
+    "militaryResult": "Résultat militaire indécis : reconquête du Sud (Incheon, septembre 1950), avance vers le Yalu, contre-offensive chinoise, puis guerre de position. L'armistice rétablit approximativement la ligne de départ, avec une zone démilitarisée.",
+    "politicalResult": "Consolidation de la partition coréenne, toujours en vigueur ; alliance militaire durable entre les États-Unis et la Corée du Sud ; réarmement massif américain et militarisation de la guerre froide. Aucun traité de paix n'a été signé.",
+    "humanConsequences": "36 574 morts militaires américains dans le théâtre selon le CRS (33 739 au combat). Les pertes coréennes (militaires et civiles, Nord et Sud) et chinoises se comptent en centaines de milliers à millions selon les estimations, avec des écarts importants entre études ; les bombardements américains sur le Nord ont été particulièrement destructeurs.",
+    "economicConsequences": "Coût budgétaire estimé par le CRS à environ 30 milliards de dollars courants (environ 341 milliards de dollars constants de 2011). Destructions massives dans toute la péninsule.",
+    "territorialConsequences": "Aucun changement de frontière significatif : ligne d'armistice proche du 38e parallèle, zone démilitarisée toujours en place.",
+    "legalBasis": "Aucune déclaration de guerre du Congrès : engagement décidé par le président Truman sur la base des résolutions 83 et 84 du Conseil de sécurité (« police action »), précédent débattu pour les pouvoirs de guerre présidentiels.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Fourchettes des pertes coréennes et chinoises à documenter étude par étude.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Commandement des Nations unies", "description": "Fournit l'essentiel des forces étrangères du commandement de l'ONU." },
+      { "iso3": "PRK", "role": "BELLIGERENT", "side": "Nord", "description": "Déclenche la guerre par l'invasion du Sud le 25 juin 1950." },
+      { "iso3": "KOR", "role": "ALLY", "side": "Sud", "description": "État défendu ; alliance de sécurité durable avec les États-Unis depuis 1953." },
+      { "iso3": "CHN", "role": "BELLIGERENT", "side": "Nord", "description": "Intervient massivement fin 1950 avec les « Volontaires du peuple »." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Intervention sous mandat de l'ONU",
+        "description": "Défense du périmètre de Busan, débarquement d'Incheon, avance vers le Yalu, retraite après l'intervention chinoise, guerre de position et campagne aérienne intensive contre le Nord.",
+        "startDate": "1950-06-27",
+        "endDate": "1953-07-27",
+        "agency": "U.S. Armed Forces / Commandement des Nations unies",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 36574,
+        "maximumValue": 36574,
+        "bestEstimate": 36574,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains dans le théâtre selon le CRS (33 739 au combat).",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "TOTAL",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : le total des morts coréens (Nord et Sud, militaires et civils) et chinois fait l'objet d'estimations très divergentes.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1950-06-25", "title": "Invasion du Sud", "description": "L'armée nord-coréenne franchit le 38e parallèle.", "eventType": "BATTLE" },
+      { "date": "1950-06-27", "title": "Résolution 83 et engagement américain", "description": "Le Conseil de sécurité recommande l'assistance au Sud ; Truman engage les forces américaines.", "eventType": "POLITICAL" },
+      { "date": "1950-09-15", "title": "Débarquement d'Incheon", "description": "Manœuvre de MacArthur qui retourne le front.", "eventType": "BATTLE" },
+      { "date": "1950-10-25", "title": "Intervention chinoise", "description": "Entrée en guerre massive des « Volontaires du peuple » chinois.", "eventType": "BATTLE" },
+      { "date": "1953-07-27", "title": "Armistice de Panmunjom", "description": "Cessez-le-feu et zone démilitarisée ; pas de traité de paix.", "eventType": "TREATY" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-korea", "usageDescription": "Déroulement et cadre onusien." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "crs-costs-major-wars", "usageDescription": "Coût budgétaire de la guerre." },
+      { "sourceKey": "un-charter", "usageDescription": "Cadre de sécurité collective invoqué." }
+    ]
+  },
+  {
+    "slug": "guerre-secrete-au-laos",
+    "title": "Guerre secrète au Laos",
+    "shortTitle": "Laos",
+    "summary": "Volet laotien de la guerre d'Indochine américaine (1964-1973) : campagne de bombardements parmi les plus intenses de l'histoire et soutien clandestin de la CIA à une armée supplétive (notamment hmong), longtemps niés publiquement alors que le Laos était officiellement neutre. Le pays reste durablement contaminé par les munitions non explosées.",
+    "startDate": "1964-06-09",
+    "endDate": "1973-02-22",
+    "isOngoing": false,
+    "region": "Asie du Sud-Est",
+    "primaryCategory": "HYBRID_CONFLICT",
+    "officialJustification": "L'engagement au Laos a longtemps été nié ou minimisé publiquement, la neutralité du pays étant garantie par les accords de Genève de 1962. Les justifications internes portaient sur l'interdiction de la piste Hô Chi Minh utilisée par le Nord-Vietnam et sur le soutien au gouvernement royal lao contre le Pathet Lao.",
+    "strategicContext": "Extension régionale de la guerre du Vietnam : la piste Hô Chi Minh traversait l'est du Laos ; la CIA arma et encadra des dizaines de milliers de supplétifs (« armée secrète » du général Vang Pao) pour une guerre non déclarée.",
+    "militaryResult": "Échec des objectifs : la piste Hô Chi Minh n'a jamais été coupée durablement ; cessez-le-feu en février 1973, prise du pouvoir par le Pathet Lao en 1975.",
+    "politicalResult": "Instauration de la République démocratique populaire lao (1975), exode massif des Hmong ayant combattu aux côtés des Américains, dont une partie fut réinstallée aux États-Unis. La « guerre secrète » est devenue un cas d'école du contournement du contrôle parlementaire.",
+    "humanConsequences": "Environ 2 millions de tonnes de bombes larguées sur le Laos (plus de 580 000 sorties), faisant du pays l'un des plus bombardés de l'histoire par habitant. Les morts laotiens (combattants et civils) font l'objet d'estimations divergentes ; les munitions non explosées ont tué ou blessé des dizaines de milliers de personnes depuis 1973.",
+    "economicConsequences": "Donnée à vérifier : coûts intégrés aux dépenses de la guerre du Vietnam dans les compilations budgétaires ; contamination durable des terres agricoles par les munitions non explosées.",
+    "territorialConsequences": "Aucune. Changement de régime au Laos en 1975.",
+    "legalBasis": "Aucune autorisation spécifique du Congrès : opérations couvertes par des crédits et des mécanismes clandestins, en violation alléguée des accords de Genève de 1962 sur la neutralité du Laos — points aujourd'hui largement documentés par les archives déclassifiées.",
+    "certaintyLevel": "HIGH_CONFIDENCE",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Tonnage et sorties largement documentés ; bilans humains laotiens à documenter étude par étude.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Gouvernement royal lao", "description": "Bombardements massifs et encadrement clandestin de supplétifs, sans engagement officiel." },
+      { "iso3": "LAO", "role": "HOST_COUNTRY", "side": "Théâtre du conflit", "description": "Pays officiellement neutre, théâtre d'une guerre non déclarée." },
+      { "iso3": "VNM", "role": "BELLIGERENT", "side": "Nord-Vietnam / Pathet Lao", "description": "L'armée nord-vietnamienne opérait la piste Hô Chi Minh et soutenait le Pathet Lao." }
+    ],
+    "interventions": [
+      {
+        "type": "COVERT_OPERATION",
+        "title": "« Armée secrète » de la CIA",
+        "description": "Recrutement, armement et encadrement de supplétifs hmong et lao par la CIA (base de Long Tieng), longtemps nié publiquement.",
+        "startDate": "1961-01-01",
+        "endDate": "1973-02-22",
+        "agency": "CIA",
+        "isCovert": true,
+        "certaintyLevel": "HIGH_CONFIDENCE"
+      },
+      {
+        "type": "LIMITED_MILITARY_INTERVENTION",
+        "title": "Campagnes aériennes Barrel Roll et Steel Tiger",
+        "description": "Bombardements continus de 1964 à 1973 contre la piste Hô Chi Minh et la plaine des Jarres.",
+        "startDate": "1964-06-09",
+        "endDate": "1973-02-22",
+        "agency": "U.S. Air Force / U.S. Navy",
+        "isCovert": true,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "TOTAL",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : morts laotiens (combattants et civils) mal documentés ; victimes des munitions non explosées depuis 1973 estimées en dizaines de milliers.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1962-07-23", "title": "Accords de Genève sur le Laos", "description": "Quatorze États, dont les États-Unis, garantissent la neutralité du Laos.", "eventType": "TREATY" },
+      { "date": "1964-06-09", "title": "Début des bombardements continus", "description": "Lancement de l'opération Barrel Roll (décembre 1964) après les premières frappes.", "eventType": "BATTLE" },
+      { "date": "1971-02-08", "title": "Opération Lam Son 719", "description": "Incursion sud-vietnamienne au Laos avec appui aérien américain ; échec coûteux.", "eventType": "BATTLE" },
+      { "date": "1973-02-22", "title": "Cessez-le-feu au Laos", "description": "Accord de Vientiane entre le gouvernement royal et le Pathet Lao.", "eventType": "TREATY" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-vietnam", "usageDescription": "Contexte régional de l'escalade indochinoise." },
+      { "sourceKey": "costs-of-war-project", "usageDescription": "Références sur les héritages des bombardements (munitions non explosées)." }
+    ]
+  },
+  {
+    "slug": "cambodge-1969-1973",
+    "title": "Bombardements et incursion au Cambodge",
+    "shortTitle": "Cambodge",
+    "summary": "Extension de la guerre du Vietnam au Cambodge : bombardements secrets massifs (opération Menu, 1969-1970, puis Freedom Deal jusqu'en août 1973) et incursion terrestre américano-sud-vietnamienne (1970) contre les sanctuaires nord-vietnamiens. La déstabilisation du pays est considérée par de nombreux historiens comme un facteur — parmi d'autres — de la montée des Khmers rouges.",
+    "startDate": "1969-03-18",
+    "endDate": "1973-08-15",
+    "isOngoing": false,
+    "region": "Asie du Sud-Est",
+    "primaryCategory": "HYBRID_CONFLICT",
+    "officialJustification": "Les bombardements de 1969-1970 furent menés secrètement, avec des registres falsifiés, et cachés au Congrès et au public : il n'y eut donc pas de justification publique initiale. Après l'incursion de 1970, l'administration Nixon invoqua la destruction des sanctuaires nord-vietnamiens et la protection du retrait américain du Vietnam.",
+    "strategicContext": "Sanctuaires et lignes logistiques nord-vietnamiennes en territoire cambodgien ; renversement de Sihanouk par Lon Nol (mars 1970) ; « vietnamisation » du conflit et couverture du retrait américain.",
+    "militaryResult": "Résultats limités : sanctuaires temporairement désorganisés mais reconstitués ; le bombardement s'intensifie jusqu'à l'arrêt imposé par le Congrès (15 août 1973), sans empêcher la progression des Khmers rouges.",
+    "politicalResult": "Guerre civile cambodgienne ; prise de Phnom Penh par les Khmers rouges (17 avril 1975) suivie du génocide cambodgien (1,5 à 2 millions de morts, 1975-1979). La part causale des bombardements américains dans la montée des Khmers rouges est une question historiographique débattue.",
+    "humanConsequences": "Environ 540 000 tonnes de bombes larguées sur le Cambodge (les décomptes varient selon les périodes retenues). Les morts cambodgiens dus aux bombardements font l'objet d'estimations très divergentes, de plusieurs dizaines à plusieurs centaines de milliers ; aucun chiffre consensuel n'existe.",
+    "economicConsequences": "Donnée à vérifier : coûts intégrés aux dépenses de la guerre du Vietnam ; destructions rurales importantes et déplacements massifs de population.",
+    "territorialConsequences": "Aucune.",
+    "legalBasis": "Bombardements de 1969-1970 menés sans information du Congrès, comptabilité falsifiée à l'appui — l'un des griefs examinés lors de la procédure de destitution de Nixon. L'amendement Case-Church impose l'arrêt des opérations le 15 août 1973.",
+    "certaintyLevel": "HIGH_CONFIDENCE",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Tonnages et bilans humains à documenter étude par étude ; débat historiographique sur le lien avec la montée des Khmers rouges à présenter précisément.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "États-Unis / gouvernement Lon Nol", "description": "Bombardements secrets puis ouverts, incursion terrestre en 1970." },
+      { "iso3": "KHM", "role": "HOST_COUNTRY", "side": "Théâtre du conflit", "description": "Pays neutre devenu théâtre de la guerre régionale, puis de la guerre civile." },
+      { "iso3": "VNM", "role": "BELLIGERENT", "side": "Nord-Vietnam / FNL", "description": "Sanctuaires et logistique en territoire cambodgien, cibles des opérations américaines." }
+    ],
+    "interventions": [
+      {
+        "type": "COVERT_OPERATION",
+        "title": "Opération Menu",
+        "description": "Bombardements B-52 secrets des sanctuaires (mars 1969 - mai 1970), dissimulés par une double comptabilité.",
+        "startDate": "1969-03-18",
+        "endDate": "1970-05-26",
+        "agency": "U.S. Air Force / SAC",
+        "isCovert": true,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "DIRECT_WAR",
+        "title": "Incursion cambodgienne de 1970",
+        "description": "Offensive terrestre américano-sud-vietnamienne contre les sanctuaires (avril-juin 1970), déclencheur de vastes manifestations aux États-Unis (Kent State).",
+        "startDate": "1970-04-29",
+        "endDate": "1970-06-30",
+        "agency": "U.S. Army / ARVN",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "CIVILIAN",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : morts civils des bombardements estimés de plusieurs dizaines à plusieurs centaines de milliers selon les études ; aucun consensus.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1969-03-18", "title": "Début de l'opération Menu", "description": "Premiers bombardements B-52 secrets des sanctuaires.", "eventType": "BATTLE" },
+      { "date": "1970-03-18", "title": "Renversement de Sihanouk", "description": "Lon Nol prend le pouvoir ; le Cambodge bascule dans la guerre.", "eventType": "POLITICAL" },
+      { "date": "1970-04-29", "title": "Incursion terrestre", "description": "Offensive conjointe contre les sanctuaires ; vives protestations aux États-Unis.", "eventType": "BATTLE" },
+      { "date": "1973-08-15", "title": "Arrêt des bombardements", "description": "Le Congrès impose la fin des opérations aériennes en Indochine (amendement Case-Church).", "eventType": "POLITICAL" },
+      { "date": "1975-04-17", "title": "Prise de Phnom Penh", "description": "Victoire des Khmers rouges, suivie du génocide cambodgien (hors engagement américain).", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "office-historian-vietnam", "usageDescription": "Contexte régional de la guerre d'Indochine." }
+    ]
+  },
+  {
+    "slug": "afghanistan-1979-1989",
+    "title": "Soutien aux moudjahidines afghans (opération Cyclone)",
+    "shortTitle": "Afghanistan 1979-1989",
+    "summary": "Programme clandestin de la CIA (opération Cyclone) finançant et armant, via le Pakistan, la résistance afghane contre l'occupation soviétique (1979-1989). L'un des plus vastes programmes d'action couverte de l'histoire américaine, dont les prolongements — dont l'émergence de réseaux djihadistes transnationaux — sont débattus.",
+    "startDate": "1979-07-03",
+    "endDate": "1989-02-15",
+    "isOngoing": false,
+    "region": "Asie centrale et du Sud",
+    "primaryCategory": "COVERT_OPERATION",
+    "officialJustification": "Programme secret, sans justification publique contemporaine. En interne : contrer l'expansion soviétique après l'invasion de décembre 1979 et en faire « le Vietnam de l'URSS ». Une aide non létale aux opposants du régime communiste afghan avait été autorisée dès juillet 1979, avant l'invasion — chronologie documentée mais dont la portée est débattue.",
+    "strategicContext": "Guerre froide tardive : invasion soviétique de l'Afghanistan (24 décembre 1979), doctrine Carter puis doctrine Reagan de soutien aux mouvements anticommunistes ; financement croissant (de dizaines de millions à plusieurs centaines de millions de dollars par an, doublés par l'Arabie saoudite), acheminé par l'ISI pakistanais.",
+    "militaryResult": "Retrait soviétique complet le 15 février 1989. Les missiles Stinger livrés à partir de 1986 sont souvent cités comme un facteur d'usure de l'aviation soviétique, avec un poids exact débattu.",
+    "politicalResult": "Contribution à l'affaiblissement de l'URSS ; effondrement du régime de Kaboul en 1992, guerre civile entre factions moudjahidines, prise du pouvoir par les talibans (1996). Le rôle causal du programme dans l'émergence d'Al-Qaïda est un point d'interprétation débattu : le financement américain visait les moudjahidines afghans via l'ISI, non les volontaires arabes, mais l'écosystème créé a bénéficié à ces réseaux.",
+    "humanConsequences": "La guerre soviéto-afghane a fait environ un million de morts afghans selon les estimations courantes (fourchettes larges), des millions de réfugiés au Pakistan et en Iran, et environ 15 000 morts soviétiques. Aucune perte militaire américaine directe documentée dans ce cadre clandestin.",
+    "economicConsequences": "Coût du programme estimé à environ 3 milliards de dollars sur la décennie (hors contribution saoudienne équivalente) — ordre de grandeur cité par la littérature, à consolider.",
+    "territorialConsequences": "Aucune.",
+    "legalBasis": "« Findings » présidentiels autorisant l'action couverte (Carter, juillet 1979 et décembre 1979 ; élargis sous Reagan), avec information des commissions du renseignement du Congrès.",
+    "certaintyLevel": "HIGH_CONFIDENCE",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Montants annuels et chronologie des findings à sourcer précisément ; bilans humains de la guerre soviéto-afghane à documenter étude par étude.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Soutien aux moudjahidines", "description": "Financement et armement clandestins via le Pakistan ; pas d'engagement direct." },
+      { "iso3": "AFG", "role": "HOST_COUNTRY", "side": "Théâtre du conflit", "description": "Pays occupé par l'URSS, théâtre de la guerre." },
+      { "iso3": "RUS", "role": "TARGET", "side": "URSS", "description": "Puissance occupante visée par le programme (dossier antérieur à 1991 : URSS)." }
+    ],
+    "interventions": [
+      {
+        "type": "COVERT_OPERATION",
+        "title": "Opération Cyclone",
+        "description": "Financement, armement (dont Stinger à partir de 1986) et formation de la résistance afghane via l'ISI pakistanais.",
+        "startDate": "1979-07-03",
+        "endDate": "1989-02-15",
+        "agency": "CIA",
+        "isCovert": true,
+        "certaintyLevel": "HIGH_CONFIDENCE"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "TOTAL",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : les morts afghans de la guerre soviéto-afghane sont estimés autour d'un million selon les évaluations courantes, avec des fourchettes larges.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1979-07-03", "title": "Première autorisation d'aide", "description": "Carter autorise une aide non létale aux opposants du régime communiste afghan.", "eventType": "POLITICAL" },
+      { "date": "1979-12-24", "title": "Invasion soviétique", "description": "L'Armée rouge entre en Afghanistan ; le programme devient létal et massif.", "eventType": "EVENT" },
+      { "date": "1986-09-26", "title": "Premiers Stinger", "description": "Livraison de missiles sol-air portables aux moudjahidines.", "eventType": "EVENT" },
+      { "date": "1988-04-14", "title": "Accords de Genève", "description": "Cadre du retrait soviétique.", "eventType": "TREATY" },
+      { "date": "1989-02-15", "title": "Retrait soviétique achevé", "description": "Les dernières troupes soviétiques quittent l'Afghanistan.", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "costs-of-war-project", "usageDescription": "Mise en perspective des héritages du conflit afghan." }
+    ]
+  },
+  {
+    "slug": "nicaragua-contras",
+    "title": "Soutien aux Contras au Nicaragua",
+    "shortTitle": "Contras",
+    "summary": "Programme clandestin de soutien (financement, armement, entraînement) aux Contras opposés au gouvernement sandiniste du Nicaragua (années 1980), incluant le minage des ports nicaraguayens. Condamné par la Cour internationale de justice en 1986 et prolongé illégalement via l'affaire Iran-Contra après l'interdiction votée par le Congrès.",
+    "startDate": "1981-11-23",
+    "endDate": "1990-04-25",
+    "isOngoing": false,
+    "region": "Amérique latine et Caraïbes",
+    "primaryCategory": "COVERT_OPERATION",
+    "officialJustification": "L'administration Reagan justifiait le programme par l'endiguement du communisme en Amérique centrale et par l'interdiction du soutien sandiniste supposé à la guérilla salvadorienne. Le programme lui-même était clandestin ; sa poursuite après les amendements Boland fut dissimulée au Congrès.",
+    "strategicContext": "Doctrine Reagan de soutien aux mouvements anticommunistes ; révolution sandiniste (1979) perçue comme une tête de pont soviéto-cubaine ; guerre civile régionale (Salvador, Guatemala).",
+    "militaryResult": "Les Contras n'ont jamais menacé militairement le pouvoir sandiniste, mais la guerre d'usure et la pression économique ont pesé lourdement sur le pays.",
+    "politicalResult": "Arrêt de la CIJ (1986) condamnant les États-Unis ; scandale Iran-Contra (1986-1987) ; accords d'Esquipulas et défaite électorale des sandinistes (février 1990), suivie de la démobilisation des Contras.",
+    "humanConsequences": "La guerre des Contras a fait environ 30 000 morts selon les estimations courantes (fourchettes variables), avec des exactions documentées des deux côtés, et des destructions ciblées d'infrastructures civiles.",
+    "economicConsequences": "Aide américaine aux Contras de l'ordre de plusieurs centaines de millions de dollars (légale puis clandestine) ; embargo commercial américain contre le Nicaragua (1985-1990) ; économie nicaraguayenne dévastée en fin de décennie.",
+    "territorialConsequences": "Aucune.",
+    "legalBasis": "Findings présidentiels d'action couverte, puis poursuite illégale après l'interdiction des amendements Boland (1982-1984) via des financements parallèles (affaire Iran-Contra). La CIJ a jugé en 1986 que le soutien aux Contras et le minage des ports violaient le droit international ; les États-Unis ont rejeté l'arrêt.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Montants d'aide et bilan humain à consolider source par source.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Soutien aux Contras", "description": "Financement, armement, entraînement, minage des ports ; pas de troupes engagées ouvertement." },
+      { "iso3": "NIC", "role": "TARGET", "side": "Gouvernement sandiniste", "description": "État visé par la guerre d'usure et l'embargo." }
+    ],
+    "interventions": [
+      {
+        "type": "COVERT_OPERATION",
+        "title": "Programme Contras de la CIA",
+        "description": "Organisation, financement et armement des Contras depuis le Honduras et le Costa Rica ; minage des ports (1984) ; financements parallèles après les amendements Boland.",
+        "startDate": "1981-11-23",
+        "endDate": "1988-02-03",
+        "agency": "CIA / NSC (Iran-Contra)",
+        "isCovert": true,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "ECONOMIC_PRESSURE",
+        "title": "Embargo commercial contre le Nicaragua",
+        "description": "Embargo commercial total décrété en mai 1985, levé en 1990 après la défaite électorale sandiniste.",
+        "startDate": "1985-05-07",
+        "endDate": "1990-04-25",
+        "agency": "Administration Reagan",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "TOTAL",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": 30000,
+        "unit": "PERSONS",
+        "description": "Ordre de grandeur couramment cité pour l'ensemble de la guerre des Contras (~30 000 morts) ; fourchettes variables selon les études.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1981-11-23", "title": "Autorisation du programme", "description": "Reagan signe le finding autorisant l'action couverte contre le Nicaragua.", "eventType": "POLITICAL" },
+      { "date": "1984-01-01", "title": "Minage des ports", "description": "Minage des ports nicaraguayens par la CIA (début 1984), condamné internationalement.", "eventType": "EVENT" },
+      { "date": "1984-10-12", "title": "Amendement Boland II", "description": "Le Congrès interdit toute aide militaire aux Contras.", "eventType": "POLITICAL" },
+      { "date": "1986-06-27", "title": "Arrêt de la CIJ", "description": "La Cour internationale de justice condamne les États-Unis.", "eventType": "POLITICAL" },
+      { "date": "1986-11-03", "title": "Révélation de l'affaire Iran-Contra", "description": "La presse révèle le financement illégal des Contras par les ventes d'armes à l'Iran.", "eventType": "POLITICAL" },
+      { "date": "1990-02-25", "title": "Défaite électorale sandiniste", "description": "Violeta Chamorro remporte l'élection ; démobilisation des Contras.", "eventType": "POLITICAL" }
+    ],
+    "sources": [
+      { "sourceKey": "icj-nicaragua", "usageDescription": "Condamnation internationale du soutien aux Contras et du minage des ports." }
+    ]
+  },
+  {
+    "slug": "invasion-du-panama",
+    "title": "Invasion du Panama (opération Just Cause)",
+    "shortTitle": "Panama",
+    "summary": "Invasion du Panama par environ 27 000 militaires américains (décembre 1989 - janvier 1990) pour renverser et capturer le général Manuel Noriega, ancien partenaire des services américains inculpé de narcotrafic. Opération brève et militairement décisive, critiquée à l'ONU et à l'OEA.",
+    "startDate": "1989-12-20",
+    "endDate": "1990-01-31",
+    "isOngoing": false,
+    "region": "Amérique latine et Caraïbes",
+    "primaryCategory": "LIMITED_MILITARY_INTERVENTION",
+    "officialJustification": "L'administration G.H.W. Bush a invoqué la protection des ressortissants américains, la défense de la démocratie panaméenne (annulation des élections de mai 1989), la lutte contre le narcotrafic et la sécurité du canal. L'Assemblée générale de l'ONU et l'OEA ont qualifié l'invasion de violation du droit international.",
+    "strategicContext": "Dégradation des relations avec Noriega, longtemps rémunéré comme informateur des services américains ; inculpations fédérales pour narcotrafic (1988) ; incidents contre des militaires américains ; échéance des traités Torrijos-Carter sur le canal (transfert prévu en 1999).",
+    "militaryResult": "Objectifs militaires atteints en quelques jours : neutralisation des Forces de défense panaméennes ; Noriega se rend le 3 janvier 1990 après s'être réfugié à la nonciature.",
+    "politicalResult": "Installation du gouvernement Endara (élu en mai 1989) ; condamnation de Noriega aux États-Unis ; condamnation de l'invasion par l'Assemblée générale de l'ONU (résolution 44/240). Le calendrier de transfert du canal a été respecté (1999).",
+    "humanConsequences": "23 militaires américains tués selon les compilations officielles. Pour les Panaméens, les bilans divergent fortement : environ 300 militaires et de plusieurs centaines à quelques milliers de civils selon les sources (chiffres officiels américains contestés par des ONG et enquêtes locales) ; quartier d'El Chorrillo particulièrement touché.",
+    "economicConsequences": "Destructions urbaines concentrées (El Chorrillo), pillages massifs dans les jours suivant l'invasion ; dommages estimés en milliards de dollars par des sources panaméennes — à documenter.",
+    "territorialConsequences": "Aucune. Le transfert du canal prévu par les traités Torrijos-Carter a suivi son cours.",
+    "legalBasis": "Aucune autorisation du Congrès ni du Conseil de sécurité : l'administration invoquait la légitime défense (article 51) et la protection des ressortissants — lecture rejetée par l'Assemblée générale de l'ONU, qui a dénoncé une « violation flagrante du droit international ».",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Bilan civil panaméen très débattu, à présenter source par source.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "États-Unis", "description": "Environ 27 000 militaires engagés." },
+      { "iso3": "PAN", "role": "TARGET", "side": "Régime Noriega", "description": "Forces de défense panaméennes dissoutes après l'invasion." }
+    ],
+    "interventions": [
+      {
+        "type": "LIMITED_MILITARY_INTERVENTION",
+        "title": "Opération Just Cause",
+        "description": "Assauts simultanés sur les points clés du pays, combats urbains à Panama City, capture de Noriega.",
+        "startDate": "1989-12-20",
+        "endDate": "1990-01-31",
+        "agency": "U.S. Armed Forces / SOUTHCOM",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 23,
+        "maximumValue": 23,
+        "bestEstimate": 23,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains selon les compilations officielles.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "CIVILIAN",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : bilans civils panaméens divergents (de quelques centaines à quelques milliers selon les sources).",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1989-05-07", "title": "Élections annulées", "description": "Noriega annule les élections remportées par l'opposition.", "eventType": "POLITICAL" },
+      { "date": "1989-12-20", "title": "Début de l'invasion", "description": "Assauts simultanés sur Panama City et les bases des Forces de défense.", "eventType": "BATTLE" },
+      { "date": "1990-01-03", "title": "Reddition de Noriega", "description": "Après dix jours à la nonciature apostolique.", "eventType": "EVENT" },
+      { "date": "1989-12-29", "title": "Condamnation par l'ONU", "description": "L'Assemblée générale dénonce une violation flagrante du droit international (résolution 44/240).", "eventType": "POLITICAL" }
+    ],
+    "sources": [
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "un-charter", "usageDescription": "Cadre du débat juridique (article 2§4 et article 51)." }
+    ]
+  },
+  {
+    "slug": "guerre-du-golfe",
+    "title": "Guerre du Golfe (1990-1991)",
+    "shortTitle": "Golfe 1991",
+    "summary": "Coalition internationale menée par les États-Unis pour libérer le Koweït envahi par l'Irak en août 1990. Après une campagne aérienne massive (opération Desert Storm) et une offensive terrestre brève en février 1991, les forces irakiennes sont expulsées du Koweït ; Saddam Hussein reste au pouvoir en Irak.",
+    "startDate": "1990-08-02",
+    "endDate": "1991-02-28",
+    "isOngoing": false,
+    "region": "Moyen-Orient",
+    "primaryCategory": "DIRECT_WAR",
+    "officialJustification": "L'administration Bush a présenté l'intervention comme la réponse à une agression armée contre un État souverain (Koweït) et à une menace pour l'approvisionnement énergétique mondial. Le Conseil de sécurité a adopté une série de résolutions condamnant l'invasion ; la résolution 678 (1990) autorise l'emploi de « tous les moyens nécessaires » après le 15 janvier 1991.",
+    "strategicContext": "Fin de la guerre froide, préoccupations pétrolières, volonté de préserver un ordre régional après l'invasion irakienne, construction d'une vaste coalition (ONU, OTAN, pays arabes). Les États-Unis déploient environ 500 000 militaires dans le théâtre.",
+    "militaryResult": "Libération du Koweït en février 1991. Cessez-le-feu annoncé le 28 février 1991 ; l'armée irakienne est décimée mais le régime de Saddam Hussein survit.",
+    "politicalResult": "Le Koweït retrouve sa souveraineté. Sanctions et zones d'exclusion aérienne imposées à l'Irak jusqu'à l'invasion de 2003. Soulèvements chiite et kurde en Irak écrasés par le régime après le cessez-le-feu, sans intervention américaine directe pour les soutenir malgré des appels à l'insurrection.",
+    "humanConsequences": "383 morts militaires américains selon les statistiques officielles compilées par le CRS (dont environ 148 tués au combat). Les pertes irakiennes (militaires et civiles) lors de la campagne aérienne et terrestre font l'objet d'estimations très divergentes ; le « massacre de la route de la Mort » (février 1991) est documenté.",
+    "economicConsequences": "Coût budgétaire direct pour les États-Unis estimé par le CRS ; une partie significative a été financée par des contributions de pays de la coalition (notamment le Koweït, l'Arabie saoudite, le Japon). Flambée puis effondrement du prix du pétrole.",
+    "territorialConsequences": "Aucune acquisition territoriale américaine. Frontières koweïtiennes rétablies.",
+    "legalBasis": "Résolution 678 (1990) du Conseil de sécurité ; autorisation du Congrès américain (Authorization for Use of Military Force Against Iraq Resolution, janvier 1991).",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Bilans irakiens (militaires et civils) à documenter étude par étude.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Coalition", "description": "Chef de file de la coalition ; opérations Desert Shield puis Desert Storm." },
+      { "iso3": "IRQ", "role": "BELLIGERENT", "side": "Irak", "description": "Envahisseur du Koweït ; forces repoussées en février 1991." },
+      { "iso3": "KWT", "role": "TARGET", "side": "Koweït", "description": "État envahi le 2 août 1990 ; libéré en février 1991." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Opération Desert Storm",
+        "description": "Campagne aérienne puis offensive terrestre de six semaines expulsant l'Irak du Koweït.",
+        "startDate": "1991-01-17",
+        "endDate": "1991-02-28",
+        "agency": "U.S. Central Command / coalition",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 383,
+        "maximumValue": 383,
+        "bestEstimate": 383,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains (opération Desert Storm / Shield, toutes causes), statistique officielle compilée par le CRS.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "MILITARY_OPPONENT",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : les pertes irakiennes (militaires et civiles) font l'objet d'estimations très divergentes.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1990-08-02", "title": "Invasion du Koweït", "description": "L'Irak envahit le Koweït ; début de la crise du Golfe.", "eventType": "BATTLE" },
+      { "date": "1990-11-29", "title": "Résolution 678", "description": "Le Conseil de sécurité autorise l'emploi de la force si l'Irak ne se retire pas avant le 15 janvier 1991.", "eventType": "POLITICAL" },
+      { "date": "1991-01-17", "title": "Début de Desert Storm", "description": "Campagne aérienne massive contre l'Irak et les forces irakiennes au Koweït.", "eventType": "BATTLE" },
+      { "date": "1991-02-24", "title": "Offensive terrestre", "description": "100 heures d'offensive terrestre de la coalition.", "eventType": "BATTLE" },
+      { "date": "1991-02-28", "title": "Cessez-le-feu", "description": "Fin des opérations de combat ; le Koweït est libéré.", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "unsc-678", "usageDescription": "Base juridique internationale de l'intervention." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines (383 morts)." },
+      { "sourceKey": "crs-costs-major-wars", "usageDescription": "Coût budgétaire de la guerre." }
+    ]
+  },
+  {
+    "slug": "intervention-en-somalie",
+    "title": "Intervention en Somalie (1992-1994)",
+    "shortTitle": "Somalie",
+    "summary": "Intervention humanitaire puis opération militaire américaine en Somalie dans un contexte de famine et de guerre civile. Après l'opération Restore Hope (ONU), la mission devient un engagement de combat (opération Gothic Serpent, 1993) marqué par la bataille de Mogadiscio et le retrait américain en 1994.",
+    "startDate": "1992-12-09",
+    "endDate": "1994-03-25",
+    "isOngoing": false,
+    "region": "Afrique",
+    "primaryCategory": "LIMITED_MILITARY_INTERVENTION",
+    "officialJustification": "L'administration Bush puis Clinton a présenté l'intervention comme une opération humanitaire pour acheminer de l'aide alimentaire dans un contexte de famine massive, puis pour stabiliser la situation sécuritaire. La mission s'est transformée en chasse à des chefs de milices, dont Mohamed Farrah Aidid.",
+    "strategicContext": "Effondrement de l'État somalien (1991), famine sévère, images médiatiques de la crise humanitaire. Mandat initial de l'ONU (UNOSOM I puis UNITAF/Restore Hope). Escalade après des embuscades contre des soldats de la paix.",
+    "militaryResult": "Aide humanitaire acheminée dans un premier temps. Échec de la capture d'Aidid ; 18 militaires américains tués lors de la bataille de Mogadiscio (3-4 octobre 1993). Retrait américain en mars 1994.",
+    "politicalResult": "Retrait des forces américaines et réduction de l'engagement occidental. La Somalie reste sans gouvernement central effectif pendant des décennies. Impact durable sur la politique américaine (« syndrome somalien ») et la prudence envers les interventions humanitaires.",
+    "humanConsequences": "43 morts militaires américains selon les statistiques officielles compilées par le CRS pour l'ensemble de l'opération. Les victimes somaliennes de la bataille de Mogadiscio et des opérations associées font l'objet d'estimations divergentes et débattues.",
+    "economicConsequences": "Coût budgétaire modeste comparé aux grandes guerres ; dommages limités pour les États-Unis, destructions et instabilité prolongées en Somalie.",
+    "territorialConsequences": "Aucune.",
+    "legalBasis": "Résolution 794 (1992) du Conseil de sécurité autorisant la création de la UNITAF ; résolution 837 (1993) élargissant le mandat de l'UNOSOM II.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Bilan somali (notamment bataille de Mogadiscio) à documenter avec prudence.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "UNITAF / UNOSOM II", "description": "Chef de file de Restore Hope puis engagement de combat jusqu'au retrait de 1994." },
+      { "iso3": "SOM", "role": "HOST_COUNTRY", "side": "Milices rivales", "description": "État effondré ; territoire de factions armées dont celle d'Aidid." }
+    ],
+    "interventions": [
+      {
+        "type": "LIMITED_MILITARY_INTERVENTION",
+        "title": "Opération Restore Hope (UNITAF)",
+        "description": "Déploiement de près de 25 000 militaires américains pour sécuriser l'acheminement de l'aide humanitaire.",
+        "startDate": "1992-12-09",
+        "endDate": "1993-05-04",
+        "agency": "U.S. Armed Forces / UNITAF",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "LIMITED_MILITARY_INTERVENTION",
+        "title": "Opération Gothic Serpent",
+        "description": "Raid pour capturer des lieutenants d'Aidid ; bataille de Mogadiscio (3-4 octobre 1993).",
+        "startDate": "1993-08-22",
+        "endDate": "1993-10-06",
+        "agency": "U.S. Army / JSOC",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 43,
+        "maximumValue": 43,
+        "bestEstimate": 43,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains pour l'ensemble de l'opération en Somalie, statistique officielle compilée par le CRS.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "CIVILIAN",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : estimations des morts somaliens lors de la bataille de Mogadiscio et des opérations associées varient fortement.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1992-12-09", "title": "Débarquement à Mogadiscio", "description": "Début de Restore Hope.", "eventType": "EVENT" },
+      { "date": "1993-10-03", "title": "Bataille de Mogadiscio", "description": "Raid Ranger/Delta ; deux hélicoptères Black Hawk abattus ; 18 Américains tués.", "eventType": "BATTLE" },
+      { "date": "1993-10-07", "title": "Annonce du retrait", "description": "Le président Clinton annonce le retrait des forces américaines d'ici mars 1994.", "eventType": "POLITICAL" },
+      { "date": "1994-03-25", "title": "Retrait américain", "description": "Départ des dernières forces de combat américaines.", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines (43 morts)." },
+      { "sourceKey": "un-charter", "usageDescription": "Cadre du mandat onusien." }
+    ]
+  },
+  {
+    "slug": "intervention-au-kosovo",
+    "title": "Intervention au Kosovo (1999)",
+    "shortTitle": "Kosovo",
+    "summary": "Campagne aérienne de l'OTAN menée par les États-Unis et leurs alliés contre la République fédérale de Yougoslavie (mars-juin 1999) pour contrer la répression du Kosovo albanais. Sans résolution explicite du Conseil de sécurité ni engagement terrestre de combat américain, l'opération Allied Force précède le déploiement de la KFOR.",
+    "startDate": "1999-03-24",
+    "endDate": "1999-06-10",
+    "isOngoing": false,
+    "region": "Europe",
+    "primaryCategory": "LIMITED_MILITARY_INTERVENTION",
+    "officialJustification": "L'administration Clinton et l'OTAN ont présenté l'intervention comme une mesure humanitaire d'urgence pour stopper une campagne de déplacement et de violence contre les Albanais du Kosovo, après l'échec des négociations de Rambouillet.",
+    "strategicContext": "Guerre froide terminée, crise yougoslave, massacre de Račak (janvier 1999), négociations de Rambouillet rejetées par Belgrade. Première guerre majeure de l'OTAN hors de ses frontières historiques.",
+    "militaryResult": "Campagne aérienne de 78 jours ; retrait des forces serbes du Kosovo ; déploiement de la KFOR. Aucun mort américain au combat (deux morts dans un accident d'hélicoptère Apache en Albanie).",
+    "politicalResult": "Administration provisoire du Kosovo sous mandat de l'ONU (résolution 1244), puis processus vers l'indépendance déclarée en 2008 (non reconnue par la Serbie ni par plusieurs États, dont la Russie). Débat durable sur la licéité de l'intervention sans mandat du Conseil de sécurité.",
+    "humanConsequences": "Deux morts militaires américains (accidents, pas au combat). Les victimes civiles des frappes de l'OTAN et les déplacements de populations (albanaises et serbes) font l'objet d'estimations variables.",
+    "economicConsequences": "Coût budgétaire de la campagne aérienne ; destructions d'infrastructures en Serbie et au Kosovo.",
+    "territorialConsequences": "Aucune acquisition américaine. Statut du Kosovo demeuré disputé.",
+    "legalBasis": "Aucune résolution du Conseil de sécurité autorisant explicitement l'usage de la force ; l'OTAN invoque les violations massives du droit humanitaire et la résolution 1199. Licéité au regard du droit international fortement débattue (notamment absence d'autorisation du chapitre VII).",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Bilans civils et déplacements à documenter avec prudence.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "OTAN", "description": "Principal contributeur aérien de l'opération Allied Force." },
+      { "iso3": "SRB", "role": "TARGET", "side": "République fédérale de Yougoslavie", "description": "Cible de la campagne aérienne de l'OTAN." }
+    ],
+    "interventions": [
+      {
+        "type": "LIMITED_MILITARY_INTERVENTION",
+        "title": "Opération Allied Force",
+        "description": "Campagne aérienne de l'OTAN contre des cibles en Serbie et au Kosovo.",
+        "startDate": "1999-03-24",
+        "endDate": "1999-06-10",
+        "agency": "U.S. Air Force / NATO",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 2,
+        "maximumValue": 2,
+        "bestEstimate": 2,
+        "unit": "PERSONS",
+        "description": "Deux morts militaires américains lors d'accidents (hélicoptères Apache en Albanie), pas au combat — statistique officielle compilée par le CRS.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "CIVILIAN",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : victimes civiles des frappes de l'OTAN et déplacements de populations — estimations divergentes.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "1999-03-24", "title": "Début de Allied Force", "description": "Premières frappes aériennes de l'OTAN.", "eventType": "BATTLE" },
+      { "date": "1999-06-03", "title": "Accord de paix", "description": "Belgrade accepte les conditions présentées par l'UE et la Russie.", "eventType": "TREATY" },
+      { "date": "1999-06-10", "title": "Fin des frappes", "description": "Suspension de la campagne aérienne ; retrait des forces serbes.", "eventType": "EVENT" },
+      { "date": "1999-06-12", "title": "Entrée de la KFOR", "description": "Déploiement de la force de maintien de la paix de l'OTAN au Kosovo.", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "nato-kosovo", "usageDescription": "Présentation institutionnelle de l'opération Allied Force et de la KFOR." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines." },
+      { "sourceKey": "un-charter", "usageDescription": "Cadre du débat sur la licéité sans mandat du Conseil de sécurité." }
+    ]
+  },
+  {
+    "slug": "afghanistan-2001-2021",
+    "title": "Guerre d'Afghanistan (2001-2021)",
+    "shortTitle": "Afghanistan 2001",
+    "summary": "Invasion de l'Afghanistan par les États-Unis et leurs alliés en octobre 2001, dans le cadre de la « guerre contre le terrorisme » après le 11 septembre, visant à renverser le régime taliban abritant al-Qaïda. Deux décennies de guerre, de surges et de négociations aboutissent au retrait américain et à la reprise du pouvoir par les talibans en août 2021.",
+    "startDate": "2001-10-07",
+    "endDate": "2021-08-30",
+    "isOngoing": false,
+    "region": "Asie centrale et du Sud",
+    "primaryCategory": "HYBRID_CONFLICT",
+    "officialJustification": "L'administration Bush a présenté l'intervention comme une riposte légitime aux attentats du 11 septembre 2001, visant à démanteler al-Qaïda et à renverser le régime taliban qui refusait d'extrader Oussama ben Laden. Le Congrès avait adopté l'AUMF le 18 septembre 2001.",
+    "strategicContext": "Attentats du 11 septembre, doctrine antiterroriste, volonté initiale de cibler al-Qaïda puis engagement prolongé en « nation-building ». Surges (2009-2010), négociations avec les talibans, accord de Doha (2020) et retrait annoncé par Biden.",
+    "militaryResult": "Renversement rapide du régime taliban (fin 2001), puis insurrection prolongée. Retrait américain achevé fin août 2021 ; les talibans reprennent Kaboul le 15 août 2021.",
+    "politicalResult": "Gouvernements afghans soutenus par la coalition (Karzai, Ghani), puis retour au pouvoir des talibans en 2021. Échec des objectifs politiques à long terme de la coalition selon la plupart des analyses.",
+    "humanConsequences": "2 461 morts militaires américains selon les statistiques officielles compilées par le CRS pour l'opération Enduring Freedom et les opérations associées en Afghanistan. Les victimes afghanes (civils et combattants) font l'objet d'estimations très divergentes ; le Costs of War Project produit des synthèses débattues.",
+    "economicConsequences": "Coût budgétaire direct estimé par le CRS et le Costs of War Project à des centaines de milliards de dollars ; reconstruction afghane partiellement financée puis largement perdue avec la reprise talibane.",
+    "territorialConsequences": "Aucune annexion. Présence militaire américaine et de la coalition jusqu'en 2021.",
+    "legalBasis": "Authorization for Use of Military Force (2001) — Public Law 107-40. Pas de déclaration de guerre formelle.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Dossier distinct du soutien américain à la résistance afghane contre l'URSS (1979-1989). Bilans civils afghans à documenter étude par étude.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Coalition", "description": "Chef de file de l'invasion et de la guerre prolongée (OEF puis Resolute Support)." },
+      { "iso3": "AFG", "role": "HOST_COUNTRY", "side": "Gouvernement afghan / talibans", "description": "Théâtre principal ; gouvernements Karzai et Ghani puis retour taliban." }
+    ],
+    "interventions": [
+      {
+        "type": "DIRECT_WAR",
+        "title": "Invasion et renversement des talibans (OEF)",
+        "description": "Frappes aériennes et déploiement de forces spéciales et de milices alliées (Alliance du Nord) ; chute de Kaboul en novembre 2001.",
+        "startDate": "2001-10-07",
+        "endDate": "2002-01-01",
+        "agency": "U.S. Armed Forces / CIA",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "DIRECT_WAR",
+        "title": "Contre-insurrection et surges",
+        "description": "Guerre prolongée contre les talibans et leurs alliés ; surge de 2009-2010 (environ 100 000 militaires américains).",
+        "startDate": "2002-01-01",
+        "endDate": "2021-08-30",
+        "agency": "U.S. Armed Forces / NATO (ISAF puis Resolute Support)",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "COVERT_OPERATION",
+        "title": "Opérations spéciales et drones",
+        "description": "Raids JSOC, programme de drones transfrontaliers (notamment au Pakistan), opérations classifiées.",
+        "startDate": "2001-10-07",
+        "endDate": "2021-08-30",
+        "agency": "CIA / JSOC",
+        "isCovert": true,
+        "certaintyLevel": "HIGH_CONFIDENCE"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 2461,
+        "maximumValue": 2461,
+        "bestEstimate": 2461,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains (OEF et opérations associées en Afghanistan), statistique officielle compilée par le CRS.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "TOTAL",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : total des morts afghans (civils et combattants) — estimations très divergentes selon les sources.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "2001-09-11", "title": "Attentats du 11 septembre", "description": "Contexte direct de l'intervention.", "eventType": "EVENT" },
+      { "date": "2001-09-18", "title": "AUMF 2001", "description": "Le Congrès autorise l'emploi de la force contre ceux responsables des attentats.", "eventType": "POLITICAL" },
+      { "date": "2001-10-07", "title": "Début des frappes", "description": "Opération Enduring Freedom : frappes aériennes et déploiement au sol.", "eventType": "BATTLE" },
+      { "date": "2011-05-02", "title": "Mort d'Oussama ben Laden", "description": "Raid à Abbottabad (Pakistan), hors territoire afghan.", "eventType": "EVENT" },
+      { "date": "2020-02-29", "title": "Accord de Doha", "description": "Accord États-Unis-talibans prévoyant le retrait américain.", "eventType": "TREATY" },
+      { "date": "2021-08-15", "title": "Chute de Kaboul", "description": "Les talibans reprennent la capitale avant la fin du retrait américain.", "eventType": "EVENT" },
+      { "date": "2021-08-30", "title": "Fin du retrait américain", "description": "Dernières forces américaines quittent l'Afghanistan.", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "aumf-2001", "usageDescription": "Base juridique interne de l'intervention." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines (2 461 morts)." },
+      { "sourceKey": "costs-of-war-project", "usageDescription": "Estimations élargies des coûts humains et budgétaires." }
+    ]
+  },
+  {
+    "slug": "intervention-en-libye-2011",
+    "title": "Intervention en Libye (2011)",
+    "shortTitle": "Libye 2011",
+    "summary": "Campagne aérienne menée par les États-Unis, la France, le Royaume-Uni et d'autres partenaires, dans le cadre d'une coalition onusienne, pour faire cesser la répression du régime de Mouammar Kadhafi contre la révolte de 2011. Sans troupes américaines au sol, l'intervention contribue à la chute du régime en octobre 2011.",
+    "startDate": "2011-03-19",
+    "endDate": "2011-10-31",
+    "isOngoing": false,
+    "region": "Afrique",
+    "primaryCategory": "LIMITED_MILITARY_INTERVENTION",
+    "officialJustification": "L'administration Obama a présenté l'intervention comme la mise en œuvre de la résolution 1973 du Conseil de sécurité pour protéger les civils libyens menacés par les forces de Kadhafi, notamment à Benghazi. Le dépassement du mandat (soutien à la chute du régime) est une analyse largement partagée mais dont les interprétations juridiques divergent.",
+    "strategicContext": "Printemps arabe, révolte libyenne (février 2011), menace sur Benghazi. Résolution 1973 (17 mars 2011) autorisant une zone d'exclusion aérienne et « toutes mesures nécessaires » pour protéger les civils. Les États-Unis passent le commandement à l'OTAN (opération Unified Protector) fin mars 2011.",
+    "militaryResult": "Campagne aérienne décisive ; chute de Tripoli (août 2011) ; capture et mort de Kadhafi (20 octobre 2011). Aucun mort américain au combat.",
+    "politicalResult": "Effondrement du régime et déstabilisation prolongée de la Libye (milices, deux gouvernements, chaos sécuritaire). Débat sur la responsabilité occidentale dans l'effondrement étatique post-Kadhafi.",
+    "humanConsequences": "Aucun mort militaire américain au combat. Les victimes libyennes (civils et combattants) et les conséquences humanitaires de la guerre civile post-2011 font l'objet d'estimations variables.",
+    "economicConsequences": "Coût budgétaire modeste pour les États-Unis (quelques centaines de millions de dollars selon le CRS pour la phase américaine) ; effondrement des infrastructures libyennes.",
+    "territorialConsequences": "Aucune acquisition américaine.",
+    "legalBasis": "Résolution 1973 (2011) du Conseil de sécurité. Pas d'autorisation du Congrès américain pour une guerre prolongée — débat sur le War Powers Resolution (retrait des forces américaines annoncé fin 2011).",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Portée réelle du mandat de la résolution 1973 et conséquences post-Kadhafi à documenter.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Coalition / OTAN", "description": "Frappes initiales (Odyssey Dawn) puis contribution aérienne sous mandat OTAN." },
+      { "iso3": "LBY", "role": "TARGET", "side": "Régime Kadhafi", "description": "Cible de la campagne aérienne ; régime renversé en octobre 2011." },
+      { "iso3": "FRA", "role": "ALLY", "side": "Coalition", "description": "Première nation à reconnaître le CNT ; frappes aériennes dès mars 2011." },
+      { "iso3": "GBR", "role": "ALLY", "side": "Coalition", "description": "Partenaire principal avec la France et les États-Unis." }
+    ],
+    "interventions": [
+      {
+        "type": "LIMITED_MILITARY_INTERVENTION",
+        "title": "Opération Odyssey Dawn puis Unified Protector",
+        "description": "Frappes aériennes, missiles de croisière, zone d'exclusion aérienne ; pas de troupes américaines au sol.",
+        "startDate": "2011-03-19",
+        "endDate": "2011-10-31",
+        "agency": "U.S. Africa Command / NATO",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 0,
+        "maximumValue": 0,
+        "bestEstimate": 0,
+        "unit": "PERSONS",
+        "description": "Aucun mort militaire américain au combat lors de l'intervention (confirmé par les compilations officielles).",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "CIVILIAN",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : victimes civiles libyennes lors de la campagne aérienne et de la guerre civile de 2011.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "2011-02-15", "title": "Début de la révolte", "description": "Manifestations à Benghazi ; répression sanglante.", "eventType": "POLITICAL" },
+      { "date": "2011-03-17", "title": "Résolution 1973", "description": "Le Conseil de sécurité autorise une zone d'exclusion aérienne et la protection des civils.", "eventType": "POLITICAL" },
+      { "date": "2011-03-19", "title": "Début des frappes", "description": "Opération Odyssey Dawn : frappes américaines, britanniques et françaises.", "eventType": "BATTLE" },
+      { "date": "2011-08-22", "title": "Chute de Tripoli", "description": "Les rebelles entrent dans la capitale.", "eventType": "EVENT" },
+      { "date": "2011-10-20", "title": "Mort de Kadhafi", "description": "Capturé et tué à Syrte.", "eventType": "EVENT" },
+      { "date": "2011-10-31", "title": "Fin de l'opération OTAN", "description": "Clôture de Unified Protector.", "eventType": "EVENT" }
+    ],
+    "sources": [
+      { "sourceKey": "unsc-1973", "usageDescription": "Mandat du Conseil de sécurité et débat sur sa portée." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Confirmation de l'absence de morts américains au combat." }
+    ]
+  },
+  {
+    "slug": "syrie-lutte-contre-ei",
+    "title": "Syrie et lutte contre l'État islamique (2014-2019)",
+    "shortTitle": "Syrie / Daech",
+    "summary": "Intervention militaire américaine en Syrie et en Irak à partir de 2014 pour dégrader puis détruire l'État islamique (Daech), dans le cadre de la coalition Inherent Resolve. Sans autorisation du gouvernement syrien ni mandat clair du Conseil de sécurité pour la Syrie, l'engagement combine frappes aériennes, conseillers et soutien aux forces kurdes (FDS).",
+    "startDate": "2014-09-23",
+    "endDate": "2019-03-23",
+    "isOngoing": false,
+    "region": "Moyen-Orient",
+    "primaryCategory": "HYBRID_CONFLICT",
+    "officialJustification": "L'administration Obama a présenté l'intervention comme une riposte à la menace terroriste de l'État islamique, après la déclaration du « califat » en juin 2014 et les exécutions de ressortissants occidentaux. L'AUMF de 2001 a été invoquée comme base juridique interne, de façon extensive et débattue.",
+    "strategicContext": "Guerre civile syrienne (depuis 2011), montée de l'EI en Irak et en Syrie, chute de Mossoul (2014). Coalition internationale, soutien aux Forces démocratiques syriennes (FDS), tensions avec la Turquie et le régime de Damas.",
+    "militaryResult": "Dégradation puis perte territoriale de l'EI ; chute de Raqqa (2017) et prise de Baghouz (mars 2019), dernière poche de l'« État islamique ». Présence militaire américaine réduite mais maintenue en Syrie orientale après 2019.",
+    "politicalResult": "Non-résolution de la guerre civile syrienne. Contrôle de facto d'une zone au nord-est de la Syrie par les FDS avec présence américaine. Débat sur le retrait annoncé par Trump (2018-2019) et la stabilité de la région.",
+    "humanConsequences": "76 morts militaires américains selon les statistiques officielles compilées par le CRS pour l'opération Inherent Resolve (phase principale). Victimes civiles des frappes de la coalition et conséquences humanitaires de la guerre civile syrienne : estimations massives et débattues.",
+    "economicConsequences": "Coût budgétaire de la campagne aérienne et du déploiement ; destructions massives en Syrie et en Irak.",
+    "territorialConsequences": "Aucune annexion américaine. Statut du nord-est syrien demeuré disputé.",
+    "legalBasis": "AUMF 2001 invoquée par les administrations Obama et Trump ; pas de déclaration de guerre ni d'autorisation spécifique du Congrès pour la Syrie. Pas de mandat du Conseil de sécurité pour l'usage de la force en Syrie. Licéité au regard du droit international débattue.",
+    "certaintyLevel": "ESTABLISHED",
+    "verified": false,
+    "needsReview": true,
+    "reviewNotes": "Seed initial de démonstration. Dossier centré sur la lutte anti-EI ; la guerre civile syrienne dans son ensemble dépasse ce périmètre. Bilans civils à documenter étude par étude.",
+    "countries": [
+      { "iso3": "USA", "role": "BELLIGERENT", "side": "Coalition Inherent Resolve", "description": "Chef de file de la coalition anti-EI en Syrie et en Irak." },
+      { "iso3": "SYR", "role": "HOST_COUNTRY", "side": "Régime Assad / FDS / EI", "description": "Théâtre principal ; le régime de Damas n'a pas autorisé l'intervention américaine." },
+      { "iso3": "IRQ", "role": "HOST_COUNTRY", "side": "Irak / EI", "description": "Partie de la campagne anti-EI incluant le territoire irakien." }
+    ],
+    "interventions": [
+      {
+        "type": "LIMITED_MILITARY_INTERVENTION",
+        "title": "Opération Inherent Resolve (frappes aériennes)",
+        "description": "Campagne aérienne contre l'EI en Syrie et en Irak ; plus de 30 000 sorties aériennes selon les données du DoD.",
+        "startDate": "2014-09-23",
+        "endDate": "2019-03-23",
+        "agency": "U.S. Air Force / U.S. Navy / coalition",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      },
+      {
+        "type": "INDIRECT_CONFLICT",
+        "title": "Soutien aux Forces démocratiques syriennes (FDS)",
+        "description": "Formation, équipement et appui aérien aux forces kurdes et arabes alliées au sol.",
+        "startDate": "2015-01-01",
+        "endDate": "2019-03-23",
+        "agency": "U.S. Special Operations Command",
+        "isCovert": false,
+        "certaintyLevel": "ESTABLISHED"
+      }
+    ],
+    "casualtyEstimates": [
+      {
+        "category": "MILITARY_US",
+        "minimumValue": 76,
+        "maximumValue": 76,
+        "bestEstimate": 76,
+        "unit": "PERSONS",
+        "description": "Morts militaires américains (opération Inherent Resolve, phase principale anti-EI), statistique officielle compilée par le CRS.",
+        "needsReview": false,
+        "sourceKey": "crs-american-war-casualties"
+      },
+      {
+        "category": "CIVILIAN",
+        "minimumValue": null,
+        "maximumValue": null,
+        "bestEstimate": null,
+        "unit": "PERSONS",
+        "description": "Donnée à vérifier : victimes civiles des frappes de la coalition et de la guerre civile syrienne — estimations massives et débattues.",
+        "needsReview": true,
+        "sourceKey": null
+      }
+    ],
+    "timelineEvents": [
+      { "date": "2014-06-29", "title": "Proclamation du « califat »", "description": "L'EI proclame un califat depuis Mossoul et Raqqa.", "eventType": "POLITICAL" },
+      { "date": "2014-09-23", "title": "Début des frappes en Syrie", "description": "Premières frappes américaines en Syrie (et en Irak depuis août 2014).", "eventType": "BATTLE" },
+      { "date": "2017-10-17", "title": "Chute de Raqqa", "description": "Les FDS reprennent l'ancienne « capitale » de l'EI.", "eventType": "BATTLE" },
+      { "date": "2019-03-23", "title": "Chute de Baghouz", "description": "Dernière poche territoriale de l'EI au printemps 2019.", "eventType": "BATTLE" }
+    ],
+    "sources": [
+      { "sourceKey": "aumf-2001", "usageDescription": "Base juridique interne invoquée (de façon extensive et débattue)." },
+      { "sourceKey": "crs-american-war-casualties", "usageDescription": "Pertes militaires américaines (76 morts, Inherent Resolve)." },
+      { "sourceKey": "costs-of-war-project", "usageDescription": "Contexte des coûts humains et budgétaires post-2001." },
+      { "sourceKey": "un-charter", "usageDescription": "Cadre du débat sur la licéité en Syrie sans mandat du Conseil de sécurité." }
+    ]
+  }
+]

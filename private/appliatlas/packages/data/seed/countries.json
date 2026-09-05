@@ -1,0 +1,227 @@
+[
+  {
+    "name": "États-Unis",
+    "officialName": "États-Unis d'Amérique",
+    "iso2": "US",
+    "iso3": "USA",
+    "latitude": 38.9,
+    "longitude": -98.35,
+    "region": "Amérique du Nord"
+  },
+  {
+    "name": "Mexique",
+    "officialName": "États-Unis mexicains",
+    "iso2": "MX",
+    "iso3": "MEX",
+    "latitude": 23.63,
+    "longitude": -102.55,
+    "region": "Amérique du Nord"
+  },
+  {
+    "name": "Vietnam",
+    "officialName": "République socialiste du Vietnam",
+    "iso2": "VN",
+    "iso3": "VNM",
+    "latitude": 15.97,
+    "longitude": 107.6,
+    "region": "Asie du Sud-Est"
+  },
+  {
+    "name": "Irak",
+    "officialName": "République d'Irak",
+    "iso2": "IQ",
+    "iso3": "IRQ",
+    "latitude": 33.22,
+    "longitude": 43.68,
+    "region": "Moyen-Orient"
+  },
+  {
+    "name": "Royaume-Uni",
+    "officialName": "Royaume-Uni de Grande-Bretagne et d'Irlande du Nord",
+    "iso2": "GB",
+    "iso3": "GBR",
+    "latitude": 54.0,
+    "longitude": -2.0,
+    "region": "Europe"
+  },
+  {
+    "name": "Espagne",
+    "officialName": "Royaume d'Espagne",
+    "iso2": "ES",
+    "iso3": "ESP",
+    "latitude": 40.46,
+    "longitude": -3.75,
+    "region": "Europe"
+  },
+  {
+    "name": "Cuba",
+    "officialName": "République de Cuba",
+    "iso2": "CU",
+    "iso3": "CUB",
+    "latitude": 21.52,
+    "longitude": -77.78,
+    "region": "Amérique latine et Caraïbes"
+  },
+  {
+    "name": "Philippines",
+    "officialName": "République des Philippines",
+    "iso2": "PH",
+    "iso3": "PHL",
+    "latitude": 12.88,
+    "longitude": 121.77,
+    "region": "Asie du Sud-Est"
+  },
+  {
+    "name": "Allemagne",
+    "officialName": "République fédérale d'Allemagne",
+    "iso2": "DE",
+    "iso3": "DEU",
+    "latitude": 51.17,
+    "longitude": 10.45,
+    "region": "Europe"
+  },
+  {
+    "name": "France",
+    "officialName": "République française",
+    "iso2": "FR",
+    "iso3": "FRA",
+    "latitude": 46.23,
+    "longitude": 2.21,
+    "region": "Europe"
+  },
+  {
+    "name": "Japon",
+    "officialName": "Japon",
+    "iso2": "JP",
+    "iso3": "JPN",
+    "latitude": 36.2,
+    "longitude": 138.25,
+    "region": "Asie de l'Est"
+  },
+  {
+    "name": "Russie",
+    "officialName": "Fédération de Russie (héritière de l'URSS pour les dossiers antérieurs à 1991)",
+    "iso2": "RU",
+    "iso3": "RUS",
+    "latitude": 61.52,
+    "longitude": 105.32,
+    "region": "Europe"
+  },
+  {
+    "name": "Corée du Sud",
+    "officialName": "République de Corée",
+    "iso2": "KR",
+    "iso3": "KOR",
+    "latitude": 35.91,
+    "longitude": 127.77,
+    "region": "Asie de l'Est"
+  },
+  {
+    "name": "Corée du Nord",
+    "officialName": "République populaire démocratique de Corée",
+    "iso2": "KP",
+    "iso3": "PRK",
+    "latitude": 40.34,
+    "longitude": 127.51,
+    "region": "Asie de l'Est"
+  },
+  {
+    "name": "Chine",
+    "officialName": "République populaire de Chine",
+    "iso2": "CN",
+    "iso3": "CHN",
+    "latitude": 35.86,
+    "longitude": 104.2,
+    "region": "Asie de l'Est"
+  },
+  {
+    "name": "Laos",
+    "officialName": "République démocratique populaire lao",
+    "iso2": "LA",
+    "iso3": "LAO",
+    "latitude": 19.86,
+    "longitude": 102.5,
+    "region": "Asie du Sud-Est"
+  },
+  {
+    "name": "Cambodge",
+    "officialName": "Royaume du Cambodge",
+    "iso2": "KH",
+    "iso3": "KHM",
+    "latitude": 12.57,
+    "longitude": 104.99,
+    "region": "Asie du Sud-Est"
+  },
+  {
+    "name": "Afghanistan",
+    "officialName": "Afghanistan",
+    "iso2": "AF",
+    "iso3": "AFG",
+    "latitude": 33.94,
+    "longitude": 67.71,
+    "region": "Asie centrale et du Sud"
+  },
+  {
+    "name": "Nicaragua",
+    "officialName": "République du Nicaragua",
+    "iso2": "NI",
+    "iso3": "NIC",
+    "latitude": 12.87,
+    "longitude": -85.21,
+    "region": "Amérique latine et Caraïbes"
+  },
+  {
+    "name": "Panama",
+    "officialName": "République du Panama",
+    "iso2": "PA",
+    "iso3": "PAN",
+    "latitude": 8.54,
+    "longitude": -80.78,
+    "region": "Amérique latine et Caraïbes"
+  },
+  {
+    "name": "Koweït",
+    "officialName": "État du Koweït",
+    "iso2": "KW",
+    "iso3": "KWT",
+    "latitude": 29.31,
+    "longitude": 47.48,
+    "region": "Moyen-Orient"
+  },
+  {
+    "name": "Somalie",
+    "officialName": "République fédérale de Somalie",
+    "iso2": "SO",
+    "iso3": "SOM",
+    "latitude": 5.15,
+    "longitude": 46.2,
+    "region": "Afrique"
+  },
+  {
+    "name": "Serbie",
+    "officialName": "République de Serbie (héritière de la RF de Yougoslavie pour le dossier Kosovo)",
+    "iso2": "RS",
+    "iso3": "SRB",
+    "latitude": 44.02,
+    "longitude": 21.01,
+    "region": "Europe"
+  },
+  {
+    "name": "Libye",
+    "officialName": "État de Libye",
+    "iso2": "LY",
+    "iso3": "LBY",
+    "latitude": 26.34,
+    "longitude": 17.23,
+    "region": "Afrique"
+  },
+  {
+    "name": "Syrie",
+    "officialName": "République arabe syrienne",
+    "iso2": "SY",
+    "iso3": "SYR",
+    "latitude": 34.8,
+    "longitude": 38.99,
+    "region": "Moyen-Orient"
+  }
+]
