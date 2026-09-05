@@ -33,6 +33,7 @@ JS_FILES=(
   forge-annotations.js
   forge-brand.js
   forge-calendar.js
+  forge-coaching-lives.js
   forge-consent.js
   forge-fondamental.js
   forge-journal.js

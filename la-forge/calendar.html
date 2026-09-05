@@ -36,12 +36,36 @@
     </div>
   </div>
 
+  
+    <section id="coach-panel" class="coach-panel" aria-label="Lives coaching">
+      <h2>Lives coaching</h2>
+      <p class="coach-lead">Créneaux 1:1 (priorité dimanche · samedi possible). L’admin propose, l’élève confirme sa présence.</p>
+      <div id="coach-lives-list"></div>
+      <div id="coach-admin-panel" class="coach-admin" hidden>
+        <div class="coach-admin-actions">
+          <button type="button" class="btn btn-secondary btn-sm" id="coach-propose-week">Proposer la semaine (sam + 2 dim)</button>
+        </div>
+        <form id="coach-propose-form" class="coach-form">
+          <label for="coach-template">Créneau type</label>
+          <select id="coach-template" name="templateId" required></select>
+          <label for="coach-date">Date</label>
+          <input type="date" id="coach-date" name="date" required />
+          <label for="coach-student">Email élève (optionnel — sinon créneau ouvert)</label>
+          <input type="email" id="coach-student" name="studentEmail" placeholder="eleve@exemple.com" />
+          <label for="coach-notes">Note (optionnel)</label>
+          <input type="text" id="coach-notes" name="notes" maxlength="500" />
+          <button type="submit" class="btn btn-primary btn-sm">Proposer ce live</button>
+        </form>
+      </div>
+    </section>
+
   <footer data-forge-footer></footer>
   <script src="/la-forge/js/forge-brand.js"></script>
   <script src="/la-forge/js/auth.js"></script>
   <script src="/la-forge/js/forge-gate.js"></script>
   <script src="/la-forge/js/course-data.js"></script>
   <script src="/la-forge/js/forge-calendar.js"></script>
+  <script src="/la-forge/js/forge-coaching-lives.js"></script>
   <script>
     initForgeGate({ requirePremium: true }).then(async (me) => {
       if (!me) return;
@@ -49,6 +73,7 @@
       initCalendarPage();
       const now = new Date();
       renderMonthCalendar("calendar-root", now.getFullYear(), now.getMonth());
+      initForgeCoachingLives(me);
     });
   </script>
 <script src="/la-forge/js/forge-legal.js"></script>

@@ -49,17 +49,22 @@
     </form>
   </div>
 
+  
+    <section id="coach-day-panel" class="coach-panel" style="margin-top:1.25rem" hidden></section>
+
   <footer data-forge-footer></footer>
   <script src="/la-forge/js/forge-brand.js"></script>
   <script src="/la-forge/js/auth.js"></script>
   <script src="/la-forge/js/forge-gate.js"></script>
   <script src="/la-forge/js/course-data.js"></script>
   <script src="/la-forge/js/forge-calendar.js"></script>
+  <script src="/la-forge/js/forge-coaching-lives.js"></script>
   <script>
     initForgeGate({ requirePremium: true }).then(async (me) => {
       if (!me) return;
       await initForgeCalendar(me.email);
       await initCalendarDayPage();
+      await initForgeCoachingDay(me);
     });
   </script>
 <script src="/la-forge/js/forge-legal.js"></script>
