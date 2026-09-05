@@ -23,7 +23,8 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
     .default("development"),
-  API_PORT: z.coerce.number().int().min(1).max(65535).default(3001),
+  // 3011 = défaut prod VPS (formation La Forge occupe déjà 3001)
+  API_PORT: z.coerce.number().int().min(1).max(65535).default(3011),
   DATABASE_URL: z.string().default("file:./dev.db"),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(900000),

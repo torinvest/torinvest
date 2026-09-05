@@ -16,6 +16,7 @@
     "dev:api": "npm run dev -w @usa-war-atlas/api",
     "dev:web": "npm run dev -w @usa-war-atlas/web",
     "build": "npm run build -w @usa-war-atlas/shared && npm run build -w @usa-war-atlas/api && npm run build -w @usa-war-atlas/web",
+    "build:forge": "npm run build -w @usa-war-atlas/shared && VITE_BASE=/atlas-embed/ VITE_API_URL=/atlas-embed npm run build -w @usa-war-atlas/web",
     "lint": "npm run lint -w @usa-war-atlas/api && npm run lint -w @usa-war-atlas/web",
     "test": "npm run test -w @usa-war-atlas/shared --if-present && npm run test -w @usa-war-atlas/api",
     "db:generate": "prisma generate --schema prisma/schema.prisma",
