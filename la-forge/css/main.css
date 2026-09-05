@@ -753,4 +753,210 @@ footer.site-footer {
 .chart-exercise-tasks li { margin-bottom: 0.75rem; }
 .chart-exercise-tasks span { font-size: 0.82rem; color: var(--muted); opacity: 0.9; }
 
+/* ——— Identité Forge : ambient or, emblème, bull / bear (sans copier Taurus) ——— */
+body.forge-ambient {
+  background:
+    radial-gradient(ellipse 80% 50% at 90% -10%, rgba(255, 180, 40, 0.12), transparent 55%),
+    radial-gradient(ellipse 60% 40% at -5% 100%, rgba(255, 215, 0, 0.06), transparent 50%),
+    var(--bg);
+  background-attachment: fixed;
+}
+
+body.forge-ambient::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.22;
+  background-image:
+    linear-gradient(rgba(255, 215, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 215, 0, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 80% 20%, #000 10%, transparent 70%);
+}
+
+body.forge-ambient > * {
+  position: relative;
+  z-index: 1;
+}
+
+.forge-logo-img {
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.25), 0 0 18px rgba(255, 180, 40, 0.35);
+  animation: forgeEmber 3.6s ease-in-out infinite;
+}
+
+.forge-emblem {
+  --emblem-size: 120px;
+  position: relative;
+  width: var(--emblem-size);
+  height: var(--emblem-size);
+  margin: 0 auto 1rem;
+  display: grid;
+  place-items: center;
+}
+
+.forge-emblem-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 215, 0, 0.45);
+  box-shadow:
+    0 0 24px rgba(255, 180, 40, 0.35),
+    inset 0 0 24px rgba(255, 215, 0, 0.08);
+  animation: forgeRingPulse 2.8s ease-in-out infinite;
+}
+
+.forge-emblem-ring::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 215, 0, 0.28);
+  animation: forgeRingSpin 18s linear infinite;
+}
+
+.forge-emblem-core {
+  width: 58%;
+  height: 58%;
+  border-radius: 50%;
+  object-fit: contain;
+  background: rgba(10, 10, 15, 0.85);
+  padding: 10%;
+  box-shadow: 0 0 28px rgba(255, 180, 40, 0.4);
+  mix-blend-mode: lighten;
+}
+
+.forge-emblem-spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.75;
+  animation: forgeSpark 3.2s ease-in-out infinite;
+}
+
+.forge-emblem-spark:nth-child(3) { top: 8%; left: 48%; animation-delay: 0s; }
+.forge-emblem-spark:nth-child(4) { top: 42%; right: 4%; animation-delay: 0.8s; }
+.forge-emblem-spark:nth-child(5) { bottom: 10%; left: 22%; animation-delay: 1.5s; }
+
+@keyframes forgeEmber {
+  0%, 100% { box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.22), 0 0 12px rgba(255, 180, 40, 0.28); }
+  50% { box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.4), 0 0 22px rgba(255, 180, 40, 0.55); }
+}
+
+@keyframes forgeRingPulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+
+@keyframes forgeRingSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes forgeSpark {
+  0%, 100% { transform: translateY(0) scale(0.7); opacity: 0.25; }
+  50% { transform: translateY(-6px) scale(1); opacity: 0.9; }
+}
+
+.forge-bias-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0.75rem 0 1.25rem;
+}
+
+.forge-bias-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  background: var(--panel2);
+  color: var(--text);
+}
+
+.forge-bias-chip svg,
+.forge-bias-chip img {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.forge-bias-chip.bull {
+  color: #bbf7d0;
+  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.1);
+  box-shadow: 0 0 16px rgba(34, 197, 94, 0.15);
+}
+
+.forge-bias-chip.bear {
+  color: #fecaca;
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.1);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.15);
+}
+
+.forge-bias-chip.forge {
+  color: #ffe9a3;
+  border-color: rgba(255, 215, 0, 0.4);
+  background: rgba(255, 215, 0, 0.08);
+}
+
+.forge-feature-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 180, 40, 0.12), transparent 55%),
+    var(--panel);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.forge-feature-card:hover {
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 28px rgba(255, 180, 40, 0.18);
+  transform: translateY(-2px);
+}
+
+.forge-feature-card .forge-emblem {
+  --emblem-size: 96px;
+  margin-bottom: 0.85rem;
+}
+
+.legend .l-bull,
+.legend .l-bear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.legend .l-bull::before,
+.legend .l-bear::before {
+  display: none;
+}
+
+.legend .l-bull .forge-mkt-icon,
+.legend .l-bear .forge-mkt-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+
+.legend .l-bull .forge-mkt-icon { color: var(--bull); }
+.legend .l-bear .forge-mkt-icon { color: var(--bear); }
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-logo-img,
+  .forge-emblem-ring,
+  .forge-emblem-ring::after,
+  .forge-emblem-spark {
+    animation: none !important;
+  }
+}
+
 

@@ -60,6 +60,8 @@ IMG_FILES=(
   forge-anvil.png
   torinvest-logo-full.png
   live-trading-banner.png
+  icon-bull.svg
+  icon-bear.svg
 )
 
 if [[ ! -d "$APP_DIR/public/js" ]]; then
