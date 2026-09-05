@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Premiers pas — La Forge</title>
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="start"></header>
+
+  <div class="container" style="max-width:720px">
+    <div style="margin-bottom:1.25rem">
+      <span class="forge-hero-tag">Mode d’emploi · onboarding</span>
+      <h1 style="margin:0.25rem 0;color:var(--gold)">Premiers pas</h1>
+      <p style="color:var(--muted);line-height:1.6;margin:0;max-width:40rem">
+        Un seul chemin : connecte-toi, rejoins Discord, ouvre le Module 0, touche le Journal
+        et Fondamental. Ensuite le dashboard te guide chaque semaine.
+      </p>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="margin-top:0">Tunnel La Forge</h3>
+      <ol style="color:var(--muted);line-height:1.7;padding-left:1.2rem;margin:0.5rem 0 0">
+        <li>Je me connecte (email Stripe + clé TOR)</li>
+        <li>Je fais le Module 0</li>
+        <li>Je valide mon lot de modules</li>
+        <li>Je journalise</li>
+        <li>Je viens au live / Discord</li>
+        <li>Je recommence</li>
+      </ol>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="margin-top:0">Checklist démarrage</h3>
+      <div id="start-checklist">Chargement…</div>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="margin-top:0">Où trouver quoi ?</h3>
+      <ul style="color:var(--muted);line-height:1.7;padding-left:1.2rem;margin:0">
+        <li><strong style="color:var(--text)">Formation</strong> — modules ICT/SMC débloqués par lots</li>
+        <li><strong style="color:var(--text)">Fondamental</strong> — macro & contexte de marché</li>
+        <li><strong style="color:var(--text)">Journal</strong> — exécution & feedback</li>
+        <li><strong style="color:var(--text)">Livres</strong> — approfondissement PDF</li>
+        <li><strong style="color:var(--text)">Discord / Live</strong> — questions & terrain</li>
+      </ul>
+    </div>
+
+    <p style="display:flex;flex-wrap:wrap;gap:0.5rem">
+      <a class="btn btn-primary" href="/dashboard.html">Aller au dashboard</a>
+      <a class="btn btn-secondary" href="/course/index.html">Ouvrir la formation</a>
+    </p>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=7"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-onboarding.js?v=1"></script>
+  <script>
+    getMe().then(function (me) {
+      if (!me) {
+        window.location.href = "/login.html?next=" + encodeURIComponent("/start.html");
+        return;
+      }
+      ForgeOnboarding.markDone(me.email, "login");
+      ForgeOnboarding.renderChecklist(
+        document.getElementById("start-checklist"),
+        me.email
+      );
+    });
+  </script>
+</body>
+</html>

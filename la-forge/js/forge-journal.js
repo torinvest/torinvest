@@ -87,6 +87,10 @@
       return;
     }
 
+    if (window.ForgeOnboarding && me.email) {
+      ForgeOnboarding.markDone(me.email, "journal");
+    }
+
     setStatus("Ouverture automatique — session La Forge Premium.", "ok");
     showFrame();
   }

@@ -243,6 +243,10 @@
     var isPremium = isPremiumMe(me);
     updatePremiumUi(me);
 
+    if (window.ForgeOnboarding && me && me.email) {
+      ForgeOnboarding.markDone(me.email, "fondamental");
+    }
+
     var openBtn = document.getElementById("fonda-open-premium");
     if (openBtn && !openBtn._fondaBound) {
       openBtn._fondaBound = true;
