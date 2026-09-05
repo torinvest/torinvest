@@ -114,6 +114,17 @@ sudo sqlite3 /var/www/torinvest/api/data/licence-crm.sqlite \
 
 `https://radar.torinvest-trading.com/admin-licence/` → onglet **Historique** : nouvelles licences VIP / ACCOMPAGNEMENT avec `stripe_ref`.
 
+Les boutons **Générer licence VIP / accompagnement** envoient aussi l’email Brevo (même flux que le webhook Stripe). Le résultat CRM affiche le statut d’envoi. Si la clé existait déjà, l’email est quand même renvoyé (clic admin volontaire).
+
+Déploie sur radar après merge :
+
+```bash
+for f in admin-licence-lib.php brevo-lib.php admin-licence.php; do
+  sudo cp "/path/to/repo/api/$f" "/var/www/torinvest/api/$f"
+done
+# + page admin-licence/index.html si servie depuis le même host
+```
+
 ---
 
 ## Worker Cloudflare — renouvellements
