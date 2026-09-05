@@ -38,6 +38,7 @@ JS_FILES=(
   forge-fondamental.js
   forge-journal.js
   forge-atlas.js
+  forge-ict-atlas.js
   books-data.js
   forge-books.js
   forge-live-resources.js
@@ -53,6 +54,7 @@ JS_FILES=(
 
 CSS_FILES=(
   forge-charts.css
+  forge-ict-atlas.css
   landing.css
   legal.css
   lesson-pro.css
@@ -65,6 +67,7 @@ IMG_FILES=(
   live-trading-banner.png
   icon-bull.svg
   icon-bear.svg
+  ict-atlas-icon.svg
 )
 
 if [[ ! -d "$APP_DIR/public/js" ]]; then
