@@ -1,8 +1,10 @@
 /**
  * Login formation La Forge — abonnement accompagnement (≠ compte membre site www).
- * - Email + mot de passe (provisionné après paiement Stripe)
- * - Email + clé TOR-ACCOMPAGNEMENT (champ mot de passe)
- * Monte AVANT le handler /api/login natif du VPS (délègue via next() si besoin).
+ *
+ * Flux PRINCIPAL (celui du produit) :
+ *   email Stripe + clé TOR-ACCOMPAGNEMENT dans le champ mot de passe
+ *
+ * Monte AVANT le handler /api/login natif du VPS.
  */
 "use strict";
 
@@ -45,9 +47,7 @@ function matchDemoLogin(email, password) {
     process.env.FORGE_DEMO_ENABLED === "true";
   if (!enabled) return null;
   for (const demo of demoAccounts()) {
-    if (email === demo.email && password === demo.password) {
-      return demo;
-    }
+    if (email === demo.email && password === demo.password) return demo;
   }
   return null;
 }
@@ -65,9 +65,7 @@ function mePayload(user) {
 
 function finishLogin(req, res, next, fields) {
   const user = req.session?.user;
-  if (!user?.email) {
-    return next(new Error("session_user_missing"));
-  }
+  if (!user?.email) return next(new Error("session_user_missing"));
   const me = mePayload(user);
   const body = {
     ok: true,
@@ -84,6 +82,27 @@ function finishLogin(req, res, next, fields) {
     });
   }
   return res.json(body);
+}
+
+function licenseErrorMessage(reason) {
+  switch (String(reason || "")) {
+    case "worker_unreachable":
+      return "Serveur licences injoignable. Réessaie dans une minute.";
+    case "license_not_found":
+    case "license_invalid":
+    case "license_not_found":
+      return "Clé TOR introuvable. Recopie la clé reçue par email (sans espace).";
+    case "not_accompagnement_plan":
+      return "Cette clé n'est pas une licence Accompagnement La Forge.";
+    case "missing_params":
+      return "Email et clé TOR requis.";
+    default:
+      return (
+        "Connexion refusée avec cette clé (" +
+        (reason || "inconnue") +
+        "). Utilise l'email Stripe + la clé TOR-ACCOMPAGNEMENT du mail."
+      );
+  }
 }
 
 function createFormationAuthRouter(options) {
@@ -121,35 +140,58 @@ function createFormationAuthRouter(options) {
 
   router.use(createBooksRouter());
 
+  router.get("/api/accompagnement-auth/ping", (_req, res) => {
+    res.json({
+      ok: true,
+      workerUrl,
+      licenseLogin: true,
+      hint: "Connexion = email Stripe + clé TOR-ACCOMPAGNEMENT (champ mot de passe)",
+    });
+  });
+
   router.get("/api/me", (req, res, next) => {
-    if (!req.session?.user?.email) {
-      return next();
-    }
+    if (!req.session?.user?.email) return next();
     const me = mePayload(req.session.user);
     if (!me) return next();
     return res.json({ ok: true, user: me, ...me });
   });
 
   router.post("/api/login", async (req, res, next) => {
-    if (!req.session) {
-      return next();
-    }
+    if (!req.session) return next();
 
     const email = users.normalizeEmail(req.body?.email);
-    const password = String(req.body?.password || "");
+    const rawPassword = String(req.body?.password || "");
+    const password = worker.normalizeLicenseKey(rawPassword) || rawPassword.trim();
     if (!email || !password) {
       return res.status(400).json({ error: "Email et mot de passe requis" });
     }
 
+    const isTorKey = worker.looksLikeTorLicense(password);
+
+    // Chemin principal produit : clé TOR
+    if (isTorKey) {
+      const lic = await worker.validateAccompagnementLicense(workerUrl, email, password);
+      if (lic.ok) {
+        users.upsertUser(dataDir, email, { subscribed: true });
+        req.session.user = sessionUser(email, true);
+        return finishLogin(req, res, next, { via: "accompagnement_license" });
+      }
+      return res.status(401).json({
+        error: licenseErrorMessage(lic.reason),
+        reason: lic.reason || "license_invalid",
+      });
+    }
+
+    // Mot de passe compte (si existe)
     const store = users.readStore(dataDir);
     const existing = users.findUser(store, email);
     const hash = existing ? users.passwordHashFromUser(existing) : "";
-
-    if (hash && (await users.verifyPassword(hash, password))) {
-      req.session.user = sessionUser(email, existing.subscribed);
+    if (hash && (await users.verifyPassword(hash, rawPassword))) {
+      req.session.user = sessionUser(email, !!existing.subscribed);
       return finishLogin(req, res, next, { via: "password" });
     }
 
+    // Dernière chance licence (clé sans préfixe TOR clair)
     const lic = await worker.validateAccompagnementLicense(workerUrl, email, password);
     if (lic.ok) {
       users.upsertUser(dataDir, email, { subscribed: true });
@@ -157,7 +199,7 @@ function createFormationAuthRouter(options) {
       return finishLogin(req, res, next, { via: "accompagnement_license" });
     }
 
-    const demo = matchDemoLogin(email, password);
+    const demo = matchDemoLogin(email, rawPassword);
     if (demo) {
       req.session.user = sessionUser(email, demo.subscribed);
       return finishLogin(req, res, next, { via: "demo" });
@@ -180,25 +222,13 @@ function createFormationAuthRouter(options) {
     const subscribed = req.body?.subscribed !== false;
     let plainPassword = String(req.body?.password || "").trim();
     const generated = !plainPassword;
-    if (generated) {
-      plainPassword = users.generatePassword();
-    }
+    if (generated) plainPassword = users.generatePassword();
 
     const passwordHash = await users.hashPassword(plainPassword);
-    users.upsertUser(dataDir, email, {
-      passwordHash,
-      subscribed,
-    });
+    users.upsertUser(dataDir, email, { passwordHash, subscribed });
 
-    const body = {
-      ok: true,
-      email,
-      subscribed,
-      generated,
-    };
-    if (generated) {
-      body.password = plainPassword;
-    }
+    const body = { ok: true, email, subscribed, generated };
+    if (generated) body.password = plainPassword;
     return res.json(body);
   });
 
