@@ -4,6 +4,7 @@
  * - Paywall /course/*
  * - /api/progress
  * - /api/calendar
+ * - /api/coaching-lives
  *
  * Prérequis : requireAuth déjà défini dans server.js (session /api/me).
  *
@@ -50,6 +51,9 @@ function hasPaywall() {
 }
 function hasFondamentalBridge() {
   return /createFondamentalBridgeRouter|routes-fondamental-bridge/.test(content);
+}
+function hasCoaching() {
+  return /createCoachingLivesRouter|routes-coaching-lives/.test(content);
 }
 
 function extractDataDirFromProgressBlock(block) {
@@ -100,6 +104,51 @@ function managedBlock(dataDirExpr) {
   ].join("\n");
 }
 
+function ensureCoachingMounted() {
+  if (!/createCalendarRouter/.test(content)) return;
+  if (hasCoaching()) {
+    console.log("OK — coaching lives déjà monté.");
+    return;
+  }
+
+  if (!/createCoachingLivesRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createCalendarRouter = require\(["']\.\/server-patches\/routes-calendar["']\);)/,
+      '$1\nconst createCoachingLivesRouter = require("./server-patches/routes-coaching-lives");'
+    );
+    if (replaced === content) {
+      // require calendar sous un autre chemin — injecter près des autres requires patches
+      content = content.replace(
+        /(const createCalendarRouter = require\([^)]+\);)/,
+        '$1\nconst createCoachingLivesRouter = require("./server-patches/routes-coaching-lives");'
+      );
+    } else {
+      content = replaced;
+    }
+  }
+
+  const calendarUseRe = /app\.use\(\s*createCalendarRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const calMatch = content.match(calendarUseRe);
+  if (!calMatch) {
+    console.warn("WARN — createCalendarRouter trouvé mais app.use introuvable ; coaching non injecté automatiquement.");
+    return;
+  }
+
+  const dataDirExpr =
+    (calMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const coachingUse = [
+    "app.use(",
+    "  createCoachingLivesRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(calendarUseRe, calMatch[0] + "\n" + coachingUse);
+  console.log("Coaching lives router ajouté après calendar.");
+}
+
 if (!content.includes("requireAuth")) {
   console.error(
     "ERREUR : requireAuth introuvable dans " +
@@ -123,42 +172,37 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
   console.log("Bloc TORINVEST_FORMATION_PATCHES mis à jour.");
 } else if (hasProgress() && hasCalendar() && hasPaywall()) {
   if (hasFondamentalBridge()) {
-    console.log("OK — paywall + progress + calendar + fondamental-bridge déjà présents dans " + serverPath);
-    process.exit(0);
-  }
-  console.log("Paywall/progress/calendar OK — ajout fondamental-bridge seul…");
-  const wireOnly = path.join(APP_DIR, "deploy/vps/wire-fondamental-bridge-only.js");
-  if (fs.existsSync(wireOnly)) {
-    execSync("node " + JSON.stringify(wireOnly) + " " + JSON.stringify(APP_DIR), { stdio: "inherit" });
-    process.exit(0);
-  }
-  const calendarUseRe = /app\.use\(\s*createCalendarRouter\(\{[\s\S]*?\}\)\s*\);/m;
-  const calMatch = content.match(calendarUseRe);
-  if (calMatch) {
-    const insertAfter = content.indexOf(calMatch[0]) + calMatch[0].length;
-    const fbBlock = [
-      "const createFondamentalBridgeRouter = require(\"./server-patches/routes-fondamental-bridge\");",
-      "app.use(",
-      "  createFondamentalBridgeRouter({",
-      "    bridgeSecret: process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET || process.env.AI_ACCESS_HMAC_SECRET,",
-      "  })",
-      ");",
-    ].join("\n");
-    if (!/createFondamentalBridgeRouter/.test(content)) {
-      content = content.replace(
-        /(const createCalendarRouter = require\(["']\.\/server-patches\/routes-calendar["']\);)/,
-        "$1\nconst createFondamentalBridgeRouter = require(\"./server-patches/routes-fondamental-bridge\");"
-      );
-    }
-    content =
-      content.slice(0, insertAfter) +
-      "\n" +
-      "app.use(\n  createFondamentalBridgeRouter({\n    bridgeSecret: process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET || process.env.AI_ACCESS_HMAC_SECRET,\n  })\n);\n" +
-      content.slice(insertAfter);
-    console.log("fondamental-bridge ajouté après calendar.");
+    console.log(
+      "OK — paywall + progress + calendar + fondamental-bridge déjà présents (on vérifie coaching ensuite)"
+    );
   } else {
-    console.error("ERREUR : calendar trouvé mais app.use introuvable — utiliser wire-fondamental-bridge-only.js");
-    process.exit(1);
+    console.log("Paywall/progress/calendar OK — ajout fondamental-bridge…");
+    const wireOnly = path.join(APP_DIR, "deploy/vps/wire-fondamental-bridge-only.js");
+    if (fs.existsSync(wireOnly)) {
+      execSync("node " + JSON.stringify(wireOnly) + " " + JSON.stringify(APP_DIR), {
+        stdio: "inherit",
+      });
+      content = fs.readFileSync(serverPath, "utf8");
+    } else {
+      const calendarUseRe = /app\.use\(\s*createCalendarRouter\(\{[\s\S]*?\}\)\s*\);/m;
+      const calMatch = content.match(calendarUseRe);
+      if (!calMatch) {
+        console.error("ERREUR : calendar trouvé mais app.use introuvable");
+        process.exit(1);
+      }
+      const insertAfter = content.indexOf(calMatch[0]) + calMatch[0].length;
+      if (!/createFondamentalBridgeRouter/.test(content)) {
+        content = content.replace(
+          /(const createCalendarRouter = require\(["']\.\/server-patches\/routes-calendar["']\);)/,
+          "$1\nconst createFondamentalBridgeRouter = require(\"./server-patches/routes-fondamental-bridge\");"
+        );
+      }
+      content =
+        content.slice(0, insertAfter) +
+        "\napp.use(\n  createFondamentalBridgeRouter({\n    bridgeSecret: process.env.FORGE_FONDAMENTAL_BRIDGE_SECRET || process.env.AI_ACCESS_HMAC_SECRET,\n  })\n);\n" +
+        content.slice(insertAfter);
+      console.log("fondamental-bridge ajouté après calendar.");
+    }
   }
 } else if (hasProgress() && !hasCalendar()) {
   const progressUseRe =
@@ -186,9 +230,7 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
 } else if (!hasProgress() && !hasPaywall()) {
   const dataDirExpr = "path.join(__dirname, \"data\")";
   const needsPath = !/require\(["']path["']\)/.test(content);
-  const pathRequire = needsPath
-    ? "const path = require(\"path\");\n"
-    : "";
+  const pathRequire = needsPath ? "const path = require(\"path\");\n" : "";
   const insertPoint =
     content.search(/express\.static\s*\(\s*['"]public['"]/m) >= 0
       ? content.search(/express\.static\s*\(\s*['"]public['"]/m)
@@ -197,8 +239,8 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
     console.error("ERREUR : point d'insertion introuvable (static public ou listen).");
     process.exit(1);
   }
-  const block = pathRequire + managedBlock(dataDirExpr);
-  content = content.slice(0, insertPoint) + block + content.slice(insertPoint);
+  content =
+    content.slice(0, insertPoint) + pathRequire + managedBlock(dataDirExpr) + content.slice(insertPoint);
   console.log("Bloc complet patches formation inséré.");
 } else {
   console.error(
@@ -210,31 +252,8 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
   process.exit(1);
 }
 
-
-// Ensure coaching lives router is mounted when calendar is present
-if (/createCalendarRouter/.test(content) && !/createCoachingLivesRouter|routes-coaching-lives/.test(content)) {
-  if (!/createCoachingLivesRouter/.test(content)) {
-    content = content.replace(
-      /(const createCalendarRouter = require\(["']\.\/server-patches\/routes-calendar["']\);)/,
-      '$1\nconst createCoachingLivesRouter = require("./server-patches/routes-coaching-lives");'
-    );
-  }
-  const calendarUseRe = /app\.use\(\s*createCalendarRouter\(\{[\s\S]*?\}\)\s*\);/m;
-  const calMatch = content.match(calendarUseRe);
-  if (calMatch) {
-    const dataDirExpr = (calMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] || 'path.join(__dirname, "data")';
-    const coachingUse = [
-      "app.use(",
-      "  createCoachingLivesRouter({",
-      "    dataDir: " + dataDirExpr.trim() + ",",
-      "    requireAuth,",
-      "  })",
-      ");",
-    ].join("\n");
-    content = content.replace(calendarUseRe, calMatch[0] + "\n" + coachingUse);
-    console.log("Coaching lives router ajouté après calendar.");
-  }
-}
+// Toujours tenter d'ajouter coaching si calendar présent
+ensureCoachingMounted();
 
 if (content === original) {
   console.log("Aucun changement.");
@@ -246,10 +265,9 @@ fs.writeFileSync(backup, original);
 
 function syntaxOk() {
   try {
-    const { execSync } = require("child_process");
     execSync("node --check " + JSON.stringify(serverPath), { stdio: "pipe" });
     return true;
-  } catch {
+  } catch (_) {
     return false;
   }
 }
@@ -264,4 +282,4 @@ if (!syntaxOk()) {
 
 console.log("Sauvegarde :", backup);
 console.log("Modifié :", serverPath);
-console.log("→ pm2 restart la-forge   # ou torinvest-formation");
+console.log("→ pm2 restart la-forge --update-env");
