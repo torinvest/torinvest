@@ -53,10 +53,18 @@ function showAlert(el, message, type = "error") {
 }
 
 function forgeNextUrl(raw) {
-  // Par défaut : Premiers pas (onboarding), pas le dashboard nu
-  const next = raw || "/start.html";
-  if (next.startsWith("http")) return next;
-  return next.startsWith("/") ? next : "/" + next;
+  // Par défaut : Premiers pas (onboarding), pas le dashboard nu.
+  // Uniquement chemins relatifs same-origin (anti open-redirect phishing).
+  const next = String(raw || "/start.html").trim();
+  if (!next || next.startsWith("http") || next.startsWith("//") || next.includes("\\")) {
+    return "/start.html";
+  }
+  if (next.startsWith("/")) {
+    // Bloque /\/evil.com et protocol-relative
+    if (next.startsWith("//") || next.startsWith("/\\")) return "/start.html";
+    return next;
+  }
+  return "/" + next;
 }
 
 document.addEventListener("DOMContentLoaded", async () => {

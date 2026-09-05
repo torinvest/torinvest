@@ -15,7 +15,8 @@ $allowedOrigins = [
 ];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $originHost = parse_url($origin, PHP_URL_HOST) ?? '';
-$isNetlifyPreview = (bool) preg_match('/\.netlify\.app$/', $originHost);
+// Previews *.netlify.app désactivés : CORS + credentials = risque CSRF/lecture session
+$isNetlifyPreview = false;
 if (in_array($origin, $allowedOrigins, true) || $isNetlifyPreview) {
     header('Access-Control-Allow-Origin: ' . $origin);
     header('Vary: Origin');
@@ -66,6 +67,7 @@ $input = json_decode(file_get_contents('php://input'), true);
 $pin = trim($input['pin'] ?? '');
 
 if ($pin === '' || !hash_equals($expectedPin, $pin)) {
+    torinvestRateLimitHit('dev_auth_pin');
     http_response_code(401);
     echo json_encode(['ok' => false, 'error' => 'Code incorrect']);
     exit;
