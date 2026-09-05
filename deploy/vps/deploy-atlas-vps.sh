@@ -35,7 +35,7 @@ if [[ ! -f "$ATLAS_SRC/package.json" ]]; then
   tar -xzf "$TMP/src.tgz" -C "$TMP"
   if [[ ! -d "$TMP/$ROOT/private/appliatlas" ]]; then
     echo "ERREUR : private/appliatlas introuvable dans l'archive $REF"
-    echo "Contenu:"; ls "$TMP/$ROOT/private" 2>/dev/null || ls "$TMP/$ROOT" | head
+    ls "$TMP/$ROOT/private" 2>/dev/null || ls "$TMP/$ROOT" | head
     rm -rf "$TMP"
     exit 1
   fi
@@ -84,10 +84,13 @@ ls -la "$ATLAS_DIST" | head
 echo "==> PM2 usa-war-atlas-api :${ATLAS_PORT}"
 pm2 delete usa-war-atlas-api 2>/dev/null || true
 cd "$ATLAS_SRC"
-pm2 start apps/api/dist/server.js \
-  --name usa-war-atlas-api \
-  --cwd "$ATLAS_SRC" \
-  --update-env
+# ecosystem force API_PORT=3011 ; on écrase avec ATLAS_PORT si custom
+API_PORT="$ATLAS_PORT" CORS_ORIGIN="$APP_URL" NODE_ENV=production \
+  API_PORT="$ATLAS_PORT" CORS_ORIGIN="$APP_URL" NODE_ENV=production \
+  pm2 start apps/api/dist/server.js \
+    --name usa-war-atlas-api \
+    --cwd "$ATLAS_SRC" \
+    --update-env
 pm2 save
 
 # --- 6) Hub + bridge formation ---
