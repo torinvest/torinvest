@@ -177,6 +177,15 @@ function brevoSendLicenseEmail(string $planType, array $context): array
     if ($activationCode !== '') {
         $html .= '<p><strong>Code d’activation MT5 :</strong><br><code style="font-size:15px;">' . htmlspecialchars($activationCode, ENT_QUOTES, 'UTF-8') . '</code></p>';
     }
+    $formationPassword = trim((string) ($context['formation_password'] ?? ''));
+    if ($formationPassword !== '') {
+        $loginUrl = (string) ($links['appLoginUrl'] ?? 'https://app.torinvest-trading.com/login.html');
+        $html .= '<p style="background:#f0f7ff;border:1px solid #b6d4fe;border-radius:10px;padding:14px;">';
+        $html .= '<strong>Accès formation La Forge</strong><br>';
+        $html .= 'Email : <code>' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</code><br>';
+        $html .= 'Mot de passe : <code style="font-size:15px;">' . htmlspecialchars($formationPassword, ENT_QUOTES, 'UTF-8') . '</code><br>';
+        $html .= '<a href="' . htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') . '">Se connecter</a></p>';
+    }
     $html .= '<p><a href="' . htmlspecialchars($successUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Voir les prochaines étapes</a></p>';
     $html .= '<p style="font-size:13px;color:#666;">Complète ensuite ton profil : <a href="' . htmlspecialchars($activationUrl, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($activationUrl, ENT_QUOTES, 'UTF-8') . '</a></p>';
     $html .= '<p style="font-size:12px;color:#888;">Utilise le même email que celui utilisé pour le paiement Stripe. Pense à vérifier les spams.</p>';
