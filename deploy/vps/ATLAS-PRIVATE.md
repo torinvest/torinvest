@@ -81,3 +81,5 @@ Puis ouvrir `https://app.torinvest-trading.com/atlas.html` avec un compte **Prem
 | `EADDRINUSE :3001` | collision avec la-forge | `API_PORT=3011` |
 | iframe blanche / 503 | dist absent | vérifier `/var/lib/torinvest/appliatlas/index.html` |
 | API 502 dans embed | mauv. URL proxy | `FORGE_ATLAS_API_URL=http://127.0.0.1:3011` + `pm2 restart la-forge --update-env` |
+| Carte noire / sans tuiles | CSP Helmet bloque `blob:` workers MapLibre ou tuiles CARTO | `pull-forge-all` (bridge CSP atlas) + `node patch-helmet-journal-frames.js` puis `pm2 restart la-forge` |
+| Popup → 404 hors Atlas | lien `/conflits/…` sans `VITE_BASE` | rebuild web avec `npm run build:forge` (`VITE_BASE=/atlas-embed/`) |

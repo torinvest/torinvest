@@ -284,6 +284,27 @@ function createAtlasBridgeRouter() {
       path.basename(filePath) === "index.html" ? "private, no-store" : "public, max-age=3600"
     );
     res.setHeader("X-Frame-Options", "SAMEORIGIN");
+    // MapLibre : workers blob: + tuiles CARTO https — Helmet (img-src/script-src strict)
+    // sinon bloque la carte dans /atlas-embed/. On remplace la CSP pour cet embed.
+    res.removeHeader("Content-Security-Policy");
+    res.removeHeader("Content-Security-Policy-Report-Only");
+    res.setHeader(
+      "Content-Security-Policy",
+      [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' blob:",
+        "style-src 'self' 'unsafe-inline'",
+        "img-src 'self' data: blob: https:",
+        "connect-src 'self' https:",
+        "worker-src 'self' blob:",
+        "child-src 'self' blob:",
+        "font-src 'self' data: https:",
+        "frame-ancestors 'self'",
+        "base-uri 'self'",
+        "object-src 'none'",
+        "form-action 'self'",
+      ].join("; ")
+    );
     fs.createReadStream(filePath).pipe(res);
   }
 
