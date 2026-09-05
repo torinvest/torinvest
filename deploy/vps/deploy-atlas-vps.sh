@@ -2,10 +2,8 @@
 # Déploie USA War Atlas sur le VPS formation (Linux bash — PAS PowerShell).
 #
 # Sur le VPS :
-#   REF=e90635c bash <(curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/deploy-atlas-vps.sh")
-#
-# Ou déjà cloné :
-#   bash /home/ubuntu/torinvest-formation/deploy/vps/deploy-atlas-vps.sh
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/deploy-atlas-vps.sh" -o /tmp/deploy-atlas-vps.sh
+#   bash /tmp/deploy-atlas-vps.sh
 #
 # Ports :
 #   la-forge (formation) = :3001
@@ -29,10 +27,30 @@ if [[ ! -f "$ATLAS_SRC/package.json" ]]; then
   rm -rf "$ATLAS_SRC"
   mkdir -p "$ATLAS_SRC"
   TMP=$(mktemp -d)
-  curl -fsSL "https://codeload.github.com/torinvest/torinvest/tar.gz/${REF}" -o "$TMP/src.tgz"
-  ROOT=$(tar -tzf "$TMP/src.tgz" | head -1 | cut -d/ -f1)
+  ARCHIVE="$TMP/src.tgz"
+
+  echo "    curl codeload…/${REF}"
+  if ! curl -fL --retry 3 --retry-delay 2 \
+    "https://codeload.github.com/torinvest/torinvest/tar.gz/${REF}" \
+    -o "$ARCHIVE"; then
+    echo "ERREUR : impossible de télécharger l'archive GitHub (REF=$REF)"
+    rm -rf "$TMP"
+    exit 1
+  fi
+
+  echo "    archive: $(du -h "$ARCHIVE" | awk '{print $1}')"
+  # Éviter SIGPIPE + pipefail (tar|head → exit 141) qui tuait le script sans message
+  ROOT=$(tar -tzf "$ARCHIVE" | awk -F/ 'NR==1 { print $1; exit 0 }') || true
+  if [[ -z "${ROOT:-}" ]]; then
+    echo "ERREUR : archive invalide / vide"
+    file "$ARCHIVE" || true
+    rm -rf "$TMP"
+    exit 1
+  fi
   echo "    archive root: $ROOT"
-  tar -xzf "$TMP/src.tgz" -C "$TMP"
+
+  echo "    extraction…"
+  tar -xzf "$ARCHIVE" -C "$TMP"
   if [[ ! -d "$TMP/$ROOT/private/appliatlas" ]]; then
     echo "ERREUR : private/appliatlas introuvable dans l'archive $REF"
     ls "$TMP/$ROOT/private" 2>/dev/null || ls "$TMP/$ROOT" | head
@@ -41,9 +59,17 @@ if [[ ! -f "$ATLAS_SRC/package.json" ]]; then
   fi
   cp -a "$TMP/$ROOT/private/appliatlas/." "$ATLAS_SRC/"
   rm -rf "$TMP"
+  echo "    OK source → $ATLAS_SRC"
+else
+  echo "==> Source déjà présente : $ATLAS_SRC"
 fi
 
 cd "$ATLAS_SRC"
+if [[ ! -f package.json ]]; then
+  echo "ERREUR : package.json manquant dans $ATLAS_SRC"
+  exit 1
+fi
+
 echo "==> npm install ($ATLAS_SRC)"
 npm install
 
@@ -51,7 +77,6 @@ npm install
 if [[ ! -f .env ]]; then
   cp .env.example .env
 fi
-# Forcer le port Atlas ≠ formation (3001)
 sed -i "s/^API_PORT=.*/API_PORT=${ATLAS_PORT}/" .env || true
 grep -q '^API_PORT=' .env || echo "API_PORT=${ATLAS_PORT}" >> .env
 sed -i "s|^CORS_ORIGIN=.*|CORS_ORIGIN=${APP_URL}|" .env || true
@@ -73,6 +98,11 @@ export VITE_BASE="/atlas-embed/"
 export VITE_API_URL="/atlas-embed"
 npm run build -w @usa-war-atlas/web
 
+if [[ ! -f apps/web/dist/index.html ]]; then
+  echo "ERREUR : apps/web/dist/index.html manquant après build"
+  exit 1
+fi
+
 # --- 4) Dist statique ---
 echo "==> Install dist → $ATLAS_DIST"
 sudo mkdir -p "$ATLAS_DIST"
@@ -84,21 +114,19 @@ ls -la "$ATLAS_DIST" | head
 echo "==> PM2 usa-war-atlas-api :${ATLAS_PORT}"
 pm2 delete usa-war-atlas-api 2>/dev/null || true
 cd "$ATLAS_SRC"
-# ecosystem force API_PORT=3011 ; on écrase avec ATLAS_PORT si custom
 API_PORT="$ATLAS_PORT" CORS_ORIGIN="$APP_URL" NODE_ENV=production \
-  API_PORT="$ATLAS_PORT" CORS_ORIGIN="$APP_URL" NODE_ENV=production \
   pm2 start apps/api/dist/server.js \
     --name usa-war-atlas-api \
     --cwd "$ATLAS_SRC" \
     --update-env
 pm2 save
+pm2 describe usa-war-atlas-api | head -20 || true
 
 # --- 6) Hub + bridge formation ---
 echo "==> pull-forge-all (hub atlas + bridge)"
 export SHA="$REF" BRANCH="$REF"
 bash <(curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/pull-forge-all.sh") "$APP_DIR"
 
-# Persister env formation
 ENV_FILE="$APP_DIR/.env"
 touch "$ENV_FILE"
 grep -q '^FORGE_ATLAS_APP_DIR=' "$ENV_FILE" 2>/dev/null \
@@ -125,8 +153,12 @@ fi
 
 echo ""
 echo "==> Vérifs"
+sleep 2
 curl -sS "http://127.0.0.1:${ATLAS_PORT}/api/health" || echo "FAIL api health :${ATLAS_PORT}"
+echo
 curl -sS "${APP_URL}/api/atlas-bridge/ping" || echo "FAIL atlas-bridge ping"
+echo
+pm2 list
 echo ""
 echo "OK — Atlas déployé."
 echo "→ ${APP_URL}/atlas.html (compte Premium)"
