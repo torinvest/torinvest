@@ -174,5 +174,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (typeof initForgeProgress === "function") {
     await initForgeProgress(me.email);
   }
+  if (window.ForgeOnboarding && me.email) {
+    ForgeOnboarding.markDone(me.email, "module0");
+  }
   renderCourseIndex(me);
 });

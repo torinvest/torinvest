@@ -17,7 +17,10 @@ transform() {
       -e 's|https://app\.torinvest-trading\.com/calendar\.html|/calendar.html|g' \
       -e 's|https://app\.torinvest-trading\.com/calendar-day\.html|/calendar-day.html|g' \
       -e 's|https://app\.torinvest-trading\.com/dashboard\.html|/dashboard.html|g' \
+      -e 's|https://app\.torinvest-trading\.com/start\.html|/start.html|g' \
       -e 's|https://app\.torinvest-trading\.com/fondamental\.html|/fondamental.html|g' \
+      -e 's|https://app\.torinvest-trading\.com/journal\.html|/journal.html|g' \
+      -e 's|https://app\.torinvest-trading\.com/books\.html|/books.html|g' \
       -e 's|https://app\.torinvest-trading\.com/login\.html|/login.html|g' \
       -e 's|/la-forge/login\.html|/login.html|g' \
       -e 's|href="/la-forge/pricing\.html"|href="https://www.torinvest-trading.com/la-forge/pricing.html"|g'
@@ -28,8 +31,8 @@ for page in dashboard.html calendar.html calendar-day.html; do
   echo "  $page"
 done
 
-# login.html, fondamental.html, course/index.html : maintenus à la main dans app-shells/
+# login.html, start.html, fondamental.html, course/index.html : maintenus à la main dans app-shells/
 # (formulaire TorPass KRM, unlock modules, bridge Phantom — pas générés depuis la-forge/)
-echo "  (login.html, fondamental.html, course/index.html — non régénérés)"
+echo "  (login.html, start.html, fondamental.html, course/index.html — non régénérés)"
 
 echo "OK — shells → $OUT"

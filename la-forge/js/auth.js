@@ -53,7 +53,8 @@ function showAlert(el, message, type = "error") {
 }
 
 function forgeNextUrl(raw) {
-  const next = raw || "/dashboard.html";
+  // Par défaut : Premiers pas (onboarding), pas le dashboard nu
+  const next = raw || "/start.html";
   if (next.startsWith("http")) return next;
   return next.startsWith("/") ? next : "/" + next;
 }

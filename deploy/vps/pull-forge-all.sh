@@ -33,7 +33,7 @@ pull_shell() {
 }
 
 echo "==> Shells HTML (public/)"
-for page in dashboard.html calendar.html calendar-day.html login.html fondamental.html journal.html books.html; do
+for page in dashboard.html start.html calendar.html calendar-day.html login.html fondamental.html journal.html books.html; do
   pull_shell "deploy/vps/app-shells/${page}" "public/${page}"
 done
 pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"

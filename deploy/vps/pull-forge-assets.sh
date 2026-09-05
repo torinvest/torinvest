@@ -41,6 +41,7 @@ JS_FILES=(
   forge-gate.js
   forge-unlock.js
   forge-legal.js
+  forge-onboarding.js
   forge-replay.js
   legal-page.js
   lesson-core.js

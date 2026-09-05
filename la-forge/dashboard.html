@@ -28,6 +28,7 @@
 
     <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
       <span class="btn btn-secondary" style="pointer-events:none;opacity:0.9">Dashboard</span>
+      <a class="btn btn-secondary" href="https://app.torinvest-trading.com/start.html">Premiers pas</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/course/index.html">Formation</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/fondamental.html">Fondamental</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/journal.html">Journal</a>
@@ -35,10 +36,13 @@
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/calendar.html">Calendrier</a>
     </div>
 
-    <p style="color:var(--muted);font-size:0.92rem;margin-bottom:1.5rem;line-height:1.6;border-left:3px solid rgba(255,215,0,.45);padding-left:0.85rem">
-      <strong style="color:var(--gold)">Espace unifié</strong> — formation ICT/SMC, Fondamental, Journal et bibliothèque
-      depuis le même dashboard, avec la même session membre.
+    <p style="color:var(--muted);font-size:0.92rem;margin-bottom:1rem;line-height:1.6;border-left:3px solid rgba(255,215,0,.45);padding-left:0.85rem">
+      <strong style="color:var(--gold)">Chemin guidé</strong> — une prochaine étape, puis formation / Fondamental / Journal / lives.
+      Nouveau ? Commence par <a href="https://app.torinvest-trading.com/start.html" style="color:var(--gold)">Premiers pas</a>.
     </p>
+
+    <div id="dash-next-step" style="margin-bottom:1.25rem"></div>
+    <div id="dash-week" style="margin-bottom:1.5rem"></div>
 
     <div class="overall-progress">
       <h3>Progression formation</h3>
@@ -106,6 +110,7 @@
   <script src="/la-forge/js/course-data.js?v=70"></script>
   <script src="/la-forge/js/fondamental-data.js?v=1"></script>
   <script src="/la-forge/js/forge-unlock.js"></script>
+  <script src="/la-forge/js/forge-onboarding.js?v=1"></script>
   <script>
     const MODULE_IDS = getAllModuleIds();
     document.getElementById("dash-hours").textContent =
@@ -139,6 +144,11 @@
       const lockedParam = new URLSearchParams(location.search).get("locked") === "1";
       if (typeof initForgeProgress === "function") {
         await initForgeProgress(me.email);
+      }
+      if (window.ForgeOnboarding) {
+        ForgeOnboarding.markDone(me.email, "login");
+        ForgeOnboarding.renderNextStep(document.getElementById("dash-next-step"), me.email);
+        ForgeOnboarding.renderWeeklyCards(document.getElementById("dash-week"), me.email);
       }
       const lockedEl = document.getElementById("locked-alert");
       if (!me.subscribed) {
