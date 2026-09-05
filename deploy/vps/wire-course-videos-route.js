@@ -87,4 +87,4 @@ try {
 }
 
 console.log("Ensuite: pm2 restart la-forge");
-console.log("Test: curl -sI http://127.0.0.1:3000/course/videos/module-0-socle.mp4");
+console.log("Test: curl -sI http://127.0.0.1:3001/course/videos/module-0-socle.mp4");
