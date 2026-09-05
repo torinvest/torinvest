@@ -1,0 +1,31 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      API_PORT: 3001
+      DATABASE_URL: "file:/data/prod.db"
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:?ADMIN_TOKEN requis}
+    volumes:
+      - api-data:/data
+    restart: unless-stopped
+
+  # PostgreSQL (à activer lors de la migration depuis SQLite) :
+  # db:
+  #   image: postgres:17-alpine
+  #   environment:
+  #     POSTGRES_DB: usa_war_atlas
+  #     POSTGRES_USER: atlas
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+  #   volumes:
+  #     - pg-data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+volumes:
+  api-data:
+  # pg-data:

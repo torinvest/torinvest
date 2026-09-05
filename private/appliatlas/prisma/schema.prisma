@@ -1,0 +1,231 @@
+// USA WAR ATLAS - Schéma Prisma
+//
+// NOTE : SQLite ne supporte pas les enums Prisma. Les champs "catégoriels"
+// (primaryCategory, certaintyLevel, role, sourceType, etc.) sont donc des
+// String dont les valeurs autorisées sont définies et validées par les
+// schémas Zod du package @usa-war-atlas/shared. Lors de la migration vers
+// PostgreSQL, ces champs pourront être convertis en enums natifs.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Conflict {
+  id                       String    @id @default(cuid())
+  slug                     String    @unique
+  title                    String
+  shortTitle               String?
+  summary                  String
+  startDate                DateTime
+  endDate                  DateTime?
+  isOngoing                Boolean   @default(false)
+  region                   String
+  primaryCategory          String // InterventionCategory (Zod)
+  officialJustification    String?
+  strategicContext         String?
+  militaryResult           String?
+  politicalResult          String?
+  humanConsequences        String?
+  economicConsequences     String?
+  territorialConsequences  String?
+  legalBasis               String?
+  certaintyLevel           String    @default("ESTABLISHED") // CertaintyLevel (Zod)
+
+  // Fiabilité éditoriale / workflow admin
+  verified                 Boolean   @default(false)
+  needsReview              Boolean   @default(true)
+  lastReviewedAt           DateTime?
+  reviewNotes              String?
+
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
+
+  countries         ConflictCountry[]
+  interventions     Intervention[]
+  casualtyEstimates CasualtyEstimate[]
+  sources           ConflictSource[]
+  timelineEvents    TimelineEvent[]
+  territories       Territory[]
+
+  @@index([primaryCategory])
+  @@index([region])
+  @@index([startDate])
+}
+
+model Country {
+  id           String  @id @default(cuid())
+  name         String
+  officialName String?
+  iso2         String  @unique
+  iso3         String  @unique
+  latitude     Float?
+  longitude    Float?
+  region       String?
+
+  conflicts ConflictCountry[]
+}
+
+model ConflictCountry {
+  id          String  @id @default(cuid())
+  conflictId  String
+  countryId   String
+  role        String // ConflictCountryRole (Zod) : BELLIGERENT, ALLY, SUPPORTED_FORCE, TARGET, HOST_COUNTRY, MEDIATOR
+  side        String?
+  description String?
+
+  conflict Conflict @relation(fields: [conflictId], references: [id], onDelete: Cascade)
+  country  Country  @relation(fields: [countryId], references: [id], onDelete: Cascade)
+
+  @@unique([conflictId, countryId, role])
+  @@index([countryId])
+}
+
+model Intervention {
+  id             String    @id @default(cuid())
+  conflictId     String
+  type           String // InterventionCategory (Zod)
+  title          String
+  description    String?
+  startDate      DateTime?
+  endDate        DateTime?
+  agency         String?
+  isCovert       Boolean   @default(false)
+  certaintyLevel String    @default("ESTABLISHED")
+
+  conflict Conflict @relation(fields: [conflictId], references: [id], onDelete: Cascade)
+
+  @@index([conflictId])
+}
+
+model CasualtyEstimate {
+  id           String  @id @default(cuid())
+  conflictId   String
+  category     String // ex : MILITARY_US, MILITARY_OPPONENT, CIVILIAN, TOTAL
+  minimumValue Int?
+  maximumValue Int?
+  bestEstimate Int?
+  unit         String  @default("PERSONS")
+  description  String?
+  needsReview  Boolean @default(false)
+  sourceId     String?
+
+  conflict Conflict @relation(fields: [conflictId], references: [id], onDelete: Cascade)
+  source   Source?  @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@index([conflictId])
+}
+
+model Territory {
+  id                     String    @id @default(cuid())
+  name                   String
+  slug                   String    @unique
+  formerSovereign        String
+  newSovereign           String    @default("États-Unis")
+  acquisitionDate        DateTime?
+  areaKm2                Float?
+  treatyName             String?
+  originalPrice          Float?
+  originalCurrency       String?
+  inflationAdjustedValue Float?
+  description            String?
+  needsReview            Boolean   @default(true)
+  conflictId             String?
+
+  conflict        Conflict?        @relation(fields: [conflictId], references: [id], onDelete: SetNull)
+  states          TerritoryState[]
+  economicMetrics EconomicMetric[]
+
+  @@index([conflictId])
+}
+
+model TerritoryState {
+  id             String  @id @default(cuid())
+  territoryId    String
+  stateName      String
+  coverageType   String // TerritoryCoverageType (Zod) : FULL, MOSTLY, PARTIAL, SMALL_PART
+  estimatedShare Float?
+  notes          String?
+
+  territory Territory @relation(fields: [territoryId], references: [id], onDelete: Cascade)
+
+  @@unique([territoryId, stateName])
+}
+
+model EconomicMetric {
+  id          String  @id @default(cuid())
+  territoryId String?
+  stateName   String?
+  year        Int
+  metricType  String // EconomicMetricType (Zod) : GDP, FEDERAL_TAX_COLLECTIONS, ...
+  value       Float
+  currency    String  @default("USD")
+  isEstimate  Boolean @default(false)
+  methodology String?
+  needsReview Boolean @default(false)
+  sourceId    String?
+
+  territory Territory? @relation(fields: [territoryId], references: [id], onDelete: Cascade)
+  source    Source?    @relation(fields: [sourceId], references: [id], onDelete: SetNull)
+
+  @@index([territoryId])
+  @@index([metricType, year])
+}
+
+model Source {
+  id               String    @id @default(cuid())
+  title            String
+  publisher        String?
+  url              String?
+  publicationDate  DateTime?
+  accessedAt       DateTime?
+  sourceType       String // SourceType (Zod) : GOVERNMENT, ACADEMIC, ...
+  reliabilityLevel String    @default("HIGH") // HIGH, MEDIUM, LOW, CONTESTED
+  notes            String?
+
+  conflicts         ConflictSource[]
+  casualtyEstimates CasualtyEstimate[]
+  economicMetrics   EconomicMetric[]
+
+  @@index([sourceType])
+}
+
+model ConflictSource {
+  id               String  @id @default(cuid())
+  conflictId       String
+  sourceId         String
+  usageDescription String?
+
+  conflict Conflict @relation(fields: [conflictId], references: [id], onDelete: Cascade)
+  source   Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@unique([conflictId, sourceId])
+}
+
+model TimelineEvent {
+  id          String   @id @default(cuid())
+  conflictId  String
+  date        DateTime
+  title       String
+  description String?
+  eventType   String   @default("EVENT") // EVENT, BATTLE, TREATY, POLITICAL, DECLARATION
+
+  conflict Conflict @relation(fields: [conflictId], references: [id], onDelete: Cascade)
+
+  @@index([conflictId, date])
+}
+
+model AdminNote {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([entityType, entityId])
+}

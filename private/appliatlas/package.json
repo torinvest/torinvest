@@ -1,0 +1,36 @@
+{
+  "name": "usa-war-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Atlas pédagogique et sourcé des guerres, interventions et acquisitions territoriales des États-Unis.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.17"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run dev -w @usa-war-atlas/api\" \"npm run dev -w @usa-war-atlas/web\"",
+    "dev:api": "npm run dev -w @usa-war-atlas/api",
+    "dev:web": "npm run dev -w @usa-war-atlas/web",
+    "build": "npm run build -w @usa-war-atlas/shared && npm run build -w @usa-war-atlas/api && npm run build -w @usa-war-atlas/web",
+    "lint": "npm run lint -w @usa-war-atlas/api && npm run lint -w @usa-war-atlas/web",
+    "test": "npm run test -w @usa-war-atlas/shared --if-present && npm run test -w @usa-war-atlas/api",
+    "db:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio --schema prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "prisma": "^6.5.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0"
+  }
+}

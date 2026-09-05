@@ -1,0 +1,125 @@
+[
+  {
+    "name": "Cession mexicaine de 1848",
+    "slug": "cession-mexicaine-1848",
+    "formerSovereign": "Mexique",
+    "newSovereign": "États-Unis",
+    "acquisitionDate": "1848-02-02",
+    "areaKm2": 1360000,
+    "treatyName": "Traité de Guadalupe Hidalgo",
+    "originalPrice": 15000000,
+    "originalCurrency": "USD",
+    "inflationAdjustedValue": null,
+    "description": "Territoires cédés par le Mexique aux États-Unis par le traité de Guadalupe Hidalgo (2 février 1848), contre un paiement de 15 millions de dollars et la prise en charge par les États-Unis de créances de citoyens américains envers le Mexique (jusqu'à 3,25 millions de dollars). Superficie d'environ 1,36 million de km², hors Texas (annexé en 1845) et hors achat Gadsden (1853). Le traité prévoyait des garanties de propriété et de citoyenneté pour les habitants mexicains des territoires cédés (articles VIII et IX), inégalement respectées dans les décennies suivantes. La valeur corrigée de l'inflation est laissée à null tant qu'une méthodologie sourcée n'est pas documentée (voir docs/DATA_METHODOLOGY.md).",
+    "needsReview": true,
+    "conflictSlug": "guerre-americano-mexicaine",
+    "states": [
+      { "stateName": "Californie", "coverageType": "FULL", "estimatedShare": null, "notes": "Totalité de l'État actuel issue de la cession de 1848." },
+      { "stateName": "Nevada", "coverageType": "FULL", "estimatedShare": null, "notes": "Totalité de l'État actuel issue de la cession de 1848." },
+      { "stateName": "Utah", "coverageType": "FULL", "estimatedShare": null, "notes": "Totalité de l'État actuel issue de la cession de 1848." },
+      { "stateName": "Arizona", "coverageType": "MOSTLY", "estimatedShare": null, "notes": "Majeure partie issue de la cession de 1848 ; le sud de l'État provient de l'achat Gadsden (1853)." },
+      { "stateName": "Nouveau-Mexique", "coverageType": "MOSTLY", "estimatedShare": null, "notes": "Grande partie issue de la cession de 1848 ; une partie provient de l'achat Gadsden et de l'ancien territoire revendiqué par le Texas." },
+      { "stateName": "Colorado", "coverageType": "PARTIAL", "estimatedShare": null, "notes": "Seule la partie occidentale de l'État actuel provient de la cession de 1848." },
+      { "stateName": "Wyoming", "coverageType": "SMALL_PART", "estimatedShare": null, "notes": "Seule une petite partie du sud-ouest de l'État actuel provient de la cession de 1848." }
+    ],
+    "economicMetrics": [
+      {
+        "stateName": "Californie",
+        "year": 2020,
+        "metricType": "POPULATION",
+        "value": 39538223,
+        "currency": "PERSONNES",
+        "isEstimate": false,
+        "methodology": "Recensement décennal 2020, population résidente. Périmètre : État moderne entier, qui ne correspond pas exactement au territoire acquis en 1848.",
+        "needsReview": false,
+        "sourceKey": "census-2020"
+      },
+      {
+        "stateName": "Arizona",
+        "year": 2020,
+        "metricType": "POPULATION",
+        "value": 7151502,
+        "currency": "PERSONNES",
+        "isEstimate": false,
+        "methodology": "Recensement décennal 2020, population résidente. Périmètre : État moderne entier (dont le sud provient de l'achat Gadsden, pas de la cession de 1848).",
+        "needsReview": false,
+        "sourceKey": "census-2020"
+      },
+      {
+        "stateName": "Nevada",
+        "year": 2020,
+        "metricType": "POPULATION",
+        "value": 3104614,
+        "currency": "PERSONNES",
+        "isEstimate": false,
+        "methodology": "Recensement décennal 2020, population résidente. Périmètre : État moderne entier.",
+        "needsReview": false,
+        "sourceKey": "census-2020"
+      },
+      {
+        "stateName": "Utah",
+        "year": 2020,
+        "metricType": "POPULATION",
+        "value": 3271616,
+        "currency": "PERSONNES",
+        "isEstimate": false,
+        "methodology": "Recensement décennal 2020, population résidente. Périmètre : État moderne entier.",
+        "needsReview": false,
+        "sourceKey": "census-2020"
+      },
+      {
+        "stateName": "Nouveau-Mexique",
+        "year": 2020,
+        "metricType": "POPULATION",
+        "value": 2117522,
+        "currency": "PERSONNES",
+        "isEstimate": false,
+        "methodology": "Recensement décennal 2020, population résidente. Périmètre : État moderne entier (des parties proviennent de l'achat Gadsden et de l'ancien Texas).",
+        "needsReview": false,
+        "sourceKey": "census-2020"
+      },
+      {
+        "stateName": "Colorado",
+        "year": 2020,
+        "metricType": "POPULATION",
+        "value": 5773714,
+        "currency": "PERSONNES",
+        "isEstimate": false,
+        "methodology": "Recensement décennal 2020, population résidente. Périmètre : État moderne entier, dont seule la partie occidentale provient de la cession de 1848.",
+        "needsReview": false,
+        "sourceKey": "census-2020"
+      },
+      {
+        "stateName": "Wyoming",
+        "year": 2020,
+        "metricType": "POPULATION",
+        "value": 576851,
+        "currency": "PERSONNES",
+        "isEstimate": false,
+        "methodology": "Recensement décennal 2020, population résidente. Périmètre : État moderne entier, dont seule une petite partie provient de la cession de 1848.",
+        "needsReview": false,
+        "sourceKey": "census-2020"
+      }
+    ]
+  },
+  {
+    "name": "Achat Gadsden",
+    "slug": "achat-gadsden",
+    "formerSovereign": "Mexique",
+    "newSovereign": "États-Unis",
+    "acquisitionDate": "1853-12-30",
+    "areaKm2": 76845,
+    "treatyName": "Traité de la Mesilla (achat Gadsden)",
+    "originalPrice": 10000000,
+    "originalCurrency": "USD",
+    "inflationAdjustedValue": null,
+    "description": "Bande de territoire au sud des actuels Arizona et Nouveau-Mexique, achetée au Mexique pour 10 millions de dollars par le traité de la Mesilla (signé le 30 décembre 1853, ratifié en 1854). Motivée notamment par un projet de tracé ferroviaire transcontinental méridional et par le règlement de différends résiduels du traité de Guadalupe Hidalgo. Acquisition par achat négocié, distincte de la cession de 1848, mais consécutive au même rapport de force issu de la guerre.",
+    "needsReview": true,
+    "conflictSlug": null,
+    "states": [
+      { "stateName": "Arizona", "coverageType": "PARTIAL", "estimatedShare": null, "notes": "Sud de l'État actuel, dont Tucson." },
+      { "stateName": "Nouveau-Mexique", "coverageType": "SMALL_PART", "estimatedShare": null, "notes": "Extrémité sud-ouest de l'État actuel." }
+    ],
+    "economicMetrics": []
+  }
+]
