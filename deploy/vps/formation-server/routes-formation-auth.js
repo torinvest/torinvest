@@ -22,6 +22,7 @@ const createFondamentalBridgeRouter = require("./routes-fondamental-bridge");
 const createJournalBridgeRouter = require("./routes-journal-bridge");
 const createAtlasBridgeRouter = require("./routes-atlas-bridge");
 const createBooksRouter = require("./routes-books");
+const createLiveResourcesRouter = require("./routes-live-resources");
 
 function sessionUser(email, subscribed) {
   return {
@@ -262,6 +263,7 @@ function createFormationAuthRouter(options) {
   router.use(createAtlasBridgeRouter());
 
   router.use(createBooksRouter());
+  router.use(createLiveResourcesRouter());
 
   router.get("/api/accompagnement-auth/ping", (_req, res) => {
     res.json({
