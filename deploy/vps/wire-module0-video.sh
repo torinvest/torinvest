@@ -25,7 +25,19 @@ if [[ ! -f "$VIDEO_FILE" ]]; then
   echo "ERREUR : vidéo introuvable : $VIDEO_FILE"
   exit 1
 fi
-echo "OK vidéo : $(ls -lh "$VIDEO_FILE" | awk '{print $5}')"
+echo "OK vidéo (public) : $(ls -lh "$VIDEO_FILE" | awk '{print $5}')"
+
+# Les leçons sont servies depuis private/course/ → le mp4 doit aussi y être
+# sinon /course/videos/... résout private/course/videos/ (404 / écran noir).
+PRIVATE_VIDEO_DIR="$PRIVATE_COURSE/videos"
+PRIVATE_VIDEO_FILE="$PRIVATE_VIDEO_DIR/module-0-socle.mp4"
+mkdir -p "$PRIVATE_VIDEO_DIR"
+if [[ ! -f "$PRIVATE_VIDEO_FILE" ]] || ! cmp -s "$VIDEO_FILE" "$PRIVATE_VIDEO_FILE" 2>/dev/null; then
+  echo "Sync vidéo → private/course/videos/…"
+  cp -a "$VIDEO_FILE" "$PRIVATE_VIDEO_FILE"
+fi
+chmod 644 "$PRIVATE_VIDEO_FILE" 2>/dev/null || true
+echo "OK vidéo (private) : $(ls -lh "$PRIVATE_VIDEO_FILE" | awk '{print $5}')"
 
 # Ordre de priorité : private/course (réel sur VPS) puis public/course
 HTML=""
