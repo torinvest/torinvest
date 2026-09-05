@@ -1,7 +1,7 @@
 /**
- * Catalogue bibliothèque La Forge — Fondamental / économie / monnaie / macro.
- * PDF hors Git : /var/lib/torinvest/books/<file> (ou FORGE_BOOKS_DIR).
- * Les autres PDF du dossier VPS ne sont pas listés ici.
+ * Métadonnées optionnelles (titre / auteur / thèmes) pour certains PDF.
+ * La page Livres liste TOUS les fichiers de /var/lib/torinvest/books via l’API ;
+ * ce fichier enrichit seulement les entrées connues.
  */
 (function (global) {
   "use strict";
