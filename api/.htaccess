@@ -1,3 +1,8 @@
+RewriteEngine On
+
+# Bloquer l'accès HTTP au dossier data/ (users, sessions, SQLite)
+RewriteRule ^data(/|$) - [F,L]
+
 # Bloquer l'accès direct au fichier de configuration
 <Files "config.local.php">
     Require all denied
@@ -18,3 +23,7 @@
 <Files "stripe-lib.php">
     Require all denied
 </Files>
+
+<FilesMatch "\.(db|sqlite|sqlite3)$">
+    Require all denied
+</FilesMatch>

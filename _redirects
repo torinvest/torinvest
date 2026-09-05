@@ -59,7 +59,18 @@
 /dashboard.html               https://app.torinvest-trading.com/dashboard.html                      302!
 /calendar.html                https://app.torinvest-trading.com/calendar.html                       302!
 /calendar-day.html            https://app.torinvest-trading.com/calendar-day.html                   302!
+/start.html                   https://app.torinvest-trading.com/start.html                          302!
+/start                        https://app.torinvest-trading.com/start.html                          302!
+/books.html                   https://app.torinvest-trading.com/books.html                          302!
+/books                        https://app.torinvest-trading.com/books.html                          302!
+/la-forge/start.html          https://app.torinvest-trading.com/start.html                          302!
+/la-forge/books.html          https://app.torinvest-trading.com/books.html                          302!
+/la-forge/fondamental.html    https://app.torinvest-trading.com/fondamental.html                    302!
 /course/*                     https://app.torinvest-trading.com/course/:splat                       302!
+# Ancien tarif formation → page tarifs La Forge
+/formationprice               /la-forge/pricing.html                                                301
+/formationprice.html          /la-forge/pricing.html                                                301
+/formationprice/              /la-forge/pricing.html                                                301
 # CRM licences TORINVEST (API PHP sur radar — secrets serveur)
 /admin-licence                /admin-licence/index.html                                             200
 /admin-licence/               /admin-licence/index.html                                             200

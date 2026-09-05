@@ -39,6 +39,16 @@ else
 fi
 
 echo ""
+echo "==> Wire auth accompagnement (email Stripe + clé TOR)"
+if [[ -f "$APP_DIR/deploy/vps/wire-formation-accompagnement-auth.js" ]]; then
+  node "$APP_DIR/deploy/vps/wire-formation-accompagnement-auth.js" "$APP_DIR" || {
+    echo "WARN — wire auth accompagnement échoué (login TOR peut être incomplet)"
+  }
+else
+  echo "WARN — wire-formation-accompagnement-auth.js absent"
+fi
+
+echo ""
 echo "==> Vérification"
 bash "$APP_DIR/deploy/vps/verify-formation-live.sh" "$APP_DIR"
 

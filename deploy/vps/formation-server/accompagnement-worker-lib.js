@@ -1,6 +1,8 @@
 /**
  * Validation licence ACCOMPAGNEMENT via Worker Cloudflare (même source que le CRM).
  * Flux client : email Stripe + clé TOR-ACCOMPAGNEMENT dans le champ mot de passe.
+ *
+ * Sécurité : la clé seule ne suffit jamais — l'email Worker doit matcher l'email saisi.
  */
 "use strict";
 
@@ -31,6 +33,26 @@ function normalizeLicenseKey(value) {
     .trim();
 }
 
+function normalizeEmail(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function emailsMatch(a, b) {
+  const ea = normalizeEmail(a);
+  const eb = normalizeEmail(b);
+  if (!ea || !eb) return false;
+  return ea === eb;
+}
+
+function licenseBoundEmail(data) {
+  if (!data || typeof data !== "object") return "";
+  return normalizeEmail(
+    data.email || data.ownerEmail || data.owner_email || data.userEmail || ""
+  );
+}
+
 async function callValidate(base, params) {
   const url = base + "/validate-license?" + new URLSearchParams(params).toString();
   let res;
@@ -55,14 +77,12 @@ async function callValidate(base, params) {
 }
 
 /**
- * @returns {{ ok: boolean, reason?: string, data?: object, via?: string }}
+ * @returns {{ ok: boolean, reason?: string, data?: object, via?: string, boundEmail?: string }}
  */
 async function validateAccompagnementLicense(workerUrl, email, licenseKey) {
   const base = String(workerUrl || "").replace(/\/$/, "");
   const key = normalizeLicenseKey(licenseKey);
-  const em = String(email || "")
-    .trim()
-    .toLowerCase();
+  const em = normalizeEmail(email);
   if (!base || !key || !em) {
     return { ok: false, reason: "missing_params" };
   }
@@ -73,16 +93,27 @@ async function validateAccompagnementLicense(workerUrl, email, licenseKey) {
     if (!isAccompagnementPlan(withEmail.data.plan)) {
       return { ok: false, reason: "not_accompagnement_plan", data: withEmail.data };
     }
-    return { ok: true, data: withEmail.data, via: "key_email" };
+    const bound = licenseBoundEmail(withEmail.data) || em;
+    if (licenseBoundEmail(withEmail.data) && !emailsMatch(bound, em)) {
+      return { ok: false, reason: "email_mismatch", data: withEmail.data };
+    }
+    return { ok: true, data: withEmail.data, via: "key_email", boundEmail: bound };
   }
 
-  // 2) clé seule — si l'email saisi ≠ email lié à la licence
+  // 2) clé seule — UNIQUEMENT si l'email Worker matche l'email saisi
   const keyOnly = await callValidate(base, { key });
   if (keyOnly.ok) {
     if (!isAccompagnementPlan(keyOnly.data.plan)) {
       return { ok: false, reason: "not_accompagnement_plan", data: keyOnly.data };
     }
-    return { ok: true, data: keyOnly.data, via: "key_only" };
+    const bound = licenseBoundEmail(keyOnly.data);
+    if (!bound) {
+      return { ok: false, reason: "email_required", data: keyOnly.data };
+    }
+    if (!emailsMatch(bound, em)) {
+      return { ok: false, reason: "email_mismatch", data: keyOnly.data };
+    }
+    return { ok: true, data: keyOnly.data, via: "key_bound_email", boundEmail: bound };
   }
 
   return {
@@ -97,4 +128,7 @@ module.exports = {
   isAccompagnementPlan,
   looksLikeTorLicense,
   normalizeLicenseKey,
+  normalizeEmail,
+  emailsMatch,
+  licenseBoundEmail,
 };
