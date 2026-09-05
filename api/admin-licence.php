@@ -162,6 +162,29 @@ try {
         case 'create_accompagnement':
             licenceCrmJson(licenceCrmCreateAccompagnement($input));
 
+        case 'provision_formation':
+            // Client déjà payé / licence active : crée ou reset le login app (mot de passe).
+            $email = strtolower(trim((string) ($input['email'] ?? '')));
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw new InvalidArgumentException('Email client invalide');
+            }
+            $formation = licenceCrmProvisionFormationAccount($email);
+            if (empty($formation['ok'])) {
+                licenceCrmJson([
+                    'ok' => false,
+                    'error' => (string) ($formation['error'] ?? 'formation_provision_failed'),
+                    'formation' => $formation,
+                ], 502);
+            }
+            licenceCrmJson([
+                'ok' => true,
+                'email' => $email,
+                'password' => $formation['password'] ?? null,
+                'formation_password' => $formation['password'] ?? null,
+                'formation' => $formation,
+                'subscribed' => !empty($formation['subscribed']),
+            ]);
+
         case 'list_stripe_events':
             $rows = licenceCrmListStripeEvents((int) ($input['limit'] ?? 100));
             licenceCrmJson(['ok' => true, 'count' => count($rows), 'events' => $rows]);

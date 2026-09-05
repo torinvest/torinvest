@@ -380,7 +380,17 @@ function licenceCrmProvisionFormationAccount(string $email): array
         $provisionLibLoaded = true;
     }
     try {
-        return formationProvisionAccompagnementUser($email, ['subscribed' => true]);
+        $result = formationProvisionAccompagnementUser($email, ['subscribed' => true]);
+        // Toujours remonter l’erreur métier (secret manquant, VPS down, etc.)
+        if (empty($result['ok'])) {
+            return [
+                'ok' => false,
+                'error' => (string) ($result['error'] ?? 'formation_provision_failed'),
+                'skipped' => !empty($result['skipped']),
+                'http' => $result['http'] ?? null,
+            ];
+        }
+        return $result;
     } catch (Throwable $e) {
         return ['ok' => false, 'error' => $e->getMessage()];
     }
