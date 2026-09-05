@@ -13,6 +13,8 @@ const FORGE_BRAND = {
     anvil: "/la-forge/img/forge-anvil.png?v=20260630",
     full: "/la-forge/img/torinvest-logo-full.png?v=20260630",
     liveBanner: "/la-forge/img/live-trading-banner.png",
+    bull: "/la-forge/img/icon-bull.svg?v=1",
+    bear: "/la-forge/img/icon-bear.svg?v=1",
   },
   social: {
     youtube: {
@@ -69,6 +71,8 @@ function applyForgeAppLogos() {
     anvil: "/img/forge-anvil.png?v=20260630",
     full: "/img/torinvest-logo-full.png?v=20260630",
     liveBanner: "/img/live-trading-banner.png",
+    bull: "/img/icon-bull.svg?v=1",
+    bear: "/img/icon-bear.svg?v=1",
   };
 }
 
@@ -119,6 +123,103 @@ function initForgeBackHome() {
   a.setAttribute("aria-label", "Retour au site principal TORINVEST");
   a.textContent = "← Site principal";
   document.body.appendChild(a);
+}
+
+
+/** Icônes marché (taureau / ours) — couleur via CSS currentColor. */
+function forgeMarketIconSvg(side) {
+  const s = String(side || "").toLowerCase();
+  if (s === "bear" || s === "bearish" || s === "ours") {
+    return (
+      '<svg class="forge-mkt-icon" viewBox="0 0 64 64" width="18" height="18" aria-hidden="true" focusable="false">' +
+      '<circle cx="18" cy="18" r="10" fill="currentColor"/>' +
+      '<circle cx="46" cy="18" r="10" fill="currentColor"/>' +
+      '<path fill="currentColor" d="M12 28c0-10 8-18 20-18s20 8 20 18v10c0 12-8 20-20 20S12 50 12 38V28z"/>' +
+      '<circle cx="24" cy="34" r="3.5" fill="#0a0a0f"/>' +
+      '<circle cx="40" cy="34" r="3.5" fill="#0a0a0f"/>' +
+      '<ellipse cx="32" cy="42" rx="5" ry="3.5" fill="#0a0a0f"/>' +
+      "</svg>"
+    );
+  }
+  return (
+    '<svg class="forge-mkt-icon" viewBox="0 0 64 64" width="18" height="18" aria-hidden="true" focusable="false">' +
+    '<path fill="currentColor" d="M8 22c2-8 10-14 18-14h12c8 0 16 6 18 14l4 14c1 4-1 8-5 9l-6 2v7c0 4-3 7-7 7H22c-4 0-7-3-7-7v-7l-6-2c-4-1-6-5-5-9l4-14z"/>' +
+    '<path fill="#0a0a0f" d="M24 34a4 4 0 1 0 .01 0zm16 0a4 4 0 1 0 .01 0z"/>' +
+    '<path stroke="#0a0a0f" stroke-width="2.5" stroke-linecap="round" d="M28 44c2.5 3 5.5 3 8 0"/>' +
+    '<path fill="currentColor" d="M6 18c-2-6 2-12 8-10 3 1 5 4 6 8l-8 4c-3 1-5-.5-6-2zm52 0c2-6-2-12-8-10-3 1-5 4-6 8l8 4c3 1 5-.5 6-2z"/>' +
+    "</svg>"
+  );
+}
+
+function forgeBiasChipHtml(side, label) {
+  const s = String(side || "bull").toLowerCase();
+  const cls = s === "bear" || s === "bearish" || s === "ours" ? "bear" : "bull";
+  const text =
+    label ||
+    (cls === "bear" ? "Bearish · pression vendeuse" : "Bullish · pression acheteuse");
+  return (
+    '<span class="forge-bias-chip ' +
+    cls +
+    '">' +
+    forgeMarketIconSvg(cls) +
+    "<span>" +
+    text +
+    "</span></span>"
+  );
+}
+
+/** Emblème Forge animé (anneau or + enclume). */
+function forgeEmblemHtml(opts) {
+  const o = opts || {};
+  const size = o.size || 120;
+  return (
+    '<div class="forge-emblem" style="--emblem-size:' +
+    size +
+    'px" role="img" aria-label="La Forge TORINVEST">' +
+    '<span class="forge-emblem-ring" aria-hidden="true"></span>' +
+    '<img src="' +
+    FORGE_BRAND.logos.anvil +
+    '" alt="" class="forge-emblem-core" width="' +
+    Math.round(size * 0.58) +
+    '" height="' +
+    Math.round(size * 0.58) +
+    '" decoding="async" />' +
+    '<span class="forge-emblem-spark" aria-hidden="true"></span>' +
+    '<span class="forge-emblem-spark" aria-hidden="true"></span>' +
+    '<span class="forge-emblem-spark" aria-hidden="true"></span>' +
+    "</div>"
+  );
+}
+
+function forgeMarketLegendHtml() {
+  return (
+    '<div class="forge-bias-row" aria-label="Légende biais de marché">' +
+    forgeBiasChipHtml("bull", "Bullish (taureau)") +
+    forgeBiasChipHtml("bear", "Bearish (ours)") +
+    '<span class="forge-bias-chip forge"><img src="' +
+    FORGE_BRAND.logos.anvil +
+    '" alt="" width="16" height="16" />La Forge</span>' +
+    "</div>"
+  );
+}
+
+function initForgeAmbient() {
+  document.body.classList.add("forge-ambient");
+  document.querySelectorAll(".forge-logo-img, .footer-anvil").forEach((img) => {
+    img.classList.add("forge-logo-img");
+  });
+  document.querySelectorAll("[data-forge-emblem]").forEach((el) => {
+    const size = Number(el.getAttribute("data-forge-emblem")) || 120;
+    el.innerHTML = forgeEmblemHtml({ size: size });
+  });
+  document.querySelectorAll("[data-forge-market-legend]").forEach((el) => {
+    el.innerHTML = forgeMarketLegendHtml();
+  });
+  document.querySelectorAll(".legend .l-bull, .legend .l-bear").forEach((el) => {
+    if (el.querySelector(".forge-mkt-icon")) return;
+    const side = el.classList.contains("l-bear") ? "bear" : "bull";
+    el.insertAdjacentHTML("afterbegin", forgeMarketIconSvg(side));
+  });
 }
 
 function forgeLogoHtml(size) {
@@ -261,6 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.querySelector("[data-forge-footer]")) initForgeFooter();
   initLiveSection();
   initForgeBackHome();
+  initForgeAmbient();
 });
 
 window.FORGE_BRAND = FORGE_BRAND;
@@ -270,6 +372,11 @@ window.ForgeBrand = {
   initLiveSection,
   initMemberHeader,
   initForgeBackHome,
+  initForgeAmbient,
   renderLiveSection,
   forgeLogoHtml,
+  forgeEmblemHtml,
+  forgeMarketIconSvg,
+  forgeBiasChipHtml,
+  forgeMarketLegendHtml,
 };
