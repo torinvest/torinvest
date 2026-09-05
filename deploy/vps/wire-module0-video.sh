@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# Branche la vidéo Module 0 (socle) dans la leçon intro sur le VPS.
-# Prérequis : ~/torinvest-formation/public/course/videos/module-0-socle.mp4
+# Branche la vidéo Module 0 (socle) dans intro-metier.html sur le VPS.
+#
+# Sur ce serveur les leçons HTML sont dans private/course/ (pas public/course/).
+# Vidéo attendue :
+#   ~/torinvest-formation/public/course/videos/module-0-socle.mp4
+#   URL : /course/videos/module-0-socle.mp4
 #
 # Usage :
 #   bash deploy/vps/wire-module0-video.sh
@@ -8,9 +12,10 @@
 set -euo pipefail
 
 APP_DIR="${1:-$HOME/torinvest-formation}"
-COURSE="$APP_DIR/public/course"
-VIDEO_REL="/course/videos/module-0-socle.mp4"
-VIDEO_FILE="$COURSE/videos/module-0-socle.mp4"
+PUBLIC_COURSE="$APP_DIR/public/course"
+PRIVATE_COURSE="$APP_DIR/private/course"
+VIDEO_FILE="$PUBLIC_COURSE/videos/module-0-socle.mp4"
+VIDEO_URL="/course/videos/module-0-socle.mp4"
 MARKER_START="<!-- FORGE_MODULE0_VIDEO_START -->"
 MARKER_END="<!-- FORGE_MODULE0_VIDEO_END -->"
 
@@ -20,90 +25,52 @@ if [[ ! -f "$VIDEO_FILE" ]]; then
   echo "ERREUR : vidéo introuvable : $VIDEO_FILE"
   exit 1
 fi
-echo "OK vidéo : $(ls -lh "$VIDEO_FILE" | awk '{print $5, $9}')"
+echo "OK vidéo : $(ls -lh "$VIDEO_FILE" | awk '{print $5}')"
 
-echo
-echo "==> Contenu public/course (html) :"
-find "$COURSE" -maxdepth 2 -type f -name '*.html' 2>/dev/null | sort | head -80 || true
-
-echo
-echo "==> Recherche intro-metier / module 0 sur le serveur :"
-# Chemins candidats connus + recherche limitée
-CANDIDATES=()
-while IFS= read -r f; do
-  CANDIDATES+=("$f")
-done < <(
-  {
-    find "$COURSE" -maxdepth 3 -type f \( -iname '*intro*metier*.html' -o -iname 'intro.html' -o -iname '*module*0*.html' -o -iname '*metier*.html' \) 2>/dev/null
-    find "$APP_DIR" -maxdepth 4 -type f -iname 'intro-metier.html' 2>/dev/null
-    find "$HOME/backups" -maxdepth 3 -type f -iname 'intro-metier.html' 2>/dev/null
-    find /var/www -maxdepth 5 -type f -iname 'intro-metier.html' 2>/dev/null
-  } | sort -u
-)
-
-if [[ ${#CANDIDATES[@]} -eq 0 ]]; then
-  echo
-  echo "ERREUR : aucune leçon Module 0 trouvée (intro-metier.html absent)."
-  echo
-  echo "Les HTML des modules sont PRIVÉS et doivent vivre dans :"
-  echo "  $COURSE/*.html"
-  echo "Actuellement il n'y a souvent que index.html (catalogue)."
-  echo
-  echo "À faire :"
-  echo "  1) Restaurer une sauvegarde course-*.tar.gz si tu en as :"
-  echo "       ls -lh ~/backups/torinvest/course-*.tar.gz 2>/dev/null"
-  echo "       # exemple :"
-  echo "       # tar -tzf ~/backups/torinvest/course-XXXX.tar.gz | head"
-  echo "       # tar -xzf ~/backups/torinvest/course-XXXX.tar.gz -C $APP_DIR/public"
-  echo "  2) Ou recopier les leçons depuis ta machine locale vers public/course/"
-  echo
-  echo "Puis relance ce script."
-  exit 1
-fi
-
-echo "Candidats :"
-printf '  %s\n' "${CANDIDATES[@]}"
-
-# Préférence : public/course/intro-metier.html
+# Ordre de priorité : private/course (réel sur VPS) puis public/course
 HTML=""
-for f in "${CANDIDATES[@]}"; do
-  if [[ "$f" == "$COURSE/intro-metier.html" ]]; then
-    HTML="$f"
+for candidate in \
+  "$PRIVATE_COURSE/intro-metier.html" \
+  "$PUBLIC_COURSE/intro-metier.html"
+do
+  if [[ -f "$candidate" ]]; then
+    HTML="$candidate"
     break
   fi
 done
+
 if [[ -z "$HTML" ]]; then
-  HTML="${CANDIDATES[0]}"
-fi
-
-echo
-echo "Cible HTML : $HTML"
-
-# Si trouvé hors de public/course, copier vers l'emplacement canonique
-CANON="$COURSE/intro-metier.html"
-if [[ "$HTML" != "$CANON" ]]; then
-  mkdir -p "$COURSE"
-  if [[ ! -f "$CANON" ]]; then
-    echo "Copie vers emplacement canonique : $CANON"
-    cp -a "$HTML" "$CANON"
+  echo "Recherche élargie…"
+  FOUND=$(find "$APP_DIR" -type f -iname 'intro-metier.html' 2>/dev/null | head -5 || true)
+  if [[ -n "$FOUND" ]]; then
+    HTML=$(echo "$FOUND" | head -1)
   fi
-  HTML="$CANON"
 fi
+
+if [[ -z "$HTML" || ! -f "$HTML" ]]; then
+  echo "ERREUR : intro-metier.html introuvable."
+  echo "Attendu : $PRIVATE_COURSE/intro-metier.html"
+  ls -la "$PRIVATE_COURSE" 2>/dev/null | head -30 || true
+  exit 1
+fi
+
+echo "Cible HTML : $HTML"
 
 STAMP=$(date +%Y%m%d-%H%M%S)
 cp -a "$HTML" "$HTML.bak-video-$STAMP"
 echo "Backup : $HTML.bak-video-$STAMP"
 
-python3 - "$HTML" <<'PY'
+python3 - "$HTML" "$VIDEO_URL" <<'PY'
 import re, sys
 from pathlib import Path
 
 html_path = Path(sys.argv[1])
+video_url = sys.argv[2]
 text = html_path.read_text(encoding="utf-8")
 
 marker_start = "<!-- FORGE_MODULE0_VIDEO_START -->"
 marker_end = "<!-- FORGE_MODULE0_VIDEO_END -->"
-block = """<!-- FORGE_MODULE0_VIDEO_START -->
+block = f"""<!-- FORGE_MODULE0_VIDEO_START -->
 <figure class="forge-lesson-video" id="module0-video">
   <video
     controls
@@ -112,7 +79,7 @@ block = """<!-- FORGE_MODULE0_VIDEO_START -->
     controlslist="nodownload"
     style="width:100%;max-width:960px;border-radius:12px;background:#000;display:block;margin:1.25rem auto;"
   >
-    <source src="/course/videos/module-0-socle.mp4" type="video/mp4" />
+    <source src="{video_url}" type="video/mp4" />
     Votre navigateur ne lit pas la vidéo HTML5.
   </video>
   <figcaption style="text-align:center;color:#9aa3b2;font-size:0.9rem;margin-top:0.5rem;">
@@ -133,7 +100,7 @@ if marker_start in text and marker_end in text:
 else:
     patterns = [
         r'<figure[^>]*class="[^"]*forge-lesson-video[^"]*"[^>]*>.*?</figure>',
-        r'<div[^>]*class="[^"]*(?:lesson-video|video-slot|module-video|video-placeholder)[^"]*"[^>]*>.*?</div>',
+        r'<div[^>]*class="[^"]*(?:lesson-video|video-slot|module-video|video-placeholder|video-embed)[^"]*"[^>]*>.*?</div>',
         r'<video\b[^>]*>.*?</video>',
         r'<!--\s*(?:VIDEO|VIDÉO|EMPLACEMENT[_\s-]*VIDEO)[^>]*-->',
     ]
@@ -142,7 +109,7 @@ else:
         if re.search(pat, text, flags=re.I | re.S):
             text = re.sub(pat, block, text, count=1, flags=re.I | re.S)
             replaced = True
-            action = "remplacé via placeholder/video existant"
+            action = "remplacé via placeholder / <video> existant"
             break
     if not replaced:
         m = re.search(r"(<h1\b[^>]*>.*?</h1>)", text, flags=re.I | re.S)
@@ -151,17 +118,34 @@ else:
             text = text[:idx] + "\n\n" + block + "\n" + text[idx:]
             action = "inséré après le premier <h1>"
         else:
-            m2 = re.search(r"(<body\b[^>]*>)", text, flags=re.I)
-            if not m2:
-                print("ERREUR : point d'insertion introuvable", file=sys.stderr)
-                sys.exit(2)
-            idx = m2.end()
-            text = text[:idx] + "\n\n" + block + "\n" + text[idx:]
-            action = "inséré après <body>"
+            m2 = re.search(r"(<main\b[^>]*>)", text, flags=re.I)
+            if m2:
+                idx = m2.end()
+                text = text[:idx] + "\n\n" + block + "\n" + text[idx:]
+                action = "inséré après <main>"
+            else:
+                m3 = re.search(r"(<body\b[^>]*>)", text, flags=re.I)
+                if not m3:
+                    print("ERREUR : point d'insertion introuvable", file=sys.stderr)
+                    sys.exit(2)
+                idx = m3.end()
+                text = text[:idx] + "\n\n" + block + "\n" + text[idx:]
+                action = "inséré après <body>"
 
 html_path.write_text(text, encoding="utf-8")
 print("Action :", action)
 PY
+
+# Si le serveur sert aussi depuis public/course, synchroniser
+if [[ "$HTML" == "$PRIVATE_COURSE/intro-metier.html" ]]; then
+  mkdir -p "$PUBLIC_COURSE"
+  # Ne pas écraser un public différent sans backup ; sync miroir pour cohérence URL /course/
+  if [[ -f "$PUBLIC_COURSE/intro-metier.html" ]]; then
+    cp -a "$PUBLIC_COURSE/intro-metier.html" "$PUBLIC_COURSE/intro-metier.html.bak-before-sync-$STAMP"
+  fi
+  cp -a "$HTML" "$PUBLIC_COURSE/intro-metier.html"
+  echo "Sync public : $PUBLIC_COURSE/intro-metier.html"
+fi
 
 echo
 echo "Vérif :"
