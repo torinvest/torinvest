@@ -43,6 +43,7 @@
     </p>
 
     <div id="dash-next-step" style="margin-bottom:1.25rem"></div>
+    <div id="dash-ranks" style="margin-bottom:1.25rem"></div>
     <div id="dash-week" style="margin-bottom:1.5rem"></div>
 
     <div class="overall-progress">
@@ -111,7 +112,7 @@
   <script src="/js/course-data.js?v=70"></script>
   <script src="/js/fondamental-data.js?v=1"></script>
   <script src="/js/forge-unlock.js"></script>
-  <script src="/js/forge-onboarding.js?v=1"></script>
+  <script src="/js/forge-onboarding.js?v=2"></script>
   <script>
     const MODULE_IDS = getAllModuleIds();
     document.getElementById("dash-hours").textContent =
@@ -146,10 +147,14 @@
       if (typeof initForgeProgress === "function") {
         await initForgeProgress(me.email);
       }
+      const overall = typeof getOverallProgress === "function"
+        ? getOverallProgress(MODULE_IDS)
+        : { done: 0, total: MODULE_IDS.length, pct: 0 };
       if (window.ForgeOnboarding) {
         ForgeOnboarding.markDone(me.email, "login");
         ForgeOnboarding.renderNextStep(document.getElementById("dash-next-step"), me.email);
-        ForgeOnboarding.renderWeeklyCards(document.getElementById("dash-week"), me.email);
+        ForgeOnboarding.renderBadges(document.getElementById("dash-ranks"), overall.done);
+        ForgeOnboarding.renderForgeWeek(document.getElementById("dash-week"), me.email, overall.done);
       }
       const lockedEl = document.getElementById("locked-alert");
       if (!me.subscribed) {
@@ -177,10 +182,9 @@
       } else {
         document.getElementById("plan-text").textContent = "Plan Premium actif — accès La Forge débloqué.";
       }
-      const o = getOverallProgress(MODULE_IDS);
-      document.getElementById("dash-progress-bar").style.width = o.pct + "%";
+      document.getElementById("dash-progress-bar").style.width = overall.pct + "%";
       document.getElementById("dash-progress-text").textContent =
-        o.done + " / " + o.total + " modules validés · " + o.pct + "%";
+        overall.done + " / " + overall.total + " modules validés · " + overall.pct + "%";
       const unlockBanner = document.getElementById("unlock-banner");
       if (unlockBanner && me.subscribed && typeof getUnlockSummaryText === "function") {
         unlockBanner.hidden = false;
