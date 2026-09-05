@@ -40,6 +40,7 @@ JS_FILES=(
   forge-atlas.js
   books-data.js
   forge-books.js
+  forge-live-resources.js
   forge-gate.js
   forge-unlock.js
   forge-legal.js

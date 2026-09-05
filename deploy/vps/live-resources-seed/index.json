@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "packs": [
+    {
+      "id": "forge-integration-client-v1",
+      "title": "La Forge — Intégration client (4 slides)",
+      "description": "Semaine 1 à Mois 3 : accès, rythme, accompagnement intensif et autonomie. À télécharger après le live d'intégration.",
+      "kind": "onboarding",
+      "moduleSlug": null,
+      "liveDate": null,
+      "tags": ["intégration", "onboarding", "slides", "mois-1", "mois-2", "mois-3"],
+      "published": true,
+      "visibleAfter": null,
+      "notes": "Pack seed — PDF dans /var/lib/torinvest/live-resources/",
+      "files": [
+        {
+          "label": "Slides intégration (PDF 4 pages)",
+          "file": "la-forge-integration-client-4-slides.pdf"
+        }
+      ],
+      "createdAt": "2026-09-05T00:00:00.000Z",
+      "updatedAt": "2026-09-05T00:00:00.000Z",
+      "createdBy": "seed"
+    }
+  ]
+}

@@ -51,6 +51,7 @@
 
   
     <section id="coach-day-panel" class="coach-panel" style="margin-top:1.25rem" hidden></section>
+    <section id="live-resources-day" class="card" style="margin-top:1.25rem" hidden></section>
 
   <footer data-forge-footer></footer>
   <script src="/js/forge-brand.js"></script>
@@ -59,12 +60,15 @@
   <script src="/js/course-data.js"></script>
   <script src="/js/forge-calendar.js"></script>
   <script src="/js/forge-coaching-lives.js"></script>
+  <script src="/js/forge-live-resources.js?v=1"></script>
   <script>
     initForgeGate({ requirePremium: true }).then(async (me) => {
       if (!me) return;
       await initForgeCalendar(me.email);
       await initCalendarDayPage();
       await initForgeCoachingDay(me);
+      const date = new URLSearchParams(window.location.search).get("date");
+      if (date) await renderLiveResourcesForDate("live-resources-day", date);
     });
   </script>
 <script src="/js/forge-legal.js"></script>

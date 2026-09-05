@@ -346,6 +346,7 @@ function initMemberHeader(active) {
     '<a href="https://app.torinvest-trading.com/journal.html"' + (active === "journal" ? ' class="active"' : "") + ">Journal</a>" +
     '<a href="https://app.torinvest-trading.com/atlas.html"' + (active === "atlas" ? ' class="active"' : "") + ">Atlas</a>" +
     '<a href="https://app.torinvest-trading.com/books.html"' + (active === "books" ? ' class="active"' : "") + ">Livres</a>" +
+    '<a href="https://app.torinvest-trading.com/resources.html"' + (active === "resources" ? ' class="active"' : "") + ">Ressources</a>" +
     '<a href="https://app.torinvest-trading.com/calendar.html"' + (active === "calendar" ? ' class="active"' : "") + ">Calendrier</a>" +
     '<a href="' + forgePublicUrl("/la-forge/#live") + '"' + (active === "live" ? ' class="active"' : "") + ">Live</a>" +
     '<a href="#" id="logout-btn">Déconnexion</a>';

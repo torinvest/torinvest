@@ -33,7 +33,7 @@ pull_shell() {
 }
 
 echo "==> Shells HTML (public/)"
-for page in dashboard.html start.html calendar.html calendar-day.html login.html fondamental.html journal.html atlas.html books.html; do
+for page in dashboard.html start.html calendar.html calendar-day.html login.html fondamental.html journal.html atlas.html books.html resources.html; do
   pull_shell "deploy/vps/app-shells/${page}" "public/${page}"
 done
 pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
@@ -41,7 +41,7 @@ pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
 echo "==> Patches serveur (server-patches/)"
 PATCHES_DIR="$APP_DIR/server-patches"
 mkdir -p "$PATCHES_DIR"
-for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js routes-coaching-lives.js forge-unlock-server.js forge-progress-rules.js routes-formation-auth.js routes-fondamental-bridge.js routes-journal-bridge.js routes-atlas-bridge.js routes-books.js fondamental-bridge-lib.js formation-users-lib.js accompagnement-worker-lib.js; do
+for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js routes-coaching-lives.js forge-unlock-server.js forge-progress-rules.js routes-formation-auth.js routes-fondamental-bridge.js routes-journal-bridge.js routes-atlas-bridge.js routes-books.js routes-live-resources.js fondamental-bridge-lib.js formation-users-lib.js accompagnement-worker-lib.js; do
   echo "  server-patches/$f"
   curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/${f}" -o "$PATCHES_DIR/${f}"
 done
@@ -58,7 +58,7 @@ echo "  deploy/vps/verify-formation-deploy.sh"
 curl -fsSL "${RAW_ROOT}/deploy/vps/backup-course-private.sh" -o "$DEPLOY_DIR/backup-course-private.sh"
 chmod +x "$DEPLOY_DIR/backup-course-private.sh"
 echo "  deploy/vps/backup-course-private.sh"
-for script in wire-formation-server-patches.js deploy-coaching-now.sh wire-formation-accompagnement-auth.js verify-formation-live.sh finish-formation-vps-setup.sh recover-formation-server.sh repair-server-broken-wire.js fix-trust-proxy.js pull-unlock-hotfix.sh deploy-unlock-local.sh verify-unlock-live.sh patch-lesson-unlock-scripts.js patch-helmet-journal-frames.js patch-helmet-journal-frames.sh; do
+for script in wire-formation-server-patches.js deploy-coaching-now.sh wire-formation-accompagnement-auth.js verify-formation-live.sh finish-formation-vps-setup.sh recover-formation-server.sh repair-server-broken-wire.js fix-trust-proxy.js pull-unlock-hotfix.sh deploy-unlock-local.sh verify-unlock-live.sh patch-lesson-unlock-scripts.js patch-helmet-journal-frames.js patch-helmet-journal-frames.sh seed-live-resources.sh; do
   curl -fsSL "${RAW_ROOT}/deploy/vps/${script}" -o "$DEPLOY_DIR/${script}"
   chmod +x "$DEPLOY_DIR/${script}" 2>/dev/null || true
   echo "  deploy/vps/${script}"
@@ -68,6 +68,16 @@ curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/INSTALL-VPS.md" \
 echo "  deploy/vps/formation-server/INSTALL-VPS.md"
 
 echo ""
+
+echo "==> Seed live-resources (PDF + index)"
+SEED_DEST="$APP_DIR/deploy/vps/live-resources-seed"
+mkdir -p "$SEED_DEST"
+curl -fsSL "${RAW_ROOT}/deploy/vps/live-resources-seed/index.json" -o "$SEED_DEST/index.json" || true
+curl -fsSL "${RAW_ROOT}/deploy/vps/live-resources-seed/la-forge-integration-client-4-slides.pdf" -o "$SEED_DEST/la-forge-integration-client-4-slides.pdf" || echo "WARN seed PDF (gros) — scp manuel si besoin"
+curl -fsSL "${RAW_ROOT}/deploy/vps/LIVE-RESOURCES.md" -o "$APP_DIR/deploy/vps/LIVE-RESOURCES.md" || true
+curl -fsSL "${RAW_ROOT}/deploy/vps/seed-live-resources.sh" -o "$APP_DIR/deploy/vps/seed-live-resources.sh" || true
+chmod +x "$APP_DIR/deploy/vps/seed-live-resources.sh" 2>/dev/null || true
+
 echo "OK — formation complète ($(date -Iseconds))."
 echo "→ Vérif : bash $DEPLOY_DIR/verify-formation-deploy.sh"
 echo "→ Si première install : monter server-patches dans server.js (voir INSTALL-VPS.md)"

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ressources lives — Espace La Forge</title>
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <style>
+    .lr-hero { margin-bottom: 1.25rem; }
+    .lr-hero h1 { margin: 0.2rem 0; color: var(--gold); font-size: 1.35rem; }
+    .lr-hero p { color: var(--muted); font-size: 0.92rem; margin: 0.4rem 0 0; line-height: 1.55; max-width: 44rem; }
+    .lr-toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin: 1rem 0 1.25rem; }
+    .lr-meta { color: var(--muted); font-size: 0.85rem; }
+    .lr-empty { color: var(--muted); }
+    .lr-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel2);
+      padding: 1rem 1.05rem;
+      margin-bottom: 1rem;
+    }
+    .lr-card-top { display: flex; justify-content: space-between; gap: 1rem; align-items: flex-start; }
+    .lr-card h3 { margin: 0; font-size: 1.05rem; color: var(--text); }
+    .lr-desc { color: var(--muted); font-size: 0.9rem; margin: 0.45rem 0 0; line-height: 1.5; }
+    .lr-notes { color: var(--muted); font-size: 0.82rem; font-style: italic; margin: 0.5rem 0; }
+    .lr-files { list-style: none; padding: 0; margin: 0.85rem 0 0; display: flex; flex-direction: column; gap: 0.45rem; }
+    .lr-file--missing { color: var(--muted); font-size: 0.9rem; }
+    .lr-open { color: var(--gold); font-size: 0.85rem; margin-left: 0.35rem; }
+    #live-resources-admin {
+      border: 1px solid rgba(255, 215, 0, 0.28);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      background: rgba(255, 215, 0, 0.04);
+    }
+    #live-resources-admin h2 { margin: 0 0 0.75rem; font-size: 1.05rem; color: var(--gold); }
+    #lr-admin-form { display: grid; gap: 0.65rem; }
+    #lr-admin-form label { font-size: 0.82rem; color: var(--muted); display: block; margin-bottom: 0.2rem; }
+    #lr-admin-form input, #lr-admin-form select, #lr-admin-form textarea {
+      width: 100%;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.92rem;
+    }
+    .lr-admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    @media (max-width: 640px) { .lr-admin-grid { grid-template-columns: 1fr; } }
+    .lr-admin-hint { font-size: 0.8rem; color: var(--muted); margin: 0.35rem 0 0; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="resources"></header>
+
+  <div class="container" id="live-resources-root">
+    <div class="lr-hero">
+      <span class="forge-hero-tag">Espace membre · lives &amp; modules</span>
+      <h1>Ressources à télécharger</h1>
+      <p>
+        Après chaque live (ou module), ton coach dépose ici les slides et documents PDF.
+        Tu peux les télécharger quand tu veux — réservé <strong>La Forge Premium</strong>.
+      </p>
+    </div>
+
+    <div id="live-resources-admin" hidden>
+      <h2>Publier un pack (admin)</h2>
+      <form id="lr-admin-form">
+        <div>
+          <label for="lr-title">Titre</label>
+          <input id="lr-title" name="title" required placeholder="Ex. Live dimanche — Module 0 slides" />
+        </div>
+        <div class="lr-admin-grid">
+          <div>
+            <label for="lr-date">Date du live (optionnel)</label>
+            <input id="lr-date" name="liveDate" type="date" />
+          </div>
+          <div>
+            <label for="lr-kind">Type</label>
+            <select id="lr-kind" name="kind">
+              <option value="live">Live</option>
+              <option value="module">Module</option>
+              <option value="onboarding">Intégration</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label for="lr-module">Module (slug, optionnel)</label>
+          <input id="lr-module" name="moduleSlug" placeholder="module-0" />
+        </div>
+        <div>
+          <label for="lr-desc">Description</label>
+          <textarea id="lr-desc" name="description" rows="2" placeholder="Ce que l’élève retrouve dans ce pack"></textarea>
+        </div>
+        <div>
+          <label for="lr-files">Noms des PDF (un par ligne)</label>
+          <textarea id="lr-files" name="files" rows="3" required placeholder="live-2026-09-07-slides.pdf&#10;live-2026-09-07-checklist.pdf"></textarea>
+          <p class="lr-admin-hint">
+            Les fichiers doivent être déposés sur le VPS dans
+            <code>/var/lib/torinvest/live-resources/</code>
+            (scp / rsync) — pas d’upload navigateur pour l’instant.
+          </p>
+        </div>
+        <div>
+          <label for="lr-notes">Notes admin (non visibles élèves)</label>
+          <input id="lr-notes" name="notes" placeholder="Optionnel" />
+        </div>
+        <button type="submit" class="btn btn-primary">Publier pour les élèves</button>
+      </form>
+    </div>
+
+    <div class="lr-toolbar">
+      <span class="lr-meta"><span id="lr-count">0</span> pack(s)</span>
+    </div>
+
+    <div id="live-resources-list"></div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=7"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-live-resources.js?v=1"></script>
+  <script>
+    initForgeGate({ requirePremium: true }).then(function (me) {
+      if (!me) return;
+      initForgeLiveResources(me);
+    });
+  </script>
+  <script src="/js/forge-legal.js"></script>
+</body>
+</html>
