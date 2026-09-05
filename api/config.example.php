@@ -165,6 +165,10 @@ return [
     'journal_access_session_ttl' => 43200,
     'journal_app_dir' => '/var/lib/torinvest/appjournal',
 
+    // --- USA War Atlas (SPA + API Node, Premium La Forge) ---
+    'atlas_access_session_ttl' => 43200,
+    'atlas_app_dir' => '/var/lib/torinvest/appliatlas',
+
     // --- KRM Services Treasury (paiements on-chain TorPass) ---
     // PUBLIC KEY Solana uniquement (jamais de private key).
     // Laisser vide pour désactiver les paiements côté serveur.

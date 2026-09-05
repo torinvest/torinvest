@@ -34,6 +34,11 @@
       label: "Survoler Fondamental (macro)",
       href: "/fondamental.html",
     },
+    {
+      id: "atlas",
+      label: "Ouvrir USA War Atlas une fois",
+      href: "/atlas.html",
+    },
   ];
 
   var BADGES = [
