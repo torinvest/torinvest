@@ -86,14 +86,20 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/** Prefixe Vite (ex. /atlas-embed) pour les liens hors React Router. */
+function appBasePath(): string {
+  return String(import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+}
+
 /** Contenu HTML du popup (MapLibre ne rend pas de composants React). */
 function popupHtml(group: CountryGroup): string {
+  const base = appBasePath();
   const items = group.conflicts
     .map((c) => {
       const color = categoryHexColor[c.primaryCategory];
       const years = formatYearRange(c.startDate, c.endDate, c.isOngoing);
       return `<li style="margin-top:8px">
-        <a href="/conflits/${encodeURIComponent(c.slug)}"
+        <a href="${base}/conflits/${encodeURIComponent(c.slug)}"
            style="color:#F9FAFB;font-weight:600;text-decoration:underline;text-underline-offset:2px">
           ${escapeHtml(c.title)}
         </a>
@@ -131,9 +137,12 @@ export function MapPage() {
 
   // Initialisation de la carte
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+    const el = containerRef.current;
+    if (!el || mapRef.current) return;
+
+    let cancelled = false;
     const map = new maplibregl.Map({
-      container: containerRef.current,
+      container: el,
       style: MAP_STYLE,
       center: [-30, 25],
       zoom: 1.6,
@@ -142,8 +151,41 @@ export function MapPage() {
       attributionControl: { compact: true },
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+
+    const onMapError = (e: { error?: Error; message?: string }) => {
+      const msg =
+        e?.error?.message ||
+        e?.message ||
+        "Impossible d’afficher la carte (tuiles ou worker bloqués).";
+      if (!cancelled) setError(msg);
+    };
+    map.on("error", onMapError);
+
+    const resize = () => {
+      try {
+        map.resize();
+      } catch {
+        /* ignore */
+      }
+    };
+    map.once("load", resize);
+    // Iframe La Forge : le conteneur peut avoir une taille 0 au mount.
+    const ro =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(() => resize())
+        : null;
+    ro?.observe(el);
+    // Second passage après layout iframe / fonts
+    const t1 = window.setTimeout(resize, 100);
+    const t2 = window.setTimeout(resize, 500);
+
     mapRef.current = map;
     return () => {
+      cancelled = true;
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      ro?.disconnect();
+      map.off("error", onMapError);
       map.remove();
       mapRef.current = null;
     };

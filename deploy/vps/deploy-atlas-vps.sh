@@ -127,6 +127,15 @@ echo "==> pull-forge-all (hub atlas + bridge)"
 export SHA="$REF" BRANCH="$REF"
 bash <(curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/pull-forge-all.sh") "$APP_DIR"
 
+echo "==> Patch Helmet CSP (MapLibre blob workers + tuiles)"
+if [[ -f "$APP_DIR/deploy/vps/patch-helmet-journal-frames.js" ]]; then
+  node "$APP_DIR/deploy/vps/patch-helmet-journal-frames.js" "$APP_DIR" || true
+else
+  curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/patch-helmet-journal-frames.js" \
+    -o /tmp/patch-helmet-journal-frames.js
+  node /tmp/patch-helmet-journal-frames.js "$APP_DIR" || true
+fi
+
 ENV_FILE="$APP_DIR/.env"
 touch "$ENV_FILE"
 grep -q '^FORGE_ATLAS_APP_DIR=' "$ENV_FILE" 2>/dev/null \
