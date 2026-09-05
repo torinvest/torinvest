@@ -4,6 +4,9 @@
 const DEFAULT_TOTAL_STEPS = 12;
 const QUIZ_PASS_RATIO = 0.7;
 const PRACTICE_PASS_RATIO = 0.7;
+/** Anti-forge : max d'augmentation stepsDone / scores par PUT */
+const MAX_STEPS_DELTA = 3;
+const MAX_SCORE_DELTA = 5;
 
 function practiceSatisfied(p) {
   const total = Number(p.practiceTotal) || 0;
@@ -49,6 +52,52 @@ function sanitizeModuleProgress(raw) {
   return out;
 }
 
+/**
+ * Progression monotone plafonnée : on ne peut pas passer de 0 → module complet en un PUT.
+ * completed est toujours recalculé serveur (jamais pris du client).
+ */
+function mergeModuleProgress(existingRaw, clientRaw) {
+  const prev = sanitizeModuleProgress(existingRaw || { stepsDone: 0 }) || {
+    stepsDone: 0,
+    totalSteps: DEFAULT_TOTAL_STEPS,
+    quizScore: 0,
+    quizTotal: 0,
+    practiceScore: 0,
+    practiceTotal: 0,
+    completed: false,
+  };
+  const incoming = sanitizeModuleProgress({ ...prev, ...(clientRaw || {}) });
+  if (!incoming) return prev;
+
+  // Ne jamais diminuer (sauf reset admin — pas exposé ici)
+  let stepsDone = Math.max(prev.stepsDone, incoming.stepsDone);
+  stepsDone = Math.min(stepsDone, prev.stepsDone + MAX_STEPS_DELTA, incoming.totalSteps);
+
+  let quizTotal = Math.max(prev.quizTotal, incoming.quizTotal);
+  let quizScore = Math.max(prev.quizScore, incoming.quizScore);
+  quizScore = Math.min(quizScore, prev.quizScore + MAX_SCORE_DELTA, quizTotal || quizScore);
+
+  let practiceTotal = Math.max(prev.practiceTotal, incoming.practiceTotal);
+  let practiceScore = Math.max(prev.practiceScore, incoming.practiceScore);
+  practiceScore = Math.min(
+    practiceScore,
+    prev.practiceScore + MAX_SCORE_DELTA,
+    practiceTotal || practiceScore
+  );
+
+  const out = {
+    stepsDone,
+    totalSteps: incoming.totalSteps || prev.totalSteps,
+    quizScore,
+    quizTotal,
+    practiceScore,
+    practiceTotal,
+    updated: new Date().toISOString(),
+  };
+  out.completed = computeModuleCompleted(out);
+  return out;
+}
+
 function isValidModuleId(id) {
   return typeof id === "string" && /^[a-z0-9][a-z0-9._-]*$/i.test(id);
 }
@@ -69,8 +118,8 @@ function sanitizeModulesPayload(clientModules, existingModules, allowedIds) {
   ids.forEach((id) => {
     if (!isValidModuleId(id)) return;
     if (allow && !allow.has(id)) return;
-    const merged = { ...(existing[id] || {}), ...(client[id] || {}) };
-    const clean = sanitizeModuleProgress(merged);
+    // Nouveau module côté client uniquement : appliquer le plafond depuis zéro
+    const clean = mergeModuleProgress(existing[id], client[id]);
     if (clean) out[id] = clean;
   });
   return out;
@@ -78,7 +127,10 @@ function sanitizeModulesPayload(clientModules, existingModules, allowedIds) {
 
 module.exports = {
   DEFAULT_TOTAL_STEPS,
+  MAX_STEPS_DELTA,
+  MAX_SCORE_DELTA,
   computeModuleCompleted,
   sanitizeModuleProgress,
+  mergeModuleProgress,
   sanitizeModulesPayload,
 };

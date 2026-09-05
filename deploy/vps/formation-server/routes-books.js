@@ -79,14 +79,18 @@ module.exports = function createBooksRouter() {
   router.get("/api/books/ping", (req, res) => {
     const dir = booksDir();
     let count = 0;
+    let ready = false;
     try {
       if (fs.existsSync(dir)) {
         count = fs.readdirSync(dir).filter((f) => /\.pdf$/i.test(f)).length;
+        ready = true;
       }
     } catch (_) {
       count = -1;
+      ready = false;
     }
-    res.json({ ok: true, dir, pdfCount: count });
+    // Ne pas exposer le chemin filesystem (audit)
+    res.json({ ok: true, ready, pdfCount: count });
   });
 
   router.get("/api/books/list", async (req, res) => {

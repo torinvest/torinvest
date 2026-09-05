@@ -36,7 +36,15 @@ module.exports = function createProgressRouter(options) {
       const raw = fs.readFileSync(filePath(email), "utf8");
       const parsed = JSON.parse(raw);
       const modules = parsed.modules || parsed;
-      return rules.sanitizeModulesPayload(modules, {}, ALLOWED_IDS);
+      const allow = new Set(ALLOWED_IDS);
+      const out = {};
+      Object.keys(modules || {}).forEach((id) => {
+        if (!allow.has(id)) return;
+        if (typeof id !== "string" || !/^[a-z0-9][a-z0-9._-]*$/i.test(id)) return;
+        const clean = rules.sanitizeModuleProgress(modules[id]);
+        if (clean) out[id] = clean;
+      });
+      return out;
     } catch {
       return {};
     }

@@ -37,9 +37,14 @@ RewriteRule ^([^./]+)/?$ $1.html [L]
     Require all denied
 </FilesMatch>
 
-<FilesMatch "\.(backup|log|db)$">
+<FilesMatch "\.(backup|log|db|sqlite|sqlite3)$">
     Require all denied
 </FilesMatch>
+
+# ---------------------------------------------------------------------------
+# Bloquer l'accès HTTP à api/data (users, progress, SQLite)
+# ---------------------------------------------------------------------------
+RewriteRule ^api/data(/|$) - [F,L]
 
 # ---------------------------------------------------------------------------
 # En-têtes de sécurité de base
