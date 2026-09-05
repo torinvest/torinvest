@@ -167,7 +167,7 @@
         </div>
 
         <div id="panel-vip" class="panel active">
-          <p class="hint">Crée une licence <span class="mono">TOR-VIP-…</span>. Si tu renseignes le compte MT5, activation automatique juste après la création (comme ton flux manuel en 2 commandes).</p>
+          <p class="hint">Crée une licence <span class="mono">TOR-VIP-…</span>. Si tu renseignes le compte MT5, activation automatique juste après la création (comme ton flux manuel en 2 commandes). <b>Un email Brevo</b> avec la clé part automatiquement (comme après un paiement Stripe).</p>
           <div class="grid" style="margin-top:14px">
             <div><label>Prénom</label><input id="vipFirst" placeholder="Jean" /></div>
             <div><label>Nom</label><input id="vipLast" placeholder="Dupont" /></div>
@@ -185,7 +185,7 @@
         </div>
 
         <div id="panel-accomp" class="panel">
-          <p class="hint">Crée une licence <span class="mono">TOR-ACCOMPAGNEMENT-…</span> (365 j par défaut). Activation immédiate — pas de MT5. Accès formation + Discord privé accompagnement.</p>
+          <p class="hint">Crée une licence <span class="mono">TOR-ACCOMPAGNEMENT-…</span> (365 j par défaut). Activation immédiate — pas de MT5. Accès formation + Discord privé accompagnement. <b>Un email Brevo</b> avec la clé (+ mot de passe formation si dispo) part automatiquement.</p>
           <div class="grid" style="margin-top:14px">
             <div><label>Prénom</label><input id="accompFirst" placeholder="Jean" /></div>
             <div><label>Nom</label><input id="accompLast" placeholder="Dupont" /></div>
@@ -367,6 +367,28 @@
     }
 
     function setHtml(id, html) { document.getElementById(id).innerHTML = html; }
+
+    /** Affiche le résultat sync Brevo renvoyé par create_vip / create_accompagnement. */
+    function formatBrevoStatus(data) {
+      const raw = data && data.brevo;
+      if (!raw) {
+        return '<br><span class="warn"><b>Email Brevo :</b> non renvoyé par l’API (déploie admin-licence-lib.php).</span>';
+      }
+      const b = raw.brevo && typeof raw.brevo === "object" ? raw.brevo : raw;
+      if (b === "skipped" || raw.reason === "not_configured" || (b && b.reason === "not_configured")) {
+        return '<br><span class="warn"><b>Email Brevo :</b> non envoyé — <span class="mono">brevo_api_key</span> manquant sur radar.</span>';
+      }
+      if (b.email === "skipped_reused_license") {
+        return '<br><span class="warn"><b>Email Brevo :</b> non renvoyé (licence déjà existante). Utilise l’onglet Stripe / Brevo → Renvoyer.</span>';
+      }
+      if (b.email_error) {
+        return '<br><span class="bad"><b>Email Brevo :</b> échec — ' + esc(b.email_error) + "</span>";
+      }
+      if (b.email) {
+        return '<br><span class="ok"><b>Email Brevo :</b> envoyé à ' + esc(data.email || "") + "</span>";
+      }
+      return '<br><span class="warn"><b>Email Brevo :</b> statut inconnu.</span>';
+    }
 
     async function loadHistory() {
       const type = document.getElementById("histFilter").value || null;
@@ -595,12 +617,13 @@
         });
         if (!data.ok) throw new Error(data.error || "Échec");
         setHtml("vipResult",
-          '<span class="ok">Licence créée.</span><br>' +
+          '<span class="ok">Licence ' + (data.reused ? "(existante)" : "créée") + '.</span><br>' +
           '<b>Licence :</b> <span class="mono">' + esc(data.license) + '</span> <button type="button" class="copy-sm" data-copy="' + esc(data.license) + '">copier</button><br>' +
           '<b>Code activation :</b> <span class="mono">' + esc(data.activationCode) + '</span><br>' +
           '<b>Statut :</b> ' + esc(data.status) + '<br>' +
           '<b>Expiration :</b> ' + esc((data.expires || "").slice(0, 10)) +
-          (data.mt5Account ? '<br><b>MT5 :</b> ' + esc(data.mt5Account) : "")
+          (data.mt5Account ? '<br><b>MT5 :</b> ' + esc(data.mt5Account) : "") +
+          formatBrevoStatus(data)
         );
         await loadHistory();
       } catch (e) {
@@ -650,7 +673,8 @@
           '<b>Email :</b> ' + esc(data.email || "") + '<br>' +
           '<b>Statut :</b> ' + esc(data.status) + '<br>' +
           '<b>Expiration :</b> ' + esc((data.expires || "").slice(0, 10)) +
-          formBlock
+          formBlock +
+          formatBrevoStatus(data)
         );
         await loadHistory();
       } catch (e) {

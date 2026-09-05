@@ -669,7 +669,7 @@ function licenceCrmCreateVip(array $input): array
 
     $existing = licenceCrmFindActiveByEmailPlan($email, 'VIP');
     if ($existing && !empty($existing['license_code'])) {
-        return [
+        return licenceCrmAttachBrevoAfterCreate('VIP', [
             'ok' => true,
             'reused' => true,
             'id' => (int) $existing['id'],
@@ -680,9 +680,12 @@ function licenceCrmCreateVip(array $input): array
             'status' => (string) ($existing['status'] ?? 'pending_activation'),
             'mt5Account' => !empty($existing['mt5_account']) ? (string) $existing['mt5_account'] : null,
             'email' => $email,
+            'first_name' => $firstName !== '' ? $firstName : (string) ($existing['first_name'] ?? ''),
+            'last_name' => $lastName !== '' ? $lastName : (string) ($existing['last_name'] ?? ''),
             'plan' => $plan,
             'days' => (int) ($existing['days'] ?? $days),
-        ];
+            'accessLinks' => licenceCrmAccessLinks(),
+        ]);
     }
 
     $create = licenceCrmWorkerPost('/license/create', [
@@ -736,8 +739,9 @@ function licenceCrmCreateVip(array $input): array
         'worker_response' => $workerLog,
     ]);
 
-    return [
+    return licenceCrmAttachBrevoAfterCreate('VIP', [
         'ok' => true,
+        'reused' => false,
         'id' => $id,
         'type' => 'VIP',
         'license' => $license,
@@ -746,9 +750,12 @@ function licenceCrmCreateVip(array $input): array
         'status' => $status,
         'mt5Account' => $mt5 !== '' ? $mt5 : null,
         'email' => $email,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
         'plan' => $plan,
         'days' => $days,
-    ];
+        'accessLinks' => licenceCrmAccessLinks(),
+    ]);
 }
 
 function licenceCrmActivateVip(array $input): array
@@ -861,13 +868,15 @@ function licenceCrmCreateAccompagnement(array $input): array
     $existing = licenceCrmFindActiveByEmailPlan($email, 'ACCOMPAGNEMENT');
     if ($existing && !empty($existing['license_code'])) {
         $formationProvision = licenceCrmProvisionFormationAccount($email);
-        return [
+        return licenceCrmAttachBrevoAfterCreate('ACCOMPAGNEMENT', [
             'ok' => true,
             'reused' => true,
             'id' => (int) $existing['id'],
             'type' => 'ACCOMPAGNEMENT',
             'license' => (string) $existing['license_code'],
             'email' => $email,
+            'first_name' => $firstName !== '' ? $firstName : (string) ($existing['first_name'] ?? ''),
+            'last_name' => $lastName !== '' ? $lastName : (string) ($existing['last_name'] ?? ''),
             'expires' => (string) ($existing['expires_at'] ?? ''),
             'status' => (string) ($existing['status'] ?? 'active'),
             'plan' => 'ACCOMPAGNEMENT',
@@ -875,7 +884,7 @@ function licenceCrmCreateAccompagnement(array $input): array
             'accessLinks' => licenceCrmAccessLinks(),
             'formation' => $formationProvision,
             'formation_password' => $formationProvision['password'] ?? null,
-        ];
+        ]);
     }
 
     $noteParts = array_filter([
@@ -922,13 +931,15 @@ function licenceCrmCreateAccompagnement(array $input): array
 
     $formationProvision = licenceCrmProvisionFormationAccount($email);
 
-    return [
+    return licenceCrmAttachBrevoAfterCreate('ACCOMPAGNEMENT', [
         'ok' => true,
         'reused' => false,
         'id' => $id,
         'type' => 'ACCOMPAGNEMENT',
         'license' => $license,
         'email' => $email,
+        'first_name' => $firstName,
+        'last_name' => $lastName,
         'expires' => $expires,
         'status' => $status,
         'plan' => 'ACCOMPAGNEMENT',
@@ -936,7 +947,7 @@ function licenceCrmCreateAccompagnement(array $input): array
         'accessLinks' => licenceCrmAccessLinks(),
         'formation' => $formationProvision,
         'formation_password' => $formationProvision['password'] ?? null,
-    ];
+    ]);
 }
 
 function licenceCrmProvisionVipFromForm(array $input): array
@@ -1545,6 +1556,38 @@ function licenceCrmListStripeEvents(int $limit = 100): array
     $limit = max(1, min(500, $limit));
     $stmt = $pdo->query('SELECT * FROM stripe_webhook_events ORDER BY id DESC LIMIT ' . $limit);
     return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
+
+/**
+ * Même sync Brevo que le webhook Stripe après création de licence CRM.
+ * N’échoue pas la création si Brevo est down : le statut est renvoyé dans result.brevo.
+ * Contrairement au webhook Stripe, un clic CRM « Générer » renvoie toujours l’email
+ * (y compris si la licence existait déjà), car l’admin l’a demandé explicitement.
+ */
+function licenceCrmAttachBrevoAfterCreate(string $planType, array $result): array
+{
+    if (empty($result['ok'])) {
+        return $result;
+    }
+
+    if (trim((string) (licenceCrmConfig()['brevo_api_key'] ?? '')) === '') {
+        $result['brevo'] = ['brevo' => 'skipped', 'reason' => 'not_configured'];
+        return $result;
+    }
+
+    try {
+        require_once __DIR__ . '/brevo-lib.php';
+        $forSync = $result;
+        // Forcer l’envoi même si reused=true (clic admin volontaire).
+        $forSync['reused'] = false;
+        $result['brevo'] = brevoSyncAfterProvision($planType, $forSync);
+    } catch (Throwable $e) {
+        $result['brevo'] = [
+            'brevo' => ['email_error' => $e->getMessage()],
+        ];
+    }
+
+    return $result;
 }
 
 function licenceCrmResendBrevoLicenseEmail(string $email, ?string $type = null): array
