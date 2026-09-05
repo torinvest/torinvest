@@ -196,7 +196,14 @@
           </div>
           <div class="actions">
             <button class="btn" id="accompCreateBtn" type="button">Générer licence accompagnement</button>
+            <button class="btn secondary" id="accompProvisionBtn" type="button" title="Pour un client déjà payé : crée / reset le login app sans nouvelle licence">
+              Créer / reset mot de passe formation
+            </button>
           </div>
+          <p class="hint" style="margin-top:8px">
+            Licence active ≠ login app. Si le client a déjà sa clé TOR mais ne peut pas se connecter,
+            utilise <b>Créer / reset mot de passe formation</b> avec son email Stripe, puis envoie-lui le mot de passe affiché.
+          </p>
           <div id="accompResult" class="result">—</div>
         </div>
 
@@ -616,13 +623,72 @@
           notes: document.getElementById("accompNotes").value.trim(),
         });
         if (!data.ok) throw new Error(data.error || "Échec");
+        const pwd = data.formation_password || (data.formation && data.formation.password) || "";
+        const formOk = data.formation && data.formation.ok;
+        const formErr = (data.formation && (data.formation.error || data.formation.reason)) || "";
+        let formBlock = "";
+        if (pwd) {
+          formBlock =
+            '<br><span class="ok"><b>Mot de passe formation (à envoyer au client) :</b></span> ' +
+            '<span class="mono">' + esc(pwd) + '</span> ' +
+            '<button type="button" class="copy-sm" data-copy="' + esc(pwd) + '">copier</button>' +
+            '<br><small>Login : <span class="mono">https://app.torinvest-trading.com/login.html</span> — email + ce mot de passe</small>';
+        } else if (formErr) {
+          formBlock =
+            '<br><span class="bad"><b>Compte formation non créé :</b> ' + esc(formErr) + '</span>' +
+            '<br><small>Vérifie <span class="mono">formation_provision_secret</span> (radar) = <span class="mono">FORGE_FORMATION_PROVISION_SECRET</span> (VPS app).</small>';
+        } else if (formOk === false) {
+          formBlock = '<br><span class="bad">Compte formation non créé (réponse sans détail).</span>';
+        } else {
+          formBlock =
+            '<br><span class="warn"><b>Pas de mot de passe formation renvoyé.</b></span> ' +
+            'Utilise le bouton « Créer / reset mot de passe formation » ci-dessous, ou provision VPS.';
+        }
         setHtml("accompResult",
           '<span class="ok">Licence ' + (data.reused ? "(existante)" : "créée") + '.</span><br>' +
           '<b>Licence :</b> <span class="mono">' + esc(data.license) + '</span> <button type="button" class="copy-sm" data-copy="' + esc(data.license) + '">copier</button><br>' +
+          '<b>Email :</b> ' + esc(data.email || "") + '<br>' +
           '<b>Statut :</b> ' + esc(data.status) + '<br>' +
-          '<b>Expiration :</b> ' + esc((data.expires || "").slice(0, 10))
+          '<b>Expiration :</b> ' + esc((data.expires || "").slice(0, 10)) +
+          formBlock
         );
         await loadHistory();
+      } catch (e) {
+        setHtml("accompResult", '<span class="bad">' + esc(e.message) + "</span>");
+      }
+      btn.disabled = false;
+    });
+
+    document.getElementById("accompProvisionBtn").addEventListener("click", async function () {
+      const btn = document.getElementById("accompProvisionBtn");
+      const email = document.getElementById("accompEmail").value.trim();
+      btn.disabled = true;
+      setHtml("accompResult", '<span class="warn">Provision compte formation…</span>');
+      try {
+        if (!email) throw new Error("Email client requis");
+        const data = await api("provision_formation", { email: email, subscribed: true });
+        if (!data.ok) throw new Error(data.error || "Échec provision");
+        const pwd = data.password || data.formation_password || "";
+        if (!pwd) {
+          throw new Error(
+            (data.error || "Pas de mot de passe renvoyé") +
+              " — vérifie formation_provision_secret (radar) = FORGE_FORMATION_PROVISION_SECRET (VPS)."
+          );
+        }
+        setHtml(
+          "accompResult",
+          '<span class="ok">Compte formation prêt.</span><br>' +
+            "<b>Email :</b> " +
+            esc(data.email || email) +
+            "<br>" +
+            '<b>Mot de passe formation :</b> <span class="mono">' +
+            esc(pwd) +
+            '</span> <button type="button" class="copy-sm" data-copy="' +
+            esc(pwd) +
+            '">copier</button><br>' +
+            "<small>Envoie ces identifiants au client (privé). Login : " +
+            '<span class="mono">https://app.torinvest-trading.com/login.html</span></small>'
+        );
       } catch (e) {
         setHtml("accompResult", '<span class="bad">' + esc(e.message) + "</span>");
       }
