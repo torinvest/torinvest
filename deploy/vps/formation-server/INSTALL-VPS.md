@@ -175,7 +175,7 @@ pm2 restart la-forge
 
 ```bash
 cd /home/ubuntu/torinvest-formation
-pm2 restart torinvest-formation   # ou systemctl selon votre setup
+pm2 restart la-forge   # ou systemctl selon votre setup
 ```
 
 ## Sécurité contenu (intentionnel)
@@ -217,14 +217,14 @@ Créneaux partagés dans le calendrier : **admin propose**, **élève confirme**
 export FORGE_ADMIN_EMAILS="ton-email@exemple.com"
 # optionnel — horaires par défaut : 2 dimanches + 1 samedi
 # export FORGE_COACHING_SLOTS_JSON='[{"id":"sun-am","weekday":0,"start":"10:00","end":"11:00","label":"Live dimanche matin"},{"id":"sun-pm","weekday":0,"start":"18:00","end":"19:00","label":"Live dimanche soir"},{"id":"sat-pm","weekday":6,"start":"18:00","end":"19:00","label":"Live samedi"}]'
-pm2 restart torinvest-formation --update-env
+pm2 restart la-forge --update-env
 ```
 
 2. Déployer patches + assets (`pull-forge-all.sh`) puis :
 
 ```bash
 node deploy/vps/wire-formation-server-patches.js /home/ubuntu/torinvest-formation
-pm2 restart torinvest-formation
+pm2 restart la-forge
 ```
 
 3. Sur `/calendar.html` (compte Premium) :

@@ -193,6 +193,14 @@ function licenseHttpStatus(reason) {
   return 401;
 }
 
+function setSessionUser(req, email, subscribed) {
+  if (!req.session) {
+    return false;
+  }
+  req.session.user = sessionUser(email, subscribed);
+  return true;
+}
+
 function applyLicenseLogin(req, res, next, dataDir, lic, submittedEmail) {
   const sessionEmail = users.normalizeEmail(lic.boundEmail || submittedEmail);
   if (!sessionEmail) {
@@ -201,8 +209,14 @@ function applyLicenseLogin(req, res, next, dataDir, lic, submittedEmail) {
       reason: "email_required",
     });
   }
+  if (!req.session) {
+    return res.status(500).json({
+      error: "Session serveur indisponible. Réessaie dans une minute.",
+      reason: "session_missing",
+    });
+  }
   users.upsertUser(dataDir, sessionEmail, { subscribed: true });
-  req.session.user = sessionUser(sessionEmail, true);
+  setSessionUser(req, sessionEmail, true);
   return finishLogin(req, res, next, {
     via: lic.via === "key_bound_email" ? "accompagnement_license_bound" : "accompagnement_license",
   });
@@ -293,7 +307,12 @@ function createFormationAuthRouter(options) {
     const existing = users.findUser(store, email);
     const hash = existing ? users.passwordHashFromUser(existing) : "";
     if (hash && (await users.verifyPassword(hash, rawPassword))) {
-      req.session.user = sessionUser(email, !!existing.subscribed);
+      if (!setSessionUser(req, email, !!existing.subscribed)) {
+        return res.status(500).json({
+          error: "Session serveur indisponible. Réessaie dans une minute.",
+          reason: "session_missing",
+        });
+      }
       return finishLogin(req, res, next, { via: "password" });
     }
 
@@ -305,7 +324,12 @@ function createFormationAuthRouter(options) {
 
     const demo = matchDemoLogin(email, rawPassword);
     if (demo) {
-      req.session.user = sessionUser(email, demo.subscribed);
+      if (!setSessionUser(req, email, demo.subscribed)) {
+        return res.status(500).json({
+          error: "Session serveur indisponible. Réessaie dans une minute.",
+          reason: "session_missing",
+        });
+      }
       return finishLogin(req, res, next, { via: "demo" });
     }
 
