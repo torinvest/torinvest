@@ -165,8 +165,17 @@ echo "==> Vérifs"
 sleep 2
 curl -sS "http://127.0.0.1:${ATLAS_PORT}/api/health" || echo "FAIL api health :${ATLAS_PORT}"
 echo
-curl -sS "${APP_URL}/api/atlas-bridge/ping" || echo "FAIL atlas-bridge ping"
-echo
+PING_JSON="$(curl -sS "${APP_URL}/api/atlas-bridge/ping" || true)"
+echo "$PING_JSON"
+if ! echo "$PING_JSON" | grep -q "127.0.0.1:${ATLAS_PORT}"; then
+  echo "FAIL — ping atlas-bridge n'affiche pas api :${ATLAS_PORT}"
+  echo "    → lancer : bash deploy/vps/fix-atlas-api-url.sh"
+  exit 1
+fi
+if echo "$PING_JSON" | grep -q '"api":"http://127.0.0.1:3001"'; then
+  echo "FAIL — FORGE_ATLAS_API_URL pointe encore vers :3001 (collision formation)"
+  exit 1
+fi
 pm2 list
 echo ""
 echo "OK — Atlas déployé."
