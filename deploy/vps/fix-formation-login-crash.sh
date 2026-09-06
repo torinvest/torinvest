@@ -27,9 +27,15 @@ source ~/.profile 2>/dev/null || true
 pm2 restart la-forge --update-env || pm2 restart la-forge
 
 sleep 2
+TEST_EMAIL="${FORGE_ADMIN_EMAIL:-${FORGE_DEMO_EMAIL:-}}"
+TEST_PASSWORD="${FORGE_ADMIN_PASSWORD:-${FORGE_DEMO_PASSWORD:-}}"
+if [ -z "$TEST_EMAIL" ] || [ -z "$TEST_PASSWORD" ]; then
+  echo "ERREUR: définir FORGE_ADMIN_EMAIL + FORGE_ADMIN_PASSWORD (ou FORGE_DEMO_*)"
+  exit 1
+fi
 curl -s -X POST 'https://app.torinvest-trading.com/api/login' \
   -H 'Content-Type: application/json' \
-  -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!"}'
+  -d "{\"email\":\"$TEST_EMAIL\",\"password\":\"$TEST_PASSWORD\"}"
 echo ""
 pm2 logs la-forge --lines 5 --nostream | tail -8
 echo "OK"

@@ -11,6 +11,8 @@ Disallow: /AITORINVEST.html
 Disallow: /dev-access.html
 Disallow: /ai-access.html
 Disallow: /admin-licence/
+Disallow: /admin-krm-services
+Disallow: /admin-krm-services.html
 Disallow: /accompagnement-access.html
 Disallow: /formation-accompagnement.html
 Disallow: /payment-success.html

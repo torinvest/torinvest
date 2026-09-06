@@ -184,33 +184,42 @@ sleep 3
 echo "==> PM2"
 pm2 list | grep la-forge || true
 
-echo "==> login démo Premium (Forge2026!)"
-LOGIN_DEMO=$(curl -s -m 20 -X POST 'https://app.torinvest-trading.com/api/login' \
-  -H 'Content-Type: application/json' \
-  -d '{"email":"abonne@torinvest-trading.com","password":"Forge2026!"}')
-echo "$LOGIN_DEMO"
-if echo "$LOGIN_DEMO" | grep -q '"ok"'; then
-  echo "OK — login démo Premium"
+# Mots de passe UNIQUEMENT via env (jamais en dur dans le repo).
+DEMO_EMAIL="${FORGE_DEMO_EMAIL:-}"
+DEMO_PASSWORD="${FORGE_DEMO_PASSWORD:-}"
+if [ -n "$DEMO_EMAIL" ] && [ -n "$DEMO_PASSWORD" ]; then
+  echo "==> login démo Premium (FORGE_DEMO_EMAIL)"
+  LOGIN_DEMO=$(curl -s -m 20 -X POST 'https://app.torinvest-trading.com/api/login' \
+    -H 'Content-Type: application/json' \
+    -d "{\"email\":\"$DEMO_EMAIL\",\"password\":\"$DEMO_PASSWORD\"}")
+  echo "$LOGIN_DEMO"
+  if echo "$LOGIN_DEMO" | grep -q '"ok"'; then
+    echo "OK — login démo Premium"
+  else
+    echo "WARN — login démo KO"
+  fi
 else
-  echo "WARN — login démo KO"
+  echo "INFO — FORGE_DEMO_EMAIL / FORGE_DEMO_PASSWORD absents : skip test login"
 fi
 
-if [ -n "${FORGE_FORMATION_PROVISION_SECRET:-}" ]; then
-  echo "==> reprovision admin (AdminFonda2026!)"
+ADMIN_EMAIL="${FORGE_ADMIN_EMAIL:-}"
+ADMIN_PASSWORD="${FORGE_ADMIN_PASSWORD:-}"
+if [ -n "${FORGE_FORMATION_PROVISION_SECRET:-}" ] && [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
+  echo "==> reprovision admin (FORGE_ADMIN_EMAIL)"
   curl -s -m 20 -X POST 'http://127.0.0.1:3001/api/internal/formation-provision' \
     -H 'Content-Type: application/json' \
     -H "x-formation-provision-key: $FORGE_FORMATION_PROVISION_SECRET" \
-    -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!","subscribed":true}'
+    -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\",\"subscribed\":true}"
   echo ""
   LOGIN_PROV=$(curl -s -m 20 -X POST 'https://app.torinvest-trading.com/api/login' \
     -H 'Content-Type: application/json' \
-    -d '{"email":"abonne@torinvest-trading.com","password":"AdminFonda2026!"}')
+    -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}")
   echo "$LOGIN_PROV"
   if echo "$LOGIN_PROV" | grep -q '"ok"'; then
-    echo "OK — login provisionné AdminFonda2026!"
+    echo "OK — login provisionné"
   fi
 else
-  echo "INFO — FORGE_FORMATION_PROVISION_SECRET absent : skip reprovision AdminFonda2026!"
+  echo "INFO — provision admin skip (secret ou FORGE_ADMIN_EMAIL/PASSWORD absents)"
 fi
 pm2 logs la-forge --lines 8 --nostream 2>/dev/null | tail -12 || true
 echo "==> terminé"
