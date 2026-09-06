@@ -85,8 +85,10 @@ export function HomePage() {
 
       {error && (
         <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-300">
-          Impossible de charger les données : {error}. Vérifiez que l'API est
-          démarrée (npm run dev).
+          Impossible de charger les données : {error}. Sur La Forge, l’API Atlas
+          doit tourner sur le port 3011 (PM2 <code>usa-war-atlas-api</code>) et
+          le proxy doit pointer vers{" "}
+          <code>http://127.0.0.1:3011</code> — pas vers le port 3001.
         </div>
       )}
 

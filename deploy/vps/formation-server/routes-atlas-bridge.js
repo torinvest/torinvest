@@ -21,12 +21,79 @@ function atlasAppDir() {
   return "/var/lib/torinvest/appliatlas";
 }
 
+function forgeListenPort() {
+  return String(process.env.PORT || 3001);
+}
+
 function atlasApiBase() {
   // Port 3011 : ≠ process formation (la-forge = 3001)
-  return String(process.env.FORGE_ATLAS_API_URL || "http://127.0.0.1:3011").replace(
+  let base = String(process.env.FORGE_ATLAS_API_URL || "http://127.0.0.1:3011").replace(
     /\/$/,
     ""
   );
+  // Garde-fou : si l'env pointe vers La Forge elle-même, la SPA reçoit du HTML
+  // ("Unexpected token '<' … is not valid JSON").
+  try {
+    const u = new URL(base);
+    const host = String(u.hostname || "").toLowerCase();
+    const port = String(u.port || (u.protocol === "https:" ? "443" : "80"));
+    const local =
+      host === "127.0.0.1" || host === "localhost" || host === "::1";
+    if (local && port === forgeListenPort()) {
+      console.warn(
+        "[atlas-bridge] FORGE_ATLAS_API_URL=%s pointe vers la formation — correction → http://127.0.0.1:3011",
+        base
+      );
+      base = "http://127.0.0.1:3011";
+    }
+  } catch (_) {
+    base = "http://127.0.0.1:3011";
+  }
+  return base;
+}
+
+function probeAtlasApiHealth(cb) {
+  const base = atlasApiBase();
+  let target;
+  try {
+    target = new URL("/api/health", base + "/");
+  } catch (_) {
+    return cb({ ok: false, error: "bad_url", base });
+  }
+  const lib = target.protocol === "https:" ? https : http;
+  const req = lib.request(
+    {
+      protocol: target.protocol,
+      hostname: target.hostname,
+      port: target.port || (target.protocol === "https:" ? 443 : 80),
+      path: target.pathname + target.search,
+      method: "GET",
+      timeout: 2500,
+    },
+    (upRes) => {
+      const chunks = [];
+      upRes.on("data", (c) => chunks.push(c));
+      upRes.on("end", () => {
+        const raw = Buffer.concat(chunks).toString("utf8").slice(0, 500);
+        const ct = String(upRes.headers["content-type"] || "");
+        cb({
+          ok: (upRes.statusCode || 500) < 400 && ct.includes("json"),
+          status: upRes.statusCode || 0,
+          base,
+          contentType: ct,
+          bodyPreview: raw.slice(0, 120),
+        });
+      });
+    }
+  );
+  req.on("error", (err) =>
+    cb({ ok: false, error: String(err.message || err), base })
+  );
+  req.on("timeout", () => {
+    req.destroy();
+    cb({ ok: false, error: "timeout", base });
+  });
+  req.end();
 }
 
 function isPremiumSessionUser(user) {
@@ -155,6 +222,33 @@ function proxyToAtlasApi(req, res, apiPathWithQuery) {
       timeout: 30000,
     },
     (upRes) => {
+      const ct = String(upRes.headers["content-type"] || "").toLowerCase();
+      const looksHtml =
+        ct.includes("text/html") ||
+        ct.includes("application/xhtml");
+      // Ne jamais renvoyer du HTML à la SPA (sinon Unexpected token '<').
+      if (looksHtml) {
+        const chunks = [];
+        upRes.on("data", (c) => chunks.push(c));
+        upRes.on("end", () => {
+          if (res.headersSent) return;
+          res.status(502).json({
+            success: false,
+            ok: false,
+            error: {
+              code: "atlas_api_html",
+              message:
+                "L’API Atlas a renvoyé du HTML (mauvaise URL proxy ou process arrêté).",
+            },
+            detail: {
+              upstreamStatus: upRes.statusCode || 0,
+              api: base,
+              hint: "FORGE_ATLAS_API_URL=http://127.0.0.1:3011 + pm2 usa-war-atlas-api",
+            },
+          });
+        });
+        return;
+      }
       res.status(upRes.statusCode || 502);
       for (const [k, v] of Object.entries(upRes.headers || {})) {
         if (!v) continue;
@@ -213,14 +307,18 @@ function createAtlasBridgeRouter() {
     } catch (_) {
       hasIndex = false;
     }
-    res.json({
-      ok: true,
-      mounted: true,
-      app: "usa_war_atlas",
-      appDir: dir,
-      hasIndex,
-      api: atlasApiBase(),
-      access: "forge_premium",
+    probeAtlasApiHealth((health) => {
+      res.json({
+        ok: true,
+        mounted: true,
+        app: "usa_war_atlas",
+        appDir: dir,
+        hasIndex,
+        api: atlasApiBase(),
+        apiConfigured: String(process.env.FORGE_ATLAS_API_URL || "").trim() || null,
+        apiHealth: health,
+        access: "forge_premium",
+      });
     });
   });
 
@@ -247,16 +345,31 @@ function createAtlasBridgeRouter() {
   });
 
   async function gateAndServe(req, res, next) {
+    const stripped = stripMount(req.originalUrl || req.url);
+    if (!stripped) return next();
+
+    const isApi =
+      stripped.rel === "api" || stripped.rel.startsWith("api/");
+
     const user = await requirePremium(req);
     if (!user?.email) {
+      // fetch() envoie souvent Accept: */* → accepts("html") matchait et
+      // renvoyait du HTML aux appels /atlas-embed/api/* (JSON.parse cassé).
+      if (isApi) {
+        return res.status(403).json({
+          success: false,
+          ok: false,
+          error: {
+            code: "premium_required",
+            message: "USA War Atlas API réservée aux abonnés Premium.",
+          },
+        });
+      }
       if (req.accepts("html")) return denyHtml(res);
       return res.status(403).json({ ok: false, error: "premium_required" });
     }
 
-    const stripped = stripMount(req.originalUrl || req.url);
-    if (!stripped) return next();
-
-    if (stripped.rel === "api" || stripped.rel.startsWith("api/")) {
+    if (isApi) {
       return proxyToAtlasApi(req, res, "/" + stripped.rel + stripped.query);
     }
 

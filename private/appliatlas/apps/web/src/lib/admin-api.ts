@@ -3,7 +3,7 @@
  * Le jeton est conservé en sessionStorage : il disparaît à la fermeture
  * de l'onglet et n'est jamais écrit dans le code ou dans le dépôt.
  */
-const API_URL = import.meta.env.VITE_API_URL ?? "";
+const API_URL = String(import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 const TOKEN_KEY = "usa-war-atlas-admin-token";
 
 export const getAdminToken = () => sessionStorage.getItem(TOKEN_KEY);
@@ -20,7 +20,9 @@ async function adminFetch<T>(
 
   const res = await fetch(`${API_URL}${path}`, {
     method: options.method ?? "GET",
+    credentials: "same-origin",
     headers: {
+      Accept: "application/json",
       Authorization: `Bearer ${token}`,
       ...(options.body !== undefined
         ? { "Content-Type": "application/json" }
@@ -31,7 +33,14 @@ async function adminFetch<T>(
       : {}),
   });
 
-  const body = await res.json();
+  const ct = String(res.headers.get("content-type") || "");
+  const raw = await res.text();
+  if (!ct.includes("application/json") || /^\s*</.test(raw)) {
+    throw new Error(
+      "L’API Atlas admin a renvoyé du HTML (proxy/API hors service sur :3011)."
+    );
+  }
+  const body = JSON.parse(raw);
   if (!body.success) {
     const details = body.error?.details
       ? ` — ${JSON.stringify(body.error.details)}`

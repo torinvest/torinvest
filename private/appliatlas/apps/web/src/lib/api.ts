@@ -12,13 +12,32 @@ import type {
   TimelineBucketDto,
 } from "@usa-war-atlas/shared";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "";
+/** Base API : en embed Forge = `/atlas-embed` (voir build:forge). */
+const API_URL = String(import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
 
 async function fetchApi<T, M = Record<string, unknown>>(
   path: string
 ): Promise<{ data: T; meta?: M }> {
-  const res = await fetch(`${API_URL}${path}`);
-  const body = (await res.json()) as ApiResponse<T, M>;
+  const res = await fetch(`${API_URL}${path}`, {
+    credentials: "same-origin",
+    headers: { Accept: "application/json" },
+  });
+  const ct = String(res.headers.get("content-type") || "");
+  const raw = await res.text();
+  if (!ct.includes("application/json")) {
+    const isHtml = /^\s*</.test(raw);
+    throw new Error(
+      isHtml
+        ? "L’API Atlas a renvoyé du HTML au lieu de JSON (proxy mal configuré ou API arrêtée sur :3011)."
+        : `Réponse non JSON (HTTP ${res.status}).`
+    );
+  }
+  let body: ApiResponse<T, M>;
+  try {
+    body = JSON.parse(raw) as ApiResponse<T, M>;
+  } catch {
+    throw new Error("Réponse API illisible (JSON invalide).");
+  }
   if (!body.success) {
     throw new Error(body.error.message);
   }
