@@ -30,15 +30,23 @@ L’audit « site + formation » a validé le *câblage documenté* (docs / scri
 ## Déploiement immédiat VPS
 
 ```bash
-# 1) Correctif env + process (rapide)
+# Correctif env + process (gère aussi .env en CRLF Windows)
 curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/atlas-usa-war-fix-691a/deploy/vps/fix-atlas-api-url.sh | bash
-
-# 2) Puis pull du bridge (après merge) via pull-forge-all / deploy-atlas-vps
 ```
 
-Vérif :
+Si le script a planté avec `$'\r': command not found` (ancien script qui `source` le `.env`) :
 
 ```bash
+ENV=/home/ubuntu/torinvest-formation/.env
+sed -i 's/\r$//' "$ENV"
+grep -vE '^FORGE_ATLAS_(API_URL|APP_DIR)=' "$ENV" > "$ENV.tmp" && mv "$ENV.tmp" "$ENV"
+printf 'FORGE_ATLAS_APP_DIR=/var/lib/torinvest/appliatlas\n' >> "$ENV"
+printf 'FORGE_ATLAS_API_URL=http://127.0.0.1:3011\n' >> "$ENV"
+FORGE_ATLAS_API_URL=http://127.0.0.1:3011 \
+FORGE_ATLAS_APP_DIR=/var/lib/torinvest/appliatlas \
+  pm2 restart la-forge --update-env
+sleep 2
 curl -sS https://app.torinvest-trading.com/api/atlas-bridge/ping
-# attendu : "api":"http://127.0.0.1:3011" et apiHealth.ok === true
 ```
+
+Vérif attendue : `"api":"http://127.0.0.1:3011"` (+ `apiHealth.ok` après pull du bridge).
