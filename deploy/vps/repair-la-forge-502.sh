@@ -140,9 +140,15 @@ pm2 restart la-forge --update-env
 sleep 4
 
 rm -f /tmp/t.cookie
+TEST_EMAIL="${FORGE_DEMO_EMAIL:-${FORGE_ADMIN_EMAIL:-}}"
+TEST_PASSWORD="${FORGE_DEMO_PASSWORD:-${FORGE_ADMIN_PASSWORD:-}}"
+if [ -z "$TEST_EMAIL" ] || [ -z "$TEST_PASSWORD" ]; then
+  echo "ERREUR: définir FORGE_DEMO_EMAIL + FORGE_DEMO_PASSWORD (ou FORGE_ADMIN_*)"
+  exit 1
+fi
 LOGIN=$(curl -s -c /tmp/t.cookie -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/login' \
   -H 'Content-Type: application/json' \
-  -d '{"email":"abonne@torinvest-trading.com","password":"Forge2026!"}')
+  -d "{\"email\":\"$TEST_EMAIL\",\"password\":\"$TEST_PASSWORD\"}")
 echo "$LOGIN"
 ACTIVATE=$(curl -s -b /tmp/t.cookie -X POST 'https://app.torinvest-trading.com/api/fondamental-bridge/activate')
 echo "$ACTIVATE"

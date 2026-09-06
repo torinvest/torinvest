@@ -1,24 +1,27 @@
 # Audit complet TORINVEST — septembre 2026
 
-Périmètre : site public (`www.torinvest-trading.com`), CRM licences, API radar, formation La Forge (`app.torinvest-trading.com`), paiements Stripe/Brevo, ponts Atlas / Journal / Fondamental / TorPass.
+**Périmètre :** site public (`www.torinvest-trading.com`), CRM licences, API radar, formation La Forge (`app.torinvest-trading.com`), paiements Stripe/Brevo, ponts Atlas / Journal / Fondamental / TorPass / KRM.
+
+**Date :** 2026-09-06  
+**Branche :** `cursor/audit-complet-site-691a`
 
 ---
 
-## Synthèse
+## Synthèse exécutive
 
 | Zone | Niveau | Verdict |
 |------|--------|---------|
-| Secrets dans le dépôt | OK | Pas de clés live commités ; `config.local.php` gitignoré |
-| Stripe webhook | Bon | Signature HMAC + idempotence |
-| CRM → Brevo | Corrigé (#101) | Envoi aussi à la création CRM manuelle |
-| Formation — progression | Critique → corrigé | `totalSteps` client pouvait forger un unlock |
-| API CORS Netlify preview | Haut → corrigé | `*.netlify.app` + credentials |
-| Open redirect login Forge | Haut → corrigé | `?next=https://…` |
-| Rate-limit PIN `dev-auth` | Haut → corrigé | Guard sans Hit |
-| CSRF cookies `SameSite=None` | Haut | À traiter (Origin fail-closed) |
-| Gates Premium client-only | Moyen | Shells HTML ; contenu sensible souvent API-gated |
-| ICT Atlas contenu JS | Moyen | Contenu pédagogique en static |
-| Abonnement après expiry | Moyen | Flag `subscribed` persisté sans re-check Worker |
+| Secrets dans le dépôt (HEAD) | OK | Pas de clés live dans l’arbre actuel |
+| Secrets dans l’**historique** git | Critique | Ancien `COPY_TOKEN` récupérable → **rotation** |
+| Stripe webhook | Bon | HMAC + fenêtre temporelle + idempotence |
+| CRM → Brevo | Bon | Envoi à la création CRM + renvoi manuel |
+| Sessions cookie `SameSite=None` | Haut | Pas de contrôle Origin fail-closed (CSRF) |
+| Formation — progression | Haut | `totalSteps` / scores encore partiellement client |
+| Formation — vidéos | Haut | Dépendance à l’ordre des middlewares ; risque `/media` public (PR vidéo) |
+| Site marketing — admin links | Haut | Liens CRM/KRM dans nav + footer publics |
+| RGPD AdSense | Haut | Script AdSense en `<head>` avant consentement |
+| Soft-gate membres | Moyen | Contenu HTML toujours dans la réponse |
+| Journal SSO / shared password | Haut | Compte Journal partagé possible |
 
 ---
 
@@ -27,122 +30,118 @@ Périmètre : site public (`www.torinvest-trading.com`), CRM licences, API radar
 1. **Marketing Netlify** — HTML racine, `la-forge/`, activation, TorPass, espace membre  
 2. **API radar** (`api/*.php`) — CRM, Stripe, Brevo, AI Access, Atlas/Journal/Fondamental, membres, KRM  
 3. **CRM** — `admin-licence/`  
-4. **Formation VPS** — `deploy/vps/formation-server/` + `app-shells/`  
-5. **Worker Cloudflare** — licences TOR-VIP / ACCOMPAGNEMENT (hors repo applicatif)
+4. **Formation VPS** — `deploy/vps/formation-server/` + `app-shells/` + contenu `private/course/`  
+5. **Worker Cloudflare** — licences TOR-VIP / ACCOMPAGNEMENT  
 
 ---
 
 ## Findings détaillés
 
-### CRITIQUE (corrigé dans ce PR)
+### CRITIQUE
 
-#### C1 — Unlock modules via `totalSteps` client
-- **Fichiers :** `deploy/vps/formation-server/forge-progress-rules.js`, `routes-progress.js`
-- **Problème :** Le client pouvait envoyer `totalSteps: 1` + `stepsDone: 1` → module `completed` en un PUT (malgré le plafond `MAX_STEPS_DELTA`).
-- **Impact :** Contournement de la progression / lots de modules Premium.
-- **Correctif :** Plancher `totalSteps >= 12` ; le client ne peut plus abaisser `totalSteps`.
+#### C1 — Token Worker encore dans l’historique git
+- Commit historique a exposé un `copyToken` / `TOR_COPY_…` puis retiré.
+- **Action :** rotation immédiate du secret Worker + VPS ; ne pas se fier à la suppression seule.
 
-### HAUT (corrigés)
+### HAUT
 
-#### H1 — CORS credentials sur tout `*.netlify.app`
-- **Fichiers :** 13 endpoints `api/*.php`
-- **Problème :** Toute preview Netlify recevait `Allow-Origin` + `Allow-Credentials`.
-- **Impact :** Lecture de réponses authentifiées / surface CSRF élargie.
-- **Correctif :** `$isNetlifyPreview = false` ; seuls les origins listés (prod + netlify app principal).
+#### H1 — CSRF sur cookies `SameSite=None`
+- Fichiers : `api/http-session.php`, `admin-licence.php`, `ai-access.php`, `member-auth.php`, …
+- Cross-site www → radar ; pas de rejet Origin fail-closed sur POST.
+- **Fix :** exiger Origin/Referer allowlist ; token CSRF CRM.
 
-#### H2 — Open redirect post-login Forge
-- **Fichier :** `la-forge/js/auth.js` (`forgeNextUrl`)
-- **Problème :** `?next=https://evil.example` était accepté.
-- **Correctif :** Uniquement chemins relatifs same-origin.
+#### H2 — HMAC de session dérivé du PIN
+- CRM / AI Access / member : secret HMAC = PIN si secret dédié absent.
+- **Fix :** secrets longs obligatoires (`*_hmac_secret`), fail closed en prod.
 
-#### H3 — Rate-limit PIN `dev-auth` inopérant
-- **Fichier :** `api/dev-auth.php`
-- **Problème :** `torinvestRateLimitGuard` sans `torinvestRateLimitHit` en échec → brute-force illimité.
-- **Correctif :** `Hit` sur PIN incorrect.
+#### H3 — Journal Forge SSO → flags admin
+- `trading-journal-forge-sso.php` élève la session en `admin`.
+- **Fix :** rôle least-privilege.
 
-### HAUT (restants — backlog)
+#### H4 — Liens admin publics (site)
+- `index.html` nav/footer → `#admin`, `#crm`, `/admin-krm-services`.
+- **Fix appliqué dans ce PR :** retrait des liens ; `robots.txt` Disallow KRM admin.
 
-#### H4 — CSRF sur sessions cookie `SameSite=None`
-- Cookies cross-site www ↔ radar sans contrôle Origin fail-closed sur POST.
-- **Fix recommandé :** rejeter les mutations si `Origin`/`Referer` hors allowlist ; CSRF token pour CRM.
+#### H5 — AdSense avant consentement RGPD
+- Script AdSense hardcodé dans `<head>` de nombreuses pages ; contredit `cookies.html` + `torinvest-rgpd.js`.
+- **Fix :** retirer le script head ; charger uniquement via RGPD après consentement marketing.
 
-#### H5 — PIN / secrets HMAC couplés
-- Sessions CRM / AI Access parfois signées avec le PIN.
-- **Fix :** secrets HMAC dédiés longs, distincts des PIN.
+#### H6 — Vidéos formation / ordre middleware
+- Route `/course/videos/:file` sans auth intrinsèque ; si montée avant paywall → fuite.
+- Branche vidéo Module 0 : fallback `/media/:file` **public** = fuite Premium.
+- **Fix :** auth **dans** le handler vidéo ; **jamais** `/media` public pour le contenu payant ; réencoder H.264.
 
-#### H6 — Tokens / clés en query string
-- `access_token`, `provision_key`, SSO parfois en `?…` → logs / Referer.
-- **Fix :** cookies HttpOnly ou échange one-time POST.
+#### H7 — Progression forgeable
+- Client peut influencer `totalSteps` / scores (deltas plafonnés mais totaux partiellement trustés).
+- **Fix :** plancher serveur + métadonnées leçon côté serveur (partiellement fait sur branche vidéo/audit).
+
+#### H8 — Mots de passe Premium en dur dans scripts VPS
+- `AdminFonda2026!`, `Forge2026!` dans scripts de repair/fix.
+- **Fix appliqué :** variables d’environnement uniquement.
+
+#### H9 — Journal auto-login env partagé
+- Un seul `FORGE_JOURNAL_PASSWORD` pour tous les Premium.
+- **Fix :** SSO par utilisateur uniquement ; supprimer fallback partagé.
 
 ### MOYEN
 
 | ID | Sujet | Détail |
 |----|--------|--------|
-| M1 | Gates HTML client-only | `initForgeGate` sur shells ; `/course/*` + PDFs mieux protégés serveur |
-| M2 | ICT Atlas JS public | Fiches en static — UI Premium only |
-| M3 | `subscribed` sticky | Login TOR écrit `subscribed:true` sans revalidation expiry Worker |
-| M4 | Calendar API | Auth sans Premium alors que shell exige Premium |
-| M5 | Journal env auto-login | Mot de passe partagé si SSO échoue (si activé) |
-| M6 | Admin links publics | Liens CRM/AI Access visibles — OK si PIN fort + rate-limit |
-| M7 | RGPD AdSense | Scripts ads parfois hors consentement banner |
-| M8 | XSS `innerHTML` | Erreurs API injectées sans escape sur certaines pages admin |
-| M9 | KRM `list_my_requests` | Filtrage wallet sans preuve de possession |
-| M10 | Soft-gate membres site | Contenu HTML toujours dans la page |
+| M1 | Soft-gate membres | HTML chroniques accessible sans login (curl / view-source) |
+| M2 | XSS `ai-access.html` | `err.message` / `data.plan` en `innerHTML` |
+| M3 | Robot checkout « paused » | Liens Stripe encore en HTML brut |
+| M4 | KRM `list_my_requests` | Wallet client non prouvé |
+| M5 | `provision_key` en query | Logs / Referer |
+| M6 | Login rate-limit XFF | Spoofable si proxy mal configuré |
+| M7 | `Math.random` passwords | Utiliser `crypto.randomBytes` |
+| M8 | Lib PHP non toutes denied | Étendre `.htaccess` `*-lib.php` |
 
 ### BAS / INFO
 
-- Libs PHP `*-lib.php` partiellement hors deny Apache  
-- Invites Discord/Telegram dans config exemple  
-- Domaines cohérents : `app.torinvest-trading.com` / `radar` / `www`  
-- Webhook Stripe : signature + secret requis — bon  
-- Hash mots de passe formation : `password_hash` — bon  
-- Pas de secrets live dans git — bon  
+- Stripe + Brevo bien structurés côté serveur  
+- Form provision désactivé par défaut (webhook only)  
+- CORS Netlify preview credentials déjà coupé sur plusieurs endpoints  
+- Headers Netlify (`_headers`) solides  
+- Paywall HTML course + books/PDF côté serveur (quand middleware monté)  
 
 ---
 
-## Flux métier vérifiés
+## Flux métier
 
 | Flux | État |
 |------|------|
-| Stripe checkout → licence Worker → Brevo | OK (si `brevo_api_key`) |
-| CRM « Générer licence » → Brevo | OK depuis #101 |
-| CRM « Renvoyer email Brevo » | OK |
-| Login Forge email + clé TOR-ACCOMPAGNEMENT | OK (binding email Worker) |
-| Provision compte formation depuis CRM | OK si secrets VPS alignés |
-| Gate Premium course / books / lives | Serveur OK sur routes sensibles |
+| Stripe → licence → Brevo | OK si clés configurées |
+| CRM créer licence → Brevo | OK (PR récente) |
+| Login Forge email + TOR-ACCOMPAGNEMENT | OK (binding email Worker) |
+| Module 0 vidéo | En cours — ne pas laisser `/media` public |
+| Soft-gate chroniques | Contenu non protégé serveur |
 
 ---
 
 ## Correctifs livrés dans ce PR
 
-1. Anti-forge `totalSteps` (progression formation)  
-2. CORS Netlify preview désactivé (API)  
-3. Open redirect login Forge  
-4. Rate-limit Hit sur `dev-auth`  
+1. Rapport d’audit (`docs/AUDIT-COMPLET-2026-09.md`)  
+2. Retrait liens admin/CRM/KRM de la homepage  
+3. `robots.txt` : Disallow `/admin-krm-services`  
+4. Scripts VPS : plus de mots de passe en dur (env vars)  
 
-## Déploiement requis
+## Actions ops immédiates (hors code)
 
-```bash
-# Radar (API PHP)
-for f in accompagnement-access.php admin-licence.php ai-access.php atlas-access.php \
-  dev-auth.php discord-torpass.php fondamental-access.php journal-access.php \
-  krm-service-payment.php license-provision.php member-auth.php solana-rpc.php torpass-client.php; do
-  sudo cp "api/$f" "/var/www/torinvest/api/$f"
-done
+1. **Rotation** `COPY_TOKEN` / secrets Worker si pas déjà fait  
+2. Sur VPS : supprimer route `/media/:file` publique si déployée ; servir uniquement `/course/videos/*` derrière session Premium  
+3. Vérifier `brevo_api_key` + templates  
+4. Activer secrets HMAC dédiés (ne plus signer avec le PIN)  
+5. Plan RGPD : retirer AdSense du `<head>` sur toutes les pages  
 
-# VPS formation
-cp deploy/vps/formation-server/forge-progress-rules.js /path/to/formation-server/
-# + la-forge/js/auth.js (ou app-shells sync) puis pm2 restart
-```
+## Priorités suivantes (backlog)
 
-## Priorités suivantes (recommandées)
-
-1. Origin fail-closed + CSRF CRM  
-2. Re-validation Worker `subscribed` à chaque `/api/me`  
-3. Servir ICT Atlas derrière auth (plus de JS public complet)  
-4. Secrets HMAC séparés des PIN  
-5. Audit RGPD AdSense / pages légales vs traitements réels  
+1. Origin fail-closed + CSRF sur APIs cookie  
+2. Auth intrinsèque handler vidéo + unlock par module  
+3. Progression 100 % serveur (catalogue `totalSteps`)  
+4. Soft-gate → hard-gate CDN ou retirer du sitemap  
+5. Journal SSO least-privilege + plus de password partagé  
+6. Escape XSS `ai-access.html`  
 
 ---
 
-*Audit code + correctifs ciblés — TORINVEST, 2026-09-05.*
+*Audit code TORINVEST — 2026-09-06*
