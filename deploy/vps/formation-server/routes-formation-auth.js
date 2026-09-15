@@ -325,9 +325,21 @@ function createFormationAuthRouter(options) {
     const store = users.readStore(dataDir);
     const existing = users.findUser(store, email);
     const hash = existing ? users.passwordHashFromUser(existing) : "";
-    if (hash && (await users.verifyPassword(hash, rawPassword))) {
-      setSessionUser(req, email, !!existing.subscribed);
-      return finishLogin(req, res, next, { via: "password" });
+    if (hash) {
+      const okPass =
+        (await users.verifyPassword(hash, rawPassword)) ||
+        (await users.verifyPassword(hash, password));
+      if (okPass) {
+        setSessionUser(req, email, !!existing.subscribed);
+        return finishLogin(req, res, next, { via: "password" });
+      }
+      // Compte formation connu : NE PAS déléguer au natif (sinon « Identifiants incorrects »)
+      return rejectLogin(
+        res,
+        401,
+        "Email ou mot de passe incorrect. Utilise l’email Stripe + le mot de passe formation reçu par mail (ou ta clé TOR-ACCOMPAGNEMENT).",
+        "invalid_credentials"
+      );
     }
 
     // Mot de passe qui ressemble à une clé TOR (sans préfixe strict) — 2e chance Worker
@@ -344,9 +356,7 @@ function createFormationAuthRouter(options) {
       return finishLogin(req, res, next, { via: "demo" });
     }
 
-    // Compte natif La Forge (ex. abonne@torinvest-trading.com) — sortir du router
-    // pour laisser app.post('/api/login') natif répondre. next() seul ne suffit pas
-    // toujours dans un Router Express monté avec app.use().
+    // Pas de compte formation → login natif (ex. abonne@torinvest-trading.com)
     return next("router");
   });
 
