@@ -375,18 +375,22 @@
     function formatBrevoStatus(data) {
       const raw = data && data.brevo;
       if (!raw) {
-        return '<br><span class="warn"><b>Email Brevo :</b> non renvoyé par l’API (déploie admin-licence-lib.php).</span>';
+        return '<br><span class="warn"><b>Email Brevo :</b> non envoyé — API radar pas à jour. Sur le VPS : déployer <span class="mono">admin-licence.php</span> + <span class="mono">admin-licence-lib.php</span> + <span class="mono">brevo-lib.php</span> depuis main, puis recliquer Reset.</span>';
       }
       if (raw.ok === true) {
-        return '<br><span class="ok"><b>Email Brevo :</b> envoyé à ' + esc(data.email || "") + "</span>";
+      return '<br><span class="ok"><b>Email Brevo :</b> envoyé à ' + esc(data.email || "") + "</span>";
+    }
+    if (raw.ok === false) {
+      const why = raw.error || raw.reason || "échec";
+      if (why === "brevo_api_key_missing" || why === "not_configured") {
+        return '<br><span class="warn"><b>Email Brevo :</b> non envoyé — <span class="mono">brevo_api_key</span> manquant sur radar.</span>';
       }
-      if (raw.ok === false) {
-        const why = raw.error || raw.reason || "échec";
-        if (why === "brevo_api_key_missing" || why === "not_configured") {
-          return '<br><span class="warn"><b>Email Brevo :</b> non envoyé — <span class="mono">brevo_api_key</span> manquant sur radar.</span>';
-        }
-        return '<br><span class="bad"><b>Email Brevo :</b> échec — ' + esc(String(why)) + "</span>";
-      }
+      return '<br><span class="bad"><b>Email Brevo :</b> échec — ' + esc(String(why)) + "</span>";
+    }
+    // Ancienne API radar sans champ brevo → rappel de déployer
+    if (typeof raw !== "object") {
+      return '<br><span class="warn"><b>Email Brevo :</b> statut inconnu.</span>';
+    }
       const b = raw.brevo && typeof raw.brevo === "object" ? raw.brevo : raw;
       if (b === "skipped" || raw.reason === "not_configured" || (b && b.reason === "not_configured")) {
         return '<br><span class="warn"><b>Email Brevo :</b> non envoyé — <span class="mono">brevo_api_key</span> manquant sur radar.</span>';
@@ -713,9 +717,14 @@
           );
         }
         const brevoLine = formatBrevoStatus(data);
+        const brevoOk = data.brevo && data.brevo.ok === true;
+        const headMsg = brevoOk
+          ? '<span class="ok">Compte formation prêt — email Brevo envoyé.</span>'
+          : '<span class="ok">Compte formation prêt.</span>';
         setHtml(
           "accompResult",
-          '<span class="ok">Compte formation prêt — email Brevo déclenché.</span><br>' +
+          headMsg +
+            "<br>" +
             "<b>Email :</b> " +
             esc(data.email || email) +
             "<br>" +
