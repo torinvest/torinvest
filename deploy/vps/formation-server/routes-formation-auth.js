@@ -447,6 +447,45 @@ function createFormationAuthRouter(options) {
 
     const body = { ok: true, email, subscribed, generated };
     if (generated) body.password = plainPassword;
+
+    // Email Brevo automatique (radar) — pas d'envoi manuel admin
+    const skipMail =
+      req.body?.skip_brevo === true ||
+      req.body?.skipBrevo === true ||
+      process.env.FORGE_SKIP_PASSWORD_BREVO === "1";
+    if (!skipMail && plainPassword) {
+      const mailUrl =
+        process.env.FORGE_PASSWORD_MAIL_URL ||
+        "https://radar.torinvest-trading.com/api/formation-password-mail.php";
+      try {
+        const mailRes = await fetch(mailUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            "X-Formation-Provision-Key": provisionSecret,
+          },
+          body: JSON.stringify({ email, password: plainPassword }),
+          signal: AbortSignal.timeout(20000),
+        });
+        const mailJson = await mailRes.json().catch(() => ({}));
+        body.brevo = {
+          ok: mailRes.ok && mailJson && mailJson.ok === true,
+          status: mailRes.status,
+          ...(mailJson && typeof mailJson === "object" ? mailJson : {}),
+        };
+        if (!body.brevo.ok) {
+          console.error("[formation-auth] Brevo password mail failed", body.brevo);
+        }
+      } catch (err) {
+        body.brevo = {
+          ok: false,
+          error: String(err && err.message ? err.message : err),
+        };
+        console.error("[formation-auth] Brevo password mail error", err);
+      }
+    }
+
     return res.json(body);
   });
 

@@ -178,7 +178,11 @@ try {
                 ], 502);
             }
             $pwd = (string) ($formation['password'] ?? '');
-            $brevo = licenceCrmSendFormationPasswordBrevo($email, $pwd);
+            // L'app envoie déjà Brevo après génération ; ne renvoyer que si échec / absent
+            $brevo = is_array($formation['brevo'] ?? null) ? $formation['brevo'] : null;
+            if ($pwd !== '' && (empty($brevo) || empty($brevo['ok']))) {
+                $brevo = licenceCrmSendFormationPasswordBrevo($email, $pwd);
+            }
             $logId = 0;
             if ($pwd !== '') {
                 $logId = licenceCrmLogFormationPassword($email, $pwd, [
@@ -206,6 +210,7 @@ try {
             }
             $pwd = trim((string) ($input['password'] ?? $input['formation_password'] ?? ''));
             $source = 'send_formation_password_brevo';
+            $brevo = null;
             if ($pwd === '') {
                 $formation = licenceCrmProvisionFormationAccount($email);
                 if (empty($formation['ok'])) {
@@ -217,8 +222,11 @@ try {
                 }
                 $pwd = (string) ($formation['password'] ?? '');
                 $source = 'send_formation_password_brevo_reset';
+                $brevo = is_array($formation['brevo'] ?? null) ? $formation['brevo'] : null;
             }
-            $brevo = licenceCrmSendFormationPasswordBrevo($email, $pwd);
+            if (empty($brevo) || empty($brevo['ok'])) {
+                $brevo = licenceCrmSendFormationPasswordBrevo($email, $pwd);
+            }
             $logId = 0;
             if ($pwd !== '') {
                 $logId = licenceCrmLogFormationPassword($email, $pwd, [
