@@ -15,8 +15,8 @@ echo "APP=$APP_DIR EMAIL=$EMAIL REF=$REF"
 
 mkdir -p "$APP_DIR/server-patches" "$APP_DIR/public" "$APP_DIR/public/js"
 
-echo "==> 1) Auth + pages"
-for f in routes-formation-auth.js formation-users-lib.js accompagnement-worker-lib.js; do
+echo "==> 1) Auth + session shim + pages"
+for f in routes-formation-auth.js formation-users-lib.js accompagnement-worker-lib.js forge-session-shim.js; do
   curl -fsSL "$RAW/deploy/vps/formation-server/$f" -o "$APP_DIR/server-patches/$f"
   echo "  $f"
 done
