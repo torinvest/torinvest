@@ -285,15 +285,14 @@ function createFormationAuthRouter(options) {
   }
 
   router.post("/api/login", loginRateLimit, async (req, res, next) => {
-    // Ne jamais déléguer au login natif : messages trompeurs (« Identifiants incorrects »)
-    // alors que la clé TOR / le pont Worker est le vrai chemin produit.
+    // Si le pont est monté AVANT express-session, req.session est absent.
+    // On délègue alors au login natif (mot de passe users.json) plutôt que de bloquer.
+    // La clé TOR nécessite une session : d’où ensure-accompagnement-after-session.js.
     if (!req.session) {
-      return rejectLogin(
-        res,
-        500,
-        "Session serveur indisponible. Réessaie dans une minute.",
-        "session_missing"
+      console.warn(
+        "[formation-auth] /api/login sans req.session — délégation login natif (remonter le pont APRÈS session)"
       );
+      return next();
     }
 
     const email = users.normalizeEmail(req.body?.email);
@@ -329,12 +328,7 @@ function createFormationAuthRouter(options) {
     const hash = existing ? users.passwordHashFromUser(existing) : "";
     if (hash && (await users.verifyPassword(hash, rawPassword))) {
       if (!setSessionUser(req, email, !!existing.subscribed)) {
-        return rejectLogin(
-          res,
-          500,
-          "Session serveur indisponible. Réessaie dans une minute.",
-          "session_missing"
-        );
+        return next();
       }
       return finishLogin(req, res, next, { via: "password" });
     }
@@ -348,22 +342,13 @@ function createFormationAuthRouter(options) {
     const demo = matchDemoLogin(email, rawPassword);
     if (demo) {
       if (!setSessionUser(req, email, demo.subscribed)) {
-        return rejectLogin(
-          res,
-          500,
-          "Session serveur indisponible. Réessaie dans une minute.",
-          "session_missing"
-        );
+        return next();
       }
       return finishLogin(req, res, next, { via: "demo" });
     }
 
-    return rejectLogin(
-      res,
-      401,
-      "Email ou mot de passe incorrect. Utilise l’email Stripe + le mot de passe reçu par email, ou ta clé TOR-ACCOMPAGNEMENT.",
-      lic.reason || "invalid_credentials"
-    );
+    // Mot de passe inconnu pour nous → laisser le natif répondre (évite double 401 trompeur)
+    return next();
   });
 
   /**
