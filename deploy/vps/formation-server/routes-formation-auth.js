@@ -268,20 +268,19 @@ function createFormationAuthRouter(options) {
   });
 
   router.post("/api/logout", (req, res, next) => {
-    if (!req.session) return next();
-    const done = () => {
-      if (typeof req.session.destroy === "function") {
-        return req.session.destroy(() => res.json({ ok: true }));
-      }
-      try {
-        delete req.session.user;
-      } catch (_) {}
-      if (typeof req.session.save === "function") {
-        return req.session.save(() => res.json({ ok: true }));
-      }
-      return res.json({ ok: true });
-    };
-    return done();
+    // Toujours laisser le logout natif clear COOKIE_NAME (abonne@ etc.)
+    const pass = () => next();
+    if (!req.session) return pass();
+    if (typeof req.session.destroy === "function") {
+      return req.session.destroy(() => pass());
+    }
+    try {
+      delete req.session.user;
+    } catch (_) {}
+    if (typeof req.session.save === "function") {
+      return req.session.save(() => pass());
+    }
+    return pass();
   });
 
   function rejectLogin(res, status, error, reason) {
@@ -331,9 +330,12 @@ function createFormationAuthRouter(options) {
       return finishLogin(req, res, next, { via: "password" });
     }
 
-    const lic = await worker.validateAccompagnementLicense(workerUrl, email, password);
-    if (lic.ok) {
-      return applyLicenseLogin(req, res, next, dataDir, lic, email);
+    // Mot de passe qui ressemble à une clé TOR (sans préfixe strict) — 2e chance Worker
+    if (password.length >= 12) {
+      const lic = await worker.validateAccompagnementLicense(workerUrl, email, password);
+      if (lic.ok) {
+        return applyLicenseLogin(req, res, next, dataDir, lic, email);
+      }
     }
 
     const demo = matchDemoLogin(email, rawPassword);
@@ -342,12 +344,8 @@ function createFormationAuthRouter(options) {
       return finishLogin(req, res, next, { via: "demo" });
     }
 
-    return rejectLogin(
-      res,
-      401,
-      "Email ou mot de passe incorrect. Utilise l’email Stripe + le mot de passe formation, ou ta clé TOR-ACCOMPAGNEMENT.",
-      "invalid_credentials"
-    );
+    // Compte natif La Forge (ex. abonne@torinvest-trading.com) — ne PAS bloquer
+    return next();
   });
 
   router.post("/api/set-password-with-license", loginRateLimit, async (req, res) => {
