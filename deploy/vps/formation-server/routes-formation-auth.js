@@ -1,16 +1,12 @@
 /**
  * Login formation La Forge — abonnement accompagnement (≠ compte membre site www).
  *
- * Flux PRINCIPAL (celui du produit) :
- *   email Stripe + clé TOR-ACCOMPAGNEMENT dans le champ mot de passe
+ * Flux :
+ *   1) email + mot de passe (data/users.json)
+ *   2) email + clé TOR-ACCOMPAGNEMENT (Worker)
  *
- * Correctifs audit :
- *   - email Worker lié à la clé (boundEmail)
- *   - rate-limit /api/login
- *   - démo sans mots de passe hardcodés
- *   - provision secret en timing-safe
- *
- * Monte AVANT le handler /api/login natif du VPS.
+ * Important : ce router DOIT être monté APRÈS le middleware session
+ * (COOKIE_NAME / express-session). Voir patch-auth-after-cookie-session.js.
  */
 "use strict";
 
@@ -83,10 +79,6 @@ function createLoginRateLimiter(options) {
   };
 }
 
-/**
- * Comptes démo uniquement si FORGE_DEMO_ENABLED + email/mot de passe env (min 12 car).
- * Aucun default hardcodé.
- */
 function demoAccounts() {
   const enabled =
     process.env.FORGE_DEMO_ENABLED === "1" ||
@@ -104,12 +96,6 @@ function demoAccounts() {
   const freePass = String(process.env.DEMO_FREE_PASSWORD || "");
   if (freeEmail && freePass.length >= 12) {
     out.push({ email: freeEmail, password: freePass, subscribed: false });
-  }
-
-  if (!out.length) {
-    console.warn(
-      "[auth] FORGE_DEMO_ENABLED but DEMO_*_EMAIL/PASSWORD missing or password < 12 chars — demo disabled"
-    );
   }
   return out;
 }
@@ -179,6 +165,8 @@ function licenseErrorMessage(reason) {
       return "Cette clé n'est pas encore liée à un email. Contacte le support.";
     case "missing_params":
       return "Email et clé TOR requis.";
+    case "session_missing":
+      return "Session serveur indisponible (middleware). Réessaie dans une minute.";
     default:
       return (
         "Connexion refusée avec cette clé (" +
@@ -191,13 +179,12 @@ function licenseErrorMessage(reason) {
 function licenseHttpStatus(reason) {
   if (reason === "worker_unreachable") return 503;
   if (reason === "email_mismatch" || reason === "email_required") return 403;
+  if (reason === "session_missing") return 500;
   return 401;
 }
 
 function setSessionUser(req, email, subscribed) {
-  if (!req.session) {
-    return false;
-  }
+  if (!req.session) return false;
   req.session.user = sessionUser(email, subscribed);
   return true;
 }
@@ -212,7 +199,7 @@ function applyLicenseLogin(req, res, next, dataDir, lic, submittedEmail) {
   }
   if (!req.session) {
     return res.status(500).json({
-      error: "Session serveur indisponible. Réessaie dans une minute.",
+      error: licenseErrorMessage("session_missing"),
       reason: "session_missing",
     });
   }
@@ -261,7 +248,6 @@ function createFormationAuthRouter(options) {
   );
 
   router.use(createAtlasBridgeRouter());
-
   router.use(createBooksRouter());
   router.use(createLiveResourcesRouter());
 
@@ -269,7 +255,8 @@ function createFormationAuthRouter(options) {
     res.json({
       ok: true,
       licenseLogin: true,
-      hint: "Connexion = email Stripe + clé TOR-ACCOMPAGNEMENT (champ mot de passe)",
+      hasSession: true,
+      hint: "Connexion = email Stripe + mot de passe OU clé TOR-ACCOMPAGNEMENT",
     });
   });
 
@@ -285,16 +272,6 @@ function createFormationAuthRouter(options) {
   }
 
   router.post("/api/login", loginRateLimit, async (req, res, next) => {
-    // Si le pont est monté AVANT express-session, req.session est absent.
-    // On délègue alors au login natif (mot de passe users.json) plutôt que de bloquer.
-    // La clé TOR nécessite une session : d’où ensure-accompagnement-after-session.js.
-    if (!req.session) {
-      console.warn(
-        "[formation-auth] /api/login sans req.session — délégation login natif (remonter le pont APRÈS session)"
-      );
-      return next();
-    }
-
     const email = users.normalizeEmail(req.body?.email);
     const rawPassword = String(req.body?.password || "");
     const password = worker.normalizeLicenseKey(rawPassword) || rawPassword.trim();
@@ -302,17 +279,24 @@ function createFormationAuthRouter(options) {
       return rejectLogin(res, 400, "Email et mot de passe requis", "missing_params");
     }
 
+    // Sans session = pont monté trop tôt. Ne PAS déléguer au natif
+    // (autre store users → « Identifiants incorrects » trompeur).
+    if (!req.session) {
+      console.error("[formation-auth] /api/login sans req.session — mauvais ordre middleware");
+      return rejectLogin(
+        res,
+        500,
+        "Session serveur indisponible. Le pont auth doit être après express-session.",
+        "session_missing"
+      );
+    }
+
     const isTorKey = worker.looksLikeTorLicense(password);
 
-    // Chemin principal produit : clé TOR (email lié obligatoire côté Worker)
     if (isTorKey) {
       const lic = await worker.validateAccompagnementLicense(workerUrl, email, password);
       if (lic.ok) {
         return applyLicenseLogin(req, res, next, dataDir, lic, email);
-      }
-      // VIP seule → message clair (pas le login natif)
-      if (lic.reason === "not_accompagnement_plan") {
-        return rejectLogin(res, 403, licenseErrorMessage(lic.reason), lic.reason);
       }
       return rejectLogin(
         res,
@@ -322,18 +306,14 @@ function createFormationAuthRouter(options) {
       );
     }
 
-    // Mot de passe compte (si existe)
     const store = users.readStore(dataDir);
     const existing = users.findUser(store, email);
     const hash = existing ? users.passwordHashFromUser(existing) : "";
     if (hash && (await users.verifyPassword(hash, rawPassword))) {
-      if (!setSessionUser(req, email, !!existing.subscribed)) {
-        return next();
-      }
+      setSessionUser(req, email, !!existing.subscribed);
       return finishLogin(req, res, next, { via: "password" });
     }
 
-    // Dernière chance licence (clé sans préfixe TOR clair) — même binding email
     const lic = await worker.validateAccompagnementLicense(workerUrl, email, password);
     if (lic.ok) {
       return applyLicenseLogin(req, res, next, dataDir, lic, email);
@@ -341,20 +321,18 @@ function createFormationAuthRouter(options) {
 
     const demo = matchDemoLogin(email, rawPassword);
     if (demo) {
-      if (!setSessionUser(req, email, demo.subscribed)) {
-        return next();
-      }
+      setSessionUser(req, email, demo.subscribed);
       return finishLogin(req, res, next, { via: "demo" });
     }
 
-    // Mot de passe inconnu pour nous → laisser le natif répondre (évite double 401 trompeur)
-    return next();
+    return rejectLogin(
+      res,
+      401,
+      "Email ou mot de passe incorrect. Utilise l’email Stripe + le mot de passe formation, ou ta clé TOR-ACCOMPAGNEMENT.",
+      "invalid_credentials"
+    );
   });
 
-  /**
-   * Client : définir un nouveau mot de passe en prouvant la licence TOR.
-   * Body: { email, license|password (clé TOR), newPassword }
-   */
   router.post("/api/set-password-with-license", loginRateLimit, async (req, res) => {
     const email = users.normalizeEmail(req.body?.email);
     const rawKey = String(req.body?.license || req.body?.password || "");
@@ -408,11 +386,6 @@ function createFormationAuthRouter(options) {
     return res.json(body);
   });
 
-  /**
-   * Client connecté : changer le mot de passe.
-   * Body: { currentPassword?, newPassword }
-   * Si session ouverte via licence sans hash, currentPassword optionnel si newPassword ok.
-   */
   router.post("/api/change-password", loginRateLimit, async (req, res) => {
     const email = users.normalizeEmail(req.session?.user?.email);
     if (!email) {
@@ -434,20 +407,13 @@ function createFormationAuthRouter(options) {
     if (hash) {
       const okCurrent = await users.verifyPassword(hash, currentPassword);
       if (!okCurrent) {
-        // Autoriser aussi la clé TOR comme « mot de passe actuel »
         const key = worker.normalizeLicenseKey(currentPassword) || currentPassword.trim();
         if (!worker.looksLikeTorLicense(key)) {
-          return res.status(403).json({
-            ok: false,
-            error: "Mot de passe actuel incorrect.",
-          });
+          return res.status(403).json({ ok: false, error: "Mot de passe actuel incorrect." });
         }
         const lic = await worker.validateAccompagnementLicense(workerUrl, email, key);
         if (!lic.ok) {
-          return res.status(403).json({
-            ok: false,
-            error: "Mot de passe actuel incorrect.",
-          });
+          return res.status(403).json({ ok: false, error: "Mot de passe actuel incorrect." });
         }
       }
     }
