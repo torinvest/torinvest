@@ -396,6 +396,41 @@ function licenceCrmProvisionFormationAccount(string $email): array
     }
 }
 
+/**
+ * Envoie le mot de passe formation par Brevo (ne fait pas échouer le reset si Brevo down).
+ *
+ * @return array{ok:bool,brevo?:mixed,error?:string,skipped?:bool}
+ */
+function licenceCrmSendFormationPasswordBrevo(string $email, string $password): array
+{
+    $email = strtolower(trim($email));
+    $password = trim($password);
+    if ($password === '') {
+        return ['ok' => false, 'skipped' => true, 'error' => 'password_missing'];
+    }
+    if (trim((string) (licenceCrmConfig()['brevo_api_key'] ?? '')) === '') {
+        return ['ok' => false, 'skipped' => true, 'error' => 'brevo_api_key_missing'];
+    }
+
+    $record = licenceCrmFindActiveByEmailPlan($email, 'ACCOMPAGNEMENT')
+        ?: licenceCrmFindActiveByEmailPlan($email, 'VIP');
+
+    try {
+        require_once __DIR__ . '/brevo-lib.php';
+        $sent = brevoSendFormationPasswordEmail([
+            'email' => $email,
+            'first_name' => (string) ($record['first_name'] ?? ''),
+            'last_name' => (string) ($record['last_name'] ?? ''),
+            'license' => (string) ($record['license_code'] ?? ''),
+            'formation_password' => $password,
+            'access_links' => licenceCrmAccessLinks(),
+        ]);
+        return ['ok' => true, 'brevo' => $sent];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => $e->getMessage()];
+    }
+}
+
 function licenceProvisionWebhookSecret(): string
 {
     $cfg = licenceCrmConfig();
@@ -1619,14 +1654,37 @@ function licenceCrmResendBrevoLicenseEmail(string $email, ?string $type = null):
     }
 
     require_once __DIR__ . '/brevo-lib.php';
-    $sent = brevoSendLicenseEmail((string) $type, [
-        'email' => $email,
-        'first_name' => (string) ($record['first_name'] ?? ''),
-        'last_name' => (string) ($record['last_name'] ?? ''),
-        'license' => (string) $record['license_code'],
-        'activation_code' => (string) ($record['activation_code'] ?? ''),
-        'access_links' => licenceCrmAccessLinks(),
-    ]);
+    $formationPassword = trim((string) ($input['formation_password'] ?? $input['password'] ?? ''));
+    // Si demandé, (re)génère un MDP formation avant l’email
+    if (!empty($input['reset_formation_password']) || !empty($input['include_formation_password'])) {
+        if ($formationPassword === '' && (string) $type === 'ACCOMPAGNEMENT') {
+            $formation = licenceCrmProvisionFormationAccount($email);
+            if (!empty($formation['ok']) && !empty($formation['password'])) {
+                $formationPassword = (string) $formation['password'];
+            }
+        }
+    }
+
+    if ($formationPassword !== '') {
+        $sent = brevoSendFormationPasswordEmail([
+            'email' => $email,
+            'first_name' => (string) ($record['first_name'] ?? ''),
+            'last_name' => (string) ($record['last_name'] ?? ''),
+            'license' => (string) $record['license_code'],
+            'formation_password' => $formationPassword,
+            'access_links' => licenceCrmAccessLinks(),
+        ]);
+    } else {
+        $sent = brevoSendLicenseEmail((string) $type, [
+            'email' => $email,
+            'first_name' => (string) ($record['first_name'] ?? ''),
+            'last_name' => (string) ($record['last_name'] ?? ''),
+            'license' => (string) $record['license_code'],
+            'activation_code' => (string) ($record['activation_code'] ?? ''),
+            'access_links' => licenceCrmAccessLinks(),
+            'formation_password' => $formationPassword,
+        ]);
+    }
 
     return [
         'ok' => true,
@@ -1634,6 +1692,7 @@ function licenceCrmResendBrevoLicenseEmail(string $email, ?string $type = null):
         'email' => $email,
         'type' => $type,
         'license' => (string) $record['license_code'],
+        'formation_password' => $formationPassword !== '' ? $formationPassword : null,
         'brevo' => $sent,
     ];
 }
