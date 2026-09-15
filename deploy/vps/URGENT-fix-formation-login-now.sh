@@ -9,13 +9,17 @@
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${TORINVEST_DEPLOY_REF:-main}"
+REF="${TORINVEST_DEPLOY_REF:-cursor/urgent-formation-login-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
+# Fichiers auth déjà merge sur main ; script + ensure-* sur cette branche
+AUTH_REF="${TORINVEST_AUTH_REF:-main}"
+AUTH_RAW="https://raw.githubusercontent.com/torinvest/torinvest/${AUTH_REF}"
 CLIENT_EMAIL="${CLIENT_EMAIL:-nassim.harrat92000@gmail.com}"
 API_DIR="${API_DIR:-/var/www/torinvest/api}"
 
 echo "=========================================="
 echo " URGENT fix login La Forge ($REF)"
+echo " auth files: $AUTH_REF"
 echo " APP_DIR=$APP_DIR"
 echo " CLIENT=$CLIENT_EMAIL"
 echo "=========================================="
@@ -29,32 +33,34 @@ mkdir -p "$APP_DIR/server-patches" "$APP_DIR/public" "$APP_DIR/public/js" "$APP_
 
 echo "==> 1) Fichiers auth formation"
 for f in routes-formation-auth.js accompagnement-worker-lib.js formation-users-lib.js; do
-  curl -fsSL "$RAW/deploy/vps/formation-server/$f" -o "$APP_DIR/server-patches/$f"
+  curl -fsSL "$AUTH_RAW/deploy/vps/formation-server/$f" -o "$APP_DIR/server-patches/$f"
   echo "  OK $f"
 done
 
 echo "==> 2) Pages login + forgot + account-password"
 for page in login.html forgot-password.html account-password.html; do
-  curl -fsSL "$RAW/deploy/vps/app-shells/$page" -o "$APP_DIR/public/$page"
+  curl -fsSL "$AUTH_RAW/deploy/vps/app-shells/$page" -o "$APP_DIR/public/$page"
   echo "  OK public/$page"
 done
-curl -fsSL "$RAW/la-forge/js/auth.js" -o "$APP_DIR/public/js/auth.js"
+curl -fsSL "$AUTH_RAW/la-forge/js/auth.js" -o "$APP_DIR/public/js/auth.js"
 
-echo "==> 3) Placer le pont auth AVANT /api/login natif"
-curl -fsSL "$RAW/deploy/vps/relocate-accompagnement-auth.js" -o /tmp/relocate-acc-auth.js
-node /tmp/relocate-acc-auth.js "$APP_DIR"
+echo "==> 3) Placer le pont auth APRÈS express-session (critique)"
+curl -fsSL "$RAW/deploy/vps/ensure-accompagnement-after-session.js" -o /tmp/ensure-acc-after-session.js
+node /tmp/ensure-acc-after-session.js "$APP_DIR"
 
 # Garde-fou : le login ne doit PLUS faire next() vers Identifiants incorrects
 if ! grep -q 'Ne jamais déléguer' "$APP_DIR/server-patches/routes-formation-auth.js"; then
   echo "ERREUR: routes-formation-auth.js trop ancien (pas le fix délégation)"
   exit 1
 fi
-if grep -q 'return next();' "$APP_DIR/server-patches/routes-formation-auth.js"; then
-  # next() encore présent sur /api/me est OK ; vérifier qu'il n'y a plus next() en fin de login
-  if grep -n 'return next()' "$APP_DIR/server-patches/routes-formation-auth.js" | grep -v '/api/me' | grep -q .; then
-    echo "WARN: return next() encore présent hors /api/me — vérifier manuellement"
-    grep -n 'return next()' "$APP_DIR/server-patches/routes-formation-auth.js" || true
-  fi
+
+# Vérifier ordre dans server.js : session avant ACCOMPAGNEMENT_AUTH
+SESSION_LINE="$(grep -n 'app.use(session' "$APP_DIR/server.js" | head -1 | cut -d: -f1 || true)"
+AUTH_LINE="$(grep -n 'ACCOMPAGNEMENT_AUTH_BEGIN' "$APP_DIR/server.js" | head -1 | cut -d: -f1 || true)"
+echo "  session L${SESSION_LINE:-?} / auth L${AUTH_LINE:-?}"
+if [[ -n "$SESSION_LINE" && -n "$AUTH_LINE" && "$AUTH_LINE" -le "$SESSION_LINE" ]]; then
+  echo "ERREUR: auth encore AVANT session — abort"
+  exit 1
 fi
 
 node --check "$APP_DIR/server-patches/routes-formation-auth.js"
@@ -76,7 +82,7 @@ sleep 3
 echo "==> 5) Radar API (Brevo + list MDP + provision_formation)"
 if [[ -d "$API_DIR" ]]; then
   for f in admin-licence.php admin-licence-lib.php brevo-lib.php formation-provision-lib.php; do
-    sudo curl -fsSL -o "$API_DIR/$f" "$RAW/api/$f"
+    sudo curl -fsSL -o "$API_DIR/$f" "$AUTH_RAW/api/$f"
     echo "  OK api/$f"
   done
   sudo chown www-data:www-data "$API_DIR"/admin-licence.php "$API_DIR"/admin-licence-lib.php \
@@ -108,17 +114,21 @@ else
 fi
 
 echo "==> 7) Tests login"
-echo "--- TOR clé fake (doit être message licence, PAS Identifiants incorrects) ---"
+echo "--- TOR clé fake (doit être message licence, PAS Identifiants / PAS session_missing) ---"
 TOR_RESP="$(curl -sS -X POST 'http://127.0.0.1:3001/api/login' \
   -H 'Content-Type: application/json' \
   -c /tmp/forge-login.cj -b /tmp/forge-login.cj \
   -d "{\"email\":\"$CLIENT_EMAIL\",\"password\":\"TOR-ACCOMPAGNEMENT-TEST-FAKE\"}")"
 echo "$TOR_RESP"
 if echo "$TOR_RESP" | grep -q 'Identifiants incorrects'; then
-  echo "FAIL: login délègue encore au natif. Relocate / ordre middlewares cassé."
+  echo "FAIL: login délègue encore au natif."
   exit 1
 fi
-echo "OK: plus de « Identifiants incorrects » sur clé TOR"
+if echo "$TOR_RESP" | grep -q 'session_missing'; then
+  echo "FAIL: req.session absent — auth encore avant express-session."
+  exit 1
+fi
+echo "OK: pont auth actif (plus Identifiants incorrects / session_missing)"
 
 if [[ -n "$NEW_PASS" ]]; then
   echo "--- Mot de passe fraîchement généré ---"
@@ -127,10 +137,11 @@ if [[ -n "$NEW_PASS" ]]; then
     -c /tmp/forge-login2.cj -b /tmp/forge-login2.cj \
     -d "{\"email\":\"$CLIENT_EMAIL\",\"password\":\"$NEW_PASS\"}")"
   echo "$PASS_RESP"
-  if echo "$PASS_RESP" | grep -q '"ok":true\|"subscribed"'; then
+  if echo "$PASS_RESP" | grep -Eq '"ok"[[:space:]]*:[[:space:]]*true'; then
     echo "OK LOGIN PASSWORD"
   else
     echo "FAIL login password — vérifie users.json / bcrypt"
+    ls -la "$APP_DIR/data/users.json" 2>/dev/null || true
     exit 1
   fi
 fi
