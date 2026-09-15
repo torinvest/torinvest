@@ -98,5 +98,8 @@ function formationProvisionAccompagnementUser(string $email, array $opts = []): 
     if (!empty($data['password'])) {
         $out['password'] = (string) $data['password'];
     }
+    if (isset($data['brevo']) && is_array($data['brevo'])) {
+        $out['brevo'] = $data['brevo'];
+    }
     return $out;
 }

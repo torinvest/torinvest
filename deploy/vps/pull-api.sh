@@ -16,6 +16,7 @@ FILES=(
   admin-licence.php
   admin-licence-lib.php
   formation-provision-lib.php
+  formation-password-mail.php
   license-provision.php
   stripe-webhook.php
   stripe-lib.php
@@ -42,8 +43,7 @@ for f in "${FILES[@]}"; do
   echo "→ $f"
   curl -fsSL -o "/tmp/$f" "$BASE/$f"
   sudo mv "/tmp/$f" "$API_DIR/$f"
+  sudo chown www-data:www-data "$API_DIR/$f"
 done
 
-sudo chown www-data:www-data "${FILES[@]/#/$API_DIR/}"
-ls -la "${FILES[@]/#/$API_DIR/}"
-echo "OK — API radar à jour."
+echo "OK — API radar à jour ($(date -Is))."
