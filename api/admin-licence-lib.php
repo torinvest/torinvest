@@ -122,6 +122,21 @@ function licenceCrmPdo(): PDO
         )'
     );
     $pdo->exec('CREATE INDEX IF NOT EXISTS idx_stripe_events_ref ON stripe_webhook_events(stripe_ref)');
+    $pdo->exec(
+        'CREATE TABLE IF NOT EXISTS formation_password_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            created_at TEXT NOT NULL,
+            email TEXT NOT NULL,
+            password_plain TEXT NOT NULL,
+            license_code TEXT,
+            source TEXT,
+            brevo_ok INTEGER,
+            brevo_error TEXT,
+            notes TEXT
+        )'
+    );
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_formation_pwd_email ON formation_password_events(email)');
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_formation_pwd_created ON formation_password_events(created_at)');
     return $pdo;
 }
 
@@ -394,6 +409,87 @@ function licenceCrmProvisionFormationAccount(string $email): array
     } catch (Throwable $e) {
         return ['ok' => false, 'error' => $e->getMessage()];
     }
+}
+
+/**
+ * Enregistre un mot de passe formation généré (suivi CRM admin).
+ * Stockage clair côté CRM uniquement — usage support / renvoi client.
+ */
+function licenceCrmLogFormationPassword(string $email, string $password, array $meta = []): int
+{
+    $email = strtolower(trim($email));
+    $password = trim($password);
+    if ($email === '' || $password === '') {
+        return 0;
+    }
+
+    $license = trim((string) ($meta['license_code'] ?? $meta['license'] ?? ''));
+    if ($license === '') {
+        $record = licenceCrmFindActiveByEmailPlan($email, 'ACCOMPAGNEMENT')
+            ?: licenceCrmFindActiveByEmailPlan($email, 'VIP');
+        $license = (string) ($record['license_code'] ?? '');
+    }
+
+    $brevoOk = null;
+    $brevoError = null;
+    if (array_key_exists('brevo_ok', $meta)) {
+        $brevoOk = !empty($meta['brevo_ok']) ? 1 : 0;
+    }
+    if (!empty($meta['brevo_error'])) {
+        $brevoError = (string) $meta['brevo_error'];
+    }
+
+    $pdo = licenceCrmPdo();
+    $stmt = $pdo->prepare(
+        'INSERT INTO formation_password_events (
+            created_at, email, password_plain, license_code, source, brevo_ok, brevo_error, notes
+        ) VALUES (
+            :created_at, :email, :password_plain, :license_code, :source, :brevo_ok, :brevo_error, :notes
+        )'
+    );
+    $stmt->execute([
+        ':created_at' => gmdate('c'),
+        ':email' => $email,
+        ':password_plain' => $password,
+        ':license_code' => $license !== '' ? $license : null,
+        ':source' => (string) ($meta['source'] ?? 'crm'),
+        ':brevo_ok' => $brevoOk,
+        ':brevo_error' => $brevoError,
+        ':notes' => isset($meta['notes']) ? (string) $meta['notes'] : null,
+    ]);
+    return (int) $pdo->lastInsertId();
+}
+
+/**
+ * @return list<array<string,mixed>>
+ */
+function licenceCrmListFormationPasswords(int $limit = 200, ?string $email = null): array
+{
+    $limit = max(1, min(500, $limit));
+    $pdo = licenceCrmPdo();
+    $email = $email !== null ? strtolower(trim($email)) : '';
+    if ($email !== '') {
+        $stmt = $pdo->prepare(
+            'SELECT * FROM formation_password_events WHERE lower(email) = :email
+             ORDER BY id DESC LIMIT ' . $limit
+        );
+        $stmt->execute([':email' => $email]);
+    } else {
+        $stmt = $pdo->query(
+            'SELECT * FROM formation_password_events ORDER BY id DESC LIMIT ' . $limit
+        );
+    }
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return is_array($rows) ? $rows : [];
+}
+
+/**
+ * Dernier mot de passe connu par email (pour affichage rapide).
+ */
+function licenceCrmLatestFormationPassword(string $email): ?array
+{
+    $rows = licenceCrmListFormationPasswords(1, $email);
+    return $rows[0] ?? null;
 }
 
 /**
@@ -1605,8 +1701,21 @@ function licenceCrmAttachBrevoAfterCreate(string $planType, array $result): arra
         return $result;
     }
 
+    $pwd = trim((string) ($result['formation_password'] ?? ''));
+    if ($pwd === '' && !empty($result['formation']['password'])) {
+        $pwd = trim((string) $result['formation']['password']);
+    }
+
     if (trim((string) (licenceCrmConfig()['brevo_api_key'] ?? '')) === '') {
         $result['brevo'] = ['brevo' => 'skipped', 'reason' => 'not_configured'];
+        if ($pwd !== '') {
+            licenceCrmLogFormationPassword((string) ($result['email'] ?? ''), $pwd, [
+                'source' => 'create_' . strtolower($planType),
+                'license_code' => (string) ($result['license'] ?? $result['code'] ?? ''),
+                'brevo_ok' => false,
+                'brevo_error' => 'brevo_api_key_missing',
+            ]);
+        }
         return $result;
     }
 
@@ -1620,6 +1729,18 @@ function licenceCrmAttachBrevoAfterCreate(string $planType, array $result): arra
         $result['brevo'] = [
             'brevo' => ['email_error' => $e->getMessage()],
         ];
+    }
+
+    if ($pwd !== '') {
+        $brevoInner = $result['brevo']['brevo'] ?? $result['brevo'] ?? [];
+        $emailErr = is_array($brevoInner) ? ($brevoInner['email_error'] ?? null) : null;
+        licenceCrmLogFormationPassword((string) ($result['email'] ?? ''), $pwd, [
+            'source' => 'create_' . strtolower($planType),
+            'license_code' => (string) ($result['license'] ?? $result['code'] ?? ''),
+            'brevo_ok' => empty($emailErr) && (($result['brevo']['brevo']['email'] ?? null) !== null
+                || (is_array($brevoInner) && isset($brevoInner['messageId']))),
+            'brevo_error' => $emailErr,
+        ]);
     }
 
     return $result;

@@ -179,6 +179,14 @@ try {
             }
             $pwd = (string) ($formation['password'] ?? '');
             $brevo = licenceCrmSendFormationPasswordBrevo($email, $pwd);
+            $logId = 0;
+            if ($pwd !== '') {
+                $logId = licenceCrmLogFormationPassword($email, $pwd, [
+                    'source' => 'provision_formation',
+                    'brevo_ok' => !empty($brevo['ok']),
+                    'brevo_error' => $brevo['error'] ?? ($brevo['skipped'] ? ($brevo['error'] ?? 'skipped') : null),
+                ]);
+            }
             licenceCrmJson([
                 'ok' => true,
                 'email' => $email,
@@ -187,6 +195,7 @@ try {
                 'formation' => $formation,
                 'subscribed' => !empty($formation['subscribed']),
                 'brevo' => $brevo,
+                'password_log_id' => $logId ?: null,
             ]);
 
         case 'send_formation_password_brevo':
@@ -196,6 +205,7 @@ try {
                 throw new InvalidArgumentException('Email client invalide');
             }
             $pwd = trim((string) ($input['password'] ?? $input['formation_password'] ?? ''));
+            $source = 'send_formation_password_brevo';
             if ($pwd === '') {
                 $formation = licenceCrmProvisionFormationAccount($email);
                 if (empty($formation['ok'])) {
@@ -206,14 +216,36 @@ try {
                     ], 502);
                 }
                 $pwd = (string) ($formation['password'] ?? '');
+                $source = 'send_formation_password_brevo_reset';
             }
             $brevo = licenceCrmSendFormationPasswordBrevo($email, $pwd);
+            $logId = 0;
+            if ($pwd !== '') {
+                $logId = licenceCrmLogFormationPassword($email, $pwd, [
+                    'source' => $source,
+                    'brevo_ok' => !empty($brevo['ok']),
+                    'brevo_error' => $brevo['error'] ?? null,
+                ]);
+            }
             licenceCrmJson([
                 'ok' => true,
                 'email' => $email,
                 'password' => $pwd !== '' ? $pwd : null,
                 'formation_password' => $pwd !== '' ? $pwd : null,
                 'brevo' => $brevo,
+                'password_log_id' => $logId ?: null,
+            ]);
+
+        case 'list_formation_passwords':
+            $emailFilter = trim((string) ($input['email'] ?? ''));
+            $rows = licenceCrmListFormationPasswords(
+                (int) ($input['limit'] ?? 200),
+                $emailFilter !== '' ? $emailFilter : null
+            );
+            licenceCrmJson([
+                'ok' => true,
+                'count' => count($rows),
+                'passwords' => $rows,
             ]);
 
         case 'list_stripe_events':
