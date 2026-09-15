@@ -31,7 +31,7 @@ const block = [
   "  }));",
   "  app.use(",
   "    createFormationAuthRouter({",
-  '      dataDir: path.join(__dirname, "data"),',
+  '      dataDir: process.env.FORGE_DATA_DIR || path.join(__dirname, "data"),',
   '      workerUrl: process.env.FORGE_WORKER_URL || process.env.WORKER_URL || "https://morning-hall-d8f6.onzerimes.workers.dev",',
   "      provisionSecret: process.env.FORGE_FORMATION_PROVISION_SECRET,",
   "    })",
