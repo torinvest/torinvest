@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 /**
- * Place TORINVEST_ACCOMPAGNEMENT_AUTH APRÈS express-session.
+ * Place TORINVEST_ACCOMPAGNEMENT_AUTH APRÈS le middleware de session.
+ * Détecte plusieurs formes : session(, cookieSession(, require('express-session'),
+ * ou const sess = session(...); app.use(sess).
  *
- * Bug prod : monté trop tôt → req.session undefined →
- * "Session serveur indisponible" / session_missing sur /api/login.
- *
- * Usage : node deploy/vps/ensure-accompagnement-after-session.js /home/ubuntu/torinvest-formation
+ * Usage : node ensure-accompagnement-after-session.js /home/ubuntu/torinvest-formation
  */
 "use strict";
 
@@ -38,14 +37,10 @@ const standaloneBlock = [
   "",
 ].join("\n");
 
-function findInsertAfterSession(text) {
-  const sessionUse = text.match(/app\.use\s*\(\s*session\s*\(/m);
-  if (!sessionUse || sessionUse.index < 0) return -1;
-
-  let i = sessionUse.index;
+function endOfCall(text, openParenIndex) {
   let depth = 0;
   let started = false;
-  for (; i < text.length; i++) {
+  for (let i = openParenIndex; i < text.length; i++) {
     const ch = text[i];
     if (ch === "(") {
       depth += 1;
@@ -62,75 +57,120 @@ function findInsertAfterSession(text) {
   return -1;
 }
 
+function findInsertAfterSession(text) {
+  const candidates = [];
+
+  const directPatterns = [
+    /app\.use\s*\(\s*session\s*\(/g,
+    /app\.use\s*\(\s*cookieSession\s*\(/g,
+    /app\.use\s*\(\s*require\s*\(\s*["']express-session["']\s*\)\s*\(/g,
+  ];
+  for (const re of directPatterns) {
+    let m;
+    while ((m = re.exec(text))) {
+      const open = text.indexOf("(", m.index);
+      const end = endOfCall(text, open);
+      if (end > 0) candidates.push({ end, via: m[0].slice(0, 40) });
+    }
+  }
+
+  // const foo = session({ ... }); app.use(foo)
+  const assignRe = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*session\s*\(/g;
+  let am;
+  while ((am = assignRe.exec(text))) {
+    const name = am[1];
+    const useRe = new RegExp(
+      "app\\.use\\s*\\(\\s*" + name.replace(/\$/g, "\\$") + "\\s*\\)",
+      "g"
+    );
+    let um;
+    while ((um = useRe.exec(text))) {
+      let end = um.index + um[0].length;
+      while (end < text.length && /[\s;]/.test(text[end])) end += 1;
+      candidates.push({ end, via: "app.use(" + name + ")" });
+    }
+  }
+
+  // cookie-session assign
+  const assignCookie = /(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*cookieSession\s*\(/g;
+  while ((am = assignCookie.exec(text))) {
+    const name = am[1];
+    const useRe = new RegExp(
+      "app\\.use\\s*\\(\\s*" + name.replace(/\$/g, "\\$") + "\\s*\\)",
+      "g"
+    );
+    let um;
+    while ((um = useRe.exec(text))) {
+      let end = um.index + um[0].length;
+      while (end < text.length && /[\s;]/.test(text[end])) end += 1;
+      candidates.push({ end, via: "app.use(" + name + ") cookie" });
+    }
+  }
+
+  if (!candidates.length) return { at: -1, via: null };
+  candidates.sort((a, b) => a.end - b.end);
+  // Prendre le DERNIER montage session (parfois cookie-parser puis session)
+  const last = candidates[candidates.length - 1];
+  return { at: last.end, via: last.via };
+}
+
 function stripAll(text) {
   let out = text;
-  let n = 0;
   const markedRe =
     /\/\* TORINVEST_ACCOMPAGNEMENT_AUTH_BEGIN \*\/[\s\S]*?\/\* TORINVEST_ACCOMPAGNEMENT_AUTH_END \*\/\s*/g;
   const marked = (out.match(markedRe) || []).length;
   if (marked) {
     out = out.replace(markedRe, "");
-    n += marked;
     console.log("OK — " + marked + " bloc(s) ACCOMPAGNEMENT_AUTH retiré(s)");
   }
-  // Orphelins
-  const reqRe =
-    /\n?const createFormationAuthRouter = require\(["']\.\/server-patches\/routes-formation-auth["']\);\s*/g;
-  const reqN = (out.match(reqRe) || []).length;
-  if (reqN) {
-    out = out.replace(reqRe, "\n");
-    n += reqN;
-  }
-  const useRe = /\n?app\.use\(\s*createFormationAuthRouter\(\{[\s\S]*?\}\)\s*\);\s*/g;
-  const useN = (out.match(useRe) || []).length;
-  if (useN) {
-    out = out.replace(useRe, "\n");
-    n += useN;
-    console.log("OK — " + useN + " app.use formation-auth orphelin(s) retiré(s)");
-  }
-  return { out, n };
+  out = out.replace(
+    /\n?const createFormationAuthRouter = require\(["']\.\/server-patches\/routes-formation-auth["']\);\s*/g,
+    "\n"
+  );
+  out = out.replace(/\n?app\.use\(\s*createFormationAuthRouter\(\{[\s\S]*?\}\)\s*\);\s*/g, "\n");
+  return out;
 }
 
-const stripped = stripAll(content);
-content = stripped.out;
+console.log("==> Diagnostic session dans server.js");
+const sessionLines = content
+  .split("\n")
+  .map((line, i) => ({ i: i + 1, line }))
+  .filter(({ line }) => /session/i.test(line) && !/^\s*\/\//.test(line))
+  .slice(0, 30);
+for (const { i, line } of sessionLines) {
+  console.log("  L" + i + ": " + line.trim().slice(0, 120));
+}
+if (!sessionLines.length) {
+  console.warn("WARN — aucun 'session' trouvé dans server.js");
+}
 
-let insertAt = findInsertAfterSession(content);
-if (insertAt < 0) {
-  // Repli : juste avant /api/login
+content = stripAll(content);
+
+let insert = findInsertAfterSession(content);
+if (insert.at < 0) {
   const loginRe = /app\.post\s*\(\s*["']\/api\/login["']/m;
   const m = content.match(loginRe);
   if (m && m.index >= 0) {
-    insertAt = m.index;
-    console.warn("WARN — express-session introuvable ; insertion avant /api/login");
+    insert = { at: m.index, via: "fallback-before-/api/login" };
+    console.warn("WARN — session non détectée ; insertion avant /api/login (" + insert.via + ")");
   }
 }
 
-if (insertAt < 0) {
-  console.error("ERREUR: ni session ni /api/login trouvés dans server.js");
+if (insert.at < 0) {
+  console.error("ERREUR: impossible de trouver session ni /api/login");
   process.exit(1);
 }
 
-// Vérifier que l'insertion est bien APRÈS session si session existe
-const sessionAt = (() => {
-  const m = content.match(/app\.use\s*\(\s*session\s*\(/m);
-  return m ? m.index : -1;
-})();
-if (sessionAt >= 0 && insertAt <= sessionAt) {
-  console.error("ERREUR: point d'insertion avant session — abort");
-  process.exit(1);
-}
+console.log("OK — insertion via:", insert.via, "at", insert.at);
+content = content.slice(0, insert.at) + standaloneBlock + content.slice(insert.at);
 
-content = content.slice(0, insertAt) + standaloneBlock + content.slice(insertAt);
-console.log("OK — bloc accompagnement inséré APRÈS express-session (insertAt=" + insertAt + ")");
-
-if (!/require\(["']path["']\)/.test(content) && !/require\(['"]path['"]\)/.test(content)) {
+if (!/require\(["']path["']\)/.test(content)) {
   content = 'const path = require("path");\n' + content;
-  console.log("OK — require('path') ajouté");
 }
 
 const mounts = (content.match(/app\.use\(\s*createFormationAuthRouter/g) || []).length;
 if (mounts !== 1) {
-  console.error("ERREUR: " + mounts + " montages createFormationAuthRouter — attendu 1");
+  console.error("ERREUR: " + mounts + " montages — attendu 1");
   process.exit(1);
 }
 
