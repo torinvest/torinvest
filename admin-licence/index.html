@@ -161,6 +161,7 @@
           <button class="tab" data-tab="forge" type="button">TorPass FORGE (tokens)</button>
           <button class="tab" data-tab="activate" type="button">Activer VIP</button>
           <button class="tab" data-tab="history" type="button">Historique</button>
+          <button class="tab" data-tab="passwords" type="button">Mots de passe formation</button>
           <button class="tab" data-tab="members" type="button">Membres site</button>
           <button class="tab" data-tab="watch" type="button">Surveillance Netlify</button>
           <button class="tab" data-tab="stripe" type="button">Stripe / Brevo</button>
@@ -256,6 +257,34 @@
                 </tr>
               </thead>
               <tbody id="histBody"><tr><td colspan="8">Chargement…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="panel-passwords" class="panel">
+          <p class="hint">
+            Suivi des <b>mots de passe formation</b> générés depuis le CRM (reset / création accompagnement).
+            Visible admin uniquement — pour renvoyer les identifiants au client.
+            Les resets faits <em>avant</em> ce déploiement n’apparaissent pas.
+          </p>
+          <div class="toolbar" style="margin-top:12px">
+            <label style="margin:0">Filtrer email</label>
+            <input id="pwdFilterEmail" type="email" placeholder="client@gmail.com" style="min-width:220px" />
+            <button class="btn secondary" type="button" id="pwdRefreshBtn">Rafraîchir</button>
+          </div>
+          <div style="overflow-x:auto;margin-top:12px">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Email</th>
+                  <th>Mot de passe</th>
+                  <th>Licence</th>
+                  <th>Source</th>
+                  <th>Brevo</th>
+                </tr>
+              </thead>
+              <tbody id="pwdBody"><tr><td colspan="6">Ouvre cet onglet pour charger…</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -519,6 +548,43 @@
       }).join("");
     }
 
+    async function loadFormationPasswords() {
+      const email = (document.getElementById("pwdFilterEmail").value || "").trim();
+      const tbody = document.getElementById("pwdBody");
+      tbody.innerHTML = "<tr><td colspan='6'>Chargement…</td></tr>";
+      const data = await api("list_formation_passwords", {
+        limit: 200,
+        email: email || undefined,
+      });
+      if (!data.ok || !data.passwords || !data.passwords.length) {
+        tbody.innerHTML =
+          "<tr><td colspan='6'>Aucun mot de passe enregistré. " +
+          "Fais un <b>Créer / reset mot de passe formation</b> (après déploiement API radar) pour commencer le suivi.</td></tr>";
+        return;
+      }
+      tbody.innerHTML = data.passwords.map(function (r) {
+        const pwd = r.password_plain || "";
+        let brevoCell = "—";
+        if (r.brevo_ok === 1 || r.brevo_ok === "1") {
+          brevoCell = "<span class='ok'>envoyé</span>";
+        } else if (r.brevo_ok === 0 || r.brevo_ok === "0") {
+          brevoCell = "<span class='bad'>" + esc(r.brevo_error || "échec") + "</span>";
+        }
+        return "<tr>" +
+          "<td>" + esc((r.created_at || "").replace("T", " ").slice(0, 19)) + "</td>" +
+          "<td>" + esc(r.email || "—") + "</td>" +
+          "<td class='mono'>" + esc(pwd || "—") +
+          (pwd
+            ? " <button type='button' class='copy-sm' data-copy='" + esc(pwd) + "'>copier</button>"
+            : "") +
+          "</td>" +
+          "<td class='mono'>" + esc(r.license_code || "—") + "</td>" +
+          "<td class='mono'>" + esc(r.source || "—") + "</td>" +
+          "<td>" + brevoCell + "</td>" +
+        "</tr>";
+      }).join("");
+    }
+
     document.querySelectorAll(".tab").forEach(function (btn) {
       btn.addEventListener("click", function () {
         document.querySelectorAll(".tab").forEach(function (b) { b.classList.remove("active"); });
@@ -526,10 +592,21 @@
         btn.classList.add("active");
         document.getElementById("panel-" + btn.dataset.tab).classList.add("active");
         if (btn.dataset.tab === "history") loadHistory().catch(function (e) { alert(e.message); });
+        if (btn.dataset.tab === "passwords") loadFormationPasswords().catch(function (e) { alert(e.message); });
         if (btn.dataset.tab === "members") loadMembers().catch(function (e) { alert(e.message); });
         if (btn.dataset.tab === "watch") loadWatch().catch(function (e) { alert(e.message); });
         if (btn.dataset.tab === "stripe") loadStripeEvents().catch(function (e) { alert(e.message); });
       });
+    });
+
+    document.getElementById("pwdRefreshBtn").addEventListener("click", function () {
+      loadFormationPasswords().catch(function (e) { alert(e.message); });
+    });
+    document.getElementById("pwdFilterEmail").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        loadFormationPasswords().catch(function (err) { alert(err.message); });
+      }
     });
 
     document.getElementById("stripeRefreshBtn").addEventListener("click", function () {
