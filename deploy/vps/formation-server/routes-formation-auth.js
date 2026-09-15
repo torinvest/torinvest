@@ -267,6 +267,23 @@ function createFormationAuthRouter(options) {
     return res.json({ ok: true, user: me, ...me });
   });
 
+  router.post("/api/logout", (req, res, next) => {
+    if (!req.session) return next();
+    const done = () => {
+      if (typeof req.session.destroy === "function") {
+        return req.session.destroy(() => res.json({ ok: true }));
+      }
+      try {
+        delete req.session.user;
+      } catch (_) {}
+      if (typeof req.session.save === "function") {
+        return req.session.save(() => res.json({ ok: true }));
+      }
+      return res.json({ ok: true });
+    };
+    return done();
+  });
+
   function rejectLogin(res, status, error, reason) {
     return res.status(status).json({ error, reason: reason || "login_failed" });
   }
