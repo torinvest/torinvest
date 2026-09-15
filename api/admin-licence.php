@@ -177,13 +177,43 @@ try {
                     'formation' => $formation,
                 ], 502);
             }
+            $pwd = (string) ($formation['password'] ?? '');
+            $brevo = licenceCrmSendFormationPasswordBrevo($email, $pwd);
             licenceCrmJson([
                 'ok' => true,
                 'email' => $email,
-                'password' => $formation['password'] ?? null,
-                'formation_password' => $formation['password'] ?? null,
+                'password' => $pwd !== '' ? $pwd : null,
+                'formation_password' => $pwd !== '' ? $pwd : null,
                 'formation' => $formation,
                 'subscribed' => !empty($formation['subscribed']),
+                'brevo' => $brevo,
+            ]);
+
+        case 'send_formation_password_brevo':
+            // Renvoi email MDP seul (CRM) — email + password déjà connus, ou reset+send.
+            $email = strtolower(trim((string) ($input['email'] ?? '')));
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw new InvalidArgumentException('Email client invalide');
+            }
+            $pwd = trim((string) ($input['password'] ?? $input['formation_password'] ?? ''));
+            if ($pwd === '') {
+                $formation = licenceCrmProvisionFormationAccount($email);
+                if (empty($formation['ok'])) {
+                    licenceCrmJson([
+                        'ok' => false,
+                        'error' => (string) ($formation['error'] ?? 'formation_provision_failed'),
+                        'formation' => $formation,
+                    ], 502);
+                }
+                $pwd = (string) ($formation['password'] ?? '');
+            }
+            $brevo = licenceCrmSendFormationPasswordBrevo($email, $pwd);
+            licenceCrmJson([
+                'ok' => true,
+                'email' => $email,
+                'password' => $pwd !== '' ? $pwd : null,
+                'formation_password' => $pwd !== '' ? $pwd : null,
+                'brevo' => $brevo,
             ]);
 
         case 'list_stripe_events':

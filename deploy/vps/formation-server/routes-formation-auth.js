@@ -280,14 +280,27 @@ function createFormationAuthRouter(options) {
     return res.json({ ok: true, user: me, ...me });
   });
 
+  function rejectLogin(res, status, error, reason) {
+    return res.status(status).json({ error, reason: reason || "login_failed" });
+  }
+
   router.post("/api/login", loginRateLimit, async (req, res, next) => {
-    if (!req.session) return next();
+    // Ne jamais déléguer au login natif : messages trompeurs (« Identifiants incorrects »)
+    // alors que la clé TOR / le pont Worker est le vrai chemin produit.
+    if (!req.session) {
+      return rejectLogin(
+        res,
+        500,
+        "Session serveur indisponible. Réessaie dans une minute.",
+        "session_missing"
+      );
+    }
 
     const email = users.normalizeEmail(req.body?.email);
     const rawPassword = String(req.body?.password || "");
     const password = worker.normalizeLicenseKey(rawPassword) || rawPassword.trim();
     if (!email || !password) {
-      return res.status(400).json({ error: "Email et mot de passe requis" });
+      return rejectLogin(res, 400, "Email et mot de passe requis", "missing_params");
     }
 
     const isTorKey = worker.looksLikeTorLicense(password);
@@ -298,10 +311,16 @@ function createFormationAuthRouter(options) {
       if (lic.ok) {
         return applyLicenseLogin(req, res, next, dataDir, lic, email);
       }
-      return res.status(licenseHttpStatus(lic.reason)).json({
-        error: licenseErrorMessage(lic.reason),
-        reason: lic.reason || "license_invalid",
-      });
+      // VIP seule → message clair (pas le login natif)
+      if (lic.reason === "not_accompagnement_plan") {
+        return rejectLogin(res, 403, licenseErrorMessage(lic.reason), lic.reason);
+      }
+      return rejectLogin(
+        res,
+        licenseHttpStatus(lic.reason),
+        licenseErrorMessage(lic.reason),
+        lic.reason || "license_invalid"
+      );
     }
 
     // Mot de passe compte (si existe)
@@ -310,10 +329,12 @@ function createFormationAuthRouter(options) {
     const hash = existing ? users.passwordHashFromUser(existing) : "";
     if (hash && (await users.verifyPassword(hash, rawPassword))) {
       if (!setSessionUser(req, email, !!existing.subscribed)) {
-        return res.status(500).json({
-          error: "Session serveur indisponible. Réessaie dans une minute.",
-          reason: "session_missing",
-        });
+        return rejectLogin(
+          res,
+          500,
+          "Session serveur indisponible. Réessaie dans une minute.",
+          "session_missing"
+        );
       }
       return finishLogin(req, res, next, { via: "password" });
     }
@@ -327,15 +348,131 @@ function createFormationAuthRouter(options) {
     const demo = matchDemoLogin(email, rawPassword);
     if (demo) {
       if (!setSessionUser(req, email, demo.subscribed)) {
-        return res.status(500).json({
-          error: "Session serveur indisponible. Réessaie dans une minute.",
-          reason: "session_missing",
-        });
+        return rejectLogin(
+          res,
+          500,
+          "Session serveur indisponible. Réessaie dans une minute.",
+          "session_missing"
+        );
       }
       return finishLogin(req, res, next, { via: "demo" });
     }
 
-    return next();
+    return rejectLogin(
+      res,
+      401,
+      "Email ou mot de passe incorrect. Utilise l’email Stripe + le mot de passe reçu par email, ou ta clé TOR-ACCOMPAGNEMENT.",
+      lic.reason || "invalid_credentials"
+    );
+  });
+
+  /**
+   * Client : définir un nouveau mot de passe en prouvant la licence TOR.
+   * Body: { email, license|password (clé TOR), newPassword }
+   */
+  router.post("/api/set-password-with-license", loginRateLimit, async (req, res) => {
+    const email = users.normalizeEmail(req.body?.email);
+    const rawKey = String(req.body?.license || req.body?.password || "");
+    const key = worker.normalizeLicenseKey(rawKey) || rawKey.trim();
+    const newPassword = String(req.body?.newPassword || req.body?.new_password || "").trim();
+
+    if (!email || !key) {
+      return res.status(400).json({ ok: false, error: "Email et clé TOR requis" });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        ok: false,
+        error: "Nouveau mot de passe : 8 caractères minimum",
+      });
+    }
+    if (!worker.looksLikeTorLicense(key)) {
+      return res.status(400).json({
+        ok: false,
+        error: "Colle ta clé TOR-ACCOMPAGNEMENT (reçue par email Brevo).",
+      });
+    }
+
+    const lic = await worker.validateAccompagnementLicense(workerUrl, email, key);
+    if (!lic.ok) {
+      return res.status(licenseHttpStatus(lic.reason)).json({
+        ok: false,
+        error: licenseErrorMessage(lic.reason),
+        reason: lic.reason || "license_invalid",
+      });
+    }
+
+    const sessionEmail = users.normalizeEmail(lic.boundEmail || email);
+    const passwordHash = await users.hashPassword(newPassword);
+    users.upsertUser(dataDir, sessionEmail, { passwordHash, subscribed: true });
+
+    if (req.session) {
+      setSessionUser(req, sessionEmail, true);
+    }
+
+    const body = {
+      ok: true,
+      email: sessionEmail,
+      message: "Mot de passe mis à jour. Tu peux te connecter avec ce nouveau mot de passe.",
+    };
+    if (typeof req.session?.save === "function") {
+      return req.session.save((err) => {
+        if (err) return res.status(500).json({ ok: false, error: "session_save_failed" });
+        return res.json(body);
+      });
+    }
+    return res.json(body);
+  });
+
+  /**
+   * Client connecté : changer le mot de passe.
+   * Body: { currentPassword?, newPassword }
+   * Si session ouverte via licence sans hash, currentPassword optionnel si newPassword ok.
+   */
+  router.post("/api/change-password", loginRateLimit, async (req, res) => {
+    const email = users.normalizeEmail(req.session?.user?.email);
+    if (!email) {
+      return res.status(401).json({ ok: false, error: "Connecte-toi d’abord." });
+    }
+    const currentPassword = String(req.body?.currentPassword || req.body?.current_password || "");
+    const newPassword = String(req.body?.newPassword || req.body?.new_password || "").trim();
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        ok: false,
+        error: "Nouveau mot de passe : 8 caractères minimum",
+      });
+    }
+
+    const store = users.readStore(dataDir);
+    const existing = users.findUser(store, email);
+    const hash = existing ? users.passwordHashFromUser(existing) : "";
+
+    if (hash) {
+      const okCurrent = await users.verifyPassword(hash, currentPassword);
+      if (!okCurrent) {
+        // Autoriser aussi la clé TOR comme « mot de passe actuel »
+        const key = worker.normalizeLicenseKey(currentPassword) || currentPassword.trim();
+        if (!worker.looksLikeTorLicense(key)) {
+          return res.status(403).json({
+            ok: false,
+            error: "Mot de passe actuel incorrect.",
+          });
+        }
+        const lic = await worker.validateAccompagnementLicense(workerUrl, email, key);
+        if (!lic.ok) {
+          return res.status(403).json({
+            ok: false,
+            error: "Mot de passe actuel incorrect.",
+          });
+        }
+      }
+    }
+
+    const passwordHash = await users.hashPassword(newPassword);
+    users.upsertUser(dataDir, email, {
+      passwordHash,
+      subscribed: !!(existing?.subscribed || req.session.user.subscribed),
+    });
+    return res.json({ ok: true, email, message: "Mot de passe mis à jour." });
   });
 
   router.post("/api/internal/formation-provision", async (req, res) => {

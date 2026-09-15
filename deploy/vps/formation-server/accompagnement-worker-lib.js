@@ -14,20 +14,20 @@ function isAccompagnementPlan(plan) {
 }
 
 function looksLikeTorLicense(value) {
-  const v = String(value || "")
-    .trim()
-    .toUpperCase()
-    .replace(/\s+/g, "");
+  const v = normalizeLicenseKey(value).toUpperCase();
+  if (!v) return false;
   return (
     v.startsWith("TOR-ACCOMPAGNEMENT") ||
     v.startsWith("TOR-ACCOMP") ||
-    /^TOR-[A-Z0-9-]+$/.test(v)
+    v.startsWith("TOR-VIP") ||
+    /^TOR-[A-Z0-9-]{8,}$/.test(v)
   );
 }
 
 function normalizeLicenseKey(value) {
   return String(value || "")
     .replace(/\u00a0/g, " ")
+    .replace(/[\u200B-\u200D\uFEFF]/g, "") // zero-width (copie depuis email)
     .replace(/[\r\n\t]+/g, "")
     .replace(/\s+/g, "")
     .trim();

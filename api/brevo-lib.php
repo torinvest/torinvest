@@ -115,6 +115,53 @@ function brevoAddContactToList(
     return brevoApiRequest('POST', '/contacts', $payload);
 }
 
+/**
+ * Email dédié : nouveau / reset mot de passe formation La Forge.
+ */
+function brevoSendFormationPasswordEmail(array $context): array
+{
+    $email = strtolower(trim((string) ($context['email'] ?? '')));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('Email Brevo invalide');
+    }
+    $password = trim((string) ($context['formation_password'] ?? $context['password'] ?? ''));
+    if ($password === '') {
+        throw new InvalidArgumentException('Mot de passe formation manquant pour Brevo');
+    }
+
+    $firstName = trim((string) ($context['first_name'] ?? ''));
+    $license = trim((string) ($context['license'] ?? ''));
+    $links = is_array($context['access_links'] ?? null) ? $context['access_links'] : licenceCrmAccessLinks();
+    $loginUrl = (string) ($links['appLoginUrl'] ?? 'https://app.torinvest-trading.com/login.html');
+    $forgotUrl = 'https://app.torinvest-trading.com/forgot-password.html';
+
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+
+    $html = '<div style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">';
+    $html .= '<div style="background:linear-gradient(135deg,#ffb400,#ff4b5c);padding:18px 22px;border-radius:12px 12px 0 0;">';
+    $html .= '<strong style="color:#1a1200;font-size:18px;">TORINVEST — La Forge</strong></div>';
+    $html .= '<div style="border:1px solid #eee;border-top:none;padding:22px;border-radius:0 0 12px 12px;">';
+    $html .= '<p>Bonjour' . ($firstName !== '' ? ' <strong>' . htmlspecialchars($firstName, ENT_QUOTES, 'UTF-8') . '</strong>' : '') . ',</p>';
+    $html .= '<p>Voici ton <strong>mot de passe</strong> pour te connecter à la formation La Forge.</p>';
+    $html .= '<p style="background:#f0f7ff;border:1px solid #b6d4fe;border-radius:10px;padding:14px;">';
+    $html .= 'Email : <code>' . htmlspecialchars($email, ENT_QUOTES, 'UTF-8') . '</code><br>';
+    $html .= 'Mot de passe : <code style="font-size:16px;letter-spacing:.03em;">' . htmlspecialchars($password, ENT_QUOTES, 'UTF-8') . '</code></p>';
+    $html .= '<p><a href="' . htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Se connecter à La Forge</a></p>';
+    if ($license !== '') {
+        $html .= '<p style="font-size:13px;color:#555;">Tu peux aussi te connecter avec ta clé licence <code>' . htmlspecialchars($license, ENT_QUOTES, 'UTF-8') . '</code> dans le champ mot de passe (même email Stripe).</p>';
+    }
+    $html .= '<p style="font-size:12px;color:#888;">Tu pourras changer ce mot de passe après connexion, ou via <a href="' . htmlspecialchars($forgotUrl, ENT_QUOTES, 'UTF-8') . '">mot de passe oublié</a>.</p>';
+    $html .= '</div></div>';
+
+    return brevoApiRequest('POST', '/smtp/email', [
+        'sender' => ['name' => $senderName, 'email' => $senderEmail],
+        'to' => [['email' => $email, 'name' => $firstName !== '' ? $firstName : $email]],
+        'subject' => 'TORINVEST — Ton mot de passe La Forge',
+        'htmlContent' => $html,
+    ]);
+}
+
 function brevoSendLicenseEmail(string $planType, array $context): array
 {
     $email = strtolower(trim((string) ($context['email'] ?? '')));
