@@ -344,8 +344,10 @@ function createFormationAuthRouter(options) {
       return finishLogin(req, res, next, { via: "demo" });
     }
 
-    // Compte natif La Forge (ex. abonne@torinvest-trading.com) — ne PAS bloquer
-    return next();
+    // Compte natif La Forge (ex. abonne@torinvest-trading.com) — sortir du router
+    // pour laisser app.post('/api/login') natif répondre. next() seul ne suffit pas
+    // toujours dans un Router Express monté avec app.use().
+    return next("router");
   });
 
   router.post("/api/set-password-with-license", loginRateLimit, async (req, res) => {
