@@ -1173,8 +1173,8 @@ body.forge-ambient > * {
 }
 .dash-card-visual img.dash-visual-icon {
   width: auto;
-  height: 72%;
-  max-width: 78%;
+  height: 88%;
+  max-width: 92%;
   object-fit: contain;
   position: absolute;
   left: 50%;
