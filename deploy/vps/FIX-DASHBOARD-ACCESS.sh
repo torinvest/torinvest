@@ -5,14 +5,14 @@
 #
 # À lancer SUR LE VPS (pas Windows/WSL) :
 #   ssh ubuntu@164.132.46.191
-#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/fix-dashboard-access-691a/deploy/vps/FIX-DASHBOARD-ACCESS.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/FIX-DASHBOARD-ACCESS.sh | bash
 #
 # Depuis ton PC (une seule commande) :
-#   ssh ubuntu@164.132.46.191 'curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/fix-dashboard-access-691a/deploy/vps/FIX-DASHBOARD-ACCESS.sh | bash'
+#   ssh ubuntu@164.132.46.191 'curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/FIX-DASHBOARD-ACCESS.sh | bash'
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${TORINVEST_DEPLOY_REF:-cursor/fix-dashboard-access-691a}"
+REF="${TORINVEST_DEPLOY_REF:-main}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 
 echo "======== FIX DASHBOARD ACCESS ========"
