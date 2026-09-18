@@ -53,18 +53,45 @@ function showAlert(el, message, type = "error") {
 }
 
 function forgeNextUrl(raw) {
-  // Par défaut : Premiers pas (onboarding), pas le dashboard nu.
   // Uniquement chemins relatifs same-origin (anti open-redirect phishing).
   const next = String(raw || "/start.html").trim();
   if (!next || next.startsWith("http") || next.startsWith("//") || next.includes("\\")) {
     return "/start.html";
   }
   if (next.startsWith("/")) {
-    // Bloque /\/evil.com et protocol-relative
     if (next.startsWith("//") || next.startsWith("/\\")) return "/start.html";
     return next;
   }
   return "/" + next;
+}
+
+/** Vérifie qu'une page membre est joignable (pas un 302→login) — évite la boucle qui « saute ». */
+async function forgePageReachable(path) {
+  try {
+    const res = await fetch(APP_ORIGIN + path, {
+      method: "GET",
+      credentials: "include",
+      redirect: "manual",
+      cache: "no-store",
+    });
+    if (res.status >= 200 && res.status < 300) return true;
+    if (res.status >= 300 && res.status < 400) {
+      const loc = String(res.headers.get("Location") || "");
+      if (loc.includes("login.html")) return false;
+      return true;
+    }
+    return false;
+  } catch (_) {
+    return false;
+  }
+}
+
+async function forgeSafeNext(raw) {
+  const target = forgeNextUrl(raw);
+  if (await forgePageReachable(target)) return target;
+  // Dashboard / course parfois paywall serveur native → fallback stable
+  if (await forgePageReachable("/start.html")) return "/start.html";
+  return "/login.html";
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -90,17 +117,27 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (loginForm) {
     const alertEl = document.getElementById("login-alert");
     const nextParam = new URLSearchParams(window.location.search).get("next");
+
+    // NE PLUS auto-rediriger dès qu'il y a ?next= — ça bouclait :
+    // getMe OK (cookie forge) → dashboard → 302 login?next=dashboard → ∞
+    // On ne redirige que si la cible est vraiment joignable (200).
     if (nextParam) {
       const already = await getMe();
-      if (already && nextParam.indexOf("fondamental") === -1) {
-        window.location.replace(forgeNextUrl(nextParam));
-        return;
-      }
-      if (already && nextParam.indexOf("fondamental") !== -1) {
-        window.location.replace(forgeNextUrl(nextParam));
-        return;
+      if (already) {
+        const dest = await forgeSafeNext(nextParam);
+        if (dest && !dest.includes("login.html")) {
+          window.location.replace(dest);
+          return;
+        }
+        // Session client OK mais page protégée serveur → rester sur login (stable)
+        showAlert(
+          alertEl,
+          "Session détectée mais l’accès page est bloqué côté serveur. Reconnecte-toi (email + mot de passe) ou ouvre Premiers pas.",
+          "error"
+        );
       }
     }
+
     loginForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(loginForm);
@@ -112,9 +149,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             password: fd.get("password"),
           }),
         });
-        window.location.href = forgeNextUrl(
+        const dest = await forgeSafeNext(
           new URLSearchParams(window.location.search).get("next")
         );
+        window.location.href = dest.includes("login.html") ? "/start.html" : dest;
       } catch (err) {
         showAlert(alertEl, err.message);
       }
@@ -129,3 +167,4 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 window.getMe = getMe;
 window.logout = logout;
+window.forgeSafeNext = forgeSafeNext;
