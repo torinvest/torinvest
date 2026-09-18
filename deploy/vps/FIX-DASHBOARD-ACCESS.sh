@@ -50,27 +50,23 @@ sleep 3
 echo "==> 6) Vérifs locales"
 LOGIN_CODE="$(curl -sS -o /dev/null -w '%{http_code}' 'http://127.0.0.1:3001/login.html' || true)"
 START_CODE="$(curl -sS -o /dev/null -w '%{http_code}' 'http://127.0.0.1:3001/start.html' || true)"
-# Sans cookie : dashboard peut rester 302 (OK) — l'important c'est la session forge
+# Après patch : dashboard HTML public (gate client) — doit être 200 comme start.html
 DASH_ANON="$(curl -sS -o /dev/null -w '%{http_code}' 'http://127.0.0.1:3001/dashboard.html' || true)"
+DASH_BODY="$(curl -sS 'http://127.0.0.1:3001/dashboard.html' | head -c 200 || true)"
 echo "login=$LOGIN_CODE start=$START_CODE dashboard_anon=$DASH_ANON"
-
-# Login démo / smoke : cookie forge → dashboard 200
-if [[ -f "$APP_DIR/data/users.json" ]]; then
-  SMOKE_EMAIL="$(node -e "
-    const u=require('$APP_DIR/data/users.json');
-    const list=Array.isArray(u)?u:(u.users||Object.values(u)||[]);
-    const hit=list.find(x=>x&&x.email&&(x.subscribed||x.passwordHash));
-    console.log(hit&&hit.email||'');
-  " 2>/dev/null || true)"
-  echo "smoke email hint: ${SMOKE_EMAIL:-none}"
-fi
 
 [[ "$LOGIN_CODE" == "200" ]] || { echo "ERREUR login pas 200"; exit 1; }
 [[ "$START_CODE" == "200" ]] || { echo "ERREUR start pas 200"; exit 1; }
+[[ "$DASH_ANON" == "200" ]] || {
+  echo "ERREUR dashboard encore bloqué (code=$DASH_ANON) — patch non effectif"
+  exit 1
+}
+echo "$DASH_BODY" | grep -qi 'html\|dashboard\|DOCTYPE' || {
+  echo "WARN: corps dashboard inhabituel (peut être OK si minifié)"
+}
 
-# Confirme que le patch est dans server.js
-if ! grep -q 'TORINVEST_FORGE_REQUIRE_AUTH_BEGIN\|TORINVEST_DASHBOARD_PUBLIC_BEGIN' "$APP_DIR/server.js"; then
-  echo "ERREUR: patch requireAuth/dashboard absent de server.js"
+if ! grep -q 'TORINVEST_DASHBOARD_PUBLIC_BEGIN' "$APP_DIR/server.js"; then
+  echo "ERREUR: marqueur TORINVEST_DASHBOARD_PUBLIC absent de server.js"
   exit 1
 fi
 if ! grep -q 'TORINVEST_FORGE_SESSION_SHIM_BEGIN' "$APP_DIR/server.js"; then
@@ -80,8 +76,8 @@ fi
 
 echo ""
 echo "================ SUCCESS ================"
+echo "dashboard.html répond 200 (auth côté client via /api/me)."
 echo "1) Ctrl+F5 https://app.torinvest-trading.com/login.html"
-echo "2) Connecte-toi (email + mot de passe)"
-echo "3) Tu dois arriver sur le dashboard (ou Premiers pas puis lien Dashboard)"
-echo "4) Lien direct : https://app.torinvest-trading.com/dashboard.html"
+echo "2) Connecte-toi → dashboard accessible"
+echo "3) Direct : https://app.torinvest-trading.com/dashboard.html"
 echo "========================================="
