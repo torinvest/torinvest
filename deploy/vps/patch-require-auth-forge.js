@@ -2,10 +2,10 @@
 /**
  * Rétablit l'accès /dashboard.html pour les sessions forge.
  *
- * Deux filets (les deux sont appliqués) :
- * 1) requireAuth accepte req.session.user (cookie torinvest_forge_sess)
- * 2) GET /dashboard.html servi tôt sans requireAuth natif (gate client getMe)
- *    — même modèle que start.html / calendar.html déjà en 200 public
+ * 1) requireAuth accepte req.session.user
+ * 2) Middleware PRIORITAIRE qui sert dashboard.html et ne fait JAMAIS next()
+ *    (évite 302 si le fichier existe ; erreur claire s'il manque)
+ * 3) Retire requireAuth des routes app.get(/dashboard.html, requireAuth, ...)
  *
  * Usage : node patch-require-auth-forge.js /home/ubuntu/torinvest-formation
  */
@@ -45,6 +45,12 @@ function stripMarked(src, begin, end) {
 
 text = stripMarked(text, MARK_BEGIN, MARK_END);
 text = stripMarked(text, MARK_MW_B, MARK_MW_E);
+
+// Retirer requireAuth des handlers dashboard explicites
+text = text.replace(
+  /app\.get\(\s*(\[[^\]]*\/dashboard\.html[^\]]*\]|['"]\/dashboard\.html['"]|['"]\/dashboard['"])\s*,\s*requireAuth\s*,/g,
+  "app.get($1, /* requireAuth removed TORINVEST */"
+);
 
 const forgeGuard = [
   MARK_BEGIN,
@@ -92,23 +98,40 @@ if (braces.length) {
   console.warn("WARN: définition requireAuth introuvable — filet public dashboard seulement");
 }
 
-// Toujours : route publique dashboard (avant middleware auth)
 const mw = [
   MARK_MW_B,
   "(function () {",
   '  const __path = require("path");',
   '  const __fs = require("fs");',
-  '  const dashFile = __path.join(__dirname, "public", "dashboard.html");',
-  "  function sendDash(req, res, next) {",
-  "    if (!__fs.existsSync(dashFile)) return next();",
-  "    return res.sendFile(dashFile, function (err) { if (err) next(err); });",
+  "  function resolveDashFile() {",
+  "    const candidates = [",
+  '      __path.join(__dirname, "public", "dashboard.html"),',
+  '      __path.join(__dirname, "public", "la-forge", "dashboard.html"),',
+  '      __path.join(process.cwd(), "public", "dashboard.html"),',
+  "    ];",
+  "    for (const f of candidates) {",
+  "      if (__fs.existsSync(f)) return f;",
+  "    }",
+  "    return null;",
   "  }",
-  '  app.get(["/dashboard.html", "/dashboard"], sendDash);',
-  "  // Si un middleware global redirige encore, court-circuiter avant",
-  "  app.use(function forgeDashPublic(req, res, next) {",
-  '    const p = String(req.path || "").split("?")[0];',
+  "  function sendDash(req, res) {",
+  "    const dashFile = resolveDashFile();",
+  "    if (!dashFile) {",
+  '      console.error("[forge-dash] dashboard.html introuvable sous public/");',
+  '      return res.status(500).type("text").send("dashboard.html missing on server");',
+  "    }",
+  "    return res.sendFile(dashFile, function (err) {",
+  "      if (err && !res.headersSent) {",
+  '        console.error("[forge-dash] sendFile", err && err.message);',
+  "        res.status(500).type('text').send('dashboard send failed');",
+  "      }",
+  "    });",
+  "  }",
+  "  // Premier middleware : ne JAMAIS next() pour dashboard (coupe tout requireAuth après)",
+  "  app.use(function forgeDashPublicFirst(req, res, next) {",
+  '    const p = String(req.path || req.url || "").split("?")[0];',
   '    if (p !== "/dashboard.html" && p !== "/dashboard") return next();',
-  "    return sendDash(req, res, next);",
+  "    return sendDash(req, res);",
   "  });",
   "})();",
   MARK_MW_E,
@@ -119,7 +142,6 @@ function findEarlyInsert(s) {
   const appDecl = /(?:const|let|var)\s+app\s*=\s*express\s*\(\s*\)\s*;?/.exec(s);
   if (appDecl) return appDecl.index + appDecl[0].length;
 
-  // Après cookie-parser / json si pas d'express() clair
   const patterns = [
     /app\.use\s*\(\s*(?:cookieParser|cookie-parser)\s*\(/,
     /app\.use\s*\(\s*express\.json\s*\(/,
@@ -158,7 +180,14 @@ if (insertAt < 0) {
   process.exit(1);
 }
 text = text.slice(0, insertAt) + "\n" + mw + text.slice(insertAt);
-console.log("OK route GET /dashboard.html publique (gate client) @", insertAt);
+console.log("OK middleware dashboard PRIORITAIRE (no next) @", insertAt);
+
+const dashOnDisk = path.join(APP_DIR, "public", "dashboard.html");
+if (!fs.existsSync(dashOnDisk)) {
+  console.warn("WARN: manque", dashOnDisk, "— le FIX script doit le télécharger avant restart");
+} else {
+  console.log("OK fichier présent:", dashOnDisk);
+}
 
 if (text === original) {
   console.log("Aucun changement");
