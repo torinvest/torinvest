@@ -1,5 +1,7 @@
 # Audit complet TORINVEST — septembre 2026
 
+> **Mise à jour 2026-09-18 :** voir [`AUDIT-COMPLET-2026-09-18.md`](./AUDIT-COMPLET-2026-09-18.md) (sondes live + fuite `/media` + dashboard 302).
+
 **Périmètre :** site public (`www.torinvest-trading.com`), CRM licences, API radar, formation La Forge (`app.torinvest-trading.com`), paiements Stripe/Brevo, ponts Atlas / Journal / Fondamental / TorPass / KRM.
 
 **Date :** 2026-09-06  
