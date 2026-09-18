@@ -6,6 +6,9 @@
 # À lancer SUR LE VPS (pas Windows/WSL) :
 #   ssh ubuntu@164.132.46.191
 #   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/fix-dashboard-access-691a/deploy/vps/FIX-DASHBOARD-ACCESS.sh | bash
+#
+# Depuis ton PC (une seule commande) :
+#   ssh ubuntu@164.132.46.191 'curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/fix-dashboard-access-691a/deploy/vps/FIX-DASHBOARD-ACCESS.sh | bash'
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
