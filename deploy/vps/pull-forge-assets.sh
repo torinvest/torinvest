@@ -68,6 +68,11 @@ IMG_FILES=(
   icon-bull.svg
   icon-bear.svg
   ict-atlas-icon.svg
+  dash-journal.svg
+  dash-books.svg
+  dash-atlas.svg
+  dash-resources.svg
+  dash-fonda.svg
 )
 
 if [[ ! -d "$APP_DIR/public/js" ]]; then

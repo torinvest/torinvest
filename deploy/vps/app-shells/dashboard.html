@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Espace membre — TORINVEST La Forge</title>
   <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
-  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/main.css?v=dashvis1" />
   <link rel="stylesheet" href="/css/legal.css" />
 </head>
 <body>
@@ -60,72 +60,114 @@
     </div>
 
     <div class="grid-2">
-      <div class="card forge-feature-card" id="course-access">
-        <h3>Parcours ÉLITE</h3>
-        <ul style="color:var(--muted);font-size:0.9rem;padding-left:1.2rem;margin:0.75rem 0;line-height:1.7">
-          <li id="dash-course-line">Module 0 → 37 · ICT/SMC · macro · pro avancé · mindset</li>
-          <li>Exercices chart · replays · quiz par module</li>
-          <li>Calendrier personnel · export JSON</li>
-        </ul>
-        <a class="btn btn-primary" href="/course/index.html" id="course-link">Ouvrir la formation</a>
-        <a class="btn btn-secondary" href="/calendar.html" id="calendar-link" style="margin-left:0.5rem">Calendrier</a>
+      <div class="card dash-card forge-feature-card" id="course-access">
+        <div class="dash-card-visual dash-card-visual--anvil" aria-hidden="true">
+          <img src="/img/forge-anvil.png" alt="" width="160" height="112" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Parcours ÉLITE</h3>
+          <ul style="color:var(--muted);font-size:0.9rem;padding-left:1.2rem;margin:0.75rem 0;line-height:1.7">
+            <li id="dash-course-line">Module 0 → 37 · ICT/SMC · macro · pro avancé · mindset</li>
+            <li>Exercices chart · replays · quiz par module</li>
+            <li>Calendrier personnel · export JSON</li>
+          </ul>
+          <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-top:auto">
+            <a class="btn btn-primary" href="/course/index.html" id="course-link">Ouvrir la formation</a>
+            <a class="btn btn-secondary" href="/calendar.html" id="calendar-link">Calendrier</a>
+          </div>
+        </div>
       </div>
-      <div class="card" id="fondamental-access">
-        <h3>Fondamental</h3>
-        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
-          Application macro & fondamentaux — <strong id="fonda-dash-meta">61 cours · ~13 h</strong>.
-          Accès <strong>Premium La Forge</strong> ou
-          <strong>TorPass ACADEMY</strong> (Phantom + ≥ 250 KRM).
-        </p>
-        <a class="btn btn-primary" href="/fondamental.html" id="fondamental-link">Ouvrir Fondamental</a>
+      <div class="card dash-card" id="fondamental-access">
+        <div class="dash-card-visual dash-card-visual--icon" aria-hidden="true">
+          <img class="dash-visual-icon" src="/img/dash-fonda.svg" alt="" width="160" height="96" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Fondamental</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
+            Application macro & fondamentaux — <strong id="fonda-dash-meta">61 cours · ~13 h</strong>.
+            Accès <strong>Premium La Forge</strong> ou
+            <strong>TorPass ACADEMY</strong> (Phantom + ≥ 250 KRM).
+          </p>
+          <a class="btn btn-primary" href="/fondamental.html" id="fondamental-link">Ouvrir Fondamental</a>
+        </div>
       </div>
-      <div class="card" id="journal-access">
-        <h3>Trading Journal</h3>
-        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
-          <strong>Trading Journal Pro</strong> (radar) — même espace formation Premium.
-        </p>
-        <a class="btn btn-primary" href="/journal.html" id="journal-link">Ouvrir le Journal</a>
+      <div class="card dash-card" id="journal-access">
+        <div class="dash-card-visual dash-card-visual--icon" aria-hidden="true">
+          <img class="dash-visual-icon" src="/img/dash-journal.svg" alt="" width="160" height="96" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Trading Journal</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
+            <strong>Trading Journal Pro</strong> (radar) — même espace formation Premium.
+          </p>
+          <a class="btn btn-primary" href="/journal.html" id="journal-link">Ouvrir le Journal</a>
+        </div>
       </div>
-      <div class="card" id="atlas-access">
-        <h3>USA War Atlas</h3>
-        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
-          Atlas géopolitique sourcé — interventions, territoires, timeline.
-          Accès <strong>Premium La Forge</strong>.
-        </p>
-        <a class="btn btn-primary" href="/atlas.html" id="atlas-link">Ouvrir Atlas</a>
+      <div class="card dash-card" id="atlas-access">
+        <div class="dash-card-visual dash-card-visual--icon" aria-hidden="true">
+          <img class="dash-visual-icon" src="/img/dash-atlas.svg" alt="" width="160" height="96" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>USA War Atlas</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
+            Atlas géopolitique sourcé — interventions, territoires, timeline.
+            Accès <strong>Premium La Forge</strong>.
+          </p>
+          <a class="btn btn-primary" href="/atlas.html" id="atlas-link">Ouvrir Atlas</a>
+        </div>
       </div>
-      <div class="card" id="ict-atlas-access">
-        <h3>Atlas ICT</h3>
-        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
-          12 fiches pédagogiques (liquidité, FVG, order blocks…) avec schémas annotés.
-          Ressource complémentaire — <strong>ne valide pas</strong> les modules.
-        </p>
-        <a class="btn btn-primary" href="/ict-atlas.html" id="ict-atlas-link">Ouvrir Atlas ICT</a>
+      <div class="card dash-card" id="ict-atlas-access">
+        <div class="dash-card-visual dash-card-visual--icon" aria-hidden="true">
+          <img class="dash-visual-icon" src="/img/ict-atlas-icon.svg" alt="" width="96" height="96" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Atlas ICT</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
+            12 fiches pédagogiques (liquidité, FVG, order blocks…) avec schémas annotés.
+            Ressource complémentaire — <strong>ne valide pas</strong> les modules.
+          </p>
+          <a class="btn btn-primary" href="/ict-atlas.html" id="ict-atlas-link">Ouvrir Atlas ICT</a>
+        </div>
       </div>
-      <div class="card" id="books-access">
-        <h3>Livres</h3>
-        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
-          Bibliothèque PDF complète (disque serveur) — ouverture réservée
-          <strong>Premium</strong>.
-        </p>
-        <a class="btn btn-primary" href="/books.html" id="books-link">Ouvrir les livres</a>
+      <div class="card dash-card" id="books-access">
+        <div class="dash-card-visual dash-card-visual--icon" aria-hidden="true">
+          <img class="dash-visual-icon" src="/img/dash-books.svg" alt="" width="160" height="96" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Livres</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
+            Bibliothèque PDF complète (disque serveur) — ouverture réservée
+            <strong>Premium</strong>.
+          </p>
+          <a class="btn btn-primary" href="/books.html" id="books-link">Ouvrir les livres</a>
+        </div>
       </div>
-      <div class="card" id="resources-access">
-        <h3>Ressources lives</h3>
-        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
-          Slides et PDF déposés après chaque live / module —
-          téléchargement <strong>Premium</strong>.
-        </p>
-        <a class="btn btn-primary" href="/resources.html" id="resources-link">Télécharger les slides</a>
+      <div class="card dash-card" id="resources-access">
+        <div class="dash-card-visual dash-card-visual--icon" aria-hidden="true">
+          <img class="dash-visual-icon" src="/img/dash-resources.svg" alt="" width="160" height="96" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Ressources lives</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
+            Slides et PDF déposés après chaque live / module —
+            téléchargement <strong>Premium</strong>.
+          </p>
+          <a class="btn btn-primary" href="/resources.html" id="resources-link">Télécharger les slides</a>
+        </div>
       </div>
-      <div class="card">
-        <h3>Live & communauté</h3>
-        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem">Complétez la formation par le terrain — sessions live chart.</p>
-        <div id="dash-live-pills" style="display:flex;flex-wrap:wrap;gap:0.4rem"></div>
-        <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">
-          Durée : <strong style="color:var(--gold)" id="dash-hours">~70 h</strong>
-        </p>
-        <p id="plan-text" style="color:var(--muted);margin-top:0.5rem">Chargement…</p>
+      <div class="card dash-card">
+        <div class="dash-card-visual dash-card-visual--live" aria-hidden="true">
+          <img src="/img/live-trading-banner.png" alt="" width="400" height="112" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Live & communauté</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem">Complétez la formation par le terrain — sessions live chart.</p>
+          <div id="dash-live-pills" style="display:flex;flex-wrap:wrap;gap:0.4rem"></div>
+          <p style="margin-top:1rem;font-size:0.85rem;color:var(--muted)">
+            Durée : <strong style="color:var(--gold)" id="dash-hours">~70 h</strong>
+          </p>
+          <p id="plan-text" style="color:var(--muted);margin-top:0.5rem">Chargement…</p>
+        </div>
       </div>
     </div>
   </div>
