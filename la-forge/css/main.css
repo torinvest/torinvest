@@ -18,6 +18,11 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html {
+  /* Évite le « saut » horizontal quand la scrollbar apparaît après injection header/footer */
+  scrollbar-gutter: stable;
+}
+
 body {
   font-family: "Segoe UI", system-ui, sans-serif;
   background: var(--bg);
@@ -40,6 +45,8 @@ header.site-header {
   justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: nowrap;
+  /* Réserve la hauteur avant injection JS (anti layout jump) */
+  min-height: 56px;
 }
 
 .logo { font-weight: 700; color: var(--gold); letter-spacing: 0.05em; }
@@ -759,7 +766,8 @@ body.forge-ambient {
     radial-gradient(ellipse 80% 50% at 90% -10%, rgba(255, 180, 40, 0.12), transparent 55%),
     radial-gradient(ellipse 60% 40% at -5% 100%, rgba(255, 215, 0, 0.06), transparent 50%),
     var(--bg);
-  background-attachment: fixed;
+  /* fixed provoque des sauts / jank au scroll sur Chromium & mobile */
+  background-attachment: scroll;
 }
 
 body.forge-ambient::before {
@@ -784,7 +792,18 @@ body.forge-ambient > * {
 .forge-logo-img {
   border-radius: 50%;
   box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.25), 0 0 18px rgba(255, 180, 40, 0.35);
+  /* Pas d'animation sur le logo principal login — ça faisait « sauter » la page */
+  animation: none;
+}
+.forge-emblem .forge-logo-img,
+.header-brand .forge-logo-img {
   animation: forgeEmber 3.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .forge-emblem .forge-logo-img,
+  .header-brand .forge-logo-img {
+    animation: none;
+  }
 }
 
 .forge-emblem {

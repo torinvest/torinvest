@@ -85,12 +85,15 @@ function rewriteForgeAssetUrls() {
       .replace("/la-forge/img/", "/img/");
   };
   document.querySelectorAll("img[src*='la-forge/img/'], img[src^='/img/']").forEach((el) => {
-    el.src = toLocal(el.getAttribute("src"));
+    const next = toLocal(el.getAttribute("src"));
+    // Ne pas réassigner si identique — sinon le navigateur recharge l'image (flash / saut)
+    if (next && el.getAttribute("src") !== next) el.setAttribute("src", next);
   });
   document.querySelectorAll('link[rel="icon"]').forEach((el) => {
     const href = el.getAttribute("href") || "";
     if (href.includes("la-forge/img/") || href.startsWith("/img/")) {
-      el.href = toLocal(href);
+      const next = toLocal(href);
+      if (next && href !== next) el.setAttribute("href", next);
     }
   });
 }
@@ -249,6 +252,15 @@ function forgeLogoHtml(size) {
 function forgeNavHref(path) {
   const onLaForge =
     window.location.pathname.startsWith("/la-forge/") || window.location.pathname === "/la-forge";
+  // Sur app.* : Accueil / Live / Tarifs pointent vers le site public (évite 404 + rebond)
+  if (isForgeAppHost()) {
+    if (path === "/" || path === "/#live") {
+      return forgeWwwOrigin() + "/la-forge/" + (path === "/#live" ? "#live" : "");
+    }
+    if (path === "/la-forge/pricing.html" || path.endsWith("/pricing.html")) {
+      return forgeWwwOrigin() + "/la-forge/pricing.html";
+    }
+  }
   if (path === "/#live" && onLaForge) return "/la-forge/#live";
   if (path === "/" && onLaForge) return "/la-forge/";
   return path;
@@ -258,7 +270,7 @@ function renderForgeHeader(active, extraNav) {
   const nav = [
     { id: "accueil", href: forgeNavHref("/"), label: "Accueil" },
     { id: "live", href: forgeNavHref("/#live"), label: "Live" },
-    { id: "tarifs", href: "/la-forge/pricing.html", label: "Tarifs" },
+    { id: "tarifs", href: forgeNavHref("/la-forge/pricing.html"), label: "Tarifs" },
     { id: "connexion", href: "https://app.torinvest-trading.com/login.html", label: "Connexion" },
   ];
   let navHtml =
