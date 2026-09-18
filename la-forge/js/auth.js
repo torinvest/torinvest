@@ -132,9 +132,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Session client OK mais page protégée serveur → rester sur login (stable)
         showAlert(
           alertEl,
-          "Session détectée mais l’accès page est bloqué côté serveur. Reconnecte-toi (email + mot de passe) ou ouvre Premiers pas.",
+          "Session OK — ouvre Premiers pas si le dashboard ne charge pas encore (déploiement serveur en cours).",
           "error"
         );
+        // Lien de secours stable
+        try {
+          const a = document.createElement("a");
+          a.href = "/start.html";
+          a.textContent = " → Premiers pas";
+          a.style.marginLeft = "0.35rem";
+          alertEl.appendChild(a);
+        } catch (_) {}
       }
     }
 
