@@ -24,6 +24,17 @@ RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^([^./]+)/?$ $1.html [L]
 
 # ---------------------------------------------------------------------------
+# Bloquer .git (fuite repo radar confirmée 2026-09-19)
+# ---------------------------------------------------------------------------
+RedirectMatch 404 /\.git
+<IfModule mod_authz_core.c>
+    <DirectoryMatch "(?i)/\.git">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>
+RewriteRule (^|/)\.git(/|$) - [F,L]
+
+# ---------------------------------------------------------------------------
 # Protéger la configuration locale
 # ---------------------------------------------------------------------------
 <Files "config.local.php">

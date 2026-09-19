@@ -222,7 +222,30 @@
     const SESSION_API = "https://radar.torinvest-trading.com/api/accompagnement-access.php";
     const CRYPTO_RADAR_URL = "https://radar.torinvest-trading.com/crypto-radar/";
     const params = new URLSearchParams(window.location.search);
-    const returnUrl = params.get("return") || "";
+    /** Anti open-redirect : only same-site radar paths or CRYPTO_RADAR default. */
+    function safeReturnUrl(raw) {
+      const v = String(raw || "").trim();
+      if (!v) return "";
+      try {
+        if (v.startsWith("/") && !v.startsWith("//")) {
+          // relative → force radar host
+          return "https://radar.torinvest-trading.com" + v;
+        }
+        const u = new URL(v, "https://radar.torinvest-trading.com");
+        const host = u.hostname.toLowerCase();
+        const allowed = [
+          "radar.torinvest-trading.com",
+          "www.torinvest-trading.com",
+          "torinvest-trading.com",
+          "app.torinvest-trading.com",
+        ];
+        if (allowed.indexOf(host) < 0) return "";
+        return u.href;
+      } catch (e) {
+        return "";
+      }
+    }
+    const returnUrl = safeReturnUrl(params.get("return") || "");
 
     const form = document.getElementById("accessForm");
     const adminForm = document.getElementById("adminForm");
