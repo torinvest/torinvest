@@ -4,7 +4,8 @@
 
 **Méthode :** revue code (repo `main` + branches) + sondes HTTP live le **2026-09-18**.  
 **Branche :** `cursor/audit-complet-site-691a`  
-**Précédent :** `docs/AUDIT-COMPLET-2026-09.md` (2026-09-06) — ce document le met à jour avec preuves live.
+**Précédent :** `docs/AUDIT-COMPLET-2026-09.md` (2026-09-06).  
+**Suivant :** `docs/AUDIT-COMPLET-2026-09-19.md` (dashboard OK ; `/media` encore ouvert ; **nouveau** `radar/.git` exposé).
 
 ---
 
