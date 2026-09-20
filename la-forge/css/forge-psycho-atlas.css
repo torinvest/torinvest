@@ -1,0 +1,319 @@
+/* Forge Styles Atlas — isolé sous #psycho-atlas-root */
+#psycho-atlas-root {
+  color-scheme: dark;
+  --bg: #0e1118;
+  --panel: #151a24;
+  --border: #2a3344;
+  --text: #eef1f6;
+  --muted: #9aa3b5;
+  --gold: #e8c36a;
+  --aqua: #7dd3c0;
+  --amber: #f0b429;
+  --bull: #3dcf8e;
+  --bear: #e07a6a;
+  --violet: #a78bfa;
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+#psycho-atlas-root * { box-sizing: border-box; }
+#psycho-atlas-root a { color: inherit; text-underline-offset: 4px; }
+#psycho-atlas-root button { font: inherit; cursor: pointer; }
+#psycho-atlas-root button:focus-visible,
+#psycho-atlas-root a:focus-visible,
+#psycho-atlas-root main:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 5px;
+}
+#psycho-atlas-root .skip {
+  position: absolute; top: -100px; z-index: 20;
+  background: var(--gold); color: #101413; padding: 12px;
+}
+#psycho-atlas-root .skip:focus { top: 0; }
+
+#psycho-atlas-root .topbar {
+  height: 88px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; background: var(--bg); position: relative; z-index: 5;
+}
+#psycho-atlas-root .brand {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 23px; font-weight: 750; letter-spacing: -1px; text-decoration: none;
+}
+#psycho-atlas-root .brand-light { font-weight: 400; color: var(--gold); margin-left: 2px; }
+#psycho-atlas-root .brandmark { color: var(--gold); font-size: 22px; margin-right: 6px; }
+#psycho-atlas-root .top-caption { font: 12px monospace; letter-spacing: 2px; color: var(--muted); }
+#psycho-atlas-root .source-link { font-size: 14px; text-decoration: none; }
+#psycho-atlas-root .source-link span { margin-left: 10px; color: var(--gold); }
+
+#psycho-atlas-root .shell {
+  max-width: 1600px; margin: auto;
+  display: grid; grid-template-columns: 264px minmax(0, 1fr);
+}
+#psycho-atlas-root aside {
+  padding: 36px 22px 25px 26px; border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; min-height: calc(100vh - 88px);
+}
+#psycho-atlas-root .nav-heading {
+  font-size: 12px; letter-spacing: 1.2px; display: flex; justify-content: space-between; margin-bottom: 23px;
+}
+#psycho-atlas-root .nav-heading span { font-size: 10px; color: var(--muted); }
+#psycho-atlas-root .nav-group {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 1.6px;
+  color: #7d8799; margin: 22px 12px 9px;
+}
+#psycho-atlas-root .nav-item {
+  padding: 10px 11px; display: flex; align-items: center; gap: 12px;
+  color: #b4bccb; text-decoration: none; border-radius: 5px;
+  font-size: 14px; margin: 3px 0; transition: background .15s, color .15s;
+}
+#psycho-atlas-root .nav-item:hover { background: #1c2433; color: #fff; }
+#psycho-atlas-root .nav-item.active {
+  background: rgba(255, 215, 0, 0.08); color: var(--gold);
+  box-shadow: inset 2px 0 var(--gold);
+}
+#psycho-atlas-root .nav-index { color: #6e788a; font: 12px monospace; }
+#psycho-atlas-root .active .nav-index { color: var(--gold); }
+#psycho-atlas-root .nav-arrow { margin-left: auto; font-size: 16px; }
+#psycho-atlas-root .sidebar-note {
+  border-top: 1px solid var(--border); margin: 36px 12px 0; padding-top: 22px;
+  font-size: 14px; color: #8590a3;
+}
+#psycho-atlas-root .sidebar-note p { line-height: 1.85; }
+#psycho-atlas-root .sidebar-note strong { color: #c5cddc; font-weight: 500; }
+#psycho-atlas-root .small-symbol { font-size: 28px; color: var(--gold); display: block; margin-bottom: 8px; }
+#psycho-atlas-root .sidebar-foot {
+  margin: 28px 12px 0; color: #6e788a; font: 10px monospace; letter-spacing: 1px;
+  display: flex; justify-content: space-between;
+}
+
+#psycho-atlas-root main { padding: 31px 48px 28px; min-width: 0; outline: none; }
+#psycho-atlas-root .breadcrumb {
+  font-size: 13px; color: #8a93a5; display: flex; gap: 14px; align-items: center; margin-bottom: 28px;
+}
+#psycho-atlas-root .breadcrumb > span:last-child { color: #c8d0de; }
+#psycho-atlas-root .lesson-heading { display: flex; justify-content: space-between; align-items: center; }
+#psycho-atlas-root .eyebrow { font: 12px monospace; letter-spacing: 1.7px; color: var(--gold); }
+#psycho-atlas-root h1 {
+  font-weight: 500; letter-spacing: -1.5px;
+  font-size: clamp(32px, 4vw, 52px); line-height: 1.15; margin: 10px 0 16px;
+}
+#psycho-atlas-root .lesson-number {
+  color: #2a3344; font: 72px monospace; font-weight: 400; letter-spacing: -5px; margin-left: 24px;
+}
+#psycho-atlas-root .lead {
+  font-size: 17px; line-height: 1.8; max-width: 760px; color: #a8b1c2; margin: 0 0 26px;
+}
+
+#psycho-atlas-root .chart-panel {
+  border: 1px solid #334055; border-radius: 10px;
+  background: linear-gradient(140deg, #171d2a, #121722); overflow: hidden;
+}
+#psycho-atlas-root .chart-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 22px; border-bottom: 1px solid var(--border); gap: 12px;
+}
+#psycho-atlas-root .chart-toolbar > div { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#psycho-atlas-root .chart-toolbar strong { font-size: 14px; font-weight: 500; }
+#psycho-atlas-root .chart-icon { color: var(--gold); font-size: 18px; }
+#psycho-atlas-root .tag {
+  border: 1px solid #3d475c; border-radius: 4px; padding: 2px 6px;
+  font: 10px monospace; color: #c5cddc; letter-spacing: .7px;
+}
+#psycho-atlas-root .replay-btn {
+  background: transparent; border: 1px solid var(--border); color: var(--muted);
+  border-radius: 5px; padding: 8px 12px; font-size: 13px;
+}
+#psycho-atlas-root .replay-btn:hover { color: var(--gold); border-color: rgba(255,215,0,.4); }
+#psycho-atlas-root .chart { padding: 8px 12px 0; overflow-x: auto; scrollbar-color: #4a5568 #171d2a; }
+#psycho-atlas-root .chart svg { display: block; width: 100%; height: auto; min-height: 220px; min-width: 700px; }
+#psycho-atlas-root .chart svg text { font-family: inherit; font-size: 14px; }
+#psycho-atlas-root .chart-caption {
+  border-top: 1px solid #2a3344; display: flex; align-items: center; gap: 12px;
+  padding: 13px 22px; background: rgba(20, 26, 38, 0.45);
+}
+#psycho-atlas-root .chart-caption p { font-size: 14px; color: #c0c8d8; margin: 0; }
+#psycho-atlas-root .accent-line {
+  width: 4px; align-self: stretch; background: var(--gold); border-radius: 3px; flex-shrink: 0;
+}
+#psycho-atlas-root .under-chart {
+  display: flex; justify-content: space-between; gap: 12px;
+  padding: 13px 2px 24px; font: 12px monospace; color: #8a93a5;
+}
+#psycho-atlas-root .legend { display: flex; align-items: center; gap: 8px; font: 12px "Segoe UI", Arial; }
+#psycho-atlas-root .legend i {
+  width: 10px; height: 10px; background: var(--aqua); border-radius: 2px; margin-left: 6px;
+}
+#psycho-atlas-root .legend i.amber { background: var(--amber); }
+
+#psycho-atlas-root .explanations {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px;
+}
+#psycho-atlas-root .explanations article,
+#psycho-atlas-root .detail-grid article {
+  border: 1px solid var(--border); border-radius: 7px; padding: 20px 22px; background: var(--panel);
+}
+#psycho-atlas-root .card-kicker {
+  font: 11px monospace; letter-spacing: 1.3px; color: #a8b4c8;
+}
+#psycho-atlas-root h2 {
+  font-size: 18px; letter-spacing: -.3px; font-weight: 500; line-height: 1.4; margin: 10px 0 10px;
+}
+#psycho-atlas-root .explanations p,
+#psycho-atlas-root .detail-grid p {
+  font-size: 15px; line-height: 1.75; color: #a8b1c2; margin: 0;
+}
+#psycho-atlas-root .warning-card { background: #1c1a14; border-color: #3a3728; }
+#psycho-atlas-root .warning-card .card-kicker { color: #c0b18b; }
+#psycho-atlas-root .detail-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px;
+}
+
+#psycho-atlas-root .reading {
+  display: grid; grid-template-columns: 1fr 1.7fr; gap: 32px;
+  margin: 32px 0; border-top: 1px solid var(--border); padding-top: 28px;
+}
+#psycho-atlas-root .reading h2 { font-size: 24px; max-width: 240px; margin-top: 8px; }
+#psycho-atlas-root .reading ol { list-style: none; counter-reset: steps; padding: 0; margin: 0; }
+#psycho-atlas-root .reading li {
+  counter-increment: steps; display: flex; gap: 14px; align-items: flex-start;
+  padding: 0 0 14px; color: #b4bccb; font-size: 15px;
+}
+#psycho-atlas-root .reading li:before {
+  content: counter(steps, decimal-leading-zero);
+  font: 12px monospace; color: var(--gold); background: #2a2614;
+  border-radius: 50%; min-width: 28px; height: 28px; display: grid; place-content: center;
+}
+
+#psycho-atlas-root .lesson-footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 32px;
+}
+#psycho-atlas-root .button {
+  font-size: 14px; border-radius: 5px; padding: 12px 20px; border: 1px solid var(--border);
+  transition: background .2s;
+}
+#psycho-atlas-root .primary { background: var(--gold); color: #1a1608; font-weight: 600; border-color: var(--gold); }
+#psycho-atlas-root .primary:hover { background: #ffe566; }
+#psycho-atlas-root .secondary { background: transparent; color: #c5cddc; }
+#psycho-atlas-root .secondary:hover { background: #1c2433; }
+#psycho-atlas-root .button:disabled { opacity: .3; cursor: default; }
+#psycho-atlas-root .lesson-footer > span { font: 12px monospace; color: var(--muted); }
+
+#psycho-atlas-root footer {
+  border-top: 1px solid var(--border); padding-top: 26px; color: #8590a3; font-size: 12px;
+}
+#psycho-atlas-root .footer-top {
+  display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 15px;
+}
+#psycho-atlas-root .brand.small { font-size: 17px; color: #c5cddc; letter-spacing: -.5px; }
+#psycho-atlas-root .footer-top p { font-size: 13px; margin: 0; }
+#psycho-atlas-root footer p { max-width: 920px; }
+#psycho-atlas-root footer .risk { color: #8a93a5; }
+
+/* Animations SVG */
+#psycho-atlas-root .anim-draw {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: styDraw 1.1s ease forwards;
+}
+#psycho-atlas-root .anim-fade {
+  opacity: 0;
+  animation: styFade .7s ease forwards;
+}
+#psycho-atlas-root .anim-grow {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  transform: scaleY(0);
+  animation: styGrow .6s ease forwards;
+}
+#psycho-atlas-root .anim-pulse {
+  animation: styPulse 2.2s ease-in-out infinite;
+}
+#psycho-atlas-root .d1 { animation-delay: .15s; }
+#psycho-atlas-root .d2 { animation-delay: .35s; }
+#psycho-atlas-root .d3 { animation-delay: .55s; }
+#psycho-atlas-root .d4 { animation-delay: .75s; }
+#psycho-atlas-root .d5 { animation-delay: .95s; }
+#psycho-atlas-root .d6 { animation-delay: 1.15s; }
+
+@keyframes styDraw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes styFade {
+  to { opacity: 1; }
+}
+@keyframes styGrow {
+  to { transform: scaleY(1); }
+}
+@keyframes styPulse {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #psycho-atlas-root { scroll-behavior: auto; }
+  #psycho-atlas-root .anim-draw,
+  #psycho-atlas-root .anim-fade,
+  #psycho-atlas-root .anim-grow,
+  #psycho-atlas-root .anim-pulse {
+    animation: none !important;
+    opacity: 1 !important;
+    stroke-dashoffset: 0 !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 1100px) {
+  #psycho-atlas-root .shell { grid-template-columns: 220px minmax(0, 1fr); }
+  #psycho-atlas-root main { padding: 28px; }
+  #psycho-atlas-root .explanations { gap: 10px; }
+}
+@media (max-width: 800px) {
+  #psycho-atlas-root .topbar { height: 72px; padding: 0 18px; }
+  #psycho-atlas-root .top-caption { display: none; }
+  #psycho-atlas-root .shell { display: block; }
+  #psycho-atlas-root aside {
+    padding: 14px 16px; border-right: 0; border-bottom: 1px solid var(--border); min-height: 0;
+  }
+  #psycho-atlas-root .nav-heading,
+  #psycho-atlas-root .sidebar-note,
+  #psycho-atlas-root .sidebar-foot,
+  #psycho-atlas-root .nav-group { display: none; }
+  #psycho-atlas-root #concept-nav {
+    display: flex; overflow: auto; gap: 5px; padding: 3px 3px 8px;
+  }
+  #psycho-atlas-root .nav-item { flex-shrink: 0; margin: 0; white-space: nowrap; }
+  #psycho-atlas-root .nav-arrow { display: none; }
+  #psycho-atlas-root .nav-item.active { box-shadow: inset 0 -2px var(--gold); }
+  #psycho-atlas-root main { padding: 20px; }
+  #psycho-atlas-root .explanations,
+  #psycho-atlas-root .detail-grid,
+  #psycho-atlas-root .reading { grid-template-columns: 1fr; }
+  #psycho-atlas-root .lesson-number { font-size: 48px; }
+  #psycho-atlas-root .chart:after {
+    content: "← Fais glisser le schéma →";
+    display: block; position: sticky; left: 0;
+    font: 12px "Segoe UI", Arial; color: #9aa3b5; padding: 7px 5px 12px; text-align: center;
+  }
+}
+
+/* Psycho accents */
+#psycho-atlas-root { --psy: #c4b5fd; --psy-deep: #8b5cf6; }
+#psycho-atlas-root .brandmark { color: var(--psy); }
+#psycho-atlas-root .eyebrow { color: var(--psy); }
+#psycho-atlas-root .nav-item.active {
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--psy);
+  box-shadow: inset 2px 0 var(--psy-deep);
+}
+#psycho-atlas-root .active .nav-index { color: var(--psy); }
+#psycho-atlas-root .primary { background: var(--psy-deep); color: #f5f3ff; border-color: var(--psy-deep); }
+#psycho-atlas-root .primary:hover { background: #a78bfa; color: #1a1028; }
+#psycho-atlas-root .accent-line { background: var(--psy-deep); }
+#psycho-atlas-root .reading li:before { color: var(--psy); background: #2a2040; }
+#psycho-atlas-root .chart-icon { color: var(--psy); }
