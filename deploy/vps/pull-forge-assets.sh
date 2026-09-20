@@ -39,6 +39,7 @@ JS_FILES=(
   forge-journal.js
   forge-atlas.js
   forge-ict-atlas.js
+  forge-styles-atlas.js
   books-data.js
   forge-books.js
   forge-live-resources.js
@@ -55,6 +56,7 @@ JS_FILES=(
 CSS_FILES=(
   forge-charts.css
   forge-ict-atlas.css
+  forge-styles-atlas.css
   landing.css
   legal.css
   lesson-pro.css
@@ -68,6 +70,7 @@ IMG_FILES=(
   icon-bull.svg
   icon-bear.svg
   ict-atlas-icon.svg
+  styles-atlas-icon.svg
   dash-journal.svg
   dash-books.svg
   dash-atlas.svg
