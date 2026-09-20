@@ -69,6 +69,10 @@ IMG_FILES=(
   forge-anvil.png
   torinvest-logo-full.png
   live-trading-banner.png
+  forge-wallpaper-bull.webp
+  forge-wallpaper-bull.jpg
+  forge-wallpaper-bear.webp
+  forge-wallpaper-bear.jpg
   icon-bull.svg
   icon-bear.svg
   ict-atlas-icon.svg
