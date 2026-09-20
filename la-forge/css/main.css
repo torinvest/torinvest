@@ -760,14 +760,65 @@ footer.site-footer {
 .chart-exercise-tasks li { margin-bottom: 0.75rem; }
 .chart-exercise-tasks span { font-size: 0.82rem; color: var(--muted); opacity: 0.9; }
 
-/* ——— Identité Forge : ambient or, emblème, bull / bear (sans copier Taurus) ——— */
+/* ——— Identité Forge : ambient + wallpapers taureau / ours (style fond membre) ——— */
 body.forge-ambient {
-  background:
-    radial-gradient(ellipse 80% 50% at 90% -10%, rgba(255, 180, 40, 0.12), transparent 55%),
-    radial-gradient(ellipse 60% 40% at -5% 100%, rgba(255, 215, 0, 0.06), transparent 50%),
-    var(--bg);
+  --forge-wall-img: url("/img/forge-wallpaper-bull.webp");
+  --forge-wall-img-fallback: url("/img/forge-wallpaper-bull.jpg");
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(
+      105deg,
+      rgba(10, 10, 15, 0.97) 0%,
+      rgba(10, 10, 15, 0.94) 32%,
+      rgba(10, 10, 15, 0.72) 52%,
+      rgba(10, 10, 15, 0.42) 72%,
+      rgba(10, 10, 15, 0.28) 100%
+    ),
+    var(--forge-wall-img),
+    var(--forge-wall-img-fallback);
+  background-size: cover, cover, cover;
+  background-position: center, right center, right center;
+  background-repeat: no-repeat;
   /* fixed provoque des sauts / jank au scroll sur Chromium & mobile */
   background-attachment: scroll;
+  min-height: 100vh;
+}
+
+body.forge-ambient[data-forge-wall="bear"] {
+  --forge-wall-img: url("/img/forge-wallpaper-bear.webp");
+  --forge-wall-img-fallback: url("/img/forge-wallpaper-bear.jpg");
+}
+
+/* Dashboard / hub : wallpaper plus présent, cartes semi-transparentes */
+body.forge-ambient.forge-wall-strong {
+  background-image:
+    linear-gradient(
+      100deg,
+      rgba(10, 10, 15, 0.94) 0%,
+      rgba(10, 10, 15, 0.88) 28%,
+      rgba(10, 10, 15, 0.55) 50%,
+      rgba(10, 10, 15, 0.28) 78%,
+      rgba(10, 10, 15, 0.18) 100%
+    ),
+    radial-gradient(ellipse 80% 50% at 90% -10%, rgba(255, 180, 40, 0.14), transparent 55%),
+    var(--forge-wall-img),
+    var(--forge-wall-img-fallback);
+  background-size: cover, cover, cover, cover;
+  background-position: center, center, right center, right center;
+}
+
+body.forge-ambient.forge-wall-strong header.site-header {
+  background: rgba(18, 18, 26, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+body.forge-ambient.forge-wall-strong .card,
+body.forge-ambient.forge-wall-strong .card.dash-card {
+  background: rgba(18, 18, 26, 0.86);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgba(255, 215, 0, 0.16);
 }
 
 body.forge-ambient::before {
@@ -776,7 +827,7 @@ body.forge-ambient::before {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.22;
+  opacity: 0.14;
   background-image:
     linear-gradient(rgba(255, 215, 0, 0.04) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 215, 0, 0.04) 1px, transparent 1px);
@@ -787,6 +838,31 @@ body.forge-ambient::before {
 body.forge-ambient > * {
   position: relative;
   z-index: 1;
+}
+
+@media (max-width: 800px) {
+  /* Mobile : wallpaper plus discret pour lisibilité */
+  body.forge-ambient,
+  body.forge-ambient.forge-wall-strong {
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(10, 10, 15, 0.92) 0%,
+        rgba(10, 10, 15, 0.88) 45%,
+        rgba(10, 10, 15, 0.78) 100%
+      ),
+      var(--forge-wall-img),
+      var(--forge-wall-img-fallback);
+    background-position: center, 70% center, 70% center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.forge-ambient.forge-wall-strong header.site-header,
+  body.forge-ambient.forge-wall-strong .card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .forge-logo-img {

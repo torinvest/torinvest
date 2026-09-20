@@ -208,6 +208,34 @@ function forgeMarketLegendHtml() {
 
 function initForgeAmbient() {
   document.body.classList.add("forge-ambient");
+
+  // Wallpaper taureau / ours selon la page (fond type « hub membre »)
+  var path = (location.pathname || "").toLowerCase();
+  var wall = "bull";
+  if (
+    /journal|fondamental|psycho|course\/|calendar|books|resources|ict-atlas|styles-atlas/.test(
+      path
+    )
+  ) {
+    wall = "bear";
+  }
+  if (/dashboard|start\.html|login\.html|forgot-password|account-password/.test(path)) {
+    wall = "bull";
+  }
+  if (/atlas\.html$/.test(path) && path.indexOf("ict") < 0 && path.indexOf("styles") < 0 && path.indexOf("psycho") < 0) {
+    wall = "bull";
+  }
+  document.body.setAttribute("data-forge-wall", wall);
+
+  // Plus présent sur dashboard + hubs membres principaux
+  if (
+    /dashboard|start\.html|course\/index|course\/?$|atlas\.html|ict-atlas|styles-atlas|psycho-atlas|journal|fondamental|calendar\.html|books|resources/.test(
+      path
+    )
+  ) {
+    document.body.classList.add("forge-wall-strong");
+  }
+
   document.querySelectorAll(".forge-logo-img, .footer-anvil").forEach((img) => {
     img.classList.add("forge-logo-img");
   });
