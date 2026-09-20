@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atlas Psychologie — Espace La Forge</title>
+  <meta name="description" content="Formation psychologie du trader : mindset, psychologie comportementale, psychologie de marché, tilt, FOMO, discipline — Atlas La Forge." />
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <link rel="stylesheet" href="/css/forge-psycho-atlas.css?v=1" />
+  <style>
+    .psy-shell-hero { margin: 0 0 1rem; }
+    .psy-shell-hero h1 { margin: 0.2rem 0; color: var(--gold); font-size: 1.35rem; }
+    .psy-shell-hero p { color: var(--muted); font-size: 0.92rem; margin: 0.4rem 0 0; line-height: 1.55; max-width: 48rem; }
+    .psy-shell-note {
+      margin: 0 0 1rem;
+      padding: 0.75rem 0.9rem;
+      border-left: 3px solid rgba(196, 181, 253, 0.55);
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    #psycho-atlas-root {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0e1118;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="psycho-atlas"></header>
+
+  <div class="container" style="max-width:1100px">
+    <div class="psy-shell-hero">
+      <span class="forge-hero-tag">Espace membre · formation complémentaire</span>
+      <h1>Atlas Psychologie &amp; Mindset</h1>
+      <p>
+        Psychologie du trader, <strong>psychologie comportementale</strong>, psychologie de marché,
+        émotions (FOMO, revenge, tilt), discipline et protocoles.
+        Une rubrique complète — <strong>ne remplace pas</strong> les modules P2 Mindset / P6 Tilt,
+        elle les approfondit avec schémas et process.
+      </p>
+    </div>
+
+    <p class="psy-shell-note">
+      Consulter une fiche <strong>ne valide pas</strong> un module.
+      Objectif : installer un <strong>système mental mesurable</strong>, pas du motivationnel Instagram.
+    </p>
+
+    <div id="psycho-atlas-root" hidden>
+      <a class="skip" href="#lesson">Aller au concept</a>
+      <header class="topbar">
+        <a class="brand" href="#mindset-pro" aria-label="Atlas Psychologie La Forge">
+          <span class="brandmark" aria-hidden="true">◉</span>
+          ATLAS<span class="brand-light"> PSYCHO</span>
+        </a>
+        <span class="top-caption">LA FORGE · MENTAL DE TRADER</span>
+        <a href="#sources" class="source-link">Cadre &amp; limites <span aria-hidden="true">↗</span></a>
+      </header>
+      <div class="shell">
+        <aside>
+          <div class="nav-heading">LE PARCOURS <span>12 FICHES</span></div>
+          <nav id="concept-nav" aria-label="Parcours psychologie"></nav>
+          <div class="sidebar-note">
+            <span class="small-symbol">◎</span>
+            <p>Nommer l’émotion.<br>Écrire la règle.<br><strong>Mesurer le respect.</strong></p>
+          </div>
+          <div class="sidebar-foot">ATLAS PÉDAGOGIQUE <span>ÉDITION 01</span></div>
+        </aside>
+        <main id="lesson" tabindex="-1">
+          <div class="breadcrumb">Psychologie &amp; mindset <span>/</span> <span id="crumb">Fondations</span></div>
+          <section class="lesson-heading">
+            <div>
+              <div class="eyebrow" id="eyebrow"></div>
+              <h1 id="title"></h1>
+            </div>
+            <span class="lesson-number" id="number" aria-hidden="true"></span>
+          </section>
+          <p class="lead" id="intro"></p>
+          <section class="chart-panel" aria-label="Schéma animé">
+            <div class="chart-toolbar">
+              <div>
+                <span class="chart-icon" aria-hidden="true">◈</span>
+                <strong id="chart-title"></strong>
+                <span class="tag">SCHÉMA</span>
+              </div>
+              <button type="button" class="replay-btn" id="replay-anim" title="Rejouer">↻ Rejouer</button>
+            </div>
+            <div id="chart" class="chart"></div>
+            <div class="chart-caption">
+              <span class="accent-line"></span>
+              <p id="chart-caption"></p>
+            </div>
+          </section>
+          <div class="under-chart">
+            <span id="subtopic"></span>
+            <span class="legend"><i></i> Process / règle <i class="amber"></i> Piège émotionnel</span>
+          </div>
+          <section class="explanations" aria-label="Comprendre">
+            <article>
+              <span class="card-kicker">01 / COMPRENDRE</span>
+              <h2 id="definition-title"></h2>
+              <p id="definition"></p>
+            </article>
+            <article>
+              <span class="card-kicker">02 / OBSERVER</span>
+              <h2 id="observe-title"></h2>
+              <p id="observe"></p>
+            </article>
+            <article class="warning-card">
+              <span class="card-kicker">03 / PIÈGE</span>
+              <h2 id="mistake-title"></h2>
+              <p id="mistake"></p>
+            </article>
+          </section>
+          <section class="detail-grid" aria-label="Protocole">
+            <article>
+              <span class="card-kicker">PROTOCOLE LA FORGE</span>
+              <p id="protocol"></p>
+            </article>
+            <article>
+              <span class="card-kicker">LIEN MODULES</span>
+              <p id="forge-link"></p>
+            </article>
+          </section>
+          <section class="reading">
+            <div>
+              <span class="eyebrow">À APPLIQUER</span>
+              <h2>Étapes concrètes.</h2>
+            </div>
+            <ol id="steps"></ol>
+          </section>
+          <div class="lesson-footer">
+            <button id="previous" class="button secondary" type="button">← Précédent</button>
+            <span id="page-count"></span>
+            <button id="next" class="button primary" type="button">Fiche suivante →</button>
+          </div>
+          <footer id="sources">
+            <div class="footer-top">
+              <span class="brand small">ATLAS<span class="brand-light"> PSYCHO</span></span>
+              <p>Le mental se forge comme l’edge : par la mesure.</p>
+            </div>
+            <p>
+              Synthèse pédagogique (psychologie comportementale, performance, discipline de marché).
+              Ce n’est pas un suivi thérapeutique. Les schémas sont illustratifs.
+              Sources classiques : Kahneman &amp; Tversky (prospect theory), biais cognitifs,
+              pratiques de journalisation et protocoles de risque utilisés en trading pro / prop.
+            </p>
+            <p class="risk">
+              Aucun protocole mental ne garantit un rendement. Si anxiété / détresse sévère :
+              ressources adaptées hors formation. Ici on parle de process de trading, pas de diagnostic.
+            </p>
+          </footer>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=7"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-psycho-atlas.js?v=1"></script>
+  <script>
+    initForgeGate({ requirePremium: true }).then(function (me) {
+      if (!me) return;
+      var root = document.getElementById("psycho-atlas-root");
+      if (!root) return;
+      root.hidden = false;
+      if (typeof bootForgePsychoAtlas === "function") bootForgePsychoAtlas();
+    });
+  </script>
+  <script src="/js/forge-legal.js"></script>
+</body>
+</html>
