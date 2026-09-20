@@ -73,6 +73,14 @@ IMG_FILES=(
   forge-wallpaper-bull.jpg
   forge-wallpaper-bear.webp
   forge-wallpaper-bear.jpg
+  forge-wallpaper-bull-quench.webp
+  forge-wallpaper-bull-quench.jpg
+  forge-wallpaper-bear-pour.webp
+  forge-wallpaper-bear-pour.jpg
+  forge-wallpaper-bear-grind.webp
+  forge-wallpaper-bear-grind.jpg
+  forge-wallpaper-duo.webp
+  forge-wallpaper-duo.jpg
   icon-bull.svg
   icon-bear.svg
   ict-atlas-icon.svg
