@@ -34,7 +34,15 @@ for f in \
   forge-wallpaper-bull.webp \
   forge-wallpaper-bull.jpg \
   forge-wallpaper-bear.webp \
-  forge-wallpaper-bear.jpg
+  forge-wallpaper-bear.jpg \
+  forge-wallpaper-bull-quench.webp \
+  forge-wallpaper-bull-quench.jpg \
+  forge-wallpaper-bear-pour.webp \
+  forge-wallpaper-bear-pour.jpg \
+  forge-wallpaper-bear-grind.webp \
+  forge-wallpaper-bear-grind.jpg \
+  forge-wallpaper-duo.webp \
+  forge-wallpaper-duo.jpg
 do
   pull "$RAW/la-forge/img/$f" "$APP_DIR/public/img/$f"
   cp "$APP_DIR/public/img/$f" "$APP_DIR/public/la-forge/img/$f"
@@ -44,12 +52,15 @@ ls -lah \
   "$APP_DIR/public/css/main.css" \
   "$APP_DIR/public/js/forge-brand.js" \
   "$APP_DIR/public/img/forge-wallpaper-bull.webp" \
-  "$APP_DIR/public/img/forge-wallpaper-bear.webp"
+  "$APP_DIR/public/img/forge-wallpaper-bear.webp" \
+  "$APP_DIR/public/img/forge-wallpaper-duo.webp" \
+  "$APP_DIR/public/img/forge-wallpaper-bull-quench.webp"
 
 echo ""
 echo "Vérif locale :"
-curl -sS -o /dev/null -w "bull.webp %{http_code}\n" "http://127.0.0.1:3001/img/forge-wallpaper-bull.webp" || true
-curl -sS -o /dev/null -w "bear.webp %{http_code}\n" "http://127.0.0.1:3001/img/forge-wallpaper-bear.webp" || true
+for f in bull bear bull-quench bear-pour bear-grind duo; do
+  curl -sS -o /dev/null -w "$f.webp %{http_code}\n" "http://127.0.0.1:3001/img/forge-wallpaper-$f.webp" || true
+done
 curl -sS -o /dev/null -w "main.css %{http_code}\n" "http://127.0.0.1:3001/css/main.css" || true
 
 echo ""

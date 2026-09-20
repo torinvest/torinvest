@@ -206,25 +206,34 @@ function forgeMarketLegendHtml() {
   );
 }
 
+function pickForgeWallpaper(path) {
+  // Galerie cinematic : variante stable par page (type hub membre)
+  var map = [
+    [/dashboard/, "bull"],
+    [/start\.html/, "bull-quench"],
+    [/login\.html|forgot-password|account-password/, "bull"],
+    [/journal/, "bear-grind"],
+    [/fondamental/, "bear-pour"],
+    [/psycho-atlas/, "bear"],
+    [/styles-atlas/, "bear-pour"],
+    [/ict-atlas/, "duo"],
+    [/atlas\.html$/, "duo"],
+    [/course\//, "bear"],
+    [/calendar/, "bull-quench"],
+    [/books/, "bear-grind"],
+    [/resources/, "bear-pour"],
+  ];
+  for (var i = 0; i < map.length; i++) {
+    if (map[i][0].test(path)) return map[i][1];
+  }
+  return "bull";
+}
+
 function initForgeAmbient() {
   document.body.classList.add("forge-ambient");
 
-  // Wallpaper taureau / ours selon la page (fond type « hub membre »)
   var path = (location.pathname || "").toLowerCase();
-  var wall = "bull";
-  if (
-    /journal|fondamental|psycho|course\/|calendar|books|resources|ict-atlas|styles-atlas/.test(
-      path
-    )
-  ) {
-    wall = "bear";
-  }
-  if (/dashboard|start\.html|login\.html|forgot-password|account-password/.test(path)) {
-    wall = "bull";
-  }
-  if (/atlas\.html$/.test(path) && path.indexOf("ict") < 0 && path.indexOf("styles") < 0 && path.indexOf("psycho") < 0) {
-    wall = "bull";
-  }
+  var wall = pickForgeWallpaper(path);
   document.body.setAttribute("data-forge-wall", wall);
 
   // Plus présent sur dashboard + hubs membres principaux

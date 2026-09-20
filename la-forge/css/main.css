@@ -789,6 +789,26 @@ body.forge-ambient[data-forge-wall="bear"] {
   --forge-wall-img-fallback: url("/img/forge-wallpaper-bear.jpg");
 }
 
+body.forge-ambient[data-forge-wall="bull-quench"] {
+  --forge-wall-img: url("/img/forge-wallpaper-bull-quench.webp");
+  --forge-wall-img-fallback: url("/img/forge-wallpaper-bull-quench.jpg");
+}
+
+body.forge-ambient[data-forge-wall="bear-pour"] {
+  --forge-wall-img: url("/img/forge-wallpaper-bear-pour.webp");
+  --forge-wall-img-fallback: url("/img/forge-wallpaper-bear-pour.jpg");
+}
+
+body.forge-ambient[data-forge-wall="bear-grind"] {
+  --forge-wall-img: url("/img/forge-wallpaper-bear-grind.webp");
+  --forge-wall-img-fallback: url("/img/forge-wallpaper-bear-grind.jpg");
+}
+
+body.forge-ambient[data-forge-wall="duo"] {
+  --forge-wall-img: url("/img/forge-wallpaper-duo.webp");
+  --forge-wall-img-fallback: url("/img/forge-wallpaper-duo.jpg");
+}
+
 /* Dashboard / hub : wallpaper plus présent, cartes semi-transparentes */
 body.forge-ambient.forge-wall-strong {
   background-image:
