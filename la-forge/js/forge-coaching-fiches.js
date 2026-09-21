@@ -279,8 +279,9 @@
     opts = opts || {};
     var f = fiche || emptyFiche();
     var evo = f.evolution || {};
+    var studentOnly = opts.studentOnly === true || opts.admin === false;
     return (
-      '<article class="cf-sheet card">' +
+      '<article class="cf-sheet card" id="cf-sheet-print">' +
       '<header class="cf-sheet-head">' +
       "<h1>Fiche coaching TORINVEST — La Forge</h1>" +
       (opts.showMeta
@@ -356,7 +357,7 @@
       "<p class=\"cf-axe\"><strong>AXE DU MOMENT :</strong> " +
       esc(f.axeDuMoment || "") +
       "</p></section>" +
-      (opts.admin && f.coachPrivateNotes
+      (!studentOnly && opts.admin && f.coachPrivateNotes
         ? '<section class="cf-block-view cf-private"><h2>🔒 Annotations coach</h2><p>' +
           esc(f.coachPrivateNotes).replace(/\n/g, "<br>") +
           "</p></section>"
@@ -365,11 +366,76 @@
     );
   }
 
+  function synthFileName(fiche) {
+    var name = String((fiche && fiche.studentName) || "eleve")
+      .trim()
+      .replace(/[^\w\-]+/g, "_")
+      .replace(/_+/g, "_")
+      .slice(0, 40);
+    var date = String((fiche && fiche.date) || "").slice(0, 10) || "fiche";
+    return "fiche-coaching-" + name + "-" + date + ".html";
+  }
+
+  /** HTML autonome = synthèse élève (sans notes privées) */
+  function buildStudentExportHtml(fiche) {
+    var body = renderReadonly(fiche, { admin: false, showMeta: false, studentOnly: true });
+    return (
+      "<!DOCTYPE html><html lang=\"fr\"><head><meta charset=\"utf-8\"/>" +
+      "<title>Fiche coaching — " +
+      esc(fiche.studentName || "") +
+      "</title>" +
+      "<style>" +
+      "body{font-family:Georgia,'Times New Roman',serif;max-width:820px;margin:2rem auto;padding:0 1.25rem;color:#111;line-height:1.5;background:#fff}" +
+      "h1{font-size:1.45rem;margin:0 0 1rem;color:#8a6a00}" +
+      "h2{font-size:1.05rem;margin:1.25rem 0 0.4rem;color:#8a6a00;border-bottom:1px solid #e5e5e5;padding-bottom:0.25rem}" +
+      "dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.5rem 1rem;margin:0 0 1rem}" +
+      "dt{font-size:0.75rem;text-transform:uppercase;letter-spacing:0.04em;color:#666}" +
+      "dd{margin:0.1rem 0 0;font-size:1rem}" +
+      "ul{margin:0.25rem 0 0;padding-left:1.2rem}" +
+      "li{margin:0.2rem 0}" +
+      ".cf-axe{margin-top:0.75rem;padding:0.65rem 0.8rem;border-left:3px solid #c9a227;background:#faf6e8}" +
+      ".cf-sheet{border:none}" +
+      "@media print{body{margin:0;padding:0.5rem}}" +
+      "</style></head><body>" +
+      body +
+      "<p style=\"margin-top:2rem;font-size:0.85rem;color:#666\">Document élève — La Forge · TORINVEST</p>" +
+      "</body></html>"
+    );
+  }
+
+  function downloadStudentSynth(fiche) {
+    if (!fiche) return;
+    var html = buildStudentExportHtml(fiche);
+    var blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = synthFileName(fiche);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+    }, 1500);
+  }
+
+  function openStudentSynthPreview(fiche) {
+    var html = buildStudentExportHtml(fiche);
+    var w = window.open("", "_blank");
+    if (!w) {
+      alert("Autorise les pop-ups pour prévisualiser la synthèse.");
+      return;
+    }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+  }
+
   function renderList() {
     var rows = state.fiches
       .map(function (f) {
         return (
-          '<tr>' +
+          "<tr>" +
           "<td>" +
           esc(f.studentName || "—") +
           "<br><span class=\"cf-muted\">" +
@@ -387,6 +453,12 @@
             : '<span class="cf-badge">Privée</span>') +
           "</td>" +
           '<td class="cf-row-actions">' +
+          '<button type="button" class="btn btn-secondary" data-cf-view="' +
+          esc(f.id) +
+          '">Voir</button>' +
+          '<button type="button" class="btn btn-secondary" data-cf-download="' +
+          esc(f.id) +
+          '">Télécharger</button>' +
           '<button type="button" class="btn btn-secondary" data-cf-edit="' +
           esc(f.id) +
           '">Éditer</button>' +
@@ -409,7 +481,7 @@
       "</div>" +
       (state.fiches.length
         ? '<div class="card cf-table-card"><table class="cf-table"><thead><tr>' +
-          "<th>Élève</th><th>Date</th><th>Thème</th><th>Statut</th><th></th>" +
+          "<th>Élève</th><th>Date</th><th>Thème</th><th>Statut</th><th>Actions</th>" +
           "</tr></thead><tbody>" +
           rows +
           "</tbody></table></div>"
@@ -438,7 +510,10 @@
             "</p>" +
             '<button type="button" class="btn btn-secondary" data-cf-view="' +
             esc(f.id) +
-            '">Ouvrir</button>' +
+            '">Voir</button>' +
+            '<button type="button" class="btn btn-secondary" data-cf-download="' +
+            esc(f.id) +
+            '">Télécharger</button>' +
             "</div>"
           );
         })
@@ -510,13 +585,46 @@
 
     if (state.mode === "view" && state.current) {
       root.innerHTML =
-        '<div class="cf-toolbar"><button type="button" class="btn btn-secondary" data-cf-back>← Retour</button></div>' +
-        renderReadonly(state.current, { admin: state.isAdmin, showMeta: state.isAdmin });
-      root.querySelector("[data-cf-back]")?.addEventListener("click", function () {
-        state.mode = "list";
-        state.current = null;
-        paint();
-      });
+        '<div class="cf-toolbar">' +
+        '<button type="button" class="btn btn-secondary" data-cf-back>← Retour</button>' +
+        '<div class="cf-toolbar-actions">' +
+        '<button type="button" class="btn btn-secondary" data-cf-preview>Ouvrir synthèse</button>' +
+        '<button type="button" class="btn" data-cf-download-current>Télécharger</button>' +
+        '<button type="button" class="btn btn-secondary" data-cf-print>Imprimer / PDF</button>' +
+        (state.isAdmin
+          ? '<button type="button" class="btn btn-secondary" data-cf-edit-current>Éditer</button>'
+          : "") +
+        "</div></div>" +
+        '<p class="cf-muted" style="margin:0 0 0.75rem">Aperçu <strong>élève</strong> (sans annotations coach privées).</p>' +
+        renderReadonly(state.current, { admin: false, showMeta: false, studentOnly: true });
+      var back = root.querySelector("[data-cf-back]");
+      if (back)
+        back.addEventListener("click", function () {
+          state.mode = "list";
+          state.current = null;
+          paint();
+        });
+      var dl = root.querySelector("[data-cf-download-current]");
+      if (dl)
+        dl.addEventListener("click", function () {
+          downloadStudentSynth(state.current);
+        });
+      var prev = root.querySelector("[data-cf-preview]");
+      if (prev)
+        prev.addEventListener("click", function () {
+          openStudentSynthPreview(state.current);
+        });
+      var pr = root.querySelector("[data-cf-print]");
+      if (pr)
+        pr.addEventListener("click", function () {
+          window.print();
+        });
+      var ed = root.querySelector("[data-cf-edit-current]");
+      if (ed)
+        ed.addEventListener("click", function () {
+          state.mode = "edit";
+          paint();
+        });
       return;
     }
 
@@ -544,13 +652,33 @@
       btn.addEventListener("click", async function () {
         var id = btn.getAttribute("data-cf-view");
         try {
-          var data = await api("/api/coaching-fiches/" + encodeURIComponent(id));
-          state.current = data.fiche;
+          var local = state.fiches.find(function (f) {
+            return f.id === id;
+          });
+          if (local) {
+            state.current = local;
+          } else {
+            var data = await api("/api/coaching-fiches/" + encodeURIComponent(id));
+            state.current = data.fiche;
+          }
           state.mode = "view";
           paint();
         } catch (err) {
           alert(err.message || String(err));
         }
+      });
+    });
+    root.querySelectorAll("[data-cf-download]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var id = btn.getAttribute("data-cf-download");
+        var fiche = state.fiches.find(function (f) {
+          return f.id === id;
+        });
+        if (!fiche) {
+          alert("Fiche introuvable");
+          return;
+        }
+        downloadStudentSynth(fiche);
       });
     });
     root.querySelectorAll("[data-cf-copy]").forEach(function (btn) {

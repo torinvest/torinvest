@@ -12,6 +12,12 @@
   margin-bottom: 1rem;
 }
 .cf-toolbar h2 { margin: 0; color: var(--gold); font-size: 1.1rem; }
+.cf-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
 
 .cf-table-card { overflow-x: auto; padding: 0; }
 .cf-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -153,6 +159,16 @@
 .cf-student-card h3 { margin: 0 0 0.25rem; color: var(--gold); font-size: 1rem; }
 
 @media print {
-  .site-header, .cf-toolbar, .cf-actions, [data-cf-admin-nav] { display: none !important; }
-  .cf-sheet { border: none; box-shadow: none; }
+  .site-header, .cf-toolbar, .cf-actions, .cf-hero, [data-cf-admin-nav], .cf-muted { display: none !important; }
+  body.forge-ambient {
+    background: #fff !important;
+  }
+  .cf-sheet {
+    border: none !important;
+    box-shadow: none !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .cf-sheet h1, .cf-sheet h2, .cf-axe { color: #8a6a00 !important; }
+  .cf-private { display: none !important; }
 }
