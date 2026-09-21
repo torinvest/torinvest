@@ -36,9 +36,10 @@
   }
 
   function lessonNodesToToggle() {
+    var layout = document.querySelector(".lesson-layout");
+    if (layout) return [layout];
     var main =
       document.querySelector("main.lesson-pro") ||
-      document.querySelector(".lesson-layout") ||
       document.querySelector("main.container") ||
       document.querySelector("main");
     if (!main) return [];
@@ -54,7 +55,7 @@
           el.style.display = el.dataset.fmtPrevDisplay;
           delete el.dataset.fmtPrevDisplay;
         } else {
-          el.style.display = "";
+          el.style.removeProperty("display");
         }
       } else {
         if (el.dataset.fmtPrevDisplay == null) {
@@ -91,19 +92,24 @@
       '<div class="fmt-panel" data-fmt-panel="guide" hidden></div>' +
       '<div class="fmt-panel" data-fmt-panel="qa" hidden></div>';
 
-    var header = document.querySelector("header.site-header, header, [data-forge-member-header]");
+    var layout = document.querySelector(".lesson-layout");
     var main =
       document.querySelector("main.lesson-pro") ||
-      document.querySelector(".lesson-layout") ||
       document.querySelector("main.container") ||
       document.querySelector("main");
+    var header = document.querySelector("header.site-header, header");
 
-    if (main) {
-      main.insertBefore(shell, main.firstChild);
-      main.insertBefore(extra, shell.nextSibling);
+    // IMPORTANT: ne jamais inserer DANS .lesson-layout (grille 2 colonnes)
+    // → place la barre AU-DESSUS, en pleine largeur.
+    if (layout && layout.parentNode) {
+      layout.parentNode.insertBefore(shell, layout);
+      layout.parentNode.insertBefore(extra, layout);
+    } else if (main && main.parentNode) {
+      main.parentNode.insertBefore(shell, main);
+      main.parentNode.insertBefore(extra, main);
     } else if (header && header.parentNode) {
+      header.parentNode.insertBefore(extra, header.nextSibling);
       header.parentNode.insertBefore(shell, header.nextSibling);
-      header.parentNode.insertBefore(extra, shell.nextSibling);
     } else {
       document.body.insertBefore(extra, document.body.firstChild);
       document.body.insertBefore(shell, document.body.firstChild);
