@@ -61,6 +61,7 @@ CSS_FILES=(
   forge-styles-atlas.css
   forge-psycho-atlas.css
   forge-coaching-fiches.css
+  forge-lesson-video.css
   landing.css
   legal.css
   lesson-pro.css
