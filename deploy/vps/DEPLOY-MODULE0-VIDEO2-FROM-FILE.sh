@@ -67,7 +67,7 @@ if command -v ffprobe >/dev/null 2>&1; then
   vcodec=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$VIDEO_SRC" 2>/dev/null || true)
   acodec=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of csv=p=0 "$VIDEO_SRC" 2>/dev/null || true)
   echo "Codecs détectés : vidéo=$vcodec audio=$acodec"
-  if [[ "$vcodec" == "h264" ]] && [[ "$acodec" == "aac" || "$acodec" == "mp3" || -z "$acodec" ]]; then
+  if [[ "$vcodec" == "h264" ]] && { [[ "$acodec" == "aac" ]] || [[ "$acodec" == "mp3" ]] || [[ -z "$acodec" ]]; }; then
     need_transcode=0
   fi
 fi
@@ -77,18 +77,20 @@ if [[ "$need_transcode" -eq 1 ]]; then
     echo "ERREUR: ffmpeg requis pour convertir en H.264"
     exit 1
   fi
-  echo "==> Transcode H.264 + AAC…"
+  echo "==> Transcode H.264 + AAC..."
   ffmpeg -y -i "$VIDEO_SRC" \
     -c:v libx264 -pix_fmt yuv420p -preset fast -crf 23 \
     -c:a aac -b:a 160k -ac 2 -movflags +faststart \
     "$WORK/out.mp4"
   cp -a "$WORK/out.mp4" "$PUBLIC_VID"
 else
-  echo "==> Copie directe (+faststart si possible)…"
+  echo "==> Copie directe (+faststart si possible)..."
   if command -v ffmpeg >/dev/null 2>&1; then
-    ffmpeg -y -i "$VIDEO_SRC" -c copy -movflags +faststart "$WORK/out.mp4" 2>/dev/null \
-      && cp -a "$WORK/out.mp4" "$PUBLIC_VID" \
-      || cp -a "$VIDEO_SRC" "$PUBLIC_VID"
+    if ffmpeg -y -i "$VIDEO_SRC" -c copy -movflags +faststart "$WORK/out.mp4"; then
+      cp -a "$WORK/out.mp4" "$PUBLIC_VID"
+    else
+      cp -a "$VIDEO_SRC" "$PUBLIC_VID"
+    fi
   else
     cp -a "$VIDEO_SRC" "$PUBLIC_VID"
   fi
@@ -98,10 +100,10 @@ cp -a "$PUBLIC_VID" "$PRIVATE_VID"
 chmod 644 "$PRIVATE_VID"
 echo "OK : $(ls -lh "$PUBLIC_VID" | awk '{print $5}')"
 
-# ——— CSS protection ———
+# CSS protection (ASCII comment only)
 curl -fsSL "$RAW/la-forge/css/forge-lesson-video.css" -o "$APP_DIR/public/css/forge-lesson-video.css" || true
 
-# ——— HTML inject ———
+# HTML inject
 HTML=""
 for candidate in \
   "$APP_DIR/private/course/intro-metier.html" \
