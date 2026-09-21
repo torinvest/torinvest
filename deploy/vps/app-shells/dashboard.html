@@ -40,6 +40,7 @@
       <a class="btn btn-secondary" href="/books.html">Livres</a>
       <a class="btn btn-secondary" href="/resources.html">Ressources</a>
       <a class="btn btn-secondary" href="/calendar.html">Calendrier</a>
+      <a class="btn btn-secondary" href="/coaching-fiches.html" data-cf-admin-nav hidden>Fiches coaching</a>
     </div>
 
     <p style="color:var(--muted);font-size:0.92rem;margin-bottom:1rem;line-height:1.6;border-left:3px solid rgba(255,215,0,.45);padding-left:0.85rem">
@@ -240,6 +241,21 @@
     });
     getMe().then(async (me) => {
       if (!me) { window.location.href = "/login.html"; return; }
+      if (me.isAdmin) {
+        document.querySelectorAll("[data-cf-admin-nav]").forEach(function (el) {
+          el.hidden = false;
+        });
+        var nav = document.querySelector(".header-nav");
+        if (nav && !nav.querySelector('[data-cf-nav="1"]')) {
+          var a = document.createElement("a");
+          a.href = "/coaching-fiches.html";
+          a.textContent = "Fiches coaching";
+          a.setAttribute("data-cf-nav", "1");
+          var logout = nav.querySelector("#logout-btn");
+          if (logout) nav.insertBefore(a, logout);
+          else nav.appendChild(a);
+        }
+      }
       const lockedParam = new URLSearchParams(location.search).get("locked") === "1";
       if (typeof initForgeProgress === "function") {
         await initForgeProgress(me.email);

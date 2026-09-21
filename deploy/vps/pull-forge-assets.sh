@@ -34,6 +34,7 @@ JS_FILES=(
   forge-brand.js
   forge-calendar.js
   forge-coaching-lives.js
+  forge-coaching-fiches.js
   forge-consent.js
   forge-fondamental.js
   forge-journal.js
@@ -59,6 +60,7 @@ CSS_FILES=(
   forge-ict-atlas.css
   forge-styles-atlas.css
   forge-psycho-atlas.css
+  forge-coaching-fiches.css
   landing.css
   legal.css
   lesson-pro.css
