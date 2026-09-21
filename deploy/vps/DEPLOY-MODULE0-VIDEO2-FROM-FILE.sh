@@ -4,15 +4,17 @@
 # 1) Sur ton PC, télécharge la vidéo (YouTube → MP4) puis upload :
 #    scp module-0-metier.mp4 ubuntu@164.132.46.191:~/torinvest-formation/public/course/videos/
 #
-# 2) Sur le VPS :
-#    curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-MODULE0-VIDEO2-FROM-FILE.sh | bash
+# 2) Sur le VPS (IMPORTANT : export AVANT le pipe, sinon VIDEO_SRC est ignoré) :
+#    export VIDEO_SRC=~/module-0-metier.mkv
+#    curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/ad585c4/deploy/vps/DEPLOY-MODULE0-VIDEO2-FROM-FILE.sh | bash
 #
-# Ou si le fichier est ailleurs :
-#    VIDEO_SRC=~/Downloads/metier.mp4 bash <(curl -fsSL …/DEPLOY-MODULE0-VIDEO2-FROM-FILE.sh)
+# Ou :
+#    bash <(curl -fsSL …/DEPLOY-MODULE0-VIDEO2-FROM-FILE.sh)
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-main}"
+# SHA figé = script présent même si pas encore mergé dans main
+REF="${REF:-ad585c4}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 VIDEO_NAME="${VIDEO_NAME:-module-0-metier.mp4}"
 CAPTION="${CAPTION:-TORINVEST · La Forge — Métier du trader (vidéo 2)}"
@@ -22,15 +24,19 @@ VIDEO_URL="/course/videos/$VIDEO_NAME"
 VIDEO_SRC="${VIDEO_SRC:-}"
 
 echo "======== MODULE0 VIDEO2 FROM FILE ($REF) ========"
+echo "APP=$APP_DIR"
 mkdir -p "$APP_DIR/public/course/videos" "$APP_DIR/private/course/videos" "$APP_DIR/public/css"
 
-# ——— Trouver le fichier source ———
+# ——— Trouver le fichier source (mp4 ou mkv déjà uploadé) ———
 if [[ -z "$VIDEO_SRC" ]]; then
   for c in \
     "$PUBLIC_VID" \
+    "$HOME/module-0-metier.mkv" \
+    "$HOME/module-0-metier.mp4" \
     "$HOME/$VIDEO_NAME" \
     "$HOME/Downloads/$VIDEO_NAME" \
-    "/tmp/$VIDEO_NAME"
+    "/tmp/$VIDEO_NAME" \
+    "/tmp/module-0-metier.mkv"
   do
     if [[ -f "$c" ]] && [[ $(stat -c%s "$c" 2>/dev/null || echo 0) -gt 500000 ]]; then
       VIDEO_SRC="$c"
@@ -40,13 +46,14 @@ if [[ -z "$VIDEO_SRC" ]]; then
 fi
 
 if [[ -z "$VIDEO_SRC" || ! -f "$VIDEO_SRC" ]]; then
-  echo "ERREUR : MP4 introuvable."
+  echo "ERREUR : fichier vidéo introuvable (mp4/mkv)."
   echo ""
   echo "YouTube bloque yt-dlp sur ce VPS. Fais plutôt :"
-  echo "  1) Sur ton PC, télécharge https://www.youtube.com/watch?v=9-n-CyHiEIo en MP4"
-  echo "  2) Upload :"
-  echo "     scp chemin/vers/video.mp4 ubuntu@164.132.46.191:~/torinvest-formation/public/course/videos/module-0-metier.mp4"
-  echo "  3) Relance ce script."
+  echo "  1) Upload depuis ton PC :"
+  echo "     scp \"E:\\TORINVEST\\live torinvest\\fichier.mkv\" ubuntu@164.132.46.191:~/module-0-metier.mkv"
+  echo "  2) Relance :"
+  echo "     export VIDEO_SRC=~/module-0-metier.mkv"
+  echo "     curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/ad585c4/deploy/vps/DEPLOY-MODULE0-VIDEO2-FROM-FILE.sh | bash"
   exit 1
 fi
 
@@ -209,6 +216,25 @@ echo ""
 echo "Vérif :"
 grep -n "module-0-metier.mp4\|FORGE_MODULE0_VIDEO2\|controlslist\|youtube.com/embed/9-n-CyHiEIo" "$HTML" | head -20
 ls -lh "$PUBLIC_VID" "$PRIVATE_VID"
+
+# Échec dur si YouTube est encore là
+if grep -q "youtube.com/embed/9-n-CyHiEIo" "$HTML"; then
+  echo ""
+  echo "ERREUR : l'iframe YouTube est ENCORE dans $HTML"
+  echo "Le remplacement a échoué — envoie le grep ci-dessus."
+  exit 3
+fi
+if ! grep -q "module-0-metier.mp4" "$HTML"; then
+  echo ""
+  echo "ERREUR : module-0-metier.mp4 absent du HTML"
+  exit 3
+fi
+if [[ ! -f "$PUBLIC_VID" ]] || [[ $(stat -c%s "$PUBLIC_VID") -lt 500000 ]]; then
+  echo "ERREUR : MP4 final trop petit ou manquant : $PUBLIC_VID"
+  exit 3
+fi
+
 echo ""
-echo "→ https://app.torinvest-trading.com/course/intro-metier.html"
+echo "OK — plus de YouTube. Player protégé branché."
+echo "→ Hard refresh : https://app.torinvest-trading.com/course/intro-metier.html"
 echo "======== DONE ========"
