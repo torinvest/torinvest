@@ -1,5 +1,5 @@
 /**
- * Élarget Helmet CSP pour Journal (radar iframe) + Atlas (MapLibre blob workers + tuiles CARTO).
+ * Élarget Helmet CSP pour Journal (radar iframe) + Atlas (MapLibre) + YouTube embeds.
  *
  *   node deploy/vps/patch-helmet-journal-frames.js /home/ubuntu/torinvest-formation
  *
@@ -20,7 +20,7 @@ if (!fs.existsSync(serverJs)) {
 
 let src = fs.readFileSync(serverJs, "utf8");
 const marker = "/* torinvest-journal-csp */";
-const versionMarker = "/* torinvest-csp-v2-atlas-maplibre */";
+const versionMarker = "/* torinvest-csp-v3-youtube */";
 
 const patchBody = `
 ${marker}
@@ -45,7 +45,13 @@ try {
         ],
         "worker-src": ["'self'", "blob:"],
         "child-src": ["'self'", "blob:"],
-        "frame-src": ["'self'", "https://www.tradingview.com", "https://radar.torinvest-trading.com"],
+        "frame-src": [
+          "'self'",
+          "https://www.tradingview.com",
+          "https://radar.torinvest-trading.com",
+          "https://www.youtube.com",
+          "https://www.youtube-nocookie.com",
+        ],
         "font-src": ["'self'", "https:", "data:"],
         "object-src": ["'none'"],
         "base-uri": ["'self'"],
@@ -57,9 +63,9 @@ try {
     },
     crossOriginEmbedderPolicy: false,
   }));
-  console.log("[torinvest] helmet CSP élargi (journal + atlas MapLibre)");
+  console.log("[torinvest] helmet CSP élargi (journal + atlas + youtube)");
 } catch (e) {
-  console.warn("[torinvest] patch helmet journal/atlas ignoré:", e && e.message);
+  console.warn("[torinvest] patch helmet journal/atlas/youtube ignoré:", e && e.message);
 }
 `;
 
@@ -83,12 +89,12 @@ function stripExistingCspPatch(input) {
 }
 
 if (src.includes(versionMarker)) {
-  console.log("OK — patch CSP journal+atlas (v2) déjà présent");
+  console.log("OK — patch CSP journal+atlas+youtube (v3) déjà présent");
   process.exit(0);
 }
 
 if (src.includes(marker)) {
-  console.log("→ Mise à jour patch CSP (v1 journal → v2 atlas MapLibre)");
+  console.log("→ Mise à jour patch CSP (→ v3 youtube)");
   src = stripExistingCspPatch(src);
 }
 
@@ -105,5 +111,5 @@ if (helmetRe.test(src)) {
 }
 
 fs.writeFileSync(serverJs, src);
-console.log("OK — CSP journal+atlas patché dans", serverJs);
+console.log("OK — CSP journal+atlas+youtube patché dans", serverJs);
 console.log("→ pm2 restart la-forge --update-env");
