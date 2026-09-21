@@ -58,6 +58,9 @@ function hasCoaching() {
 function hasCoachingFiches() {
   return /createCoachingFichesRouter|routes-coaching-fiches/.test(content);
 }
+function hasModuleQa() {
+  return /createModuleQaRouter|routes-module-qa/.test(content);
+}
 
 function extractDataDirFromProgressBlock(block) {
   if (!block) return "path.join(__dirname, \"data\")";
@@ -80,6 +83,7 @@ function managedBlock(dataDirExpr) {
     "const createCalendarRouter = require(\"./server-patches/routes-calendar\");",
     "const createCoachingLivesRouter = require(\"./server-patches/routes-coaching-lives\");",
     "const createCoachingFichesRouter = require(\"./server-patches/routes-coaching-fiches\");",
+    "const createModuleQaRouter = require(\"./server-patches/routes-module-qa\");",
     "const requireSubscribedForCourse = require(\"./server-patches/middleware-require-subscribed\");",
     "",
     "// Paywall Premium — avant express.static(\"public\")",
@@ -105,6 +109,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createCoachingFichesRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createModuleQaRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -265,6 +275,54 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
 // Toujours tenter d'ajouter coaching si calendar présent
 ensureCoachingMounted();
 ensureCoachingFichesMounted();
+ensureModuleQaMounted();
+
+function ensureModuleQaMounted() {
+  if (!/createCalendarRouter|createCoachingFichesRouter|createCoachingLivesRouter/.test(content)) {
+    return;
+  }
+  if (hasModuleQa()) {
+    console.log("OK — module-qa déjà monté.");
+    return;
+  }
+
+  if (!/createModuleQaRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createCoachingFichesRouter = require\(["']\.\/server-patches\/routes-coaching-fiches["']\);)/,
+      '$1\nconst createModuleQaRouter = require("./server-patches/routes-module-qa");'
+    );
+    if (replaced !== content) {
+      content = replaced;
+    } else {
+      content = content.replace(
+        /(const createCoachingLivesRouter = require\([^)]+\);)/,
+        '$1\nconst createModuleQaRouter = require("./server-patches/routes-module-qa");'
+      );
+    }
+  }
+
+  const fichesUseRe = /app\.use\(\s*createCoachingFichesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const livesUseRe = /app\.use\(\s*createCoachingLivesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const anchorMatch = content.match(fichesUseRe) || content.match(livesUseRe);
+  if (!anchorMatch) {
+    console.warn("WARN — point d'insertion module-qa introuvable.");
+    return;
+  }
+
+  const dataDirExpr =
+    (anchorMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const qaUse = [
+    "app.use(",
+    "  createModuleQaRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + qaUse);
+  console.log("Module Q&A router ajouté.");
+}
 
 function ensureCoachingFichesMounted() {
   if (!/createCalendarRouter|createCoachingLivesRouter/.test(content)) return;
