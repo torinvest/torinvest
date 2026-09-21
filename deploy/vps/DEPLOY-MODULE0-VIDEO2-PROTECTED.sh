@@ -53,7 +53,15 @@ if [[ "$need_dl" -eq 1 ]]; then
   yt-dlp -f "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best" \
     --merge-output-format mp4 \
     -o "$WORK/raw.%(ext)s" \
-    "$YT_URL"
+    "$YT_URL" || {
+      echo ""
+      echo "ÉCHEC yt-dlp (YouTube bot / 429 sur le VPS — fréquent)."
+      echo "Contournement :"
+      echo "  1) Sur ton PC, télécharge la vidéo en MP4"
+      echo "  2) scp video.mp4 ubuntu@164.132.46.191:~/torinvest-formation/public/course/videos/module-0-metier.mp4"
+      echo "  3) curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-MODULE0-VIDEO2-FROM-FILE.sh | bash"
+      exit 1
+    }
 
   RAW_FILE=$(ls -1 "$WORK"/raw.* 2>/dev/null | head -1)
   if [[ -z "$RAW_FILE" || ! -f "$RAW_FILE" ]]; then
