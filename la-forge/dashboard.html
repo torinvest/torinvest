@@ -35,6 +35,7 @@
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/journal.html">Journal</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/books.html">Livres</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/calendar.html">Calendrier</a>
+      <a class="btn btn-secondary" href="https://app.torinvest-trading.com/coaching-fiches.html" data-cf-admin-nav hidden>Fiches coaching</a>
     </div>
 
     <p style="color:var(--muted);font-size:0.92rem;margin-bottom:1rem;line-height:1.6;border-left:3px solid rgba(255,215,0,.45);padding-left:0.85rem">
@@ -170,6 +171,21 @@
     });
     getMe().then(async (me) => {
       if (!me) { window.location.href = "https://app.torinvest-trading.com/login.html"; return; }
+      if (me.isAdmin) {
+        document.querySelectorAll("[data-cf-admin-nav]").forEach(function (el) {
+          el.hidden = false;
+        });
+        var nav = document.querySelector(".header-nav");
+        if (nav && !nav.querySelector('[data-cf-nav="1"]')) {
+          var a = document.createElement("a");
+          a.href = "https://app.torinvest-trading.com/coaching-fiches.html";
+          a.textContent = "Fiches coaching";
+          a.setAttribute("data-cf-nav", "1");
+          var logout = nav.querySelector("#logout-btn");
+          if (logout) nav.insertBefore(a, logout);
+          else nav.appendChild(a);
+        }
+      }
       const lockedParam = new URLSearchParams(location.search).get("locked") === "1";
       if (typeof initForgeProgress === "function") {
         await initForgeProgress(me.email);

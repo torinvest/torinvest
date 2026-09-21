@@ -33,7 +33,7 @@ pull_shell() {
 }
 
 echo "==> Shells HTML (public/)"
-for page in dashboard.html start.html calendar.html calendar-day.html login.html forgot-password.html account-password.html fondamental.html journal.html atlas.html ict-atlas.html styles-atlas.html psycho-atlas.html books.html resources.html; do
+for page in dashboard.html start.html calendar.html calendar-day.html login.html forgot-password.html account-password.html fondamental.html journal.html atlas.html ict-atlas.html styles-atlas.html psycho-atlas.html books.html resources.html coaching-fiches.html coaching-fiche.html; do
   pull_shell "deploy/vps/app-shells/${page}" "public/${page}"
 done
 pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
@@ -41,7 +41,7 @@ pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
 echo "==> Patches serveur (server-patches/)"
 PATCHES_DIR="$APP_DIR/server-patches"
 mkdir -p "$PATCHES_DIR"
-for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js routes-coaching-lives.js forge-unlock-server.js forge-progress-rules.js routes-formation-auth.js routes-fondamental-bridge.js routes-journal-bridge.js routes-atlas-bridge.js routes-books.js routes-live-resources.js fondamental-bridge-lib.js formation-users-lib.js accompagnement-worker-lib.js; do
+for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js routes-coaching-lives.js routes-coaching-fiches.js forge-unlock-server.js forge-progress-rules.js routes-formation-auth.js routes-fondamental-bridge.js routes-journal-bridge.js routes-atlas-bridge.js routes-books.js routes-live-resources.js fondamental-bridge-lib.js formation-users-lib.js accompagnement-worker-lib.js; do
   echo "  server-patches/$f"
   curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/${f}" -o "$PATCHES_DIR/${f}"
 done

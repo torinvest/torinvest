@@ -55,6 +55,9 @@ function hasFondamentalBridge() {
 function hasCoaching() {
   return /createCoachingLivesRouter|routes-coaching-lives/.test(content);
 }
+function hasCoachingFiches() {
+  return /createCoachingFichesRouter|routes-coaching-fiches/.test(content);
+}
 
 function extractDataDirFromProgressBlock(block) {
   if (!block) return "path.join(__dirname, \"data\")";
@@ -76,6 +79,7 @@ function managedBlock(dataDirExpr) {
     "const createProgressRouter = require(\"./server-patches/routes-progress\");",
     "const createCalendarRouter = require(\"./server-patches/routes-calendar\");",
     "const createCoachingLivesRouter = require(\"./server-patches/routes-coaching-lives\");",
+    "const createCoachingFichesRouter = require(\"./server-patches/routes-coaching-fiches\");",
     "const requireSubscribedForCourse = require(\"./server-patches/middleware-require-subscribed\");",
     "",
     "// Paywall Premium — avant express.static(\"public\")",
@@ -95,6 +99,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createCoachingLivesRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createCoachingFichesRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -254,6 +264,52 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
 
 // Toujours tenter d'ajouter coaching si calendar présent
 ensureCoachingMounted();
+ensureCoachingFichesMounted();
+
+function ensureCoachingFichesMounted() {
+  if (!/createCalendarRouter|createCoachingLivesRouter/.test(content)) return;
+  if (hasCoachingFiches()) {
+    console.log("OK — coaching fiches déjà monté.");
+    return;
+  }
+
+  if (!/createCoachingFichesRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createCoachingLivesRouter = require\(["']\.\/server-patches\/routes-coaching-lives["']\);)/,
+      '$1\nconst createCoachingFichesRouter = require("./server-patches/routes-coaching-fiches");'
+    );
+    if (replaced !== content) {
+      content = replaced;
+    } else {
+      content = content.replace(
+        /(const createCalendarRouter = require\([^)]+\);)/,
+        '$1\nconst createCoachingFichesRouter = require("./server-patches/routes-coaching-fiches");'
+      );
+    }
+  }
+
+  const livesUseRe = /app\.use\(\s*createCoachingLivesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const calendarUseRe = /app\.use\(\s*createCalendarRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const anchorMatch = content.match(livesUseRe) || content.match(calendarUseRe);
+  if (!anchorMatch) {
+    console.warn("WARN — point d'insertion fiches introuvable.");
+    return;
+  }
+
+  const dataDirExpr =
+    (anchorMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const fichesUse = [
+    "app.use(",
+    "  createCoachingFichesRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + fichesUse);
+  console.log("Coaching fiches router ajouté.");
+}
 
 if (content === original) {
   console.log("Aucun changement.");

@@ -222,6 +222,7 @@ function pickForgeWallpaper(path) {
     [/calendar/, "bull-quench"],
     [/books/, "bear-grind"],
     [/resources/, "bear-pour"],
+    [/coaching-fiche/, "duo"],
   ];
   for (var i = 0; i < map.length; i++) {
     if (map[i][0].test(path)) return map[i][1];
@@ -238,7 +239,7 @@ function initForgeAmbient() {
 
   // Plus présent sur dashboard + hubs membres principaux
   if (
-    /dashboard|start\.html|course\/index|course\/?$|atlas\.html|ict-atlas|styles-atlas|psycho-atlas|journal|fondamental|calendar\.html|books|resources/.test(
+    /dashboard|start\.html|course\/index|course\/?$|atlas\.html|ict-atlas|styles-atlas|psycho-atlas|journal|fondamental|calendar\.html|books|resources|coaching-fiche/.test(
       path
     )
   ) {

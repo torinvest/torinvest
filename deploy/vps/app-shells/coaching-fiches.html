@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fiches coaching — La Forge</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/forge-coaching-fiches.css?v=1" />
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="coaching-fiches"></header>
+
+  <div class="container" style="max-width:960px">
+    <div class="cf-hero">
+      <span class="forge-hero-tag">Espace coach · suivi 1:1</span>
+      <h1>Fiches de suivi coaching</h1>
+      <p>
+        Remplis la fiche après chaque coaching. Les <strong>annotations coach</strong> restent privées.
+        Quand tu veux transmettre à l’élève, active le partage et envoie le lien.
+      </p>
+    </div>
+
+    <div id="coaching-fiches-root">
+      <p class="cf-muted">Chargement…</p>
+    </div>
+  </div>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-coaching-fiches.js?v=1"></script>
+  <script>
+    initForgeGate({ requirePremium: false }).then(function (me) {
+      if (!me) return;
+      initCoachingFiches(me);
+    });
+  </script>
+</body>
+</html>
