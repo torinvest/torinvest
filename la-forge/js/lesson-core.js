@@ -801,7 +801,8 @@ function ensureModuleTabsAssets() {
   function loadScript(src) {
     return new Promise((resolve, reject) => {
       const file = src.split("?")[0].split("/").pop();
-      if (document.querySelector('script[src*="' + file + '"]')) {
+      const existing = document.querySelector('script[src*="' + file + '"]');
+      if (existing && typeof window.initForgeModuleTabs === "function") {
         resolve();
         return;
       }
@@ -813,10 +814,10 @@ function ensureModuleTabsAssets() {
     });
   }
 
-  loadCss("/css/forge-module-tabs.css?v=2");
+  loadCss("/css/forge-module-tabs.css?v=3");
   return Promise.resolve()
-    .then(() => loadScript("/js/forge-module-guides.js?v=2"))
-    .then(() => loadScript("/js/forge-module-tabs.js?v=2"))
+    .then(() => loadScript("/js/forge-module-guides.js?v=3"))
+    .then(() => loadScript("/js/forge-module-tabs.js?v=3"))
     .then(() => {
       if (typeof window.initForgeModuleTabs === "function") {
         return window.initForgeModuleTabs();

@@ -1,6 +1,6 @@
 /**
  * Onglets module : Contenu | Mode d'emploi | Mes questions
- * S'injecte automatiquement sur les pages /course/*.html
+ * Barre sticky non destructive (ne deplace pas le DOM de la lecon).
  */
 (function () {
   "use strict";
@@ -11,6 +11,7 @@
     isAdmin: false,
     threads: [],
     activeTab: "content",
+    mounted: false,
   };
 
   function esc(s) {
@@ -21,59 +22,121 @@
       .replace(/"/g, "&quot;");
   }
 
-  function findLessonRoot() {
-    return (
+  function guessModuleId() {
+    if (typeof getModuleIdFromPath === "function") {
+      var id = getModuleIdFromPath(location.pathname);
+      if (id) return id;
+    }
+    var file = (location.pathname.split("/").pop() || "").replace(/\.html$/i, "");
+    if (!file || typeof MODULES === "undefined") return file || null;
+    for (var i = 0; i < MODULES.length; i++) {
+      if (String(MODULES[i].href || "").indexOf(file) !== -1) return MODULES[i].id;
+    }
+    return file || null;
+  }
+
+  function lessonNodesToToggle() {
+    var main =
       document.querySelector("main.lesson-pro") ||
       document.querySelector(".lesson-layout") ||
       document.querySelector("main.container") ||
-      document.querySelector("main") ||
-      document.querySelector(".container") ||
-      document.body
-    );
+      document.querySelector("main");
+    if (!main) return [];
+    return Array.prototype.slice.call(main.children).filter(function (el) {
+      return el.id !== "forge-module-tabs" && el.id !== "forge-module-extra";
+    });
   }
 
-  function wrapContent(root) {
-    if (document.getElementById("forge-module-tabs")) return;
-
-    var bar = document.createElement("div");
-    bar.id = "forge-module-tabs";
-    bar.className = "fmt-tabs";
-    bar.innerHTML =
-      '<nav class="fmt-tablist" role="tablist" aria-label="Navigation module">' +
-      '<button type="button" class="fmt-tab is-active" data-fmt-tab="content" role="tab" aria-selected="true">Contenu</button>' +
-      '<button type="button" class="fmt-tab" data-fmt-tab="guide" role="tab" aria-selected="false">Mode d\'emploi</button>' +
-      '<button type="button" class="fmt-tab" data-fmt-tab="qa" role="tab" aria-selected="false">Mes questions</button>' +
-      "</nav>" +
-      '<div class="fmt-panels">' +
-      '<div class="fmt-panel is-active" data-fmt-panel="content" role="tabpanel"></div>' +
-      '<div class="fmt-panel" data-fmt-panel="guide" role="tabpanel" hidden></div>' +
-      '<div class="fmt-panel" data-fmt-panel="qa" role="tabpanel" hidden></div>' +
-      "</div>";
-
-    var contentPanel = bar.querySelector('[data-fmt-panel="content"]');
-    var kids = Array.prototype.slice.call(root.childNodes);
-    kids.forEach(function (n) {
-      contentPanel.appendChild(n);
+  function setLessonVisible(show) {
+    lessonNodesToToggle().forEach(function (el) {
+      if (show) {
+        if (el.dataset.fmtPrevDisplay != null) {
+          el.style.display = el.dataset.fmtPrevDisplay;
+          delete el.dataset.fmtPrevDisplay;
+        } else {
+          el.style.display = "";
+        }
+      } else {
+        if (el.dataset.fmtPrevDisplay == null) {
+          el.dataset.fmtPrevDisplay = el.style.display || "";
+        }
+        el.style.display = "none";
+      }
     });
-    root.appendChild(bar);
+  }
 
-    bar.querySelectorAll("[data-fmt-tab]").forEach(function (btn) {
+  function mountShell() {
+    if (document.getElementById("forge-module-tabs")) {
+      state.mounted = true;
+      return;
+    }
+
+    var shell = document.createElement("div");
+    shell.id = "forge-module-tabs";
+    shell.className = "fmt-tabs fmt-tabs--sticky";
+    shell.innerHTML =
+      '<div class="fmt-tabs-inner">' +
+      '<p class="fmt-tabs-label">Ce module</p>' +
+      '<nav class="fmt-tablist" role="tablist" aria-label="Navigation module">' +
+      '<button type="button" class="fmt-tab is-active" data-fmt-tab="content" role="tab">Contenu</button>' +
+      '<button type="button" class="fmt-tab" data-fmt-tab="guide" role="tab">Mode d\'emploi</button>' +
+      '<button type="button" class="fmt-tab" data-fmt-tab="qa" role="tab">Mes questions</button>' +
+      "</nav></div>";
+
+    var extra = document.createElement("div");
+    extra.id = "forge-module-extra";
+    extra.className = "fmt-extra";
+    extra.hidden = true;
+    extra.innerHTML =
+      '<div class="fmt-panel" data-fmt-panel="guide" hidden></div>' +
+      '<div class="fmt-panel" data-fmt-panel="qa" hidden></div>';
+
+    var header = document.querySelector("header.site-header, header, [data-forge-member-header]");
+    var main =
+      document.querySelector("main.lesson-pro") ||
+      document.querySelector(".lesson-layout") ||
+      document.querySelector("main.container") ||
+      document.querySelector("main");
+
+    if (main) {
+      main.insertBefore(shell, main.firstChild);
+      main.insertBefore(extra, shell.nextSibling);
+    } else if (header && header.parentNode) {
+      header.parentNode.insertBefore(shell, header.nextSibling);
+      header.parentNode.insertBefore(extra, shell.nextSibling);
+    } else {
+      document.body.insertBefore(extra, document.body.firstChild);
+      document.body.insertBefore(shell, document.body.firstChild);
+    }
+
+    shell.querySelectorAll("[data-fmt-tab]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         setTab(btn.getAttribute("data-fmt-tab"));
       });
     });
+
+    state.mounted = true;
   }
 
   function setTab(name) {
     state.activeTab = name;
-    document.querySelectorAll("[data-fmt-tab]").forEach(function (btn) {
+    document.querySelectorAll("#forge-module-tabs [data-fmt-tab]").forEach(function (btn) {
       var on = btn.getAttribute("data-fmt-tab") === name;
       btn.classList.toggle("is-active", on);
       btn.setAttribute("aria-selected", on ? "true" : "false");
     });
-    document.querySelectorAll("[data-fmt-panel]").forEach(function (panel) {
+
+    var extra = document.getElementById("forge-module-extra");
+    if (name === "content") {
+      if (extra) extra.hidden = true;
+      setLessonVisible(true);
+      return;
+    }
+
+    setLessonVisible(false);
+    if (extra) extra.hidden = false;
+    document.querySelectorAll("#forge-module-extra [data-fmt-panel]").forEach(function (panel) {
       var on = panel.getAttribute("data-fmt-panel") === name;
-      panel.classList.toggle("is-active", on);
       panel.hidden = !on;
     });
     if (name === "guide") renderGuide();
@@ -81,18 +144,19 @@
   }
 
   function renderGuide() {
-    var panel = document.querySelector('[data-fmt-panel="guide"]');
+    var panel = document.querySelector('#forge-module-extra [data-fmt-panel="guide"]');
     if (!panel) return;
     var guide =
       typeof getModuleGuide === "function"
         ? getModuleGuide(state.moduleId)
         : {
-            title: state.moduleId,
-            goal: "",
+            title: state.moduleId || "Module",
+            goal: "Parcours le contenu, valide le quiz, pose tes questions ici.",
             order: [],
             tips: [],
             validation: [],
             minutes: 90,
+            num: "",
           };
 
     panel.innerHTML =
@@ -106,113 +170,98 @@
       '<p class="fmt-lead">' +
       esc(guide.goal) +
       "</p>" +
-      '<p class="fmt-meta">Durée indicative · ~' +
-      esc(String(guide.minutes)) +
+      '<p class="fmt-meta">Duree indicative · ~' +
+      esc(String(guide.minutes || 90)) +
       " min</p>" +
-      "<h3>Dans quel ordre</h3>" +
-      "<ol class=\"fmt-list\">" +
+      "<h3>Dans quel ordre</h3><ol class=\"fmt-list\">" +
       (guide.order || [])
         .map(function (x) {
           return "<li>" + esc(x) + "</li>";
         })
         .join("") +
       "</ol>" +
-      "<h3>Comment valider</h3>" +
-      "<ul class=\"fmt-list\">" +
+      "<h3>Comment valider</h3><ul class=\"fmt-list\">" +
       (guide.validation || [])
         .map(function (x) {
           return "<li>" + esc(x) + "</li>";
         })
         .join("") +
       "</ul>" +
-      "<h3>Conseils</h3>" +
-      "<ul class=\"fmt-list\">" +
+      "<h3>Conseils</h3><ul class=\"fmt-list\">" +
       (guide.tips || [])
         .map(function (x) {
           return "<li>" + esc(x) + "</li>";
         })
         .join("") +
       "</ul>" +
-      '<p class="fmt-hint">Une question ? Passe sur l\'onglet <strong>Mes questions</strong> — ta conversation est privée (toi + coach).</p>' +
+      '<p class="fmt-hint">Une question ? Onglet <strong>Mes questions</strong> — conversation privee avec le coach.</p>' +
       "</article>";
   }
 
   function statusLabel(s) {
-    if (s === "answered") return "Répondu";
-    if (s === "closed") return "Clôturé";
+    if (s === "answered") return "Repondu";
+    if (s === "closed") return "Cloture";
     return "En attente";
   }
 
   function renderQa() {
-    var panel = document.querySelector('[data-fmt-panel="qa"]');
+    var panel = document.querySelector('#forge-module-extra [data-fmt-panel="qa"]');
     if (!panel) return;
 
-    var listHtml = "";
-    if (!state.threads.length) {
-      listHtml =
-        '<p class="fmt-empty">Aucune question pour l\'instant. Pose la première ci-dessous.</p>';
-    } else {
-      listHtml = state.threads
-        .map(function (t) {
-          var msgs = (t.messages || [])
-            .map(function (m) {
-              var who = m.role === "admin" ? "Coach" : "Toi";
-              return (
-                '<div class="fmt-msg fmt-msg--' +
-                esc(m.role || "student") +
-                '"><span class="fmt-msg-who">' +
-                who +
-                "</span><p>" +
-                esc(m.body) +
-                "</p>" +
-                '<time datetime="' +
-                esc(m.at) +
-                '">' +
-                esc((m.at || "").slice(0, 16).replace("T", " ")) +
-                "</time></div>"
-              );
-            })
-            .join("");
-          return (
-            '<article class="fmt-thread" data-thread-id="' +
-            esc(t.id) +
-            '">' +
-            '<header class="fmt-thread-head"><strong>' +
-            esc(t.question.slice(0, 120)) +
-            '</strong><span class="fmt-status fmt-status--' +
-            esc(t.status) +
-            '">' +
-            statusLabel(t.status) +
-            "</span></header>" +
-            '<div class="fmt-msgs">' +
-            msgs +
-            "</div>" +
-            (t.status === "closed"
-              ? ""
-              : '<form class="fmt-reply" data-reply="' +
-                esc(t.id) +
-                '"><textarea name="body" rows="2" maxlength="4000" placeholder="Préciser ou répondre…" required></textarea>' +
-                '<button type="submit" class="btn btn-secondary">Envoyer</button></form>') +
-            "</article>"
-          );
-        })
-        .join("");
-    }
+    var listHtml = !state.threads.length
+      ? '<p class="fmt-empty">Aucune question pour l\'instant. Pose la premiere ci-dessous.</p>'
+      : state.threads
+          .map(function (t) {
+            var msgs = (t.messages || [])
+              .map(function (m) {
+                var who = m.role === "admin" ? "Coach" : "Toi";
+                return (
+                  '<div class="fmt-msg fmt-msg--' +
+                  esc(m.role || "student") +
+                  '"><span class="fmt-msg-who">' +
+                  who +
+                  "</span><p>" +
+                  esc(m.body) +
+                  "</p></div>"
+                );
+              })
+              .join("");
+            return (
+              '<article class="fmt-thread">' +
+              '<header class="fmt-thread-head"><strong>' +
+              esc((t.question || "").slice(0, 120)) +
+              '</strong><span class="fmt-status fmt-status--' +
+              esc(t.status) +
+              '">' +
+              statusLabel(t.status) +
+              "</span></header>" +
+              '<div class="fmt-msgs">' +
+              msgs +
+              "</div>" +
+              (t.status === "closed"
+                ? ""
+                : '<form class="fmt-reply" data-reply="' +
+                  esc(t.id) +
+                  '"><textarea name="body" rows="2" maxlength="4000" required placeholder="Preciser…"></textarea>' +
+                  '<button type="submit" class="btn btn-secondary">Envoyer</button></form>') +
+              "</article>"
+            );
+          })
+          .join("");
 
     panel.innerHTML =
       '<section class="fmt-qa">' +
       "<h2>Mes questions — ce module</h2>" +
-      '<p class="fmt-lead">Espace privé : seules <strong>toi</strong> et le <strong>coach</strong> voyez cette conversation. Tu peux poser n’importe quelle question liée (ou non) au module.</p>' +
+      '<p class="fmt-lead">Espace prive : toi + le coach uniquement.</p>' +
       '<form class="fmt-ask" id="fmt-ask-form">' +
-      '<label for="fmt-ask-input">Nouvelle question</label>' +
-      '<textarea id="fmt-ask-input" name="question" rows="3" maxlength="4000" placeholder="Ex. : je ne comprends pas la différence BOS / MSS…" required></textarea>' +
-      '<button type="submit" class="btn btn-primary">Envoyer au coach</button>' +
-      "</form>" +
+      "<label for=\"fmt-ask-input\">Nouvelle question</label>" +
+      '<textarea id="fmt-ask-input" rows="3" maxlength="4000" required placeholder="Ta question…"></textarea>' +
+      '<button type="submit" class="btn btn-primary">Envoyer au coach</button></form>' +
       '<div class="fmt-thread-list">' +
       listHtml +
       "</div>" +
       (state.isAdmin
-        ? '<p class="fmt-admin-link"><a href="/module-qa.html">→ Boîte questions (admin)</a></p>'
+        ? '<p class="fmt-admin-link"><a href="/module-qa.html">Boite questions (admin)</a></p>'
         : "") +
       "</section>";
 
@@ -221,20 +270,17 @@
       ask.addEventListener("submit", function (e) {
         e.preventDefault();
         var ta = ask.querySelector("textarea");
-        var q = (ta && ta.value) || "";
-        postQuestion(q).then(function () {
+        postQuestion((ta && ta.value) || "").then(function () {
           if (ta) ta.value = "";
         });
       });
     }
-
     panel.querySelectorAll("[data-reply]").forEach(function (form) {
       form.addEventListener("submit", function (e) {
         e.preventDefault();
         var id = form.getAttribute("data-reply");
         var ta = form.querySelector("textarea");
-        var body = (ta && ta.value) || "";
-        postReply(id, body).then(function () {
+        postReply(id, (ta && ta.value) || "").then(function () {
           if (ta) ta.value = "";
         });
       });
@@ -242,7 +288,7 @@
   }
 
   async function loadQa() {
-    var panel = document.querySelector('[data-fmt-panel="qa"]');
+    var panel = document.querySelector('#forge-module-extra [data-fmt-panel="qa"]');
     if (panel) panel.innerHTML = '<p class="fmt-empty">Chargement…</p>';
     try {
       if (typeof api !== "function") throw new Error("api indisponible");
@@ -255,9 +301,9 @@
     } catch (err) {
       if (panel) {
         panel.innerHTML =
-          '<p class="fmt-empty">Impossible de charger les questions. ' +
+          '<p class="fmt-empty">Impossible de charger les questions (' +
           esc(err && err.message ? err.message : String(err)) +
-          "</p>";
+          ").</p>";
       }
     }
   }
@@ -265,10 +311,7 @@
   async function postQuestion(question) {
     await api("/api/module-qa", {
       method: "POST",
-      body: JSON.stringify({
-        moduleId: state.moduleId,
-        question: question,
-      }),
+      body: JSON.stringify({ moduleId: state.moduleId, question: question }),
     });
     return loadQa();
   }
@@ -282,32 +325,26 @@
   }
 
   async function boot() {
-    if (!/\/course\//.test(location.pathname)) return;
-    if (/\/course\/index\.html$/i.test(location.pathname) || /\/course\/?$/i.test(location.pathname))
-      return;
+    var path = location.pathname || "";
+    if (path.indexOf("/course/") === -1) return;
+    if (/\/course\/index\.html$/i.test(path)) return;
+    if (/\/course\/?$/i.test(path)) return;
 
     var tries = 0;
-    function ready() {
-      return typeof getModuleIdFromPath === "function" && typeof MODULES !== "undefined";
-    }
-    while (!ready() && tries < 40) {
+    while (typeof MODULES === "undefined" && tries < 60) {
       await new Promise(function (r) {
         setTimeout(r, 50);
       });
       tries += 1;
     }
 
-    var moduleId =
-      typeof getModuleIdFromPath === "function"
-        ? getModuleIdFromPath(location.pathname)
-        : null;
-    if (!moduleId) return;
+    state.moduleId = guessModuleId();
+    if (!state.moduleId) {
+      console.warn("[forge-tabs] moduleId introuvable pour", path);
+      state.moduleId = "unknown";
+    }
 
-    state.moduleId = moduleId;
-    var root = findLessonRoot();
-    if (!root) return;
-
-    wrapContent(root);
+    mountShell();
 
     try {
       if (typeof getMe === "function") {
@@ -315,6 +352,8 @@
         state.isAdmin = Boolean(state.me && state.me.isAdmin);
       }
     } catch (_) {}
+
+    console.info("[forge-tabs] OK", state.moduleId);
   }
 
   window.initForgeModuleTabs = boot;
