@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Questions modules — La Forge</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/forge-module-tabs.css?v=1" />
+  <style>
+    .fmt-admin-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+    .fmt-admin-filters label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .fmt-admin-filters select {
+      min-width: 220px;
+      padding: 0.4rem 0.55rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--text);
+      font: inherit;
+    }
+    .fmt-admin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .mqa-hero { margin: 1.5rem 0 1rem; }
+    .mqa-hero h1 { color: var(--gold); font-size: 1.6rem; margin: 0.35rem 0; }
+    .mqa-hero p { color: var(--muted); max-width: 40rem; }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="module-qa"></header>
+
+  <div class="container" style="max-width:960px">
+    <div class="mqa-hero">
+      <span class="forge-hero-tag">Espace coach · Q&amp;A modules</span>
+      <h1>Questions des élèves</h1>
+      <p>
+        Chaque élève a sa conversation privée par module.
+        Réponds ici — l’élève voit ta réponse dans l’onglet <strong>Mes questions</strong> du module.
+      </p>
+    </div>
+
+    <div id="module-qa-root">
+      <p class="fmt-empty">Chargement…</p>
+    </div>
+  </div>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=8"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/course-data.js"></script>
+  <script src="/js/forge-module-qa-admin.js?v=1"></script>
+  <script>
+    (function () {
+      var root = document.getElementById("module-qa-root");
+      function fail(msg) {
+        if (root) root.innerHTML = '<p class="fmt-empty card">' + msg + "</p>";
+      }
+      if (typeof getMe !== "function") {
+        fail("Script auth manquant — redéploie puis hard refresh.");
+        return;
+      }
+      initForgeGate({ requirePremium: false })
+        .then(function (me) {
+          if (!me) {
+            fail("Redirection connexion…");
+            return;
+          }
+          return initModuleQaAdmin(me);
+        })
+        .catch(function (err) {
+          fail("Erreur : " + (err && err.message ? err.message : String(err)));
+        });
+    })();
+  </script>
+</body>
+</html>
