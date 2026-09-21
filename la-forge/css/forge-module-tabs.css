@@ -4,11 +4,23 @@
   position: sticky;
   top: 0;
   z-index: 40;
-  margin: 0 0 1rem;
-  padding: 0.65rem 0 0.35rem;
-  background: rgba(10, 12, 18, 0.94);
-  border-bottom: 1px solid rgba(255, 215, 0, 0.35);
+  width: 100%;
+  max-width: 1100px;
+  margin: 0.75rem auto 1rem;
+  padding: 0.65rem 1rem;
+  box-sizing: border-box;
+  background: rgba(10, 12, 18, 0.96);
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 10px;
   backdrop-filter: blur(8px);
+}
+
+.fmt-extra {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto 1.5rem;
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 
 .fmt-tabs-inner {
@@ -56,10 +68,7 @@
   border-color: var(--gold, #ffd700);
 }
 
-.fmt-extra {
-  max-width: 760px;
-  margin: 0.5rem 0 1.5rem;
-}
+
 
 .fmt-panel[hidden] {
   display: none !important;

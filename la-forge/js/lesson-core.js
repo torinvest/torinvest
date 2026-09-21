@@ -814,10 +814,10 @@ function ensureModuleTabsAssets() {
     });
   }
 
-  loadCss("/css/forge-module-tabs.css?v=3");
+  loadCss("/css/forge-module-tabs.css?v=4");
   return Promise.resolve()
-    .then(() => loadScript("/js/forge-module-guides.js?v=3"))
-    .then(() => loadScript("/js/forge-module-tabs.js?v=3"))
+    .then(() => loadScript("/js/forge-module-guides.js?v=4"))
+    .then(() => loadScript("/js/forge-module-tabs.js?v=4"))
     .then(() => {
       if (typeof window.initForgeModuleTabs === "function") {
         return window.initForgeModuleTabs();
