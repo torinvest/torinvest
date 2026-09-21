@@ -79,7 +79,8 @@
   }
 
   function listFields(name, values, n) {
-    var vals = padList(values, n);
+    var need = Math.max(n || 3, Array.isArray(values) ? values.length : 0);
+    var vals = padList(values, need);
     return vals
       .map(function (v, i) {
         return (
@@ -180,10 +181,10 @@
       esc(f.moduleTheme) +
       '" /></label>' +
       '<fieldset class="cf-section"><legend>1. Points positifs</legend>' +
-      listFields("positives", f.positives, 3) +
+      listFields("positives", f.positives, 6) +
       "</fieldset>" +
       '<fieldset class="cf-section"><legend>2. Difficultés identifiées</legend>' +
-      listFields("difficulties", f.difficulties, 3) +
+      listFields("difficulties", f.difficulties, 6) +
       "</fieldset>" +
       '<fieldset class="cf-section"><legend>3. Priorité de travail</legend>' +
       '<label class="cf-block">Axe principal<textarea class="cf-textarea" name="priorityAxis" rows="3">' +
@@ -191,10 +192,10 @@
       "</textarea></label>" +
       "</fieldset>" +
       '<fieldset class="cf-section"><legend>4. Ce que l’élève doit comprendre</legend>' +
-      listFields("mustUnderstand", f.mustUnderstand, 3) +
+      listFields("mustUnderstand", f.mustUnderstand, 6) +
       "</fieldset>" +
       '<fieldset class="cf-section"><legend>5. Ce que l’élève doit être capable de faire</legend>' +
-      listFields("mustDo", f.mustDo, 3) +
+      listFields("mustDo", f.mustDo, 6) +
       "</fieldset>" +
       '<fieldset class="cf-section"><legend>6. Exercice / travail avant le prochain coaching</legend>' +
       '<label class="cf-block">Exercice 1<textarea class="cf-textarea" name="exercise1" rows="2">' +
@@ -208,7 +209,7 @@
       "</textarea></label>" +
       "</fieldset>" +
       '<fieldset class="cf-section"><legend>7. Erreurs à éviter</legend>' +
-      listFields("errorsToAvoid", f.errorsToAvoid, 3) +
+      listFields("errorsToAvoid", f.errorsToAvoid, 6) +
       "</fieldset>" +
       '<fieldset class="cf-section"><legend>8. Objectif pour le prochain live</legend>' +
       '<textarea class="cf-textarea" name="nextLiveGoal" rows="2">' +
