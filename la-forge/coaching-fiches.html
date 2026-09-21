@@ -28,13 +28,31 @@
   </div>
 
   <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/auth.js"></script>
   <script src="/la-forge/js/forge-gate.js"></script>
   <script src="/la-forge/js/forge-coaching-fiches.js"></script>
   <script>
-    initForgeGate({ requirePremium: false }).then(function (me) {
-      if (!me) return;
-      initCoachingFiches(me);
-    });
+    (function () {
+      var root = document.getElementById("coaching-fiches-root");
+      function fail(msg) {
+        if (root) root.innerHTML = '<p class="cf-empty card">' + msg + "</p>";
+      }
+      if (typeof getMe !== "function") {
+        fail("Script auth manquant — redéploie DEPLOY-COACHING-FICHES.sh puis hard refresh.");
+        return;
+      }
+      initForgeGate({ requirePremium: false })
+        .then(function (me) {
+          if (!me) {
+            fail("Redirection connexion…");
+            return;
+          }
+          return initCoachingFiches(me);
+        })
+        .catch(function (err) {
+          fail("Erreur : " + (err && err.message ? err.message : String(err)));
+        });
+    })();
   </script>
 </body>
 </html>

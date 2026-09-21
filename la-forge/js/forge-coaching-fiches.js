@@ -702,19 +702,34 @@
     var root = document.getElementById("coaching-fiches-root");
     if (!root) return;
 
-    if (!state.isAdmin && !(me && (me.subscribed === true || me.subscribed === 1))) {
+    if (!me) {
+      root.innerHTML = '<p class="cf-empty card">Connexion requise.</p>';
+      return;
+    }
+
+    if (!state.isAdmin) {
       root.innerHTML =
-        '<p class="cf-empty card">Espace fiches réservé au coach, ou à l’élève via le lien de partage.</p>';
+        '<div class="cf-empty card">' +
+        "<p><strong>Compte non admin.</strong> Les fiches d’édition sont réservées au coach.</p>" +
+        "<p class=\"cf-muted\">Si tu es le coach : sur le VPS, ajoute ton email puis redémarre :</p>" +
+        "<pre style=\"white-space:pre-wrap;font-size:0.82rem;color:var(--gold)\">" +
+        "ADMIN_EMAIL=ton@email.com curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-COACHING-FICHES.sh | bash" +
+        "</pre>" +
+        "<p class=\"cf-muted\">Élève : ouvre le lien de partage reçu après le coaching.</p>" +
+        "</div>";
+      // Toujours tenter de charger les fiches partagées assignées
+      try {
+        await loadList();
+        if (state.fiches.length) {
+          state.mode = "list";
+          paint();
+        }
+      } catch (_) {}
       return;
     }
 
     try {
       await loadList();
-      if (!state.isAdmin && !state.fiches.length) {
-        root.innerHTML =
-          '<p class="cf-empty card">Aucune fiche partagée pour ton compte. Ton coach t’enverra un lien après le coaching.</p>';
-        return;
-      }
       state.mode = "list";
       paint();
     } catch (err) {

@@ -29,6 +29,7 @@ pull() {
 
 pull "$RAW/deploy/vps/app-shells/coaching-fiches.html" "$APP_DIR/public/coaching-fiches.html"
 pull "$RAW/deploy/vps/app-shells/coaching-fiche.html" "$APP_DIR/public/coaching-fiche.html"
+pull "$RAW/deploy/vps/app-shells/dashboard.html" "$APP_DIR/public/dashboard.html"
 pull "$RAW/la-forge/js/forge-coaching-fiches.js" "$APP_DIR/public/js/forge-coaching-fiches.js"
 pull "$RAW/la-forge/js/forge-brand.js" "$APP_DIR/public/js/forge-brand.js"
 pull "$RAW/la-forge/css/forge-coaching-fiches.css" "$APP_DIR/public/css/forge-coaching-fiches.css"
@@ -130,10 +131,33 @@ if (!String(process.env.FORGE_ADMIN_EMAILS || "").trim()) {
 }
 NODE
 
-# Ensure admin env hint
-if ! grep -q 'FORGE_ADMIN_EMAILS' "$APP_DIR/ecosystem.config.js" 2>/dev/null && \
-   ! grep -q 'FORGE_ADMIN_EMAILS' "$APP_DIR/.env" 2>/dev/null; then
-  echo "NOTE: vérifie que FORGE_ADMIN_EMAILS contient ton email dans l'env PM2."
+# Ensure admin email (lien dashboard + édition)
+ADMIN_EMAIL="${ADMIN_EMAIL:-abonne@torinvest-trading.com}"
+ENV_FILE="$APP_DIR/.env"
+touch "$ENV_FILE"
+if grep -q '^FORGE_ADMIN_EMAILS=' "$ENV_FILE" 2>/dev/null; then
+  # Ne pas écraser s'il y a déjà une valeur non vide, sauf si ADMIN_EMAIL est passé explicitement
+  if [[ -n "${ADMIN_EMAIL_FORCE:-}" ]] || ! grep -q '^FORGE_ADMIN_EMAILS=.\+' "$ENV_FILE"; then
+    sed -i "s|^FORGE_ADMIN_EMAILS=.*|FORGE_ADMIN_EMAILS=${ADMIN_EMAIL}|" "$ENV_FILE"
+  fi
+else
+  echo "FORGE_ADMIN_EMAILS=${ADMIN_EMAIL}" >> "$ENV_FILE"
+fi
+# Merge ADMIN_EMAIL into list if missing
+if ! grep -qi "^FORGE_ADMIN_EMAILS=.*${ADMIN_EMAIL}" "$ENV_FILE"; then
+  cur=$(grep '^FORGE_ADMIN_EMAILS=' "$ENV_FILE" | head -1 | cut -d= -f2-)
+  if [[ -z "$cur" ]]; then
+    sed -i "s|^FORGE_ADMIN_EMAILS=.*|FORGE_ADMIN_EMAILS=${ADMIN_EMAIL}|" "$ENV_FILE"
+  else
+    sed -i "s|^FORGE_ADMIN_EMAILS=.*|FORGE_ADMIN_EMAILS=${cur},${ADMIN_EMAIL}|" "$ENV_FILE"
+  fi
+fi
+echo "FORGE_ADMIN_EMAILS=$(grep '^FORGE_ADMIN_EMAILS=' "$ENV_FILE" | head -1 | cut -d= -f2-)"
+export FORGE_ADMIN_EMAILS="$(grep '^FORGE_ADMIN_EMAILS=' "$ENV_FILE" | head -1 | cut -d= -f2-)"
+
+# PM2: inject env if ecosystem used
+if [[ -f "$APP_DIR/ecosystem.config.js" ]] || [[ -f "$APP_DIR/ecosystem.config.cjs" ]]; then
+  echo "NOTE: si PM2 n'utilise pas .env, lance : pm2 restart la-forge --update-env"
 fi
 
 pm2 restart la-forge --update-env || pm2 restart all --update-env || true
@@ -142,11 +166,13 @@ sleep 1
 echo ""
 echo "Vérif locale :"
 curl -sS -o /dev/null -w "coaching-fiches.html %{http_code}\n" "http://127.0.0.1:3001/coaching-fiches.html" || true
-curl -sS -o /dev/null -w "coaching-fiche.html %{http_code}\n" "http://127.0.0.1:3001/coaching-fiche.html" || true
+curl -sS -o /dev/null -w "dashboard.html %{http_code}\n" "http://127.0.0.1:3001/dashboard.html" || true
 curl -sS -o /dev/null -w "forge-coaching-fiches.js %{http_code}\n" "http://127.0.0.1:3001/js/forge-coaching-fiches.js" || true
+grep -n "data-cf-admin-nav\|Fiches coaching\|auth.js" "$APP_DIR/public/coaching-fiches.html" "$APP_DIR/public/dashboard.html" | head -20 || true
 
 echo ""
 echo "Public :"
 echo "  https://app.torinvest-trading.com/coaching-fiches.html  (toi = admin)"
-echo "  https://app.torinvest-trading.com/coaching-fiche.html?t=TOKEN  (élève)"
+echo "  https://app.torinvest-trading.com/dashboard.html  → lien Fiches coaching si isAdmin"
+echo "  Connecte-toi avec l'email admin : $ADMIN_EMAIL"
 echo "======== DONE ========"
