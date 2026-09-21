@@ -88,7 +88,9 @@ block = f"""<!-- FORGE_MODULE0_VIDEO_START -->
     controls
     playsinline
     preload="metadata"
-    controlslist="nodownload"
+    controlslist="nodownload noplaybackrate"
+    disablepictureinpicture
+    oncontextmenu="return false"
     style="width:100%;max-width:960px;border-radius:12px;background:#000;display:block;margin:1.25rem auto;"
   >
     <source src="{video_url}" type="video/mp4" />

@@ -1,0 +1,17 @@
+/* Lecteurs vidéo formation — protection basique (comme Module 0) */
+.forge-lesson-video video,
+.forge-lesson-video--protected video {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Chrome / Safari : masquer le bouton télécharger du lecteur natif */
+.forge-lesson-video video::-webkit-media-controls-download-button,
+.forge-lesson-video--protected video::-webkit-media-controls-download-button {
+  display: none !important;
+}
+
+.forge-lesson-video video::-internal-media-controls-download-button,
+.forge-lesson-video--protected video::-internal-media-controls-download-button {
+  display: none !important;
+}
