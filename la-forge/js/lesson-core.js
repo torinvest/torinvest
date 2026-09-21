@@ -782,6 +782,53 @@ window.ForgeChartFit = fitChartToWrap;
 window.restoreChartViewBox = restoreChartViewBox;
 window.openChartViewer = openChartViewer;
 
+/** Charge Mode d'emploi + Questions même si la leçon HTML n'a pas été patchée. */
+function ensureModuleTabsAssets() {
+  const path = window.location.pathname || "";
+  if (!/\/course\/[^/]+\.html$/i.test(path)) return;
+  if (/\/course\/index\.html$/i.test(path)) return;
+  if (window.__forgeModuleTabsLoading) return;
+  window.__forgeModuleTabsLoading = true;
+
+  function loadCss(href) {
+    if (document.querySelector('link[href*="forge-module-tabs.css"]')) return;
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    document.head.appendChild(link);
+  }
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const file = src.split("?")[0].split("/").pop();
+      if (document.querySelector('script[src*="' + file + '"]')) {
+        resolve();
+        return;
+      }
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error("fail " + src));
+      document.head.appendChild(s);
+    });
+  }
+
+  loadCss("/css/forge-module-tabs.css?v=2");
+  return Promise.resolve()
+    .then(() => loadScript("/js/forge-module-guides.js?v=2"))
+    .then(() => loadScript("/js/forge-module-tabs.js?v=2"))
+    .then(() => {
+      if (typeof window.initForgeModuleTabs === "function") {
+        return window.initForgeModuleTabs();
+      }
+    })
+    .catch((err) => {
+      console.warn("[forge] module tabs:", err);
+    });
+}
+
+window.ensureModuleTabsAssets = ensureModuleTabsAssets;
+
 function initCoursePageGate() {
   const path = window.location.pathname || "";
   if (!/\/course\/[^/]+\.html$/i.test(path)) return;
@@ -801,6 +848,7 @@ function initCoursePageGate() {
           return;
         }
       }
+      ensureModuleTabsAssets();
       return;
     }
     if (typeof getMe !== "function") return;
@@ -820,7 +868,9 @@ function initCoursePageGate() {
           ? "/dashboard.html?locked=1"
           : "https://app.torinvest-trading.com/dashboard.html?locked=1"
       );
+      return;
     }
+    ensureModuleTabsAssets();
   };
 
   if (document.readyState === "loading") {

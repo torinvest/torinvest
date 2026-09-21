@@ -110,7 +110,7 @@
             );
           })
           .join("")
-      : '<p class="fmt-empty">Aucune question pour ce filtre.</p>';
+      : '<p class="fmt-empty">Aucune question pour ce filtre.<br/>C’est normal tant qu’un élève n’a pas encore écrit dans l’onglet <strong>Mes questions</strong> d’un module.</p>';
 
     root.innerHTML =
       '<div class="fmt-admin-filters">' +
