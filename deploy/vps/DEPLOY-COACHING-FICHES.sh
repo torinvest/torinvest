@@ -36,7 +36,7 @@ pull "$RAW/deploy/vps/formation-server/routes-coaching-fiches.js" "$APP_DIR/serv
 pull "$RAW/deploy/vps/wire-formation-server-patches.js" "$APP_DIR/wire-formation-server-patches.js"
 
 # Wire router into server.js (idempotent helper below)
-node <<'NODE'
+APP_DIR="$APP_DIR" node <<'NODE'
 const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
