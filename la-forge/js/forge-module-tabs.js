@@ -26,7 +26,9 @@
       document.querySelector("main.lesson-pro") ||
       document.querySelector(".lesson-layout") ||
       document.querySelector("main.container") ||
-      document.querySelector("main")
+      document.querySelector("main") ||
+      document.querySelector(".container") ||
+      document.body
     );
   }
 
