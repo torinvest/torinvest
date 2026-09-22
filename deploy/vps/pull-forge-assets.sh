@@ -45,6 +45,7 @@ JS_FILES=(
   forge-ict-atlas.js
   forge-styles-atlas.js
   forge-psycho-atlas.js
+  forge-indicateurs-atlas.js
   books-data.js
   forge-books.js
   forge-live-resources.js
@@ -63,6 +64,7 @@ CSS_FILES=(
   forge-ict-atlas.css
   forge-styles-atlas.css
   forge-psycho-atlas.css
+  forge-indicateurs-atlas.css
   forge-coaching-fiches.css
   forge-module-tabs.css
   forge-lesson-video.css
@@ -93,6 +95,7 @@ IMG_FILES=(
   ict-atlas-icon.svg
   styles-atlas-icon.svg
   psycho-atlas-icon.svg
+  indicateurs-atlas-icon.svg
   dash-journal.svg
   dash-books.svg
   dash-atlas.svg

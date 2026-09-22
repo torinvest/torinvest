@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Atlas Indicateurs — Espace La Forge</title>
+  <meta name="description" content="Atlas indicateurs : RSI, EMA, MACD, Fibonacci, VWAP, Bollinger, Stochastique, Delta, Volume Profile, FRVP — cas d’étude et quiz par fiche." />
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <link rel="stylesheet" href="/css/forge-indicateurs-atlas.css?v=1" />
+  <style>
+    .ind-shell-hero { margin: 0 0 1rem; }
+    .ind-shell-hero h1 { margin: 0.2rem 0; color: var(--gold); font-size: 1.35rem; }
+    .ind-shell-hero p { color: var(--muted); font-size: 0.92rem; margin: 0.4rem 0 0; line-height: 1.55; max-width: 48rem; }
+    .ind-shell-note {
+      margin: 0 0 1rem;
+      padding: 0.75rem 0.9rem;
+      border-left: 3px solid rgba(255, 215, 0, 0.45);
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    #indicateurs-atlas-root {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0e1118;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="indicateurs-atlas"></header>
+
+  <div class="container" style="max-width:1100px">
+    <div class="ind-shell-hero">
+      <span class="forge-hero-tag">Espace membre · atlas indicateurs</span>
+      <h1>Atlas Indicateurs</h1>
+      <p>
+        RSI, EMA, MACD, Stochastique, Bollinger, Fibonacci, VWAP, volume, delta,
+        <strong>Volume Profile</strong>, <strong>Fixed Range VP</strong>…
+        Comment les lire, <strong>quand</strong> les utiliser, comment les
+        <strong>combiner</strong> — et pourquoi ne pas tous les empiler.
+        Cas d’étude + quiz sur chaque fiche.
+      </p>
+    </div>
+
+    <p class="ind-shell-note">
+      La structure ICT / price action reste prioritaire.
+      Les indicateurs sont des <strong>filtres</strong>, pas une stratégie magique.
+      Consulter une fiche <strong>ne valide pas</strong> un module de formation.
+    </p>
+
+    <div id="indicateurs-atlas-root" hidden>
+      <a class="skip" href="#lesson">Aller à la fiche</a>
+      <header class="topbar">
+        <a class="brand" href="#philosophie" aria-label="Atlas Indicateurs La Forge">
+          <span class="brandmark" aria-hidden="true">▦</span>
+          ATLAS<span class="brand-light"> INDICATEURS</span>
+        </a>
+        <span class="top-caption">LA FORGE · LECTURE TECHNIQUE</span>
+        <a href="#sources" class="source-link">Limites &amp; risques <span aria-hidden="true">↗</span></a>
+      </header>
+      <div class="shell">
+        <aside>
+          <div class="nav-heading">LE PARCOURS <span>14 FICHES</span></div>
+          <nav id="concept-nav" aria-label="Parcours des indicateurs"></nav>
+          <div class="sidebar-note">
+            <span class="small-symbol">◎</span>
+            <p>Comprendre l’outil.<br>Savoir quand l’utiliser.<br><strong>Savoir quand le couper.</strong></p>
+          </div>
+          <div class="sidebar-foot">ATLAS PÉDAGOGIQUE <span>ÉDITION 01</span></div>
+        </aside>
+        <main id="lesson" tabindex="-1">
+          <div class="breadcrumb">Indicateurs <span>/</span> <span id="crumb">Fondations</span></div>
+          <section class="lesson-heading">
+            <div>
+              <div class="eyebrow" id="eyebrow"></div>
+              <h1 id="title"></h1>
+            </div>
+            <span class="lesson-number" id="number" aria-hidden="true"></span>
+          </section>
+          <p class="lead" id="intro"></p>
+          <section class="chart-panel" aria-label="Schéma animé">
+            <div class="chart-toolbar">
+              <div>
+                <span class="chart-icon" aria-hidden="true">▥</span>
+                <strong id="chart-title"></strong>
+                <span class="tag">SCHÉMA ANIMÉ</span>
+              </div>
+              <button type="button" class="replay-btn" id="replay-anim" title="Rejouer l’animation">↻ Rejouer</button>
+            </div>
+            <div id="chart" class="chart"></div>
+            <div class="chart-caption">
+              <span class="accent-line"></span>
+              <p id="chart-caption"></p>
+            </div>
+          </section>
+          <div class="under-chart">
+            <span id="subtopic"></span>
+            <span class="legend"><i></i> Signal / zone <i class="amber"></i> Volume / filtre</span>
+          </div>
+          <section class="explanations" aria-label="Comprendre l’indicateur">
+            <article>
+              <span class="card-kicker">01 / COMPRENDRE</span>
+              <h2 id="definition-title"></h2>
+              <p id="definition"></p>
+            </article>
+            <article>
+              <span class="card-kicker">02 / OBSERVER</span>
+              <h2 id="observe-title"></h2>
+              <p id="observe"></p>
+            </article>
+            <article class="warning-card">
+              <span class="card-kicker">03 / GARDER DU RECUL</span>
+              <h2 id="mistake-title"></h2>
+              <p id="mistake"></p>
+            </article>
+          </section>
+          <section class="detail-grid" aria-label="Détail technique">
+            <article>
+              <span class="card-kicker">OUTILS / PLATEFORMES</span>
+              <p id="tools"></p>
+            </article>
+            <article>
+              <span class="card-kicker">LIEN LA FORGE</span>
+              <p id="forge-link"></p>
+            </article>
+          </section>
+          <div class="combine-box" aria-label="Combinaison">
+            <span class="card-kicker">COMBINER / NE PAS EMPILER</span>
+            <p id="combine-text"></p>
+          </div>
+          <section class="reading">
+            <div>
+              <span class="eyebrow">SUR TON GRAPHIQUE</span>
+              <h2>Le lire, étape par étape.</h2>
+            </div>
+            <ol id="steps"></ol>
+          </section>
+          <section class="case-study" aria-label="Cas d’étude">
+            <span class="card-kicker">CAS D’ÉTUDE</span>
+            <h2 id="case-title"></h2>
+            <p><strong>Setup — </strong><span id="case-setup"></span></p>
+            <p><strong>Action — </strong><span id="case-action"></span></p>
+            <p><strong>Leçon — </strong><span id="case-lesson"></span></p>
+          </section>
+          <section class="quiz-block" aria-label="Quiz">
+            <span class="card-kicker">QUIZ · SEUIL 70 %</span>
+            <h2>Vérifie que tu as compris.</h2>
+            <div id="quiz-root"></div>
+          </section>
+          <div class="lesson-footer">
+            <button id="previous" class="button secondary" type="button">← Précédent</button>
+            <span id="page-count"></span>
+            <button id="next" class="button primary" type="button">Fiche suivante →</button>
+          </div>
+          <footer id="sources">
+            <div class="footer-top">
+              <span class="brand small">ATLAS<span class="brand-light"> INDICATEURS</span></span>
+              <p>Des outils de lecture — pas une promesse de gain.</p>
+            </div>
+            <p>
+              Synthèse pédagogique indépendante. Les indicateurs cités appartiennent à des traditions
+              et plateformes distinctes (TradingView, MT5, order-flow…). Les schémas sont construits
+              (prix fictifs), pas des données live ni un backtest.
+            </p>
+            <p class="risk">
+              Empiler des indicateurs n’augmente pas l’edge. Priorité : structure, risque, process.
+              Toute pratique exige règles écrites, invalidation, et tests avec frais / spread.
+            </p>
+          </footer>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=8"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-indicateurs-atlas.js?v=1"></script>
+  <script>
+    initForgeGate({ requirePremium: true }).then(function (me) {
+      if (!me) return;
+      var root = document.getElementById("indicateurs-atlas-root");
+      if (!root) return;
+      root.hidden = false;
+      if (typeof bootForgeIndicateursAtlas === "function") bootForgeIndicateursAtlas();
+    });
+  </script>
+  <script src="/js/forge-legal.js"></script>
+</body>
+</html>
