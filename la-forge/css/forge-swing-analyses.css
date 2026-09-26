@@ -154,6 +154,15 @@
   margin: 0 0 0.85rem;
   font-size: 0.8rem;
 }
+.swa-upload-status {
+  min-height: 1.1em;
+  margin: 0.45rem 0 0.65rem;
+  font-size: 0.82rem;
+  color: var(--aqua, #5eead4);
+}
+.swa-upload-status--err {
+  color: #e07a6a;
+}
 
 .swa-gallery {
   display: grid;

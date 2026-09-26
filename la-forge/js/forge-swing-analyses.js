@@ -9,7 +9,133 @@
     list: [],
     current: null,
     mode: "list", // list | view | edit
+    uploading: false,
   };
+
+  /** Compresse un screen (JPEG) pour passer la limite nginx ~1 Mo. */
+  function compressImageFile(file, maxSide, quality) {
+    maxSide = maxSide || 1600;
+    quality = quality || 0.82;
+    return new Promise(function (resolve, reject) {
+      if (!file || !file.type || file.type.indexOf("image/") !== 0) {
+        reject(new Error("Fichier image requis (JPEG/PNG/WebP)"));
+        return;
+      }
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var w = img.naturalWidth || img.width;
+          var h = img.naturalHeight || img.height;
+          if (!w || !h) throw new Error("Image illisible");
+          var scale = Math.min(1, maxSide / Math.max(w, h));
+          var cw = Math.max(1, Math.round(w * scale));
+          var ch = Math.max(1, Math.round(h * scale));
+          var canvas = document.createElement("canvas");
+          canvas.width = cw;
+          canvas.height = ch;
+          var ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#0b0f14";
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.drawImage(img, 0, 0, cw, ch);
+          var dataUrl = canvas.toDataURL("image/jpeg", quality);
+          URL.revokeObjectURL(url);
+          // Si encore trop gros pour nginx (~700 Ko JSON), recompresser.
+          if (dataUrl.length > 700000 && quality > 0.55) {
+            resolve(canvas.toDataURL("image/jpeg", 0.62));
+            return;
+          }
+          resolve(dataUrl);
+        } catch (err) {
+          URL.revokeObjectURL(url);
+          reject(err);
+        }
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Impossible de lire l’image (HEIC non supporté — exporte en PNG/JPEG)"));
+      };
+      img.src = url;
+    });
+  }
+
+  function readFormPayload(form) {
+    var fd = new FormData(form);
+    return {
+      title: fd.get("title"),
+      pair: fd.get("pair"),
+      timeframe: fd.get("timeframe"),
+      bias: fd.get("bias"),
+      horizon: fd.get("horizon"),
+      thesis: fd.get("thesis"),
+      context: fd.get("context"),
+      structure: fd.get("structure"),
+      entryZone: fd.get("entryZone"),
+      invalidation: fd.get("invalidation"),
+      targets: [fd.get("target0"), fd.get("target1"), fd.get("target2")].filter(Boolean),
+      projections: fd.get("projections"),
+      scenarioBase: fd.get("scenarioBase"),
+      scenarioBull: fd.get("scenarioBull"),
+      scenarioBear: fd.get("scenarioBear"),
+      checklist: [fd.get("check0"), fd.get("check1"), fd.get("check2")].filter(Boolean),
+      notes: fd.get("notes"),
+    };
+  }
+
+  async function ensureAnalysisSaved() {
+    var a = state.current || {};
+    var form = document.getElementById("swa-form");
+    if (!form) throw new Error("Formulaire introuvable");
+    var payload = readFormPayload(form);
+    if (!String(payload.title || "").trim()) {
+      throw new Error("Indique un titre, puis réessaie d’ajouter le screen.");
+    }
+    var data;
+    if (a.id) {
+      data = await api("/api/swing-analyses/" + encodeURIComponent(a.id), {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+    } else {
+      data = await api("/api/swing-analyses", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    }
+    state.current = data.analysis;
+    return state.current;
+  }
+
+  function setUploadStatus(msg, isError) {
+    var el = document.getElementById("swa-upload-status");
+    if (!el) return;
+    el.textContent = msg || "";
+    el.className = "swa-upload-status" + (isError ? " swa-upload-status--err" : "");
+  }
+
+  async function postImage(analysisId, dataUrl, caption) {
+    var res = await fetch(
+      "/api/swing-analyses/" + encodeURIComponent(analysisId) + "/images",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dataUrl: dataUrl, caption: caption || "" }),
+      }
+    );
+    var data = await res.json().catch(function () {
+      return {};
+    });
+    if (!res.ok) {
+      if (res.status === 413) {
+        throw new Error(
+          "Image trop lourde (limite serveur). Le screen a été rejeté — redéploie le fix nginx ou utilise une capture plus légère."
+        );
+      }
+      throw new Error(data.error || "Erreur upload screen (" + res.status + ")");
+    }
+    return data;
+  }
 
   function esc(s) {
     return String(s || "")
@@ -527,11 +653,10 @@
       field("Notes privées coach", "notes", a.notes || "", "textarea") +
       '<section class="swa-upload">' +
       "<h3>Screens / captures</h3>" +
-      '<p class="swa-muted">JPEG, PNG ou WebP — max 6 Mo. Enregistre d\'abord l\'analyse pour ajouter des images.</p>' +
-      (a.id
-        ? '<label class="btn btn-secondary swa-file-btn">Ajouter un screen<input type="file" id="swa-file" accept="image/*" hidden /></label>' +
-          '<label class="swa-field"><span>Légende du prochain screen</span><input id="swa-caption" placeholder="Ex. H4 — liquidité SSL prise" /></label>'
-        : '<p class="swa-muted">Sauvegarde pour débloquer l\'upload.</p>') +
+      '<p class="swa-muted">JPEG, PNG ou WebP. L’image est compressée automatiquement. Un titre suffit — l’analyse est enregistrée au besoin avant l’upload.</p>' +
+      '<label class="btn btn-secondary swa-file-btn">Ajouter un screen<input type="file" id="swa-file" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp" hidden /></label>' +
+      '<label class="swa-field"><span>Légende du prochain screen</span><input id="swa-caption" placeholder="Ex. H4 — liquidité SSL prise" /></label>' +
+      '<p class="swa-upload-status" id="swa-upload-status" aria-live="polite"></p>' +
       '<div class="swa-edit-gallery">' +
       imgList +
       "</div></section>" +
@@ -563,63 +688,41 @@
 
     document.getElementById("swa-form").onsubmit = async function (e) {
       e.preventDefault();
-      var fd = new FormData(e.target);
-      var payload = {
-        title: fd.get("title"),
-        pair: fd.get("pair"),
-        timeframe: fd.get("timeframe"),
-        bias: fd.get("bias"),
-        horizon: fd.get("horizon"),
-        thesis: fd.get("thesis"),
-        context: fd.get("context"),
-        structure: fd.get("structure"),
-        entryZone: fd.get("entryZone"),
-        invalidation: fd.get("invalidation"),
-        targets: [fd.get("target0"), fd.get("target1"), fd.get("target2")].filter(Boolean),
-        projections: fd.get("projections"),
-        scenarioBase: fd.get("scenarioBase"),
-        scenarioBull: fd.get("scenarioBull"),
-        scenarioBear: fd.get("scenarioBear"),
-        checklist: [fd.get("check0"), fd.get("check1"), fd.get("check2")].filter(Boolean),
-        notes: fd.get("notes"),
-      };
-      var data;
-      if (a.id) {
-        data = await api("/api/swing-analyses/" + encodeURIComponent(a.id), {
-          method: "PUT",
-          body: JSON.stringify(payload),
-        });
-      } else {
-        data = await api("/api/swing-analyses", {
-          method: "POST",
-          body: JSON.stringify(payload),
-        });
+      try {
+        await ensureAnalysisSaved();
+        state.mode = "edit";
+        renderEdit();
+        alert("Enregistré.");
+      } catch (err) {
+        alert(err && err.message ? err.message : String(err));
       }
-      state.current = data.analysis;
-      state.mode = "edit";
-      renderEdit();
-      alert("Enregistré.");
     };
 
     var file = document.getElementById("swa-file");
     if (file) {
       file.onchange = async function () {
         var f = file.files && file.files[0];
-        if (!f || !a.id) return;
-        var reader = new FileReader();
-        reader.onload = async function () {
+        if (!f || state.uploading) return;
+        state.uploading = true;
+        setUploadStatus("Compression du screen…");
+        try {
+          var dataUrl = await compressImageFile(f);
+          setUploadStatus("Enregistrement + envoi…");
+          var saved = await ensureAnalysisSaved();
           var caption = (document.getElementById("swa-caption") || {}).value || "";
-          var data = await api(
-            "/api/swing-analyses/" + encodeURIComponent(a.id) + "/images",
-            {
-              method: "POST",
-              body: JSON.stringify({ dataUrl: reader.result, caption: caption }),
-            }
-          );
+          var data = await postImage(saved.id, dataUrl, caption);
           state.current = data.analysis;
+          state.mode = "edit";
           renderEdit();
-        };
-        reader.readAsDataURL(f);
+          setUploadStatus("Screen ajouté.");
+        } catch (err) {
+          var msg = err && err.message ? err.message : String(err);
+          setUploadStatus(msg, true);
+          alert("Upload screen : " + msg);
+        } finally {
+          state.uploading = false;
+          file.value = "";
+        }
       };
     }
 
