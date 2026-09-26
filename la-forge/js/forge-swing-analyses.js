@@ -530,10 +530,45 @@
     var pub = document.getElementById("swa-toggle-pub");
     if (pub)
       pub.onclick = async function () {
-        await api("/api/swing-analyses/" + encodeURIComponent(a.id) + "/publish", {
-          method: "POST",
-          body: JSON.stringify({ enable: !a.published }),
-        });
+        var enabling = !a.published;
+        if (enabling) {
+          if (!confirm("Publier cette analyse pour les élèves Premium ?")) return;
+        } else {
+          if (!confirm("Dépublier cette analyse ? Elle ne sera plus visible pour les élèves.")) return;
+        }
+        var notify = false;
+        if (enabling) {
+          notify = confirm(
+            "Notifier les élèves maintenant ?\n\n• Discord (salon configuré)\n• Email Brevo (liste Accompagnement)\n\nOK = publier + notifier\nAnnuler = publier sans notifier"
+          );
+        }
+        try {
+          var data = await api("/api/swing-analyses/" + encodeURIComponent(a.id) + "/publish", {
+            method: "POST",
+            body: JSON.stringify({ enable: enabling, notify: notify }),
+          });
+          if (enabling && notify) {
+            var n = data && data.notify;
+            if (n && n.ok) {
+              var parts = [];
+              if (n.discord && n.discord.ok) parts.push("Discord OK");
+              else if (n.discord && n.discord.skipped) parts.push("Discord non configuré");
+              else parts.push("Discord échec");
+              if (n.brevo && n.brevo.ok) parts.push("Email Brevo OK");
+              else if (n.brevo && n.brevo.skipped) parts.push("Brevo non configuré");
+              else parts.push("Brevo échec: " + ((n.brevo && n.brevo.error) || (n.error || "?")));
+              alert("Publié.\nNotifications : " + parts.join(" · "));
+            } else if (n) {
+              alert(
+                "Publié, mais notification incomplète : " +
+                  (n.error || (n.hint || "vérifie Discord webhook + Brevo"))
+              );
+            }
+          }
+        } catch (err) {
+          alert(err && err.message ? err.message : String(err));
+          return;
+        }
         await openOne(a.id);
       };
   }
