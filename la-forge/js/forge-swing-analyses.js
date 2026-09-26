@@ -239,7 +239,10 @@
       "<div><h2>Analyses &amp; scénarios swing</h2>" +
       '<p class="swa-lead">Projections, niveaux, scénarios et screens — pour le swing.</p></div>' +
       (state.isAdmin
-        ? '<button type="button" class="btn btn-primary" id="swa-new">Nouvelle analyse</button>'
+        ? '<div class="swa-actions">' +
+          '<button type="button" class="btn btn-secondary" id="swa-load-gold-list" title="Ouvre l’éditeur prérempli — n’enregistre pas">Charger exemple GOLD</button>' +
+          '<button type="button" class="btn btn-primary" id="swa-new">Nouvelle analyse</button>' +
+          "</div>"
         : "") +
       "</div>" +
       '<div class="swa-grid">' +
@@ -257,6 +260,13 @@
         state.current = emptyForm();
         state.mode = "edit";
         renderEdit();
+      });
+    }
+    var goldList = document.getElementById("swa-load-gold-list");
+    if (goldList) {
+      goldList.addEventListener("click", function () {
+        state.current = emptyForm();
+        applyGoldExample();
       });
     }
   }
@@ -478,7 +488,7 @@
       '<div class="swa-toolbar">' +
       '<button type="button" class="btn btn-secondary" id="swa-back">← Retour</button>' +
       '<div class="swa-actions">' +
-      '<button type="button" class="btn btn-secondary swa-btn-quiet" id="swa-load-gold" title="Remplit les champs — n’enregistre pas">Charger exemple GOLD</button>' +
+      '<button type="button" class="btn btn-secondary" id="swa-load-gold" title="Remplit les champs — n’enregistre pas">Charger exemple GOLD</button>' +
       '<button type="submit" class="btn btn-primary">Enregistrer</button>' +
       (a.id
         ? '<button type="button" class="btn btn-secondary" id="swa-preview">Voir</button>' +

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Déploie Analyses & scénarios swing.
 #
-#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/analyses-scenarios-swing-691a/deploy/vps/DEPLOY-SWING-ANALYSES.sh -o /tmp/d-swa.sh && bash /tmp/d-swa.sh
+#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-SWING-ANALYSES.sh -o /tmp/d-swa.sh && bash /tmp/d-swa.sh
+#   # ou branche :
+#   REF=cursor/swing-gold-visible-691a curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/swing-gold-visible-691a/deploy/vps/DEPLOY-SWING-ANALYSES.sh -o /tmp/d-swa.sh && REF=cursor/swing-gold-visible-691a bash /tmp/d-swa.sh
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/analyses-scenarios-swing-691a}"
+REF="${REF:-main}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 
 echo "======== DEPLOY SWING ANALYSES ($REF) ========"
