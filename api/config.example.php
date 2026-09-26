@@ -70,6 +70,11 @@ return [
     // Webhook Discord admin — alerte à chaque formulaire activation traité
     'provision_notify_discord_webhook' => '',
 
+    // Webhook Discord élèves — annonce « nouvelle analyse swing » (sinon repli provision_notify)
+    'swing_notify_discord_webhook' => '',
+    // true = inclure aussi la liste VIP Brevo dans l’email d’annonce swing
+    'brevo_swing_notify_include_vip' => false,
+
     // Si true + secret défini : seul le webhook Netlify peut provisionner (navigateur bloqué)
     'require_webhook_provision' => true,
 

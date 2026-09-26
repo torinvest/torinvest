@@ -17,6 +17,7 @@ FILES=(
   admin-licence-lib.php
   formation-provision-lib.php
   formation-password-mail.php
+  swing-analysis-notify.php
   license-provision.php
   stripe-webhook.php
   stripe-lib.php

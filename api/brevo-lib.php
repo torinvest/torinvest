@@ -361,3 +361,185 @@ function brevoSendRenewalEmail(string $planType, array $context): array
         'htmlContent' => $html,
     ]);
 }
+
+/**
+ * Campagne Brevo : nouvelle analyse swing disponible sur La Forge.
+ * Listes : accompagnement (+ VIP si configurée).
+ *
+ * @param array{title?:string,pair?:string,timeframe?:string,bias?:string,url?:string,thesis?:string} $context
+ * @return array{ok:bool,skipped?:bool,reason?:string,campaignId?:int|null,create?:array,send?:array,error?:string,listIds?:int[]}
+ */
+function brevoSendSwingAnalysisNotify(array $context): array
+{
+    if (!brevoIsConfigured()) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'brevo_not_configured'];
+    }
+
+    $listIds = [];
+    $acc = brevoListId('accompagnement');
+    $vip = brevoListId('vip');
+    if ($acc > 0) {
+        $listIds[] = $acc;
+    }
+    // Swing = contenu formation : inclure VIP seulement si flag explicite
+    $includeVip = filter_var(brevoConfigValue('brevo_swing_notify_include_vip', false), FILTER_VALIDATE_BOOLEAN);
+    if ($includeVip && $vip > 0) {
+        $listIds[] = $vip;
+    }
+    $listIds = array_values(array_unique(array_filter($listIds)));
+    if ($listIds === []) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'no_list_ids', 'listIds' => []];
+    }
+
+    $title = trim((string) ($context['title'] ?? 'Nouvelle analyse swing'));
+    $pair = trim((string) ($context['pair'] ?? 'XAUUSD'));
+    $timeframe = trim((string) ($context['timeframe'] ?? ''));
+    $bias = trim((string) ($context['bias'] ?? ''));
+    $url = trim((string) ($context['url'] ?? 'https://app.torinvest-trading.com/swing-analyses.html'));
+    $thesis = trim((string) ($context['thesis'] ?? ''));
+    if (function_exists('mb_strlen') ? mb_strlen($thesis) > 280 : strlen($thesis) > 280) {
+        $thesis = (function_exists('mb_substr') ? mb_substr($thesis, 0, 277) : substr($thesis, 0, 277)) . '…';
+    }
+
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+
+    $meta = htmlspecialchars($pair, ENT_QUOTES, 'UTF-8');
+    if ($timeframe !== '') {
+        $meta .= ' · ' . htmlspecialchars($timeframe, ENT_QUOTES, 'UTF-8');
+    }
+    if ($bias !== '') {
+        $meta .= ' · ' . htmlspecialchars($bias, ENT_QUOTES, 'UTF-8');
+    }
+
+    $html = '<div style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">';
+    $html .= '<div style="background:linear-gradient(135deg,#ffb400,#ff4b5c);padding:18px 22px;border-radius:12px 12px 0 0;">';
+    $html .= '<strong style="color:#1a1200;font-size:18px;">TORINVEST — La Forge</strong></div>';
+    $html .= '<div style="border:1px solid #eee;border-top:none;padding:22px;border-radius:0 0 12px 12px;">';
+    $html .= '<p>Une nouvelle <strong>analyse &amp; scénario swing</strong> est disponible.</p>';
+    $html .= '<p style="font-size:18px;font-weight:700;margin:12px 0;">' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</p>';
+    $html .= '<p style="color:#555;font-size:14px;">' . $meta . '</p>';
+    if ($thesis !== '') {
+        $html .= '<p style="background:#f7f7f7;border-radius:10px;padding:12px;font-size:14px;line-height:1.5;">'
+            . nl2br(htmlspecialchars($thesis, ENT_QUOTES, 'UTF-8')) . '</p>';
+    }
+    $html .= '<p><a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Ouvrir l’analyse</a></p>';
+    $html .= '<p style="font-size:12px;color:#888;">Contenu pédagogique — scénario conditionnel, pas un signal automatique.</p>';
+    $html .= '</div></div>';
+
+    $clip = static function (string $s, int $max): string {
+        if (function_exists('mb_strlen') ? mb_strlen($s) <= $max : strlen($s) <= $max) {
+            return $s;
+        }
+        return (function_exists('mb_substr') ? mb_substr($s, 0, $max) : substr($s, 0, $max));
+    };
+    $campaignName = 'Swing ' . gmdate('Y-m-d H:i') . ' — ' . $clip($title, 80);
+    $subject = 'Nouvelle analyse swing — ' . $clip($title, 120);
+
+    try {
+        $create = brevoApiRequest('POST', '/emailCampaigns', [
+            'name' => $campaignName,
+            'subject' => $subject,
+            'sender' => ['name' => $senderName, 'email' => $senderEmail],
+            'htmlContent' => $html,
+            'recipients' => ['listIds' => $listIds],
+        ]);
+        $campaignId = isset($create['id']) ? (int) $create['id'] : 0;
+        if ($campaignId < 1) {
+            return [
+                'ok' => false,
+                'error' => 'campaign_id_missing',
+                'create' => $create,
+                'listIds' => $listIds,
+            ];
+        }
+        $send = brevoApiRequest('POST', '/emailCampaigns/' . $campaignId . '/sendNow');
+        return [
+            'ok' => true,
+            'campaignId' => $campaignId,
+            'create' => $create,
+            'send' => $send,
+            'listIds' => $listIds,
+        ];
+    } catch (Throwable $e) {
+        return [
+            'ok' => false,
+            'error' => $e->getMessage(),
+            'listIds' => $listIds,
+        ];
+    }
+}
+
+/**
+ * Webhook Discord — annonce nouvelle analyse swing.
+ *
+ * @param array{title?:string,pair?:string,timeframe?:string,bias?:string,url?:string} $context
+ * @return array{ok:bool,skipped?:bool,reason?:string,error?:string}
+ */
+function swingAnalysisNotifyDiscord(array $context): array
+{
+    $cfg = licenceCrmConfig();
+    $url = trim((string) ($cfg['swing_notify_discord_webhook'] ?? ''));
+    if ($url === '') {
+        $url = trim((string) ($cfg['provision_notify_discord_webhook'] ?? ''));
+    }
+    if ($url === '') {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'discord_webhook_missing'];
+    }
+
+    $title = trim((string) ($context['title'] ?? 'Nouvelle analyse swing'));
+    $pair = trim((string) ($context['pair'] ?? ''));
+    $timeframe = trim((string) ($context['timeframe'] ?? ''));
+    $bias = trim((string) ($context['bias'] ?? ''));
+    $link = trim((string) ($context['url'] ?? 'https://app.torinvest-trading.com/swing-analyses.html'));
+
+    $desc = 'Une nouvelle analyse est dispo dans **Analyses & scénarios swing**.';
+    $fields = [];
+    if ($pair !== '') {
+        $fields[] = ['name' => 'Paire', 'value' => $pair, 'inline' => true];
+    }
+    if ($timeframe !== '') {
+        $fields[] = ['name' => 'TF', 'value' => $timeframe, 'inline' => true];
+    }
+    if ($bias !== '') {
+        $fields[] = ['name' => 'Biais', 'value' => $bias, 'inline' => true];
+    }
+    $fields[] = ['name' => 'Lien', 'value' => $link, 'inline' => false];
+
+    $body = json_encode([
+        'content' => '📊 Nouvelle analyse swing disponible',
+        'embeds' => [[
+            'title' => function_exists('mb_substr') ? mb_substr($title, 0, 200) : substr($title, 0, 200),
+            'description' => $desc,
+            'color' => 16766720,
+            'fields' => $fields,
+            'timestamp' => gmdate('c'),
+        ]],
+    ], JSON_UNESCAPED_UNICODE);
+
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => "Content-Type: application/json\r\n",
+            'content' => $body,
+            'timeout' => 10,
+            'ignore_errors' => true,
+        ],
+    ]);
+    $raw = @file_get_contents($url, false, $ctx);
+    $status = 0;
+    if (isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m)) {
+        $status = (int) $m[1];
+    }
+    if ($status >= 200 && $status < 300) {
+        return ['ok' => true];
+    }
+    // Discord renvoie souvent 204 No Content
+    if ($status === 204 || ($raw === '' && $status === 0)) {
+        return ['ok' => true];
+    }
+    return [
+        'ok' => false,
+        'error' => 'discord_http_' . $status,
+    ];
+}

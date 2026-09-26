@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # Déploie Analyses & scénarios swing.
 #
-#   REF=cursor/swing-gold-visible-691a curl -fsSL \
-#     https://raw.githubusercontent.com/torinvest/torinvest/cursor/swing-gold-visible-691a/deploy/vps/DEPLOY-SWING-ANALYSES.sh \
-#     -o /tmp/d-swa.sh && REF=cursor/swing-gold-visible-691a bash /tmp/d-swa.sh
+#   REF=cursor/swing-publish-notify-691a curl -fsSL \
+#     https://raw.githubusercontent.com/torinvest/torinvest/cursor/swing-publish-notify-691a/deploy/vps/DEPLOY-SWING-ANALYSES.sh \
+#     -o /tmp/d-swa.sh && REF=cursor/swing-publish-notify-691a bash /tmp/d-swa.sh
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/swing-gold-visible-691a}"
+REF="${REF:-cursor/swing-publish-notify-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
+API_DIR="${API_DIR:-/var/www/torinvest/api}"
 
 echo "======== DEPLOY SWING ANALYSES ($REF) ========"
 mkdir -p "$APP_DIR/public/js" "$APP_DIR/public/css" "$APP_DIR/server-patches" "$APP_DIR/data/swing-analyses/media"
@@ -22,6 +23,23 @@ pull "$RAW/la-forge/js/forge-brand.js" "$APP_DIR/public/js/forge-brand.js"
 pull "$RAW/deploy/vps/app-shells/dashboard.html" "$APP_DIR/public/dashboard.html"
 pull "$RAW/deploy/vps/formation-server/routes-swing-analyses.js" "$APP_DIR/server-patches/routes-swing-analyses.js"
 pull "$RAW/deploy/vps/wire-formation-server-patches.js" "$APP_DIR/wire-formation-server-patches.js"
+
+# Radar API — Discord + Brevo notify
+if [[ -d "$API_DIR" ]]; then
+  echo "—— Radar API notify ($API_DIR) ——"
+  for f in swing-analysis-notify.php brevo-lib.php; do
+    echo "← api/$f"
+    curl -fsSL "$RAW/api/$f" -o "/tmp/$f"
+    if command -v sudo >/dev/null 2>&1; then
+      sudo mv "/tmp/$f" "$API_DIR/$f"
+      sudo chown www-data:www-data "$API_DIR/$f" 2>/dev/null || true
+    else
+      mv "/tmp/$f" "$API_DIR/$f"
+    fi
+  done
+else
+  echo "WARN: $API_DIR absent — déploie swing-analysis-notify.php via pull-api.sh sur radar"
+fi
 
 node "$APP_DIR/wire-formation-server-patches.js" "$APP_DIR"
 
@@ -132,4 +150,9 @@ echo ""
 curl -sS -o /dev/null -w "swing-analyses.html %{http_code}\n" "http://127.0.0.1:3001/swing-analyses.html" || true
 grep -n "createSwingAnalysesRouter\|routes-swing-analyses" "$APP_DIR/server.js" 2>/dev/null | head -5 || true
 echo "→ https://app.torinvest-trading.com/swing-analyses.html"
+echo ""
+echo "Notify (config.local.php radar) :"
+echo "  swing_notify_discord_webhook => 'https://discord.com/api/webhooks/...'"
+echo "  brevo_api_key + brevo_list_accompagnement (déjà utilisés)"
+echo "  (option) brevo_swing_notify_include_vip => true"
 echo "======== DONE ========"

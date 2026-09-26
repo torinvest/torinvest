@@ -272,13 +272,65 @@ module.exports = function createSwingAnalysesRouter({ dataDir, requireAuth }) {
     return res.json({ analysis: fullView(next, { admin: true }) });
   });
 
-  router.post("/api/swing-analyses/:id/publish", requireAuth, (req, res) => {
+  async function notifySwingPublished(analysis) {
+    const notifyUrl =
+      process.env.FORGE_SWING_NOTIFY_URL ||
+      "https://radar.torinvest-trading.com/api/swing-analysis-notify.php";
+    const secret = String(
+      process.env.FORGE_FORMATION_PROVISION_SECRET ||
+        process.env.FORMATION_PROVISION_SECRET ||
+        ""
+    ).trim();
+    if (!secret) {
+      return { ok: false, error: "FORGE_FORMATION_PROVISION_SECRET manquant" };
+    }
+    const biasMap = {
+      bullish: "Haussier",
+      bearish: "Baissier",
+      range: "Range",
+      neutral: "Neutre",
+    };
+    const payload = {
+      title: analysis.title || "Analyse swing",
+      pair: analysis.pair || "XAUUSD",
+      timeframe: analysis.timeframe || "",
+      bias: biasMap[analysis.bias] || analysis.bias || "",
+      thesis: String(analysis.thesis || "").slice(0, 400),
+      url: "https://app.torinvest-trading.com/swing-analyses.html",
+    };
+    try {
+      const res = await fetch(notifyUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Formation-Provision-Key": secret,
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(25000),
+      });
+      const json = await res.json().catch(() => ({}));
+      return {
+        ok: res.ok && json && json.ok === true,
+        status: res.status,
+        ...(json && typeof json === "object" ? json : {}),
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        error: String(err && err.message ? err.message : err),
+      };
+    }
+  }
+
+  router.post("/api/swing-analyses/:id/publish", requireAuth, async (req, res) => {
     const email = sessionEmail(req);
     if (!isAdminEmail(email)) return res.status(403).json({ error: "Admin uniquement" });
     const all = readStore();
     const idx = all.findIndex((x) => x.id === req.params.id);
     if (idx < 0) return res.status(404).json({ error: "Introuvable" });
     const enable = req.body && req.body.enable === false ? false : true;
+    const wantNotify = Boolean(req.body && (req.body.notify === true || req.body.notify === 1));
     const a = { ...all[idx] };
     a.published = enable;
     a.publishedAt = enable ? a.publishedAt || new Date().toISOString() : null;
@@ -286,7 +338,23 @@ module.exports = function createSwingAnalysesRouter({ dataDir, requireAuth }) {
     a.updatedBy = email;
     all[idx] = a;
     writeStore(all);
-    return res.json({ analysis: fullView(a, { admin: true }) });
+
+    let notify = null;
+    if (enable && wantNotify) {
+      notify = await notifySwingPublished(a);
+      if (notify && notify.ok) {
+        a.notifiedAt = new Date().toISOString();
+        all[idx] = a;
+        writeStore(all);
+      } else {
+        console.error("[swing-analyses] notify failed", notify);
+      }
+    }
+
+    return res.json({
+      analysis: fullView(a, { admin: true }),
+      notify,
+    });
   });
 
   router.post("/api/swing-analyses/:id/images", requireAuth, (req, res) => {
