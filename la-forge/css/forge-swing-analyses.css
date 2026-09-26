@@ -150,16 +150,18 @@
   line-height: 1.45;
 }
 
-.swa-btn-quiet {
-  opacity: 0.78;
-  font-size: 0.85rem;
-}
-.swa-btn-quiet:hover {
-  opacity: 1;
-}
 .swa-example-hint {
   margin: 0 0 0.85rem;
   font-size: 0.8rem;
+}
+.swa-upload-status {
+  min-height: 1.1em;
+  margin: 0.45rem 0 0.65rem;
+  font-size: 0.82rem;
+  color: var(--aqua, #5eead4);
+}
+.swa-upload-status--err {
+  color: #e07a6a;
 }
 
 .swa-gallery {

@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 # Déploie Analyses & scénarios swing.
 #
-#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/analyses-scenarios-swing-691a/deploy/vps/DEPLOY-SWING-ANALYSES.sh -o /tmp/d-swa.sh && bash /tmp/d-swa.sh
+#   REF=cursor/swing-gold-visible-691a curl -fsSL \
+#     https://raw.githubusercontent.com/torinvest/torinvest/cursor/swing-gold-visible-691a/deploy/vps/DEPLOY-SWING-ANALYSES.sh \
+#     -o /tmp/d-swa.sh && REF=cursor/swing-gold-visible-691a bash /tmp/d-swa.sh
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/analyses-scenarios-swing-691a}"
+REF="${REF:-cursor/swing-gold-visible-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 
 echo "======== DEPLOY SWING ANALYSES ($REF) ========"
@@ -32,16 +34,65 @@ if not p.exists():
     print("server.js introuvable — skip json limit")
     raise SystemExit(0)
 t=p.read_text(encoding="utf-8", errors="ignore")
-if "express.json({ limit:" in t or 'express.json({limit:' in t:
-    print("express.json limit déjà présent")
+t2, n = re.subn(
+    r"express\.json\(\s*\{[^}]*\}\s*\)",
+    'express.json({ limit: "12mb" })',
+    t,
+    count=1,
+)
+if n:
+    p.write_text(t2, encoding="utf-8")
+    print("express.json limit → 12mb (remplacé)")
 elif "express.json()" in t:
-    t=t.replace("express.json()", "express.json({ limit: \"8mb\" })", 1)
-    p.write_text(t, encoding="utf-8")
-    print("express.json limit → 8mb")
+    p.write_text(t.replace("express.json()", 'express.json({ limit: "12mb" })', 1), encoding="utf-8")
+    print("express.json limit → 12mb")
 else:
     print("WARN: express.json() introuvable — vérifie manuellement la limite body")
 PY2
 
+# Nginx : client_max_body_size trop bas (défaut 1m) → 413 sur les screens
+python3 <<'PYN'
+from pathlib import Path
+import re, subprocess, os
+sites = list(Path("/etc/nginx/sites-enabled").glob("*")) if Path("/etc/nginx/sites-enabled").is_dir() else []
+sites += list(Path("/etc/nginx/conf.d").glob("*.conf")) if Path("/etc/nginx/conf.d").is_dir() else []
+patched = 0
+for conf in sites:
+    try:
+        t = conf.read_text(encoding="utf-8", errors="ignore")
+    except Exception:
+        continue
+    if "3001" not in t and "torinvest" not in t and "app.torinvest" not in t:
+        continue
+    if re.search(r"client_max_body_size\s+12m\s*;", t):
+        print(f"nginx {conf.name}: déjà 12m")
+        continue
+    if re.search(r"client_max_body_size\s+\S+\s*;", t):
+        t2 = re.sub(r"client_max_body_size\s+\S+\s*;", "client_max_body_size 12m;", t, count=1)
+    else:
+        t2 = re.sub(r"(server\s*\{)", r"\1\n    client_max_body_size 12m;", t, count=1)
+    if t2 == t:
+        print(f"nginx {conf.name}: patch impossible")
+        continue
+    bak = str(conf) + ".bak-swa"
+    try:
+        subprocess.check_call(["sudo", "cp", str(conf), bak])
+        Path("/tmp/swa-nginx-patch.conf").write_text(t2, encoding="utf-8")
+        subprocess.check_call(["sudo", "cp", "/tmp/swa-nginx-patch.conf", str(conf)])
+        patched += 1
+        print(f"nginx {conf.name}: client_max_body_size 12m")
+    except Exception as e:
+        print(f"nginx {conf.name}: skip ({e})")
+if patched:
+    try:
+        subprocess.check_call(["sudo", "nginx", "-t"])
+        subprocess.check_call(["sudo", "systemctl", "reload", "nginx"])
+        print("nginx rechargé")
+    except Exception as e:
+        print(f"WARN nginx reload: {e}")
+elif not sites:
+    print("nginx: aucun site trouvé — ajoute manuellement client_max_body_size 12m;")
+PYN
 
 # Inject admin nav on dashboard if missing
 python3 - "$APP_DIR/public/dashboard.html" <<'PY'
