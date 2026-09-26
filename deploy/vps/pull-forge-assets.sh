@@ -46,6 +46,7 @@ JS_FILES=(
   forge-styles-atlas.js
   forge-psycho-atlas.js
   forge-indicateurs-atlas.js
+  forge-swing-analyses.js
   books-data.js
   forge-books.js
   forge-live-resources.js
@@ -65,6 +66,7 @@ CSS_FILES=(
   forge-styles-atlas.css
   forge-psycho-atlas.css
   forge-indicateurs-atlas.css
+  forge-swing-analyses.css
   forge-coaching-fiches.css
   forge-module-tabs.css
   forge-lesson-video.css

@@ -61,6 +61,9 @@ function hasCoachingFiches() {
 function hasModuleQa() {
   return /createModuleQaRouter|routes-module-qa/.test(content);
 }
+function hasSwingAnalyses() {
+  return /createSwingAnalysesRouter|routes-swing-analyses/.test(content);
+}
 
 function extractDataDirFromProgressBlock(block) {
   if (!block) return "path.join(__dirname, \"data\")";
@@ -84,6 +87,7 @@ function managedBlock(dataDirExpr) {
     "const createCoachingLivesRouter = require(\"./server-patches/routes-coaching-lives\");",
     "const createCoachingFichesRouter = require(\"./server-patches/routes-coaching-fiches\");",
     "const createModuleQaRouter = require(\"./server-patches/routes-module-qa\");",
+    "const createSwingAnalysesRouter = require(\"./server-patches/routes-swing-analyses\");",
     "const requireSubscribedForCourse = require(\"./server-patches/middleware-require-subscribed\");",
     "",
     "// Paywall Premium — avant express.static(\"public\")",
@@ -115,6 +119,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createModuleQaRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createSwingAnalysesRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -276,6 +286,54 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
 ensureCoachingMounted();
 ensureCoachingFichesMounted();
 ensureModuleQaMounted();
+ensureSwingAnalysesMounted();
+
+function ensureSwingAnalysesMounted() {
+  if (!/createModuleQaRouter|createCoachingFichesRouter|createCalendarRouter/.test(content)) {
+    return;
+  }
+  if (hasSwingAnalyses()) {
+    console.log("OK — swing-analyses déjà monté.");
+    return;
+  }
+
+  if (!/createSwingAnalysesRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createModuleQaRouter = require\(["']\.\/server-patches\/routes-module-qa["']\);)/,
+      '$1\nconst createSwingAnalysesRouter = require("./server-patches/routes-swing-analyses");'
+    );
+    if (replaced !== content) {
+      content = replaced;
+    } else {
+      content = content.replace(
+        /(const createCoachingFichesRouter = require\([^)]+\);)/,
+        '$1\nconst createSwingAnalysesRouter = require("./server-patches/routes-swing-analyses");'
+      );
+    }
+  }
+
+  const qaUseRe = /app\.use\(\s*createModuleQaRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const fichesUseRe = /app\.use\(\s*createCoachingFichesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const anchorMatch = content.match(qaUseRe) || content.match(fichesUseRe);
+  if (!anchorMatch) {
+    console.warn("WARN — point d'insertion swing-analyses introuvable.");
+    return;
+  }
+
+  const dataDirExpr =
+    (anchorMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const swaUse = [
+    "app.use(",
+    "  createSwingAnalysesRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + swaUse);
+  console.log("Swing analyses router ajouté.");
+}
 
 function ensureModuleQaMounted() {
   if (!/createCalendarRouter|createCoachingFichesRouter|createCoachingLivesRouter/.test(content)) {
