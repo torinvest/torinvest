@@ -139,6 +139,29 @@
 .swa-sc-bull { border-color: rgba(61, 207, 142, 0.35); }
 .swa-sc-bear { border-color: rgba(224, 122, 106, 0.35); }
 
+.swa-reaction-reminder {
+  margin: 0.85rem 0 0;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.84rem;
+  font-style: italic;
+  color: var(--gold, #ffd700);
+  border-left: 2px solid rgba(255, 215, 0, 0.45);
+  background: rgba(255, 215, 0, 0.06);
+  line-height: 1.45;
+}
+
+.swa-btn-quiet {
+  opacity: 0.78;
+  font-size: 0.85rem;
+}
+.swa-btn-quiet:hover {
+  opacity: 1;
+}
+.swa-example-hint {
+  margin: 0 0 0.85rem;
+  font-size: 0.8rem;
+}
+
 .swa-gallery {
   display: grid;
   gap: 1rem;

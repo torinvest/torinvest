@@ -69,6 +69,131 @@
     };
   }
 
+  /** Exemple pédagogique XAUUSD — scénario conditionnel multi-TF (ne sauvegarde pas). */
+  function goldExampleForm() {
+    return {
+      title: "XAUUSD — Scénarios swing multi-timeframe",
+      pair: "XAUUSD",
+      timeframe: "D1",
+      bias: "neutral",
+      horizon: "Swing",
+      thesis:
+        "Le Gold travaille actuellement une zone importante de son dealing range D1. La lecture n’est pas directionnelle à ce stade : le D1 sert à localiser les grands entrepôts de liquidité, le M15 à observer si ces zones sont acceptées ou rejetées et le M5 à rechercher éventuellement le timing d’exécution.\n\n" +
+        "Le prix évolue autour de 4 286 et reste dans une zone où plusieurs scénarios restent ouverts. La logique est donc conditionnelle : je ne trade pas simplement parce que le prix est en discount. J’attends de voir comment le marché réagit lorsqu’il attaque une poche de liquidité.",
+      context:
+        "Construire le biais swing à partir de :\n" +
+        "- guidance de la Fed ;\n" +
+        "- évolution du pricing des taux ;\n" +
+        "- taux réels US ;\n" +
+        "- dollar ;\n" +
+        "- inflation ;\n" +
+        "- emploi et croissance ;\n" +
+        "- géopolitique / énergie si pertinent.\n\n" +
+        "Scénario favorable à Gold :\n" +
+        "Fed moins hawkish que prévu, détente des taux réels, dollar moins fort, pricing monétaire moins restrictif.\n\n" +
+        "Scénario défavorable à Gold :\n" +
+        "Fed plus hawkish, remontée des taux réels, dollar ferme, maintien ou renforcement d’un pricing restrictif.\n\n" +
+        "Toujours comparer la réalité aux anticipations déjà pricées par le marché.",
+      structure:
+        "DEALING RANGE D1 :\n" +
+        "environ 3 943 → 4 680.\n\n" +
+        "Le prix se trouve actuellement dans la moitié basse / zone de discount du dealing range global.\n\n" +
+        "Zones de liquidité et zones importantes :\n" +
+        "- BSL proche : 4 390 – 4 400\n" +
+        "- BSL supérieure : environ 4 680\n" +
+        "- Zone D1 importante : 4 100 – 4 150\n" +
+        "- Zone D1 majeure basse : 3 943 – 4 000\n" +
+        "- SSL locale M15 : environ 4 235 – 4 250\n\n" +
+        "Lecture multi-timeframe :\n" +
+        "D1 = où se trouve la liquidité.\n" +
+        "M15 = sweep, acceptation, reclaim ou displacement.\n" +
+        "M5 = timing d’exécution après confirmation.",
+      entryZone:
+        "Pas d’entrée fixe à ce stade.\n\n" +
+        "Scénario long :\n" +
+        "attendre une prise de sell-side liquidity en M15/M5 suivie d’un reclaim, d’un displacement haussier puis d’un pullback.\n\n" +
+        "Scénario short :\n" +
+        "attendre une perte confirmée des lows M15, absence de reclaim et acceptation sous la zone avec displacement baissier.\n\n" +
+        "Règle :\n" +
+        "PAS DE PULLBACK = PAS D’ENTRÉE.",
+      invalidation:
+        "Invalidation dynamique selon le scénario.\n\n" +
+        "Long :\n" +
+        "invalidation si le marché accepte durablement sous la zone sweepée et produit une structure / displacement baissier.\n\n" +
+        "Short :\n" +
+        "invalidation si le marché reprend rapidement la zone perdue et produit reclaim + displacement haussier.\n\n" +
+        "Ne jamais définir l’invalidation simplement parce qu’un niveau a été touché.",
+      targets: [
+        "4 390 – 4 400\nPremière zone de buy-side liquidity.",
+        "4 680\nZone de buy-side liquidity D1 supérieure.",
+        "En scénario baissier :\n4 100 – 4 150 puis 3 943 – 4 000.",
+      ],
+      projections:
+        "Grand dealing range D1 :\n" +
+        "Low ≈ 3 942,79\n" +
+        "High ≈ 4 680\n" +
+        "Equilibrium ≈ 4 311\n\n" +
+        "Le Premium / Discount doit toujours être calculé relativement au dealing range choisi.\n\n" +
+        "Possibilité de dealing ranges internes en M15 et M5 :\n" +
+        "ils ne remplacent pas le dealing range D1 mais permettent d’affiner la localisation du prix.",
+      scenarioBase:
+        "Range / consolidation entre les pools de liquidité.\n\n" +
+        "Tant que le prix ne produit pas une acceptation claire ou un displacement confirmé, ne pas imposer de direction swing.\n\n" +
+        "Observer en priorité :\n" +
+        "- 4 235 – 4 250 dessous\n" +
+        "- 4 390 – 4 400 dessus.",
+      scenarioBull:
+        "1. Prise de SSL sous les lows locaux.\n" +
+        "2. Rejet des prix inférieurs.\n" +
+        "3. Reclaim M15.\n" +
+        "4. Displacement haussier.\n" +
+        "5. Pullback M5.\n" +
+        "6. Entrée seulement si le risque / invalidation est propre.\n" +
+        "7. Première cible : 4 390 – 4 400.\n" +
+        "8. Si acceptation au-dessus : extension potentielle vers 4 680.\n\n" +
+        "Contexte macro compatible :\n" +
+        "Fed moins hawkish, taux réels en baisse, USD qui se détend, guidance plus souple.",
+      scenarioBear:
+        "1. Perte de 4 250 / 4 235.\n" +
+        "2. Pas de reclaim.\n" +
+        "3. Acceptation sous les lows.\n" +
+        "4. Displacement baissier.\n" +
+        "5. Pullback éventuel pour exécution.\n" +
+        "6. Première zone : 4 100 – 4 150.\n" +
+        "7. Zone majeure suivante : 3 943 – 4 000.\n\n" +
+        "Contexte macro compatible :\n" +
+        "Fed plus hawkish, taux réels en hausse, dollar fort, guidance restrictive.",
+      checklist: [
+        "MACRO — Fed / guidance / pricing des taux / taux réels / dollar cohérents avec le scénario ?",
+        "D1 / M15 — Pool identifié → sweep ou acceptation → reclaim éventuel → displacement confirmé ?",
+        "M5 — Pullback présent ? Timing propre ? Invalidation claire ? Risque acceptable ? Si non : FLAT.",
+      ],
+      notes:
+        "Le but de cette fiche n’est pas de prédire Gold mais de travailler une logique conditionnelle.\n\n" +
+        "Macro = pourquoi.\n" +
+        "D1 = où.\n" +
+        "M15 = quoi.\n" +
+        "M5 = quand.\n\n" +
+        "Ne jamais acheter simplement parce que le prix est en discount.\n" +
+        "Ne jamais vendre simplement parce que le prix est en premium.\n" +
+        "Le marché doit montrer sa réaction.",
+    };
+  }
+
+  function applyGoldExample() {
+    var base = state.current || emptyForm();
+    var gold = goldExampleForm();
+    state.current = Object.assign({}, base, gold, {
+      id: base.id || null,
+      images: base.images || [],
+      published: Boolean(base.published),
+      publishedAt: base.publishedAt || null,
+      updatedAt: base.updatedAt || null,
+    });
+    state.mode = "edit";
+    renderEdit();
+  }
+
   function renderList() {
     var root = document.getElementById("swing-analyses-root");
     if (!root) return;
@@ -240,7 +365,9 @@
       '<article class="swa-sc-bear"><h3>Baissier</h3>' +
       paras(a.scenarioBear || "—") +
       "</article>" +
-      "</div></section>" +
+      "</div>" +
+      '<p class="swa-reaction-reminder">Je ne trade pas le niveau. Je trade la réaction du marché au niveau.</p>' +
+      "</section>" +
       (imgs ? '<section class="swa-section"><h2>Screens</h2><div class="swa-gallery">' + imgs + "</div></section>" : "") +
       (checks
         ? '<section class="swa-section"><h2>Checklist</h2><ul class="swa-check">' +
@@ -351,6 +478,7 @@
       '<div class="swa-toolbar">' +
       '<button type="button" class="btn btn-secondary" id="swa-back">← Retour</button>' +
       '<div class="swa-actions">' +
+      '<button type="button" class="btn btn-secondary swa-btn-quiet" id="swa-load-gold" title="Remplit les champs — n’enregistre pas">Charger exemple GOLD</button>' +
       '<button type="submit" class="btn btn-primary">Enregistrer</button>' +
       (a.id
         ? '<button type="button" class="btn btn-secondary" id="swa-preview">Voir</button>' +
@@ -360,6 +488,7 @@
       "<h2>" +
       (a.id ? "Éditer l'analyse" : "Nouvelle analyse swing") +
       "</h2>" +
+      '<p class="swa-muted swa-example-hint">Exemple GOLD = scénario conditionnel multi-TF (pas un signal auto). Modifiable avant Enregistrer.</p>' +
       '<div class="swa-form-grid">' +
       field("Titre", "title", a.title) +
       field("Paire", "pair", a.pair) +
@@ -381,6 +510,7 @@
       field("Scénario de base", "scenarioBase", a.scenarioBase, "textarea") +
       field("Scénario haussier", "scenarioBull", a.scenarioBull, "textarea") +
       field("Scénario baissier", "scenarioBear", a.scenarioBear, "textarea") +
+      '<p class="swa-reaction-reminder">Je ne trade pas le niveau. Je trade la réaction du marché au niveau.</p>' +
       field("Checklist 1", "check0", (a.checklist && a.checklist[0]) || "") +
       field("Checklist 2", "check1", (a.checklist && a.checklist[1]) || "") +
       field("Checklist 3", "check2", (a.checklist && a.checklist[2]) || "") +
@@ -401,6 +531,12 @@
       state.mode = "list";
       loadList();
     };
+    var loadGold = document.getElementById("swa-load-gold");
+    if (loadGold) {
+      loadGold.onclick = function () {
+        applyGoldExample();
+      };
+    }
     var prev = document.getElementById("swa-preview");
     if (prev)
       prev.onclick = function () {
