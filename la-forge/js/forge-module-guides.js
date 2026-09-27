@@ -32,6 +32,13 @@
     },
     f01: {
       goal: "Comprendre qui fait bouger le marché (makers/takers, order flow) avant de lire le prix.",
+      order: [
+        "Lis ce mode d'emploi.",
+        "Regarde la vidéo F1 (participants & microstructure).",
+        "Parcours les sections dans l'ordre.",
+        "Fais l'exercice / chart si présent, puis le quiz (≥ 70 %).",
+        "Pose tes questions dans « Mes questions ».",
+      ],
       tips: [
         "Relie chaque notion à une observation concrète sur XAUUSD.",
         "Si un terme est flou, pose la question dans l'onglet dédié.",
