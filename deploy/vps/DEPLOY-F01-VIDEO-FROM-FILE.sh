@@ -145,41 +145,28 @@ echo "HTML : $HTML"
 STAMP=$(date +%Y%m%d-%H%M%S)
 cp -a "$HTML" "$HTML.bak-f01vid-$STAMP"
 
-# Injection dans le slot prévu (data-video-id=f01-microstructure), pas sous le <h1>
-python3 - "$HTML" "$VIDEO_URL" "$CAPTION" "$TITLE" <<'PY'
+# Injection DANS le wrapper data-video-id (contenu intérieur seulement — grille intacte)
+python3 - "$HTML" "$VIDEO_URL" "$CAPTION" <<'PY'
 import re, sys
 from pathlib import Path
 
 html_path = Path(sys.argv[1])
 video_url = sys.argv[2]
 caption = sys.argv[3]
-title = sys.argv[4]  # unused — on garde le titre de section existant
 text = html_path.read_text(encoding="utf-8")
 
 marker_start = "<!-- FORGE_F01_VIDEO_START -->"
 marker_end = "<!-- FORGE_F01_VIDEO_END -->"
-
-player = f"""<!-- FORGE_F01_VIDEO_START -->
-<figure class="forge-lesson-video forge-lesson-video--protected" id="f01-video" data-video-id="f01-microstructure">
-  <video
-    controls
-    playsinline
-    preload="metadata"
-    controlslist="nodownload noplaybackrate"
-    disablepictureinpicture
-    oncontextmenu="return false"
-    style="width:100%;max-width:960px;border-radius:12px;background:#000;display:block;margin:0 auto;"
-  >
+inner = f"""{marker_start}
+<figure class="forge-lesson-video forge-lesson-video--protected" id="f01-video">
+  <video controls playsinline preload="metadata" controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false">
     <source src="{video_url}" type="video/mp4" />
     Votre navigateur ne lit pas la vidéo HTML5.
   </video>
-  <figcaption style="text-align:center;color:#9aa3b2;font-size:0.9rem;margin-top:0.5rem;margin-bottom:0.75rem;">
-    {caption}
-  </figcaption>
+  <figcaption>{caption}</figcaption>
 </figure>
-<!-- FORGE_F01_VIDEO_END -->"""
+{marker_end}"""
 
-# Retirer ancien bloc (souvent mal placé sous h1)
 text = re.sub(re.escape(marker_start) + r".*?" + re.escape(marker_end), "", text, flags=re.S)
 text = re.sub(r'<figure[^>]*id=["\']f01-video["\'][^>]*>.*?</figure>', "", text, flags=re.I | re.S)
 text = re.sub(
@@ -189,41 +176,27 @@ text = re.sub(
     flags=re.I,
 )
 
-action = None
-ph = re.search(
-    r'(<(?:div|section|aside|figure|article)[^>]*data-video-id=["\']f01-microstructure["\'][^>]*>)(.*?)(</(?:div|section|aside|figure|article)>)',
+m = re.search(
+    r'<(div|section|aside|figure|article)(\s[^>]*data-video-id=["\']f01-microstructure["\'][^>]*)>(.*?)</\1\s*>',
     text,
     flags=re.I | re.S,
 )
-if ph:
-    text = text[: ph.start()] + player + text[ph.end() :]
-    action = "remplacé data-video-id=f01-microstructure"
-else:
-    mtit = re.search(
-        r"(Vidéo\s*[—\-]\s*Microstructure en conditions r[ée]elles.*?</h[2-4]>)",
-        text,
-        flags=re.I | re.S,
-    )
-    if mtit:
-        after = mtit.end()
-        p = re.match(r"\s*<p\b[^>]*>.*?</p>", text[after:], flags=re.I | re.S)
-        if p:
-            after = after + p.end()
-        text = text[:after] + "\n" + player + "\n" + text[after:]
-        action = "inséré sous titre slot prévu"
-    else:
-        print("ERREUR: slot f01-microstructure introuvable", file=sys.stderr)
-        sys.exit(2)
+if not m:
+    print("ERREUR: slot f01-microstructure introuvable", file=sys.stderr)
+    sys.exit(2)
+tag, attrs = m.group(1), m.group(2)
+replacement = f"<{tag}{attrs}>\n{inner}\n</{tag}>"
+text = text[: m.start()] + replacement + text[m.end() :]
 
 if "forge-lesson-video.css" not in text and "</head>" in text:
     text = text.replace(
         "</head>",
-        '  <link rel="stylesheet" href="/css/forge-lesson-video.css" />\n</head>',
+        '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f01" />\n</head>',
         1,
     )
 text = re.sub(r"\n{4,}", "\n\n\n", text)
 html_path.write_text(text, encoding="utf-8")
-print("Action :", action)
+print("Action : contenu intérieur", tag, "data-video-id=f01-microstructure")
 PY
 
 # sync public html

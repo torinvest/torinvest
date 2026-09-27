@@ -1,8 +1,43 @@
-/* Lecteurs vidéo formation — protection basique (comme Module 0) */
+/* Lecteurs vidéo formation — protection + contenance layout */
+.forge-lesson-video,
+.forge-lesson-video-slot,
+[data-video-id] {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin: 0.75rem 0;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
 .forge-lesson-video video,
 .forge-lesson-video--protected video {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  background: #000;
+  box-sizing: border-box;
   -webkit-user-select: none;
   user-select: none;
+  outline: none;
+}
+
+.forge-lesson-video figcaption {
+  text-align: center;
+  color: #9aa3b2;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* Ne jamais forcer la grille 2 colonnes à s’élargir */
+.lesson-layout .forge-lesson-video,
+.lesson-layout .forge-lesson-video-slot,
+.lesson-layout [data-video-id] {
+  grid-column: auto;
+  max-width: 100%;
+  min-width: 0;
 }
 
 /* Chrome / Safari : masquer le bouton télécharger du lecteur natif */
