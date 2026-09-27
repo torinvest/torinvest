@@ -21,6 +21,7 @@
       order: [
         "Lis ce mode d'emploi.",
         "Regarde les vidéos du Module 0 (métier / vérité du marché).",
+        "Regarde le replay coaching s'il est publié dans le module.",
         "Parcours les 12 sections dans l'ordre.",
         "Fais le quiz (≥ 70 %) pour valider.",
         "Pose tes questions mindset / attentes dans « Mes questions ».",
@@ -35,6 +36,7 @@
       order: [
         "Lis ce mode d'emploi.",
         "Regarde la vidéo F1 (participants & microstructure).",
+        "Regarde le replay coaching s'il est publié dans le module.",
         "Parcours les sections dans l'ordre.",
         "Fais l'exercice / chart si présent, puis le quiz (≥ 70 %).",
         "Pose tes questions dans « Mes questions ».",

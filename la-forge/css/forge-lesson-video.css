@@ -31,6 +31,18 @@
   margin-top: 0.5rem;
 }
 
+.forge-lesson-video-heading {
+  color: var(--gold, #ffd700);
+  font-size: 1.05rem;
+  margin: 1.25rem 0 0.35rem;
+}
+
+.forge-lesson-video-lead {
+  color: #9aa3b2;
+  font-size: 0.9rem;
+  margin: 0 0 0.65rem;
+}
+
 /* Ne jamais forcer la grille 2 colonnes à s’élargir */
 .lesson-layout .forge-lesson-video,
 .lesson-layout .forge-lesson-video-slot,
