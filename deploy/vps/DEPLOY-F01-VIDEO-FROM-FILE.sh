@@ -30,34 +30,47 @@ mkdir -p "$APP_DIR/public/course/videos" "$APP_DIR/private/course/videos" "$APP_
 
 # ——— Trouver le fichier source ———
 if [[ -z "$VIDEO_SRC" ]]; then
-  for c in \
-    "$PUBLIC_VID" \
-    "$HOME/f01-marches.mkv" \
-    "$HOME/f01-marches.mp4" \
-    "$HOME/module-f01.mkv" \
-    "$HOME/module-f01.mp4" \
-    "$HOME/f01.mkv" \
-    "$HOME/f01.mp4" \
-    "$HOME/$VIDEO_NAME" \
-    "$HOME/Downloads/$VIDEO_NAME" \
-    "/tmp/$VIDEO_NAME" \
-    "/tmp/f01-marches.mkv" \
+  # webm / mkv / mp4 (Downloads Cursor → video-idea_*.webm)
+  shopt -s nullglob
+  candidates=(
+    "$PUBLIC_VID"
+    "$HOME/f01-marches.webm"
+    "$HOME/f01-marches.mkv"
+    "$HOME/f01-marches.mp4"
+    "$HOME/module-f01.webm"
+    "$HOME/module-f01.mkv"
+    "$HOME/module-f01.mp4"
+    "$HOME/f01.webm"
+    "$HOME/f01.mkv"
+    "$HOME/f01.mp4"
+    "$HOME/video-idea_1e4fd.webm"
+    "$HOME"/video-idea*.webm
+    "$HOME/$VIDEO_NAME"
+    "$HOME/Downloads/$VIDEO_NAME"
+    "$HOME/Downloads/video-idea_1e4fd.webm"
+    "$HOME"/Downloads/video-idea*.webm
+    "/tmp/$VIDEO_NAME"
+    "/tmp/f01-marches.webm"
+    "/tmp/f01-marches.mkv"
     "/tmp/f01-marches.mp4"
-  do
+    "/tmp/video-idea_1e4fd.webm"
+  )
+  for c in "${candidates[@]}"; do
     if [[ -f "$c" ]] && [[ $(stat -c%s "$c" 2>/dev/null || echo 0) -gt 500000 ]]; then
       VIDEO_SRC="$c"
       break
     fi
   done
+  shopt -u nullglob
 fi
 
 if [[ -z "$VIDEO_SRC" || ! -f "$VIDEO_SRC" ]]; then
-  echo "ERREUR : fichier vidéo F1 introuvable (mp4/mkv)."
+  echo "ERREUR : fichier vidéo F1 introuvable (webm/mp4/mkv)."
   echo ""
-  echo "  1) Upload depuis ton PC :"
-  echo "     scp \"ta-video.mp4\" ubuntu@164.132.46.191:~/f01-marches.mp4"
+  echo "  1) Upload depuis ton PC (PowerShell) :"
+  echo "     scp \"C:\\Users\\gheza\\Downloads\\video-idea_1e4fd.webm\" ubuntu@164.132.46.191:~/f01-marches.webm"
   echo "  2) Relance :"
-  echo "     export VIDEO_SRC=~/f01-marches.mp4"
+  echo "     export VIDEO_SRC=~/f01-marches.webm"
   echo "     export REF=$REF"
   echo "     curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-F01-VIDEO-FROM-FILE.sh -o /tmp/d-f01.sh && bash /tmp/d-f01.sh"
   exit 1
@@ -83,10 +96,15 @@ if [[ "$need_transcode" -eq 1 ]]; then
     echo "ERREUR: ffmpeg requis pour convertir en H.264"
     exit 1
   fi
-  echo "==> Transcode H.264 + AAC..."
+  # WEBM Cursor : timebase bizarre → millions de frames dupliquées (0.2x).
+  # Forcer 30 fps + preset veryfast = encode rapide (~quelques minutes).
+  echo "==> Transcode H.264 + AAC (fps=30, preset=veryfast)…"
   ffmpeg -y -i "$VIDEO_SRC" \
-    -c:v libx264 -pix_fmt yuv420p -preset fast -crf 23 \
-    -c:a aac -b:a 160k -ac 2 -movflags +faststart \
+    -vf "fps=30,format=yuv420p" \
+    -c:v libx264 -preset veryfast -crf 26 \
+    -c:a aac -b:a 128k -ac 2 \
+    -movflags +faststart \
+    -fps_mode cfr \
     "$WORK/out.mp4"
   cp -a "$WORK/out.mp4" "$PUBLIC_VID"
 else
@@ -127,87 +145,58 @@ echo "HTML : $HTML"
 STAMP=$(date +%Y%m%d-%H%M%S)
 cp -a "$HTML" "$HTML.bak-f01vid-$STAMP"
 
-python3 - "$HTML" "$VIDEO_URL" "$CAPTION" "$TITLE" <<'PY'
+# Injection DANS le wrapper data-video-id (contenu intérieur seulement — grille intacte)
+python3 - "$HTML" "$VIDEO_URL" "$CAPTION" <<'PY'
 import re, sys
 from pathlib import Path
 
 html_path = Path(sys.argv[1])
 video_url = sys.argv[2]
 caption = sys.argv[3]
-title = sys.argv[4]
 text = html_path.read_text(encoding="utf-8")
 
 marker_start = "<!-- FORGE_F01_VIDEO_START -->"
 marker_end = "<!-- FORGE_F01_VIDEO_END -->"
-
-block = f"""<!-- FORGE_F01_VIDEO_START -->
+inner = f"""{marker_start}
 <figure class="forge-lesson-video forge-lesson-video--protected" id="f01-video">
-  <h2 style="color:var(--gold,#ffd700);font-size:1.05rem;margin:1.5rem 0 0.65rem;text-align:center;">
-    {title}
-  </h2>
-  <video
-    controls
-    playsinline
-    preload="metadata"
-    controlslist="nodownload noplaybackrate"
-    disablepictureinpicture
-    oncontextmenu="return false"
-    style="width:100%;max-width:960px;border-radius:12px;background:#000;display:block;margin:0 auto;"
-  >
+  <video controls playsinline preload="metadata" controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false">
     <source src="{video_url}" type="video/mp4" />
     Votre navigateur ne lit pas la vidéo HTML5.
   </video>
-  <figcaption style="text-align:center;color:#9aa3b2;font-size:0.9rem;margin-top:0.5rem;margin-bottom:1.25rem;">
-    {caption}
-  </figcaption>
+  <figcaption>{caption}</figcaption>
 </figure>
-<!-- FORGE_F01_VIDEO_END -->"""
+{marker_end}"""
 
-if marker_start in text and marker_end in text:
-    text = re.sub(
-        re.escape(marker_start) + r".*?" + re.escape(marker_end),
-        block,
-        text,
-        count=1,
-        flags=re.S,
-    )
-    action = "remplacé marqueurs F01"
-else:
-    # purge éventuel YouTube / placeholder
-    text = re.sub(
-        r'<section[^>]*id="f01-video"[^>]*>.*?</section>',
-        "",
-        text,
-        flags=re.I | re.S,
-    )
-    text = re.sub(
-        r'<figure[^>]*id="f01-video"[^>]*>.*?</figure>',
-        "",
-        text,
-        flags=re.I | re.S,
-    )
-    # après le premier <h1>…</h1>
-    m = re.search(r"(<h1[^>]*>.*?</h1>)", text, flags=re.I | re.S)
-    if m:
-        text = text[: m.end()] + "\n\n" + block + "\n" + text[m.end() :]
-        action = "inséré après <h1>"
-    else:
-        m2 = re.search(r'(<main[^>]*>|<div[^>]*class="[^"]*lesson[^"]*"[^>]*>)', text, flags=re.I)
-        if not m2:
-            print("ERREUR: point d'insertion introuvable (pas de h1)", file=sys.stderr)
-            sys.exit(2)
-        text = text[: m2.end()] + "\n\n" + block + "\n" + text[m2.end() :]
-        action = "inséré après main/lesson"
+text = re.sub(re.escape(marker_start) + r".*?" + re.escape(marker_end), "", text, flags=re.S)
+text = re.sub(r'<figure[^>]*id=["\']f01-video["\'][^>]*>.*?</figure>', "", text, flags=re.I | re.S)
+text = re.sub(
+    r'<h2[^>]*>\s*Vidéo\s*[—\-]\s*Participants\s*&amp;\s*microstructure\s*</h2>\s*',
+    "",
+    text,
+    flags=re.I,
+)
+
+m = re.search(
+    r'<(div|section|aside|figure|article)(\s[^>]*data-video-id=["\']f01-microstructure["\'][^>]*)>(.*?)</\1\s*>',
+    text,
+    flags=re.I | re.S,
+)
+if not m:
+    print("ERREUR: slot f01-microstructure introuvable", file=sys.stderr)
+    sys.exit(2)
+tag, attrs = m.group(1), m.group(2)
+replacement = f"<{tag}{attrs}>\n{inner}\n</{tag}>"
+text = text[: m.start()] + replacement + text[m.end() :]
 
 if "forge-lesson-video.css" not in text and "</head>" in text:
     text = text.replace(
         "</head>",
-        '  <link rel="stylesheet" href="/css/forge-lesson-video.css" />\n</head>',
+        '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f01" />\n</head>',
         1,
     )
-
+text = re.sub(r"\n{4,}", "\n\n\n", text)
 html_path.write_text(text, encoding="utf-8")
-print("Action :", action)
+print("Action : contenu intérieur", tag, "data-video-id=f01-microstructure")
 PY
 
 # sync public html
