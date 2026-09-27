@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Module F1 — vidéo PROTÉGÉE (MP4 session Premium), même pattern que Module 0.
 #
-# 1) Depuis ton PC, upload la vidéo :
-#    scp "chemin/vers/ta-video.mp4" ubuntu@164.132.46.191:~/f01-marches.mp4
-#    # ou .mkv — le script transcodera en H.264 si besoin
+# 1) Depuis ton PC (PowerShell / CMD), upload la vidéo :
+#    scp "C:\Users\gheza\Downloads\video-idea_1e4fd.webm" ubuntu@164.132.46.191:~/f01-marches.webm
+#    # .webm / .mkv / .mp4 — le script transcodera en H.264 MP4 si besoin
 #
-# 2) Sur le VPS (export AVANT le pipe) :
-#    export VIDEO_SRC=~/f01-marches.mp4
+# 2) Sur le VPS :
+#    export VIDEO_SRC=~/f01-marches.webm
 #    export REF=cursor/module-f01-video-691a
 #    curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-F01-VIDEO-FROM-FILE.sh" -o /tmp/d-f01.sh
 #    bash /tmp/d-f01.sh
