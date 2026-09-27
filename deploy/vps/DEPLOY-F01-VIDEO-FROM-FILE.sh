@@ -30,34 +30,47 @@ mkdir -p "$APP_DIR/public/course/videos" "$APP_DIR/private/course/videos" "$APP_
 
 # ——— Trouver le fichier source ———
 if [[ -z "$VIDEO_SRC" ]]; then
-  for c in \
-    "$PUBLIC_VID" \
-    "$HOME/f01-marches.mkv" \
-    "$HOME/f01-marches.mp4" \
-    "$HOME/module-f01.mkv" \
-    "$HOME/module-f01.mp4" \
-    "$HOME/f01.mkv" \
-    "$HOME/f01.mp4" \
-    "$HOME/$VIDEO_NAME" \
-    "$HOME/Downloads/$VIDEO_NAME" \
-    "/tmp/$VIDEO_NAME" \
-    "/tmp/f01-marches.mkv" \
+  # webm / mkv / mp4 (Downloads Cursor → video-idea_*.webm)
+  shopt -s nullglob
+  candidates=(
+    "$PUBLIC_VID"
+    "$HOME/f01-marches.webm"
+    "$HOME/f01-marches.mkv"
+    "$HOME/f01-marches.mp4"
+    "$HOME/module-f01.webm"
+    "$HOME/module-f01.mkv"
+    "$HOME/module-f01.mp4"
+    "$HOME/f01.webm"
+    "$HOME/f01.mkv"
+    "$HOME/f01.mp4"
+    "$HOME/video-idea_1e4fd.webm"
+    "$HOME"/video-idea*.webm
+    "$HOME/$VIDEO_NAME"
+    "$HOME/Downloads/$VIDEO_NAME"
+    "$HOME/Downloads/video-idea_1e4fd.webm"
+    "$HOME"/Downloads/video-idea*.webm
+    "/tmp/$VIDEO_NAME"
+    "/tmp/f01-marches.webm"
+    "/tmp/f01-marches.mkv"
     "/tmp/f01-marches.mp4"
-  do
+    "/tmp/video-idea_1e4fd.webm"
+  )
+  for c in "${candidates[@]}"; do
     if [[ -f "$c" ]] && [[ $(stat -c%s "$c" 2>/dev/null || echo 0) -gt 500000 ]]; then
       VIDEO_SRC="$c"
       break
     fi
   done
+  shopt -u nullglob
 fi
 
 if [[ -z "$VIDEO_SRC" || ! -f "$VIDEO_SRC" ]]; then
-  echo "ERREUR : fichier vidéo F1 introuvable (mp4/mkv)."
+  echo "ERREUR : fichier vidéo F1 introuvable (webm/mp4/mkv)."
   echo ""
-  echo "  1) Upload depuis ton PC :"
-  echo "     scp \"ta-video.mp4\" ubuntu@164.132.46.191:~/f01-marches.mp4"
+  echo "  1) Upload depuis ton PC (PowerShell) :"
+  echo "     scp \"C:\\Users\\gheza\\Downloads\\video-idea_1e4fd.webm\" ubuntu@164.132.46.191:~/f01-marches.webm"
   echo "  2) Relance :"
-  echo "     export VIDEO_SRC=~/f01-marches.mp4"
+  echo "     export VIDEO_SRC=~/f01-marches.webm"
   echo "     export REF=$REF"
   echo "     curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-F01-VIDEO-FROM-FILE.sh -o /tmp/d-f01.sh && bash /tmp/d-f01.sh"
   exit 1
@@ -83,10 +96,15 @@ if [[ "$need_transcode" -eq 1 ]]; then
     echo "ERREUR: ffmpeg requis pour convertir en H.264"
     exit 1
   fi
-  echo "==> Transcode H.264 + AAC..."
+  # WEBM Cursor : timebase bizarre → millions de frames dupliquées (0.2x).
+  # Forcer 30 fps + preset veryfast = encode rapide (~quelques minutes).
+  echo "==> Transcode H.264 + AAC (fps=30, preset=veryfast)…"
   ffmpeg -y -i "$VIDEO_SRC" \
-    -c:v libx264 -pix_fmt yuv420p -preset fast -crf 23 \
-    -c:a aac -b:a 160k -ac 2 -movflags +faststart \
+    -vf "fps=30,format=yuv420p" \
+    -c:v libx264 -preset veryfast -crf 26 \
+    -c:a aac -b:a 128k -ac 2 \
+    -movflags +faststart \
+    -fps_mode cfr \
     "$WORK/out.mp4"
   cp -a "$WORK/out.mp4" "$PUBLIC_VID"
 else
