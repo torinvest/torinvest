@@ -14,7 +14,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Ignore REF ambiant volontairement — seul LIVE_RES_REF ou SHA force une autre ref
-SCRIPT_REF="${LIVE_RES_REF:-${SHA:-main}}"
+SCRIPT_REF="${LIVE_RES_REF:-${SHA:-cursor/resources-upload-deploy-691a}}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 
 echo "======== HOTFIX LIVE-RESOURCES UPLOAD ($SCRIPT_REF) ========"
