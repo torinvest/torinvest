@@ -546,6 +546,18 @@ footer.site-footer {
   font-size: 0.92rem;
 }
 .quiz-opt:hover { color: var(--text); }
+.quiz-opt--correct {
+  color: #3dcf8e;
+  font-weight: 600;
+}
+.quiz-opt--wrong {
+  color: #e07a6a;
+}
+.quiz-opt--picked {
+  outline: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 6px;
+  padding-left: 0.35rem;
+}
 
 .module-nav {
   display: flex;
@@ -759,6 +771,47 @@ footer.site-footer {
 .chart-exercise-tasks { padding-left: 1.2rem; color: var(--muted); font-size: 0.9rem; line-height: 1.8; }
 .chart-exercise-tasks li { margin-bottom: 0.75rem; }
 .chart-exercise-tasks span { font-size: 0.82rem; color: var(--muted); opacity: 0.9; }
+.chart-exercise-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+.chart-exercise-upload-btn { cursor: pointer; margin: 0; }
+.chart-exercise-muted {
+  color: var(--muted);
+  font-size: 0.8rem;
+  margin: 0.55rem 0 0.75rem;
+}
+.chart-exercise-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.chart-exercise-shot {
+  margin: 0;
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+.chart-exercise-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.chart-exercise-shot figcaption {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.chart-exercise-del {
+  width: 100%;
+  border-radius: 0;
+  font-size: 0.78rem;
+}
 
 /* ——— Identité Forge : ambient + wallpapers taureau / ours (style fond membre) ——— */
 body.forge-ambient {

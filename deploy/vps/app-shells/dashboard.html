@@ -43,6 +43,7 @@
       <a class="btn btn-secondary" href="/resources.html">Ressources</a>
       <a class="btn btn-secondary" href="/calendar.html">Calendrier</a>
       <a class="btn btn-secondary" href="/coaching-fiches.html" data-cf-admin-nav hidden>Fiches coaching</a>
+      <a class="btn btn-secondary" href="/chart-exercises-admin.html" data-cex-admin-nav hidden>Exercices chart</a>
     </div>
 
     <p style="color:var(--muted);font-size:0.92rem;margin-bottom:1rem;line-height:1.6;border-left:3px solid rgba(255,215,0,.45);padding-left:0.85rem">
@@ -270,7 +271,7 @@
     getMe().then(async (me) => {
       if (!me) { window.location.href = "/login.html"; return; }
       if (me.isAdmin) {
-        document.querySelectorAll("[data-cf-admin-nav]").forEach(function (el) {
+        document.querySelectorAll("[data-cf-admin-nav], [data-cex-admin-nav]").forEach(function (el) {
           el.hidden = false;
         });
         var nav = document.querySelector(".header-nav");

@@ -647,6 +647,30 @@ function initQuiz(moduleId, questions, totalSteps) {
   if (!form) return;
   const stepsTotal = totalSteps || 12;
 
+  function applyAnswerReview(answers) {
+    if (!Array.isArray(answers)) return;
+    questions.forEach((q, i) => {
+      const pickedVal = answers[i];
+      if (pickedVal === null || pickedVal === undefined || pickedVal === "") return;
+      const radio = form.querySelector('input[name="q' + i + '"][value="' + pickedVal + '"]');
+      if (radio) radio.checked = true;
+      const fs = form.querySelectorAll("fieldset.quiz-q")[i];
+      if (!fs) return;
+      fs.querySelectorAll(".quiz-opt").forEach((lab) => {
+        lab.classList.remove("quiz-opt--picked", "quiz-opt--correct", "quiz-opt--wrong");
+      });
+      const pickedLab = radio && radio.closest(".quiz-opt");
+      const correctLab = form
+        .querySelector('input[name="q' + i + '"][value="' + q.correct + '"]')
+        ?.closest(".quiz-opt");
+      if (correctLab) correctLab.classList.add("quiz-opt--correct");
+      if (pickedLab) {
+        pickedLab.classList.add("quiz-opt--picked");
+        if (Number(pickedVal) !== q.correct) pickedLab.classList.add("quiz-opt--wrong");
+      }
+    });
+  }
+
   form.innerHTML = questions
     .map(
       (q, i) =>
@@ -660,27 +684,37 @@ function initQuiz(moduleId, questions, totalSteps) {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     let score = 0;
+    const answers = [];
     questions.forEach((q, i) => {
       const picked = form.querySelector('input[name="q' + i + '"]:checked');
-      if (picked && Number(picked.value) === q.correct) score++;
+      const val = picked ? Number(picked.value) : null;
+      answers.push(val);
+      if (picked && val === q.correct) score++;
     });
     const pct = Math.round((score / questions.length) * 100);
     const passed = score >= questions.length * 0.7;
     if (typeof setModuleQuiz === "function") {
-      setModuleQuiz(moduleId, score, questions.length, stepsTotal);
+      setModuleQuiz(moduleId, score, questions.length, stepsTotal, answers);
     }
+    applyAnswerReview(answers);
     resultEl.hidden = false;
     resultEl.className = "alert " + (passed ? "alert-success" : "alert-warn");
     resultEl.textContent = passed
-      ? "Validé — " + score + "/" + questions.length + " (" + pct + "%). Module enregistré dans votre progression."
-      : score + "/" + questions.length + " (" + pct + "%) — seuil 70% requis. Relisez les sections et le replay chart.";
+      ? "Validé — " + score + "/" + questions.length + " (" + pct + "%). Tes réponses restent visibles ci-dessous."
+      : score + "/" + questions.length + " (" + pct + "%) — seuil 70% requis. Tes réponses sont conservées ; tu peux réessayer.";
   });
 
   const prev = typeof getModuleProgress === "function" ? getModuleProgress(moduleId) : null;
   if (prev && prev.quizScore > 0 && resultEl) {
     resultEl.hidden = false;
     resultEl.className = "alert alert-success";
-    resultEl.textContent = "Dernier score : " + prev.quizScore + "/" + prev.quizTotal;
+    resultEl.textContent =
+      "Dernier score : " +
+      prev.quizScore +
+      "/" +
+      prev.quizTotal +
+      (Array.isArray(prev.quizAnswers) ? " — tes réponses précédentes sont affichées." : "");
+    if (Array.isArray(prev.quizAnswers)) applyAnswerReview(prev.quizAnswers);
   }
 }
 
@@ -732,12 +766,41 @@ function initPractice(moduleId, exercises) {
     })
     .join("");
 
+  function restorePracticeAnswers(answers) {
+    if (!Array.isArray(answers)) return;
+    exercises.forEach((ex, i) => {
+      const item = root.querySelector('[data-ex="' + i + '"]');
+      if (!item) return;
+      const ans = answers[i];
+      const vals = Array.isArray(ans) ? ans : ans === null || ans === undefined || ans === "" ? [] : [ans];
+      vals.forEach((v) => {
+        const inp = item.querySelector('input[value="' + v + '"]');
+        if (inp) inp.checked = true;
+      });
+      const fb = item.querySelector(".practice-feedback");
+      let ok = false;
+      if (ex.type === "multi") {
+        const want = (ex.correct || []).slice().sort().join(",");
+        ok = vals.slice().sort().join(",") === want;
+      } else {
+        ok = vals.length === 1 && vals[0] === ex.correct;
+      }
+      if (fb && vals.length) {
+        fb.hidden = false;
+        fb.className = "practice-feedback " + (ok ? "ok" : "ko");
+        fb.innerHTML = (ok ? "✓ Correct. " : "✗ Incorrect. ") + (ex.explain || "");
+      }
+    });
+  }
+
   document.getElementById("practice-check")?.addEventListener("click", () => {
     let correct = 0;
+    const answers = [];
     exercises.forEach((ex, i) => {
       const item = root.querySelector('[data-ex="' + i + '"]');
       const fb = item?.querySelector(".practice-feedback");
       const picked = Array.from(item.querySelectorAll("input:checked")).map((el) => Number(el.value));
+      answers.push(ex.type === "multi" ? picked : picked.length ? picked[0] : null);
       let ok = false;
       if (ex.type === "multi") {
         const want = (ex.correct || []).slice().sort().join(",");
@@ -763,12 +826,27 @@ function initPractice(moduleId, exercises) {
         " exercices corrects (" +
         pct +
         "%)" +
-        (pct >= 70 ? " — prêt pour le quiz." : " — relisez les frames replay et réessayez.");
+        (pct >= 70
+          ? " — prêt pour le quiz. Tes réponses restent visibles."
+          : " — relisez les frames replay et réessayez. Tes réponses sont conservées.");
     }
     if (typeof setModulePractice === "function") {
-      setModulePractice(moduleId, correct, exercises.length);
+      setModulePractice(moduleId, correct, exercises.length, answers);
     }
   });
+
+  const prevP = typeof getModuleProgress === "function" ? getModuleProgress(moduleId) : null;
+  if (prevP && prevP.practiceScore > 0 && resultEl) {
+    resultEl.hidden = false;
+    resultEl.className = "alert alert-success";
+    resultEl.textContent =
+      "Dernier score exercices : " +
+      prevP.practiceScore +
+      "/" +
+      prevP.practiceTotal +
+      (Array.isArray(prevP.practiceAnswers) ? " — réponses affichées." : "");
+    if (Array.isArray(prevP.practiceAnswers)) restorePracticeAnswers(prevP.practiceAnswers);
+  }
 }
 
 window.initStepLesson = initStepLesson;
@@ -890,50 +968,273 @@ if (document.readyState === "loading") {
 }
 
 /**
- * Exercice chart — travail guidé sur graphique (TradingView / replay)
+ * Exercice chart — notes + screens synchronisés compte Premium (pas seulement local).
  */
 function initChartExercise(moduleId, config) {
   const root = document.getElementById("chart-exercise-root");
   if (!root || !config) return;
 
   const tasks = config.tasks || [];
+  let images = [];
+
+  function mediaUrl(file) {
+    return (
+      "/api/chart-exercises/" +
+      encodeURIComponent(moduleId) +
+      "/media/" +
+      encodeURIComponent(file)
+    );
+  }
+
+  function renderGallery() {
+    const gal = document.getElementById("chart-exercise-gallery");
+    if (!gal) return;
+    if (!images.length) {
+      gal.innerHTML = '<p class="chart-exercise-muted">Aucun screen pour l’instant.</p>';
+      return;
+    }
+    gal.innerHTML = images
+      .map(function (img) {
+        return (
+          '<figure class="chart-exercise-shot" data-img="' +
+          img.id +
+          '">' +
+          '<img src="' +
+          mediaUrl(img.file) +
+          '" alt="' +
+          (img.caption || "Screen") +
+          '" loading="lazy" />' +
+          (img.caption ? "<figcaption>" + img.caption + "</figcaption>" : "") +
+          '<button type="button" class="btn btn-secondary chart-exercise-del" data-del="' +
+          img.id +
+          '">Retirer</button></figure>'
+        );
+      })
+      .join("");
+    gal.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        try {
+          const res = await fetch(
+            "/api/chart-exercises/" +
+              encodeURIComponent(moduleId) +
+              "/images/" +
+              encodeURIComponent(btn.getAttribute("data-del")),
+            { method: "DELETE", credentials: "same-origin" }
+          );
+          const data = await res.json().catch(function () {
+            return {};
+          });
+          if (!res.ok) throw new Error(data.error || "Erreur");
+          images = (data.exercise && data.exercise.images) || [];
+          renderGallery();
+        } catch (err) {
+          alert(err.message || String(err));
+        }
+      });
+    });
+  }
+
+  function compressImageFile(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file || !file.type || file.type.indexOf("image/") !== 0) {
+        reject(new Error("Image JPEG/PNG/WebP requise"));
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = function () {
+        try {
+          const maxSide = 1600;
+          let w = img.naturalWidth || img.width;
+          let h = img.naturalHeight || img.height;
+          const scale = Math.min(1, maxSide / Math.max(w, h));
+          w = Math.max(1, Math.round(w * scale));
+          h = Math.max(1, Math.round(h * scale));
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#0b0f14";
+          ctx.fillRect(0, 0, w, h);
+          ctx.drawImage(img, 0, 0, w, h);
+          let dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+          if (dataUrl.length > 700000) dataUrl = canvas.toDataURL("image/jpeg", 0.62);
+          URL.revokeObjectURL(url);
+          resolve(dataUrl);
+        } catch (e) {
+          URL.revokeObjectURL(url);
+          reject(e);
+        }
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("Lecture image impossible"));
+      };
+      img.src = url;
+    });
+  }
+
+  function applyLocal(saved) {
+    const notesEl = document.getElementById("chart-exercise-notes");
+    if (notesEl && saved.notes) notesEl.value = saved.notes;
+    (saved.done || []).forEach(function (i) {
+      const cb = root.querySelector('[data-task="' + i + '"]');
+      if (cb) cb.checked = true;
+    });
+  }
+
   root.innerHTML =
     '<div class="chart-exercise-box">' +
-    '<p class="chart-exercise-intro">' + (config.intro || "Exercice pratique sur chart — ouvrez TradingView ou le replay du module.") + "</p>" +
+    '<p class="chart-exercise-intro">' +
+    (config.intro || "Exercice pratique sur chart — ouvrez TradingView ou le replay du module.") +
+    "</p>" +
     (config.chartHint ? '<div class="chart-exercise-hint">' + config.chartHint + "</div>" : "") +
     '<ol class="chart-exercise-tasks">' +
-    tasks.map((t, i) =>
-      '<li><label><input type="checkbox" data-task="' + i + '" /> <strong>' + t.title + "</strong><br/><span>" + t.desc + "</span></label></li>"
-    ).join("") +
+    tasks
+      .map(function (t, i) {
+        return (
+          '<li><label><input type="checkbox" data-task="' +
+          i +
+          '" /> <strong>' +
+          t.title +
+          "</strong><br/><span>" +
+          t.desc +
+          "</span></label></li>"
+        );
+      })
+      .join("") +
     "</ol>" +
-    '<div class="form-group"><label>Vos annotations / conclusions (sauvegardé localement)</label>' +
+    '<div class="form-group"><label>Vos annotations / conclusions</label>' +
     '<textarea id="chart-exercise-notes" rows="5" placeholder="Ex : RH à 2420, sweep SSL bougie 7, MSS confirmé bougie 8…"></textarea></div>' +
-    '<button type="button" class="btn btn-primary" id="chart-exercise-save">Enregistrer mon exercice</button>' +
+    '<div class="chart-exercise-actions">' +
+    '<button type="button" class="btn btn-primary" id="chart-exercise-save">Enregistrer notes</button>' +
+    '<label class="btn btn-secondary chart-exercise-upload-btn">Déposer un screen' +
+    '<input type="file" id="chart-exercise-file" accept="image/jpeg,image/png,image/webp,image/gif" hidden /></label>' +
+    "</div>" +
+    '<p class="chart-exercise-muted">Notes et screens liés à ton compte — visibles quand tu reviens, et pour le coach.</p>' +
+    '<div id="chart-exercise-gallery" class="chart-exercise-gallery"></div>' +
     '<div id="chart-exercise-msg" class="alert" hidden style="margin-top:0.75rem"></div></div>';
 
   const storageKey = "forge_chart_ex_" + moduleId;
   const notesEl = document.getElementById("chart-exercise-notes");
   try {
-    const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
-    if (notesEl && saved.notes) notesEl.value = saved.notes;
-    (saved.done || []).forEach((i) => {
-      const cb = root.querySelector('[data-task="' + i + '"]');
-      if (cb) cb.checked = true;
-    });
+    applyLocal(JSON.parse(localStorage.getItem(storageKey) || "{}"));
   } catch (_) {}
 
-  document.getElementById("chart-exercise-save")?.addEventListener("click", () => {
-    const done = Array.from(root.querySelectorAll("input[data-task]:checked")).map((el) => Number(el.dataset.task));
+  async function loadFromServer() {
+    try {
+      const res = await fetch("/api/chart-exercises/" + encodeURIComponent(moduleId), {
+        credentials: "same-origin",
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const ex = data.exercise || {};
+      if (notesEl && typeof ex.notes === "string") notesEl.value = ex.notes;
+      (ex.done || []).forEach(function (i) {
+        const cb = root.querySelector('[data-task="' + i + '"]');
+        if (cb) cb.checked = true;
+      });
+      images = ex.images || [];
+      renderGallery();
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ notes: ex.notes || "", done: ex.done || [], savedAt: ex.updatedAt })
+      );
+    } catch (_) {}
+  }
+  loadFromServer();
+
+  document.getElementById("chart-exercise-save")?.addEventListener("click", async function () {
+    const done = Array.from(root.querySelectorAll("input[data-task]:checked")).map(function (el) {
+      return Number(el.dataset.task);
+    });
     const notes = notesEl?.value || "";
     localStorage.setItem(storageKey, JSON.stringify({ notes, done, savedAt: new Date().toISOString() }));
     const msg = document.getElementById("chart-exercise-msg");
-    if (msg) {
-      msg.hidden = false;
-      msg.className = "alert alert-success";
-      msg.textContent = "Exercice chart enregistré (" + done.length + "/" + tasks.length + " tâches cochées).";
+    try {
+      const res = await fetch("/api/chart-exercises/" + encodeURIComponent(moduleId), {
+        method: "PUT",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: notes, done: done }),
+      });
+      const data = await res.json().catch(function () {
+        return {};
+      });
+      if (!res.ok) throw new Error(data.error || "Erreur serveur");
+      if (msg) {
+        msg.hidden = false;
+        msg.className = "alert alert-success";
+        msg.textContent =
+          "Notes enregistrées sur ton compte (" + done.length + "/" + tasks.length + " tâches).";
+      }
+      if (typeof setModulePractice === "function" && done.length >= Math.ceil(tasks.length * 0.7)) {
+        setModulePractice(moduleId, done.length, tasks.length);
+      }
+    } catch (err) {
+      if (msg) {
+        msg.hidden = false;
+        msg.className = "alert alert-warn";
+        msg.textContent =
+          "Sauvegarde locale OK — sync compte : " + (err.message || String(err));
+      }
     }
-    if (typeof setModulePractice === "function" && done.length >= Math.ceil(tasks.length * 0.7)) {
-      setModulePractice(moduleId, done.length, tasks.length);
+  });
+
+  document.getElementById("chart-exercise-file")?.addEventListener("change", async function (ev) {
+    const f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    const msg = document.getElementById("chart-exercise-msg");
+    try {
+      if (msg) {
+        msg.hidden = false;
+        msg.className = "alert";
+        msg.textContent = "Compression + envoi du screen…";
+      }
+      // Sync notes avant l’image
+      const done = Array.from(root.querySelectorAll("input[data-task]:checked")).map(function (el) {
+        return Number(el.dataset.task);
+      });
+      const notes = notesEl?.value || "";
+      await fetch("/api/chart-exercises/" + encodeURIComponent(moduleId), {
+        method: "PUT",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: notes, done: done }),
+      });
+      const dataUrl = await compressImageFile(f);
+      const caption = "";
+      const res = await fetch(
+        "/api/chart-exercises/" + encodeURIComponent(moduleId) + "/images",
+        {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ dataUrl: dataUrl, caption: caption }),
+        }
+      );
+      const data = await res.json().catch(function () {
+        return {};
+      });
+      if (!res.ok) {
+        if (res.status === 413) throw new Error("Image trop lourde (limite serveur)");
+        throw new Error(data.error || "Upload échoué");
+      }
+      images = (data.exercise && data.exercise.images) || [];
+      renderGallery();
+      if (msg) {
+        msg.hidden = false;
+        msg.className = "alert alert-success";
+        msg.textContent = "Screen ajouté.";
+      }
+    } catch (err) {
+      if (msg) {
+        msg.hidden = false;
+        msg.className = "alert alert-warn";
+        msg.textContent = err.message || String(err);
+      }
+    } finally {
+      ev.target.value = "";
     }
   });
 }

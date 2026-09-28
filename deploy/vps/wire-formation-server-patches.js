@@ -64,6 +64,9 @@ function hasModuleQa() {
 function hasSwingAnalyses() {
   return /createSwingAnalysesRouter|routes-swing-analyses/.test(content);
 }
+function hasChartExercises() {
+  return /createChartExercisesRouter|routes-chart-exercises/.test(content);
+}
 
 function extractDataDirFromProgressBlock(block) {
   if (!block) return "path.join(__dirname, \"data\")";
@@ -88,6 +91,7 @@ function managedBlock(dataDirExpr) {
     "const createCoachingFichesRouter = require(\"./server-patches/routes-coaching-fiches\");",
     "const createModuleQaRouter = require(\"./server-patches/routes-module-qa\");",
     "const createSwingAnalysesRouter = require(\"./server-patches/routes-swing-analyses\");",
+    "const createChartExercisesRouter = require(\"./server-patches/routes-chart-exercises\");",
     "const requireSubscribedForCourse = require(\"./server-patches/middleware-require-subscribed\");",
     "",
     "// Paywall Premium — avant express.static(\"public\")",
@@ -125,6 +129,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createSwingAnalysesRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createChartExercisesRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -287,6 +297,51 @@ ensureCoachingMounted();
 ensureCoachingFichesMounted();
 ensureModuleQaMounted();
 ensureSwingAnalysesMounted();
+ensureChartExercisesMounted();
+
+function ensureChartExercisesMounted() {
+  if (!/createSwingAnalysesRouter|createModuleQaRouter|createCalendarRouter/.test(content)) {
+    return;
+  }
+  if (hasChartExercises()) {
+    console.log("OK — chart-exercises déjà monté.");
+    return;
+  }
+  if (!/createChartExercisesRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createSwingAnalysesRouter = require\(["']\.\/server-patches\/routes-swing-analyses["']\);)/,
+      '$1\nconst createChartExercisesRouter = require("./server-patches/routes-chart-exercises");'
+    );
+    if (replaced !== content) {
+      content = replaced;
+    } else {
+      content = content.replace(
+        /(const createModuleQaRouter = require\([^)]+\);)/,
+        '$1\nconst createChartExercisesRouter = require("./server-patches/routes-chart-exercises");'
+      );
+    }
+  }
+  const swaUseRe = /app\.use\(\s*createSwingAnalysesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const qaUseRe = /app\.use\(\s*createModuleQaRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const anchorMatch = content.match(swaUseRe) || content.match(qaUseRe);
+  if (!anchorMatch) {
+    console.warn("WARN — point d'insertion chart-exercises introuvable.");
+    return;
+  }
+  const dataDirExpr =
+    (anchorMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const use = [
+    "app.use(",
+    "  createChartExercisesRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + use);
+  console.log("Chart exercises router ajouté.");
+}
 
 function ensureSwingAnalysesMounted() {
   if (!/createModuleQaRouter|createCoachingFichesRouter|createCalendarRouter/.test(content)) {

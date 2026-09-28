@@ -47,6 +47,7 @@ JS_FILES=(
   forge-psycho-atlas.js
   forge-indicateurs-atlas.js
   forge-swing-analyses.js
+  forge-chart-exercises-admin.js
   books-data.js
   forge-books.js
   forge-live-resources.js

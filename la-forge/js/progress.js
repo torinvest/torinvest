@@ -163,7 +163,7 @@ async function setModuleSteps(moduleId, stepsDone, totalSteps) {
   await pushProgressToServer();
 }
 
-async function setModuleQuiz(moduleId, score, total, totalSteps) {
+async function setModuleQuiz(moduleId, score, total, totalSteps, answers) {
   const all = loadProgress();
   const prev = all[moduleId] || {};
   all[moduleId] = {
@@ -171,6 +171,7 @@ async function setModuleQuiz(moduleId, score, total, totalSteps) {
     quizScore: score,
     quizTotal: total,
     totalSteps: totalSteps || prev.totalSteps || 12,
+    quizAnswers: Array.isArray(answers) ? answers : prev.quizAnswers || null,
     updated: new Date().toISOString(),
     completed:
       (prev.stepsDone || 0) >= (totalSteps || prev.totalSteps || 12) &&
@@ -181,13 +182,14 @@ async function setModuleQuiz(moduleId, score, total, totalSteps) {
   await pushProgressToServer();
 }
 
-async function setModulePractice(moduleId, score, total) {
+async function setModulePractice(moduleId, score, total, answers) {
   const all = loadProgress();
   const prev = all[moduleId] || {};
   all[moduleId] = {
     ...prev,
     practiceScore: score,
     practiceTotal: total,
+    practiceAnswers: Array.isArray(answers) ? answers : prev.practiceAnswers || null,
     updated: new Date().toISOString(),
     completed:
       (prev.stepsDone || 0) >= (prev.totalSteps || 12) &&
