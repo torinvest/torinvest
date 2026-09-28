@@ -345,7 +345,14 @@ module.exports = function createLiveResourcesRouter() {
       ready = false;
       pdfCount = -1;
     }
-    res.json({ ok: true, ready, pdfCount, packCount });
+    res.json({
+      ok: true,
+      ready,
+      pdfCount,
+      packCount,
+      upload: true,
+      version: 3,
+    });
   });
 
   router.get("/api/live-resources", async (req, res) => {
