@@ -49,7 +49,13 @@
     }
     .lr-admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
     @media (max-width: 640px) { .lr-admin-grid { grid-template-columns: 1fr; } }
+    #lr-admin-form input[type="file"] {
+      padding: 0.45rem 0;
+      border: none;
+      background: transparent;
+    }
     .lr-admin-hint { font-size: 0.8rem; color: var(--muted); margin: 0.35rem 0 0; line-height: 1.45; }
+    #lr-upload-preview { color: var(--gold); }
   </style>
 </head>
 <body>
@@ -95,13 +101,24 @@
           <textarea id="lr-desc" name="description" rows="2" placeholder="Ce que l’élève retrouve dans ce pack"></textarea>
         </div>
         <div>
-          <label for="lr-files">Noms des PDF (un par ligne)</label>
-          <textarea id="lr-files" name="files" rows="3" required placeholder="live-2026-09-07-slides.pdf&#10;live-2026-09-07-checklist.pdf"></textarea>
+          <label for="lr-upload">Déposer PDF / screens</label>
+          <input
+            id="lr-upload"
+            name="upload"
+            type="file"
+            multiple
+            accept=".pdf,image/png,image/jpeg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif"
+          />
+          <p class="lr-admin-hint" id="lr-upload-preview" hidden></p>
           <p class="lr-admin-hint">
-            Les fichiers doivent être déposés sur le VPS dans
-            <code>/var/lib/torinvest/live-resources/</code>
-            (scp / rsync) — pas d’upload navigateur pour l’instant.
+            Les fichiers sont envoyés directement sur le VPS
+            (<code>/var/lib/torinvest/live-resources/</code>) puis publiés pour les élèves.
+            PDF et images (png / jpg / webp / gif), max 10&nbsp;Mo chacun.
           </p>
+        </div>
+        <div>
+          <label for="lr-files">Noms déjà sur le VPS (optionnel, un par ligne)</label>
+          <textarea id="lr-files" name="files" rows="2" placeholder="si déjà déposé manuellement…"></textarea>
         </div>
         <div>
           <label for="lr-notes">Notes admin (non visibles élèves)</label>
@@ -123,7 +140,7 @@
   <script src="/js/forge-brand.js"></script>
   <script src="/js/auth.js?v=7"></script>
   <script src="/js/forge-gate.js"></script>
-  <script src="/js/forge-live-resources.js?v=1"></script>
+  <script src="/js/forge-live-resources.js?v=2"></script>
   <script>
     initForgeGate({ requirePremium: true }).then(function (me) {
       if (!me) return;

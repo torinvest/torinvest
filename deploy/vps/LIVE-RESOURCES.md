@@ -1,8 +1,8 @@
-# Ressources lives / modules — PDF téléchargeables (Premium)
+# Ressources lives / modules — PDF & screens téléchargeables (Premium)
 
 ## Objectif
 
-Après chaque **live** (ou module), tu déposes un pack de slides/PDF.
+Après chaque **live** (ou module), tu déposes un pack de slides/PDF/screens.
 Les élèves Premium les téléchargent depuis :
 
 - `https://app.torinvest-trading.com/resources.html`
@@ -31,30 +31,19 @@ Depuis le repo (ou après `pull-forge-all`) :
 bash /home/ubuntu/torinvest-formation/deploy/vps/seed-live-resources.sh
 ```
 
-Ou manuellement :
-
-```bash
-DIR=/var/lib/torinvest/live-resources
-scp deploy/vps/live-resources-seed/la-forge-integration-client-4-slides.pdf ubuntu@VPS:$DIR/
-scp deploy/vps/live-resources-seed/index.json ubuntu@VPS:$DIR/
-```
-
 ## Après chaque live (workflow coach)
 
-1. Dépose le PDF sur le VPS :
+1. Ouvre `resources.html` connecté avec un email de `FORGE_ADMIN_EMAILS`.
 
-```bash
-scp "live-2026-09-07-slides.pdf" ubuntu@VPS:/var/lib/torinvest/live-resources/
-```
-
-2. Ouvre `resources.html` connecté avec un email de `FORGE_ADMIN_EMAILS`.
-
-3. Remplis le formulaire admin :
+2. Remplis le formulaire admin :
    - titre (ex. `Live dimanche — Module 0`)
    - date du live (pour l’affichage calendrier)
-   - noms de fichiers PDF (un par ligne), **exactement** comme sur le disque
+   - **Déposer PDF / screens** via le sélecteur de fichiers (envoi direct sur le VPS)
+   - optionnel : noms déjà présents sur le disque (fallback scp)
 
-4. Les élèves voient le pack et cliquent **Télécharger**.
+3. Clique **Publier pour les élèves** — upload puis publication.
+
+Types acceptés : PDF, png, jpg, webp, gif — max **10 Mo** par fichier.
 
 ## API (aperçu)
 
@@ -63,6 +52,7 @@ scp "live-2026-09-07-slides.pdf" ubuntu@VPS:/var/lib/torinvest/live-resources/
 | GET | `/api/live-resources/ping` | public |
 | GET | `/api/live-resources` | Premium |
 | GET | `/api/live-resources/:id/file/:fileName?download=1` | Premium |
+| POST | `/api/live-resources/upload` | Admin (body `dataUrl` base64) |
 | POST / PATCH / DELETE | `/api/live-resources...` | Admin |
 
 Filtre date : `GET /api/live-resources?liveDate=2026-09-07`
@@ -70,10 +60,12 @@ Filtre date : `GET /api/live-resources?liveDate=2026-09-07`
 ## Déploiement
 
 ```bash
+# Hotfix upload navigateur
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/live-resources-upload-691a/deploy/vps/HOTFIX-LIVE-RESOURCES-UPLOAD.sh" | bash
+
+# Ou pull complet
 REF=<commit-ou-branche>
 curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/pull-forge-all.sh" | bash
-# puis seed si besoin
-bash /home/ubuntu/torinvest-formation/deploy/vps/seed-live-resources.sh
 pm2 restart la-forge
 ```
 

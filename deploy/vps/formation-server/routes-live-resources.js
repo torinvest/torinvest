@@ -1,11 +1,12 @@
 /**
- * PDF / slides téléchargeables après lives & modules (Premium).
+ * PDF / slides / screens téléchargeables après lives & modules (Premium).
  * Index JSON + fichiers hors Git (comme /books).
  *
  * GET  /api/live-resources/ping
  * GET  /api/live-resources
  * GET  /api/live-resources/:id
  * GET  /api/live-resources/:id/file/:fileName
+ * POST /api/live-resources/upload   (admin) — dépôt navigateur → VPS
  * POST /api/live-resources          (admin)
  * PATCH /api/live-resources/:id     (admin)
  * DELETE /api/live-resources/:id    (admin)
@@ -132,10 +133,106 @@ function newId() {
 }
 
 function safePdfName(name) {
+  return safeResourceName(name, { pdfOnly: true });
+}
+
+/** PDF + images (screens) autorisés dans live-resources. */
+function safeResourceName(name, opts) {
+  const pdfOnly = opts && opts.pdfOnly;
   const base = path.basename(String(name || "").trim()).replace(/[^a-zA-Z0-9._\-]/g, "_");
   if (!base || base === "." || base === "..") return null;
-  if (!/\.pdf$/i.test(base)) return null;
+  if (pdfOnly) {
+    if (!/\.pdf$/i.test(base)) return null;
+    return base;
+  }
+  if (!/\.(pdf|png|jpe?g|webp|gif)$/i.test(base)) return null;
   return base;
+}
+
+function mimeForFile(fileName) {
+  const lower = String(fileName || "").toLowerCase();
+  if (lower.endsWith(".pdf")) return "application/pdf";
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+  if (lower.endsWith(".webp")) return "image/webp";
+  if (lower.endsWith(".gif")) return "image/gif";
+  return "application/octet-stream";
+}
+
+const MAX_UPLOAD_BYTES = 10 * 1024 * 1024; // 10 Mo (PDF slides / screens)
+
+const MIME_TO_EXT = {
+  "application/pdf": ".pdf",
+  "image/png": ".png",
+  "image/jpeg": ".jpg",
+  "image/webp": ".webp",
+  "image/gif": ".gif",
+};
+
+function extForMime(mime) {
+  return MIME_TO_EXT[String(mime || "").toLowerCase()] || null;
+}
+
+function uniqueResourceName(desired) {
+  const safe = safeResourceName(desired);
+  if (!safe) return null;
+  const dir = resourcesDir();
+  if (!fs.existsSync(path.join(dir, safe))) return safe;
+  const ext = path.extname(safe);
+  const stem = path.basename(safe, ext);
+  const stamp = Date.now().toString(36);
+  return safeResourceName(`${stem}-${stamp}${ext}`);
+}
+
+function parseUploadPayload(body) {
+  const rawName = String((body && (body.fileName || body.name || body.file)) || "").trim();
+  const dataUrl = String((body && body.dataUrl) || "");
+  let mime = "";
+  let b64 = "";
+
+  if (dataUrl) {
+    const m = dataUrl.match(
+      /^data:(application\/pdf|image\/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=\s]+)$/i
+    );
+    if (!m) return { error: "Fichier invalide (PDF ou image jpeg/png/webp/gif)" };
+    mime = m[1].toLowerCase();
+    b64 = m[2];
+  } else {
+    mime = String((body && (body.mime || body.contentType)) || "")
+      .trim()
+      .toLowerCase();
+    b64 = String((body && (body.base64 || body.data)) || "");
+    if (!extForMime(mime) || !b64) {
+      return { error: "dataUrl ou (mime + base64) requis" };
+    }
+  }
+
+  let buf;
+  try {
+    buf = Buffer.from(String(b64).replace(/\s+/g, ""), "base64");
+  } catch (_) {
+    return { error: "Décodage fichier échoué" };
+  }
+  if (!buf.length) return { error: "Fichier vide" };
+  if (buf.length > MAX_UPLOAD_BYTES) {
+    return { error: "Fichier trop lourd (max 10 Mo)" };
+  }
+
+  const ext = extForMime(mime);
+  if (!ext) return { error: "Type non supporté" };
+
+  let desired = rawName;
+  if (desired && !/\.(pdf|png|jpe?g|webp|gif)$/i.test(desired)) {
+    desired += ext;
+  }
+  if (!desired) {
+    desired = `upload-${Date.now().toString(36)}${ext}`;
+  }
+
+  const fileName = uniqueResourceName(desired);
+  if (!fileName) return { error: "Nom de fichier invalide" };
+
+  return { fileName, mime, buf };
 }
 
 function loadIndex() {
@@ -150,7 +247,7 @@ function saveIndex(data) {
 }
 
 function fileReady(fileName) {
-  const safe = safePdfName(fileName);
+  const safe = safeResourceName(fileName);
   if (!safe) return false;
   try {
     return fs.existsSync(path.join(resourcesDir(), safe));
@@ -198,10 +295,12 @@ function toPublicPack(pack, { admin = false } = {}) {
 function normalizeFiles(filesIn) {
   const files = [];
   for (const item of filesIn || []) {
-    const file = safePdfName(item && (item.file || item.name));
+    const file = safeResourceName(item && (item.file || item.name));
     if (!file) continue;
     files.push({
-      label: String((item && (item.label || item.title)) || file.replace(/\.pdf$/i, "")).trim() || file,
+      label:
+        String((item && (item.label || item.title)) || file.replace(/\.(pdf|png|jpe?g|webp|gif)$/i, "")).trim() ||
+        file,
       file,
     });
   }
@@ -321,11 +420,11 @@ module.exports = function createLiveResourcesRouter() {
         return res.status(404).json({ error: "Ressource introuvable" });
       }
 
-      const safe = safePdfName(req.params.fileName);
+      const safe = safeResourceName(req.params.fileName);
       if (!safe) return res.status(400).json({ error: "Nom de fichier invalide" });
 
       const allowed = (Array.isArray(pack.files) ? pack.files : []).some(
-        (f) => safePdfName(f.file) === safe
+        (f) => safeResourceName(f.file) === safe
       );
       if (!allowed) return res.status(404).json({ error: "Fichier non listé" });
 
@@ -336,13 +435,13 @@ module.exports = function createLiveResourcesRouter() {
       }
       if (!fs.existsSync(abs) || !fs.statSync(abs).isFile()) {
         return res.status(404).json({
-          error: "PDF pas encore déposé sur le serveur",
+          error: "Fichier pas encore déposé sur le serveur",
           hint: `Déposer le fichier dans ${dir}/${safe}`,
         });
       }
 
       const download = String(req.query.download || "") === "1";
-      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Type", mimeForFile(safe));
       res.setHeader(
         "Content-Disposition",
         `${download ? "attachment" : "inline"}; filename="${safe.replace(/"/g, "")}"`
@@ -351,6 +450,35 @@ module.exports = function createLiveResourcesRouter() {
       return fs.createReadStream(abs).pipe(res);
     } catch (err) {
       console.error("[live-resources] file", err && err.message);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
+  });
+
+  router.post("/api/live-resources/upload", async (req, res) => {
+    try {
+      const user = await requirePremium(req, res);
+      if (!user) return;
+      if (!req._liveAdmin) {
+        return res.status(403).json({ error: "Accès admin requis" });
+      }
+
+      const body = req.body && typeof req.body === "object" ? req.body : {};
+      const parsed = parseUploadPayload(body);
+      if (parsed.error) return res.status(400).json({ error: parsed.error });
+
+      ensureDir(resourcesDir());
+      const abs = path.join(resourcesDir(), parsed.fileName);
+      fs.writeFileSync(abs, parsed.buf);
+
+      return res.status(201).json({
+        ok: true,
+        file: parsed.fileName,
+        mime: parsed.mime,
+        bytes: parsed.buf.length,
+        label: parsed.fileName.replace(/\.(pdf|png|jpe?g|webp|gif)$/i, ""),
+      });
+    } catch (err) {
+      console.error("[live-resources] upload", err && err.message);
       return res.status(500).json({ error: "Erreur serveur" });
     }
   });
@@ -370,8 +498,8 @@ module.exports = function createLiveResourcesRouter() {
       const files = normalizeFiles(Array.isArray(body.files) ? body.files : []);
       if (!files.length) {
         return res.status(400).json({
-          error: "Au moins un fichier PDF (files[].file) est requis",
-          hint: "Dépose ensuite le PDF sur le VPS dans LIVE_RESOURCES_DIR",
+          error: "Au moins un fichier (PDF ou image) est requis",
+          hint: "Utilise POST /api/live-resources/upload depuis resources.html",
         });
       }
 
@@ -404,7 +532,6 @@ module.exports = function createLiveResourcesRouter() {
         ok: true,
         pack: toPublicPack(pack, { admin: true }),
         missingFiles,
-        uploadHint: `scp tes.pdf ubuntu@VPS:${resourcesDir()}/`,
       });
     } catch (err) {
       console.error("[live-resources] create", err && err.message);
