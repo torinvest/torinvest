@@ -1117,20 +1117,75 @@ function initChartExercise(moduleId, config) {
 
   const storageKey = "forge_chart_ex_" + moduleId;
   const notesEl = document.getElementById("chart-exercise-notes");
+
+  function readLocalSaved() {
+    try {
+      return JSON.parse(localStorage.getItem(storageKey) || "{}") || {};
+    } catch (_) {
+      return {};
+    }
+  }
+
   try {
-    applyLocal(JSON.parse(localStorage.getItem(storageKey) || "{}"));
+    applyLocal(readLocalSaved());
   } catch (_) {}
 
   async function loadFromServer() {
     try {
+      const local = readLocalSaved();
       const res = await fetch("/api/chart-exercises/" + encodeURIComponent(moduleId), {
         credentials: "same-origin",
       });
       if (!res.ok) return;
       const data = await res.json();
       const ex = data.exercise || {};
-      if (notesEl && typeof ex.notes === "string") notesEl.value = ex.notes;
-      (ex.done || []).forEach(function (i) {
+      const serverNotes = typeof ex.notes === "string" ? ex.notes : "";
+      const localNotes = typeof local.notes === "string" ? local.notes : "";
+      const serverDone = Array.isArray(ex.done) ? ex.done : [];
+      const localDone = Array.isArray(local.done) ? local.done : [];
+
+      // Ne jamais écraser des notes locales non vides avec un serveur vide
+      const needPush =
+        (localNotes && !serverNotes) ||
+        (localNotes &&
+          serverNotes &&
+          localNotes.length > serverNotes.length &&
+          serverNotes.indexOf(localNotes) !== 0) ||
+        (localDone.length && !serverDone.length);
+
+      if (needPush && (localNotes || localDone.length)) {
+        try {
+          await fetch("/api/chart-exercises/migrate-local", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: [
+                {
+                  moduleId: moduleId,
+                  notes: localNotes,
+                  done: localDone,
+                  savedAt: local.savedAt || null,
+                },
+              ],
+            }),
+          });
+          const res2 = await fetch("/api/chart-exercises/" + encodeURIComponent(moduleId), {
+            credentials: "same-origin",
+          });
+          if (res2.ok) {
+            const data2 = await res2.json();
+            Object.assign(ex, data2.exercise || {});
+          }
+        } catch (_) {}
+      }
+
+      const finalNotes =
+        (typeof ex.notes === "string" && ex.notes) || localNotes || "";
+      const finalDone = Array.isArray(ex.done) && ex.done.length ? ex.done : localDone;
+
+      if (notesEl) notesEl.value = finalNotes;
+      finalDone.forEach(function (i) {
         const cb = root.querySelector('[data-task="' + i + '"]');
         if (cb) cb.checked = true;
       });
@@ -1138,11 +1193,20 @@ function initChartExercise(moduleId, config) {
       renderGallery();
       localStorage.setItem(
         storageKey,
-        JSON.stringify({ notes: ex.notes || "", done: ex.done || [], savedAt: ex.updatedAt })
+        JSON.stringify({
+          notes: finalNotes,
+          done: finalDone,
+          savedAt: ex.updatedAt || local.savedAt || new Date().toISOString(),
+        })
       );
     } catch (_) {}
   }
   loadFromServer();
+
+  // Aussi synchroniser toutes les notes locales connues (autres modules)
+  if (typeof window.syncLocalChartExercisesToServer === "function") {
+    window.syncLocalChartExercisesToServer();
+  }
 
   document.getElementById("chart-exercise-save")?.addEventListener("click", async function () {
     const done = Array.from(root.querySelectorAll("input[data-task]:checked")).map(function (el) {

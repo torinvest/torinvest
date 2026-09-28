@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# Notes + screens exercices chart (élève) + admin + réponses quiz persistées.
+# Notes + screens exercices chart (élève) + admin + récupération notes locales.
 #
-#   REF=cursor/exercices-notes-screens-691a curl -fsSL \
-#     https://raw.githubusercontent.com/torinvest/torinvest/cursor/exercices-notes-screens-691a/deploy/vps/DEPLOY-CHART-EXERCISES.sh \
-#     -o /tmp/d-cex.sh && REF=cursor/exercices-notes-screens-691a bash /tmp/d-cex.sh
+#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/chart-notes-recover-691a/deploy/vps/DEPLOY-CHART-EXERCISES.sh | bash
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/exercices-notes-screens-691a}"
+REF="${REF:-cursor/chart-notes-recover-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 
 echo "======== DEPLOY CHART EXERCISES ($REF) ========"
@@ -20,6 +18,7 @@ pull "$RAW/deploy/vps/formation-server/forge-progress-rules.js" "$APP_DIR/server
 pull "$RAW/deploy/vps/wire-formation-server-patches.js" "$APP_DIR/wire-formation-server-patches.js"
 pull "$RAW/la-forge/js/lesson-core.js" "$APP_DIR/public/js/lesson-core.js"
 pull "$RAW/la-forge/js/progress.js" "$APP_DIR/public/js/progress.js"
+pull "$RAW/la-forge/js/forge-gate.js" "$APP_DIR/public/js/forge-gate.js"
 pull "$RAW/la-forge/js/forge-chart-exercises-admin.js" "$APP_DIR/public/js/forge-chart-exercises-admin.js"
 pull "$RAW/la-forge/css/main.css" "$APP_DIR/public/css/main.css"
 pull "$RAW/deploy/vps/app-shells/chart-exercises-admin.html" "$APP_DIR/public/chart-exercises-admin.html"
@@ -49,8 +48,8 @@ if command -v pm2 >/dev/null 2>&1; then
 fi
 
 echo ""
-grep -n "createChartExercisesRouter\|routes-chart-exercises" "$APP_DIR/server.js" 2>/dev/null | head -5 || true
+grep -n "createChartExercisesRouter\|routes-chart-exercises\|migrate-local" "$APP_DIR/server-patches/routes-chart-exercises.js" 2>/dev/null | head -8 || true
 curl -sS -o /dev/null -w "chart-exercises-admin %{http_code}\n" "http://127.0.0.1:3001/chart-exercises-admin.html" || true
 echo "→ Admin : https://app.torinvest-trading.com/chart-exercises-admin.html"
-echo "→ Élève : bouton « Enregistrer notes » + « Déposer un screen » dans l’exercice chart"
+echo "→ Élève : se reconnecter une fois → notes locales remontent automatiquement"
 echo "======== DONE ========"

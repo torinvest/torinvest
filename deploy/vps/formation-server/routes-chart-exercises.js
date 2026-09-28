@@ -3,6 +3,7 @@
  *
  *   GET    /api/chart-exercises/:moduleId
  *   PUT    /api/chart-exercises/:moduleId
+ *   POST   /api/chart-exercises/migrate-local  — récupère notes localStorage → VPS
  *   POST   /api/chart-exercises/:moduleId/images
  *   DELETE /api/chart-exercises/:moduleId/images/:imageId
  *   GET    /api/chart-exercises/:moduleId/media/:fileName
@@ -125,7 +126,104 @@ module.exports = function createChartExercisesRouter({ dataDir, requireAuth }) {
     fs.renameSync(tmp, p);
   }
 
+  /** Fusionne notes locales (navigateur) sans écraser un contenu serveur plus riche. */
+  function mergeLocalIntoServer(prev, incoming) {
+    const inNotes = clip(incoming.notes, 12000);
+    const prevNotes = clip(prev.notes, 12000);
+    let notes = prevNotes;
+    if (inNotes) {
+      if (!prevNotes) notes = inNotes;
+      else if (inNotes === prevNotes) notes = prevNotes;
+      else if (inNotes.length > prevNotes.length) notes = inNotes;
+      else if (!prevNotes.includes(inNotes) && !inNotes.includes(prevNotes)) {
+        // Deux versions différentes : garder la plus longue, sinon concat légère
+        notes = prevNotes.length >= inNotes.length ? prevNotes : inNotes;
+      }
+    }
+
+    const prevDone = Array.isArray(prev.done) ? prev.done : [];
+    const inDone = Array.isArray(incoming.done)
+      ? incoming.done.map((n) => Number(n)).filter((n) => Number.isFinite(n)).slice(0, 40)
+      : [];
+    const doneSet = new Set(prevDone.concat(inDone));
+    const done = Array.from(doneSet)
+      .filter((n) => Number.isFinite(n))
+      .sort((a, b) => a - b)
+      .slice(0, 40);
+
+    const inAt = incoming.savedAt ? Date.parse(String(incoming.savedAt)) : NaN;
+    const prevAt = prev.updatedAt ? Date.parse(String(prev.updatedAt)) : NaN;
+    const touched =
+      notes !== prevNotes ||
+      done.length !== prevDone.length ||
+      done.some((d, i) => d !== prevDone[i]);
+
+    return {
+      moduleId: prev.moduleId || incoming.moduleId,
+      email: prev.email || incoming.email,
+      notes,
+      done,
+      images: Array.isArray(prev.images) ? prev.images : [],
+      updatedAt: touched
+        ? new Date().toISOString()
+        : prev.updatedAt ||
+          (Number.isFinite(inAt) ? new Date(inAt).toISOString() : null) ||
+          (Number.isFinite(prevAt) ? prev.updatedAt : null),
+      _merged: touched,
+    };
+  }
+
   const router = express.Router();
+
+  // Avant /:moduleId — récupération notes localStorage (clés forge_chart_ex_*)
+  router.post("/api/chart-exercises/migrate-local", requireAuth, (req, res) => {
+    const email = sessionEmail(req);
+    if (!email) return res.status(401).json({ error: "Non authentifié" });
+    if (!isAdminEmail(email) && !isSubscribed(req)) {
+      return res.status(403).json({ error: "Premium requis" });
+    }
+    const items = Array.isArray(req.body?.items) ? req.body.items : [];
+    if (!items.length) return res.json({ ok: true, migrated: 0, results: [] });
+
+    const results = [];
+    let migrated = 0;
+    for (const raw of items.slice(0, 80)) {
+      const moduleId = String(raw?.moduleId || "").trim();
+      if (!isValidModuleId(moduleId)) {
+        results.push({ moduleId, error: "moduleId invalide" });
+        continue;
+      }
+      const prev = readModule(email, moduleId);
+      const next = mergeLocalIntoServer(
+        { ...prev, email, moduleId },
+        {
+          moduleId,
+          email,
+          notes: raw.notes,
+          done: raw.done,
+          savedAt: raw.savedAt,
+        }
+      );
+      delete next._merged;
+      const changed =
+        next.notes !== (prev.notes || "") ||
+        JSON.stringify(next.done || []) !== JSON.stringify(prev.done || []);
+      if (changed) {
+        next.email = email;
+        next.moduleId = moduleId;
+        next.updatedAt = new Date().toISOString();
+        writeModule(email, moduleId, next);
+        migrated += 1;
+      }
+      results.push({
+        moduleId,
+        migrated: changed,
+        notesLen: (next.notes || "").length,
+        doneCount: (next.done || []).length,
+      });
+    }
+    return res.json({ ok: true, migrated, results });
+  });
 
   router.get("/api/chart-exercises/:moduleId", requireAuth, (req, res) => {
     const email = sessionEmail(req);
@@ -269,10 +367,10 @@ module.exports = function createChartExercisesRouter({ dataDir, requireAuth }) {
             const notes = clip(raw.notes, 12000);
             if (!notes && !(raw.images || []).length && !(raw.done || []).length) continue;
             items.push({
-              email: raw.email || u.name.replace(/_/g, (m, i, s) => (s.includes("@") ? m : m)),
+              email: normalizeEmail(raw.email) || u.name,
               emailSlug: u.name,
               moduleId,
-              notesPreview: notes.slice(0, 160),
+              notesPreview: notes.slice(0, 280),
               notesLen: notes.length,
               doneCount: Array.isArray(raw.done) ? raw.done.length : 0,
               imageCount: Array.isArray(raw.images) ? raw.images.length : 0,
