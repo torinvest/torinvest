@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # Notes + screens exercices chart (élève) + admin + récupération notes locales.
 #
-#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/chart-notes-recover-691a/deploy/vps/DEPLOY-CHART-EXERCISES.sh | bash
+#   unset REF SHA BRANCH
+#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-CHART-EXERCISES.sh | bash
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/chart-notes-recover-691a}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
+# Ignore REF ambiant (souvent resté sur une vieille branche → 404)
+SCRIPT_REF="${CHART_EX_REF:-${SHA:-main}}"
+RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 
-echo "======== DEPLOY CHART EXERCISES ($REF) ========"
+echo "======== DEPLOY CHART EXERCISES ($SCRIPT_REF) ========"
+echo "(variable REF ambiant ignorée)"
 mkdir -p "$APP_DIR/public/js" "$APP_DIR/public/css" "$APP_DIR/server-patches" "$APP_DIR/data/chart-exercises"
 
 pull() { echo "← $(basename "$2")"; curl -fsSL "$1" -o "$2"; }
