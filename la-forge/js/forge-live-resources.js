@@ -1,6 +1,6 @@
 /**
- * Ressources lives / modules — téléchargement PDF Premium.
- * Après chaque live, l'admin publie un pack ; l'élève télécharge les slides.
+ * Ressources lives / modules — téléchargement PDF / screens Premium.
+ * Admin : dépôt navigateur → VPS puis publication du pack.
  */
 (function () {
   "use strict";
@@ -45,6 +45,10 @@
     return "Live";
   }
 
+  function isImageFile(name) {
+    return /\.(png|jpe?g|webp|gif)$/i.test(String(name || ""));
+  }
+
   function fileHref(packId, fileName, download) {
     var href =
       "/api/live-resources/" +
@@ -53,6 +57,47 @@
       encodeURIComponent(fileName);
     if (download) href += "?download=1";
     return href;
+  }
+
+  function readFileAsDataUrl(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        resolve(String(reader.result || ""));
+      };
+      reader.onerror = function () {
+        reject(new Error("Lecture fichier échouée"));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function allowedBrowserFile(file) {
+    if (!file) return false;
+    var type = String(file.type || "").toLowerCase();
+    if (type === "application/pdf" || type.indexOf("image/") === 0) return true;
+    return /\.(pdf|png|jpe?g|webp|gif)$/i.test(file.name || "");
+  }
+
+  async function uploadOneFile(file) {
+    if (!allowedBrowserFile(file)) {
+      throw new Error("Type non supporté : " + (file.name || "fichier"));
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      throw new Error("Trop lourd (max 10 Mo) : " + file.name);
+    }
+    var dataUrl = await readFileAsDataUrl(file);
+    var res = await api("/api/live-resources/upload", {
+      method: "POST",
+      body: JSON.stringify({
+        fileName: file.name,
+        dataUrl: dataUrl,
+      }),
+    });
+    return {
+      file: res.file,
+      label: res.label || String(res.file || "").replace(/\.(pdf|png|jpe?g|webp|gif)$/i, ""),
+    };
   }
 
   function renderPacks() {
@@ -76,6 +121,7 @@
                 " <em>(fichier bientôt disponible)</em></li>"
               );
             }
+            var openLabel = isImageFile(f.file) ? "Voir" : "Ouvrir";
             return (
               '<li class="lr-file">' +
               '<a class="btn btn-secondary" style="padding:0.35rem 0.7rem;font-size:0.82rem" href="' +
@@ -85,7 +131,9 @@
               "</a>" +
               ' <a class="lr-open" href="' +
               fileHref(p.id, f.file, false) +
-              '" target="_blank" rel="noopener">Ouvrir</a>' +
+              '" target="_blank" rel="noopener">' +
+              openLabel +
+              "</a>" +
               "</li>"
             );
           })
@@ -134,6 +182,27 @@
     panel.hidden = !state.isAdmin;
   }
 
+  function updateUploadPreview() {
+    var input = document.getElementById("lr-upload");
+    var preview = document.getElementById("lr-upload-preview");
+    if (!input || !preview) return;
+    var files = input.files ? Array.prototype.slice.call(input.files) : [];
+    if (!files.length) {
+      preview.hidden = true;
+      preview.textContent = "";
+      return;
+    }
+    preview.hidden = false;
+    preview.textContent =
+      files.length +
+      " fichier(s) : " +
+      files
+        .map(function (f) {
+          return f.name;
+        })
+        .join(", ");
+  }
+
   async function reload() {
     var data = await api("/api/live-resources");
     state.packs = data.packs || [];
@@ -149,31 +218,78 @@
     if (!form || form.dataset.bound === "1") return;
     form.dataset.bound = "1";
 
+    var uploadInput = document.getElementById("lr-upload");
+    if (uploadInput) {
+      uploadInput.addEventListener("change", updateUploadPreview);
+    }
+
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
       var fd = new FormData(form);
-      var filesRaw = String(fd.get("files") || "")
+      var submitBtn = form.querySelector('button[type="submit"]');
+      var prevLabel = submitBtn ? submitBtn.textContent : "";
+
+      var namesRaw = String(fd.get("files") || "")
         .split(/[\n,]+/)
         .map(function (s) {
           return s.trim();
         })
         .filter(Boolean);
 
-      var payload = {
-        title: String(fd.get("title") || "").trim(),
-        liveDate: String(fd.get("liveDate") || "").trim() || null,
-        kind: String(fd.get("kind") || "live"),
-        description: String(fd.get("description") || "").trim(),
-        notes: String(fd.get("notes") || "").trim(),
-        moduleSlug: String(fd.get("moduleSlug") || "").trim() || null,
-        files: filesRaw.map(function (name) {
-          var file = name.replace(/^.*[\\/]/, "");
-          if (!/\.pdf$/i.test(file)) file += ".pdf";
-          return { file: file, label: file.replace(/\.pdf$/i, "") };
-        }),
-      };
+      var browserFiles = uploadInput && uploadInput.files ? Array.prototype.slice.call(uploadInput.files) : [];
+
+      if (!browserFiles.length && !namesRaw.length) {
+        alert("Choisis au moins un PDF / screen à déposer, ou un nom déjà présent sur le VPS.");
+        return;
+      }
 
       try {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = browserFiles.length
+            ? "Envoi des fichiers…"
+            : "Publication…";
+        }
+
+        var uploaded = [];
+        for (var i = 0; i < browserFiles.length; i++) {
+          if (submitBtn) {
+            submitBtn.textContent =
+              "Envoi " + (i + 1) + "/" + browserFiles.length + "…";
+          }
+          uploaded.push(await uploadOneFile(browserFiles[i]));
+        }
+
+        var fromNames = namesRaw.map(function (name) {
+          var file = name.replace(/^.*[\\/]/, "");
+          if (!/\.(pdf|png|jpe?g|webp|gif)$/i.test(file)) file += ".pdf";
+          return {
+            file: file,
+            label: file.replace(/\.(pdf|png|jpe?g|webp|gif)$/i, ""),
+          };
+        });
+
+        var files = uploaded.concat(fromNames);
+        var seen = {};
+        files = files.filter(function (f) {
+          var key = String(f.file || "").toLowerCase();
+          if (!key || seen[key]) return false;
+          seen[key] = true;
+          return true;
+        });
+
+        if (submitBtn) submitBtn.textContent = "Publication…";
+
+        var payload = {
+          title: String(fd.get("title") || "").trim(),
+          liveDate: String(fd.get("liveDate") || "").trim() || null,
+          kind: String(fd.get("kind") || "live"),
+          description: String(fd.get("description") || "").trim(),
+          notes: String(fd.get("notes") || "").trim(),
+          moduleSlug: String(fd.get("moduleSlug") || "").trim() || null,
+          files: files,
+        };
+
         var res = await api("/api/live-resources", {
           method: "POST",
           body: JSON.stringify(payload),
@@ -181,17 +297,26 @@
         var missing = res.missingFiles || [];
         if (missing.length) {
           alert(
-            "Pack enregistré, mais PDF manquants sur le VPS :\n" +
-              missing.join("\n") +
-              "\n\nDépose-les dans /var/lib/torinvest/live-resources/"
+            "Pack enregistré, mais fichiers manquants sur le VPS :\n" +
+              missing.join("\n")
           );
         } else {
-          alert("Pack publié — les élèves peuvent télécharger.");
+          alert(
+            uploaded.length
+              ? "Fichiers déposés et pack publié — les élèves peuvent télécharger."
+              : "Pack publié — les élèves peuvent télécharger."
+          );
         }
         form.reset();
+        updateUploadPreview();
         await reload();
       } catch (err) {
         alert(err.message || String(err));
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = prevLabel || "Publier pour les élèves";
+        }
       }
     });
 
