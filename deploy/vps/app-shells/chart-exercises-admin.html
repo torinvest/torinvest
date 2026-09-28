@@ -47,6 +47,9 @@
     .cex-admin-shot img { display: block; width: 100%; height: auto; }
     .cex-admin-detail h2 { color: var(--gold); font-size: 1.2rem; }
     .cex-admin-detail h3 { color: var(--aqua); font-size: 0.95rem; margin: 1rem 0 0.45rem; }
+    .cex-admin-hint { color: var(--muted); font-size: 0.88rem; line-height: 1.5; max-width: 40rem; }
+    .cex-admin-toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
+    .cex-admin-empty { margin: 0.5rem 0 1.5rem; }
   </style>
 </head>
 <body>
@@ -58,7 +61,8 @@
       <h1>Notes &amp; screens des élèves</h1>
       <p>
         Les élèves enregistrent leurs annotations et screens dans l’exercice chart du module.
-        Tu les retrouves ici (compte Premium + sync serveur).
+        Tu les retrouves ici. Si une note n’apparaît pas encore, l’élève doit se reconnecter une fois
+        (ses notes locales remontent automatiquement sur le serveur).
       </p>
     </div>
     <div id="chart-exercises-admin-root">
@@ -70,7 +74,7 @@
   <script src="/js/forge-brand.js"></script>
   <script src="/js/auth.js?v=8"></script>
   <script src="/js/forge-gate.js"></script>
-  <script src="/js/forge-chart-exercises-admin.js?v=1"></script>
+  <script src="/js/forge-chart-exercises-admin.js?v=2"></script>
   <script>
     (function () {
       var root = document.getElementById("chart-exercises-admin-root");

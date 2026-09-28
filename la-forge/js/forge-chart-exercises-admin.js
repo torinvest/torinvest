@@ -26,10 +26,28 @@
     const items = data.items || [];
     if (!items.length) {
       root.innerHTML =
-        '<p class="fmt-empty">Aucune note / screen élève pour le moment.</p>';
+        '<div class="cex-admin-empty">' +
+        '<p class="fmt-empty">Aucune note / screen synchronisé pour le moment.</p>' +
+        "<p class=\"cex-admin-hint\">Les annotations enregistrées uniquement dans le navigateur de l’élève " +
+        "remontent dès qu’il se reconnecte (dashboard ou module). " +
+        "Demande-lui d’ouvrir La Forge une fois — elles apparaîtront ici automatiquement.</p>" +
+        '<button type="button" class="btn btn-secondary" id="cex-refresh">Rafraîchir</button>' +
+        "</div>";
+      const btn = document.getElementById("cex-refresh");
+      if (btn) {
+        btn.onclick = function () {
+          renderList(root).catch(function (e) {
+            root.innerHTML = '<p class="fmt-empty">' + esc(e.message) + "</p>";
+          });
+        };
+      }
       return;
     }
     root.innerHTML =
+      '<div class="cex-admin-toolbar"><button type="button" class="btn btn-secondary" id="cex-refresh">Rafraîchir</button> ' +
+      '<span class="cex-admin-stats">' +
+      items.length +
+      " entrée(s)</span></div>" +
       '<div class="cex-admin-list">' +
       items
         .map(function (it) {
@@ -45,9 +63,11 @@
             esc(it.moduleId) +
             "</code></div>" +
             '<p class="cex-admin-preview">' +
-            esc(it.notesPreview || "(pas de texte)") +
+            esc(it.notesPreview || "(pas de texte — tâches / screens seulement)") +
             "</p>" +
             '<p class="cex-admin-stats">' +
+            (it.notesLen || 0) +
+            " car. · " +
             (it.doneCount || 0) +
             " tâche(s) · " +
             (it.imageCount || 0) +
@@ -60,6 +80,15 @@
         })
         .join("") +
       "</div>";
+
+    const refresh = document.getElementById("cex-refresh");
+    if (refresh) {
+      refresh.onclick = function () {
+        renderList(root).catch(function (e) {
+          root.innerHTML = '<p class="fmt-empty">' + esc(e.message) + "</p>";
+        });
+      };
+    }
 
     root.querySelectorAll(".cex-open").forEach(function (btn) {
       btn.addEventListener("click", function () {
