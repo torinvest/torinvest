@@ -1,6 +1,6 @@
 /**
  * Ressources lives / modules — téléchargement PDF / screens Premium.
- * Admin : dépôt navigateur → VPS puis publication du pack.
+ * Admin : dépôt navigateur multi-fichiers (file cumulative) → VPS puis publication.
  */
 (function () {
   "use strict";
@@ -9,6 +9,7 @@
     me: null,
     isAdmin: false,
     packs: [],
+    pendingFiles: [], // File[] accumulés pour le formulaire de création
   };
 
   function esc(s) {
@@ -79,6 +80,72 @@
     return /\.(pdf|png|jpe?g|webp|gif)$/i.test(file.name || "");
   }
 
+  function fileKey(file) {
+    return [file.name, file.size, file.lastModified].join("::");
+  }
+
+  function addPendingFiles(fileList) {
+    var incoming = Array.prototype.slice.call(fileList || []);
+    var existing = {};
+    state.pendingFiles.forEach(function (f) {
+      existing[fileKey(f)] = true;
+    });
+    var skipped = 0;
+    incoming.forEach(function (f) {
+      if (!allowedBrowserFile(f)) {
+        skipped += 1;
+        return;
+      }
+      if (f.size > 10 * 1024 * 1024) {
+        skipped += 1;
+        return;
+      }
+      if (existing[fileKey(f)]) return;
+      existing[fileKey(f)] = true;
+      state.pendingFiles.push(f);
+    });
+    if (skipped) {
+      alert(skipped + " fichier(s) ignoré(s) (type non supporté ou > 10 Mo).");
+    }
+    renderUploadQueue();
+  }
+
+  function removePendingAt(index) {
+    state.pendingFiles.splice(index, 1);
+    renderUploadQueue();
+  }
+
+  function clearPending() {
+    state.pendingFiles = [];
+    renderUploadQueue();
+  }
+
+  function renderUploadQueue() {
+    var queue = document.getElementById("lr-upload-queue");
+    if (!queue) return;
+    if (!state.pendingFiles.length) {
+      queue.hidden = true;
+      queue.innerHTML = "";
+      return;
+    }
+    queue.hidden = false;
+    queue.innerHTML = state.pendingFiles
+      .map(function (f, i) {
+        var sizeKo = Math.max(1, Math.round(f.size / 1024));
+        return (
+          "<li><span>" +
+          esc(f.name) +
+          " <em style=\"color:var(--muted);font-size:0.8rem\">(" +
+          sizeKo +
+          " Ko)</em></span>" +
+          '<button type="button" class="btn btn-secondary" data-lr-remove-pending="' +
+          i +
+          '">Retirer</button></li>'
+        );
+      })
+      .join("");
+  }
+
   async function uploadOneFile(file) {
     if (!allowedBrowserFile(file)) {
       throw new Error("Type non supporté : " + (file.name || "fichier"));
@@ -98,6 +165,15 @@
       file: res.file,
       label: res.label || String(res.file || "").replace(/\.(pdf|png|jpe?g|webp|gif)$/i, ""),
     };
+  }
+
+  async function uploadMany(files, onProgress) {
+    var uploaded = [];
+    for (var i = 0; i < files.length; i++) {
+      if (typeof onProgress === "function") onProgress(i + 1, files.length, files[i].name);
+      uploaded.push(await uploadOneFile(files[i]));
+    }
+    return uploaded;
   }
 
   function renderPacks() {
@@ -144,13 +220,22 @@
         meta.push(kindLabel(p.kind));
         if (p.moduleSlug) meta.push("module: " + esc(p.moduleSlug));
         if (p.published === false) meta.push("brouillon");
+        meta.push((p.files || []).length + " fichier(s)");
 
         var adminBtns = "";
         if (state.isAdmin) {
           adminBtns =
+            '<div style="display:flex;flex-direction:column;gap:0.35rem;align-items:flex-end">' +
+            '<button type="button" class="btn btn-secondary" style="padding:0.35rem 0.7rem;font-size:0.82rem" data-lr-add-files="' +
+            esc(p.id) +
+            '">+ Ajouter fichiers</button>' +
             '<button type="button" class="btn btn-secondary" style="padding:0.35rem 0.7rem;font-size:0.82rem" data-lr-delete="' +
             esc(p.id) +
-            '">Retirer</button>';
+            '">Retirer</button>' +
+            '<input type="file" multiple hidden data-lr-add-input="' +
+            esc(p.id) +
+            '" accept=".pdf,image/png,image/jpeg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif" />' +
+            "</div>";
         }
 
         return (
@@ -182,27 +267,6 @@
     panel.hidden = !state.isAdmin;
   }
 
-  function updateUploadPreview() {
-    var input = document.getElementById("lr-upload");
-    var preview = document.getElementById("lr-upload-preview");
-    if (!input || !preview) return;
-    var files = input.files ? Array.prototype.slice.call(input.files) : [];
-    if (!files.length) {
-      preview.hidden = true;
-      preview.textContent = "";
-      return;
-    }
-    preview.hidden = false;
-    preview.textContent =
-      files.length +
-      " fichier(s) : " +
-      files
-        .map(function (f) {
-          return f.name;
-        })
-        .join(", ");
-  }
-
   async function reload() {
     var data = await api("/api/live-resources");
     state.packs = data.packs || [];
@@ -213,6 +277,36 @@
     if (countEl) countEl.textContent = String(state.packs.length);
   }
 
+  async function appendFilesToPack(packId, fileList) {
+    var pack = state.packs.find(function (p) {
+      return p.id === packId;
+    });
+    if (!pack) throw new Error("Pack introuvable");
+    var browserFiles = Array.prototype.slice.call(fileList || []).filter(allowedBrowserFile);
+    if (!browserFiles.length) throw new Error("Aucun fichier valide");
+
+    var uploaded = await uploadMany(browserFiles);
+    var existing = (pack.files || []).map(function (f) {
+      return { file: f.file, label: f.label || f.file };
+    });
+    var seen = {};
+    existing.forEach(function (f) {
+      seen[String(f.file || "").toLowerCase()] = true;
+    });
+    uploaded.forEach(function (f) {
+      var key = String(f.file || "").toLowerCase();
+      if (!key || seen[key]) return;
+      seen[key] = true;
+      existing.push(f);
+    });
+
+    await api("/api/live-resources/" + encodeURIComponent(packId), {
+      method: "PATCH",
+      body: JSON.stringify({ files: existing }),
+    });
+    return uploaded.length;
+  }
+
   function bindAdmin() {
     var form = document.getElementById("lr-admin-form");
     if (!form || form.dataset.bound === "1") return;
@@ -220,7 +314,22 @@
 
     var uploadInput = document.getElementById("lr-upload");
     if (uploadInput) {
-      uploadInput.addEventListener("change", updateUploadPreview);
+      uploadInput.addEventListener("change", function () {
+        if (uploadInput.files && uploadInput.files.length) {
+          addPendingFiles(uploadInput.files);
+        }
+        // reset pour pouvoir re-sélectionner les mêmes noms plus tard
+        uploadInput.value = "";
+      });
+    }
+
+    var queue = document.getElementById("lr-upload-queue");
+    if (queue) {
+      queue.addEventListener("click", function (ev) {
+        var btn = ev.target.closest("[data-lr-remove-pending]");
+        if (!btn) return;
+        removePendingAt(Number(btn.getAttribute("data-lr-remove-pending")));
+      });
     }
 
     form.addEventListener("submit", async function (e) {
@@ -236,29 +345,22 @@
         })
         .filter(Boolean);
 
-      var browserFiles = uploadInput && uploadInput.files ? Array.prototype.slice.call(uploadInput.files) : [];
+      var browserFiles = state.pendingFiles.slice();
 
       if (!browserFiles.length && !namesRaw.length) {
-        alert("Choisis au moins un PDF / screen à déposer, ou un nom déjà présent sur le VPS.");
+        alert("Ajoute au moins un PDF / screen (tu peux en sélectionner plusieurs, plusieurs fois).");
         return;
       }
 
       try {
         if (submitBtn) {
           submitBtn.disabled = true;
-          submitBtn.textContent = browserFiles.length
-            ? "Envoi des fichiers…"
-            : "Publication…";
+          submitBtn.textContent = browserFiles.length ? "Envoi des fichiers…" : "Publication…";
         }
 
-        var uploaded = [];
-        for (var i = 0; i < browserFiles.length; i++) {
-          if (submitBtn) {
-            submitBtn.textContent =
-              "Envoi " + (i + 1) + "/" + browserFiles.length + "…";
-          }
-          uploaded.push(await uploadOneFile(browserFiles[i]));
-        }
+        var uploaded = await uploadMany(browserFiles, function (n, total) {
+          if (submitBtn) submitBtn.textContent = "Envoi " + n + "/" + total + "…";
+        });
 
         var fromNames = namesRaw.map(function (name) {
           var file = name.replace(/^.*[\\/]/, "");
@@ -297,18 +399,16 @@
         var missing = res.missingFiles || [];
         if (missing.length) {
           alert(
-            "Pack enregistré, mais fichiers manquants sur le VPS :\n" +
-              missing.join("\n")
+            "Pack enregistré, mais fichiers manquants sur le VPS :\n" + missing.join("\n")
           );
         } else {
           alert(
-            uploaded.length
-              ? "Fichiers déposés et pack publié — les élèves peuvent télécharger."
-              : "Pack publié — les élèves peuvent télécharger."
+            files.length +
+              " fichier(s) — pack publié. Les élèves peuvent télécharger."
           );
         }
         form.reset();
-        updateUploadPreview();
+        clearPending();
         await reload();
       } catch (err) {
         alert(err.message || String(err));
@@ -324,6 +424,14 @@
     if (list && list.dataset.bound !== "1") {
       list.dataset.bound = "1";
       list.addEventListener("click", async function (ev) {
+        var addBtn = ev.target.closest("[data-lr-add-files]");
+        if (addBtn) {
+          var packId = addBtn.getAttribute("data-lr-add-files");
+          var input = list.querySelector('[data-lr-add-input="' + packId + '"]');
+          if (input) input.click();
+          return;
+        }
+
         var btn = ev.target.closest("[data-lr-delete]");
         if (!btn) return;
         var id = btn.getAttribute("data-lr-delete");
@@ -333,6 +441,21 @@
           await reload();
         } catch (err) {
           alert(err.message || String(err));
+        }
+      });
+
+      list.addEventListener("change", async function (ev) {
+        var input = ev.target.closest("[data-lr-add-input]");
+        if (!input || !input.files || !input.files.length) return;
+        var packId = input.getAttribute("data-lr-add-input");
+        try {
+          var n = await appendFilesToPack(packId, input.files);
+          alert(n + " fichier(s) ajouté(s) au pack.");
+          await reload();
+        } catch (err) {
+          alert(err.message || String(err));
+        } finally {
+          input.value = "";
         }
       });
     }

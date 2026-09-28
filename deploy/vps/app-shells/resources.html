@@ -56,6 +56,32 @@
     }
     .lr-admin-hint { font-size: 0.8rem; color: var(--muted); margin: 0.35rem 0 0; line-height: 1.45; }
     #lr-upload-preview { color: var(--gold); }
+    .lr-upload-queue {
+      list-style: none;
+      margin: 0.5rem 0 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .lr-upload-queue li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.4rem 0.65rem;
+    }
+    .lr-upload-queue button {
+      flex-shrink: 0;
+      font-size: 0.78rem;
+      padding: 0.2rem 0.5rem;
+    }
+    .lr-add-files-btn { margin-top: 0.55rem; }
   </style>
 </head>
 <body>
@@ -101,7 +127,7 @@
           <textarea id="lr-desc" name="description" rows="2" placeholder="Ce que l’élève retrouve dans ce pack"></textarea>
         </div>
         <div>
-          <label for="lr-upload">Déposer PDF / screens</label>
+          <label for="lr-upload">Déposer PDF / screens (plusieurs fichiers)</label>
           <input
             id="lr-upload"
             name="upload"
@@ -109,11 +135,11 @@
             multiple
             accept=".pdf,image/png,image/jpeg,image/webp,image/gif,.png,.jpg,.jpeg,.webp,.gif"
           />
-          <p class="lr-admin-hint" id="lr-upload-preview" hidden></p>
+          <ul id="lr-upload-queue" class="lr-upload-queue" hidden></ul>
           <p class="lr-admin-hint">
-            Les fichiers sont envoyés directement sur le VPS
-            (<code>/var/lib/torinvest/live-resources/</code>) puis publiés pour les élèves.
-            PDF et images (png / jpg / webp / gif), max 10&nbsp;Mo chacun.
+            Tu peux sélectionner plusieurs fichiers d’un coup, puis <strong>ajouter encore</strong>
+            d’autres (la liste s’accumule — pas de limite). PDF et images, max 10&nbsp;Mo chacun.
+            Envoi direct sur le VPS (<code>/var/lib/torinvest/live-resources/</code>).
           </p>
         </div>
         <div>
@@ -140,7 +166,7 @@
   <script src="/js/forge-brand.js"></script>
   <script src="/js/auth.js?v=7"></script>
   <script src="/js/forge-gate.js"></script>
-  <script src="/js/forge-live-resources.js?v=3"></script>
+  <script src="/js/forge-live-resources.js?v=4"></script>
   <script>
     initForgeGate({ requirePremium: true }).then(function (me) {
       if (!me) return;
