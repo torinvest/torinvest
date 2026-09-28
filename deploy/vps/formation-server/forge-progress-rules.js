@@ -49,6 +49,33 @@ function sanitizeModuleProgress(raw) {
         ? raw.updated
         : new Date().toISOString(),
   };
+  // Réponses choisies (élève peut les revoir après validation)
+  if (Array.isArray(raw.quizAnswers)) {
+    out.quizAnswers = raw.quizAnswers.slice(0, 40).map((a) => {
+      if (a === null || a === undefined || a === "") return null;
+      if (Array.isArray(a)) {
+        return a
+          .map((n) => Math.max(0, Math.min(30, Number(n))) || 0)
+          .filter((n) => Number.isFinite(n))
+          .slice(0, 12);
+      }
+      const n = Number(a);
+      return Number.isFinite(n) ? Math.max(0, Math.min(30, n)) : null;
+    });
+  }
+  if (Array.isArray(raw.practiceAnswers)) {
+    out.practiceAnswers = raw.practiceAnswers.slice(0, 40).map((a) => {
+      if (a === null || a === undefined || a === "") return null;
+      if (Array.isArray(a)) {
+        return a
+          .map((n) => Math.max(0, Math.min(30, Number(n))) || 0)
+          .filter((n) => Number.isFinite(n))
+          .slice(0, 12);
+      }
+      const n = Number(a);
+      return Number.isFinite(n) ? Math.max(0, Math.min(30, n)) : null;
+    });
+  }
   out.completed = computeModuleCompleted(out);
   return out;
 }
@@ -107,6 +134,10 @@ function mergeModuleProgress(existingRaw, clientRaw) {
     practiceTotal,
     updated: new Date().toISOString(),
   };
+  if (Array.isArray(incoming.quizAnswers)) out.quizAnswers = incoming.quizAnswers;
+  else if (Array.isArray(prev.quizAnswers)) out.quizAnswers = prev.quizAnswers;
+  if (Array.isArray(incoming.practiceAnswers)) out.practiceAnswers = incoming.practiceAnswers;
+  else if (Array.isArray(prev.practiceAnswers)) out.practiceAnswers = prev.practiceAnswers;
   out.completed = computeModuleCompleted(out);
   return out;
 }
