@@ -1,56 +1,84 @@
 #!/usr/bin/env bash
-# HOTFIX — upload navigateur PDF/screens sur resources.html → VPS live-resources
+# HOTFIX — upload navigateur PDF/screens sur resources.html → VPS
 #
-# Sur le VPS :
-#   curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/cursor/live-resources-upload-691a/deploy/vps/HOTFIX-LIVE-RESOURCES-UPLOAD.sh | bash
+# IMPORTANT : n'utilise PAS la variable d'environnement REF (souvent restée
+# sur une ancienne branche → 404 / vieux fichiers). Forcer main (ou SHA).
 #
-# Ou avec un SHA figé :
-#   SHA=<commit> curl -fsSL ... | bash
+# Sur le VPS (copier-coller tel quel) :
+#   unset REF SHA BRANCH
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-LIVE-RESOURCES-UPLOAD.sh" | bash
+#
+# Ou branche de ce PR :
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/resources-upload-deploy-691a/deploy/vps/HOTFIX-LIVE-RESOURCES-UPLOAD.sh" | bash
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${SHA:-${REF:-cursor/live-resources-upload-691a}}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
+# Ignore REF ambiant volontairement — seul LIVE_RES_REF ou SHA force une autre ref
+SCRIPT_REF="${LIVE_RES_REF:-${SHA:-main}}"
+RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 
-echo "======== HOTFIX LIVE-RESOURCES UPLOAD ($REF) ========"
+echo "======== HOTFIX LIVE-RESOURCES UPLOAD ($SCRIPT_REF) ========"
 echo "APP=$APP_DIR"
+echo "(REF ambiant ignoré : ${REF:-∅})"
 
-mkdir -p "$APP_DIR/public/js" "$APP_DIR/server-patches" /var/lib/torinvest/live-resources
+mkdir -p "$APP_DIR/public/js" "$APP_DIR/server-patches"
+sudo mkdir -p /var/lib/torinvest/live-resources 2>/dev/null || mkdir -p /var/lib/torinvest/live-resources
 sudo chown -R "${SUDO_USER:-$USER}:${SUDO_USER:-$USER}" /var/lib/torinvest/live-resources 2>/dev/null || true
 
-curl -fsSL "$RAW/deploy/vps/app-shells/resources.html" -o "$APP_DIR/public/resources.html"
-curl -fsSL "$RAW/la-forge/js/forge-live-resources.js" -o "$APP_DIR/public/js/forge-live-resources.js"
-curl -fsSL "$RAW/deploy/vps/formation-server/routes-live-resources.js" \
-  -o "$APP_DIR/server-patches/routes-live-resources.js"
+pull() {
+  local url="$1" dest="$2"
+  echo "← $(basename "$dest")"
+  curl -fsSL "$url" -o "$dest"
+}
 
-# Aussi à côté de routes-formation-auth si le wire charge depuis ce dossier
-if [[ -f "$APP_DIR/server-patches/routes-formation-auth.js" ]]; then
-  cp -f "$APP_DIR/server-patches/routes-live-resources.js" \
-    "$(dirname "$(readlink -f "$APP_DIR/server-patches/routes-formation-auth.js" 2>/dev/null || echo "$APP_DIR/server-patches/routes-formation-auth.js")")/routes-live-resources.js" 2>/dev/null || true
-fi
-
-# Copie dans le cwd Node si routes-live-resources y est déjà
-for cand in \
-  "$APP_DIR/routes-live-resources.js" \
+pull "$RAW/deploy/vps/app-shells/resources.html" "$APP_DIR/public/resources.html"
+pull "$RAW/la-forge/js/forge-live-resources.js" "$APP_DIR/public/js/forge-live-resources.js"
+pull "$RAW/deploy/vps/formation-server/routes-live-resources.js" \
   "$APP_DIR/server-patches/routes-live-resources.js"
-do
-  if [[ -f "$cand" ]] || [[ "$cand" == "$APP_DIR/server-patches/routes-live-resources.js" ]]; then
-    curl -fsSL "$RAW/deploy/vps/formation-server/routes-live-resources.js" -o "$cand"
-  fi
-done
 
-# express.json limit (base64 PDF ~10 Mo → body ~14 Mo) — aligné swing 12mb+
+# Propager routes-live-resources partout où Node peut le require
+ROUTES_SRC="$APP_DIR/server-patches/routes-live-resources.js"
+while IFS= read -r -d '' f; do
+  dir="$(dirname "$f")"
+  echo "→ sync routes-live-resources.js → $dir/"
+  cp -f "$ROUTES_SRC" "$dir/routes-live-resources.js"
+done < <(find "$APP_DIR" -name 'routes-formation-auth.js' -print0 2>/dev/null || true)
+
+# Aussi copies déjà nommées routes-live-resources.js
+while IFS= read -r -d '' f; do
+  if [[ "$f" != "$ROUTES_SRC" ]]; then
+    echo "→ update $f"
+    cp -f "$ROUTES_SRC" "$f"
+  fi
+done < <(find "$APP_DIR" -name 'routes-live-resources.js' -print0 2>/dev/null || true)
+
+# Vérifs anti-mauvaise-branche
+if ! grep -q 'id="lr-upload"' "$APP_DIR/public/resources.html"; then
+  echo "ERREUR: resources.html sans sélecteur de fichiers (mauvaise ref $SCRIPT_REF ?)"
+  exit 1
+fi
+if ! grep -q '/api/live-resources/upload' "$APP_DIR/public/js/forge-live-resources.js"; then
+  echo "ERREUR: forge-live-resources.js sans upload (mauvaise ref $SCRIPT_REF ?)"
+  exit 1
+fi
+if ! grep -q 'live-resources/upload' "$ROUTES_SRC"; then
+  echo "ERREUR: routes-live-resources.js sans POST upload"
+  exit 1
+fi
+echo "OK fichiers : lr-upload + API upload présents"
+
+# express.json limit (base64 PDF ~10 Mo)
 python3 - <<'PY'
 from pathlib import Path
 import re
 app = Path.home() / "torinvest-formation"
-for p in [app / "server.js", *app.glob("**/server.js")]:
+for p in [app / "server.js", *sorted(app.glob("**/server.js"))]:
     if not p.is_file():
         continue
     t = p.read_text(encoding="utf-8")
-    if 'express.json({ limit: "20mb" })' in t or "express.json({ limit: '20mb' })" in t:
+    if re.search(r'express\.json\(\s*\{\s*limit:\s*["\']20mb["\']', t):
         print(f"express.json déjà 20mb: {p}")
-        continue
+        break
     if re.search(r'express\.json\(\s*\{\s*limit:\s*["\']\d+mb["\']\s*\}\s*\)', t):
         t2 = re.sub(
             r'express\.json\(\s*\{\s*limit:\s*["\']\d+mb["\']\s*\}\s*\)',
@@ -68,12 +96,15 @@ for p in [app / "server.js", *app.glob("**/server.js")]:
     break
 PY
 
-# Nginx client_max_body_size
+# Nginx body size
 python3 - <<'PY'
 from pathlib import Path
 import re
 changed = False
-for conf in Path("/etc/nginx").rglob("*.conf"):
+root = Path("/etc/nginx")
+if not root.exists():
+    raise SystemExit(0)
+for conf in root.rglob("*.conf"):
     try:
         t = conf.read_text(encoding="utf-8")
     except Exception:
@@ -88,9 +119,12 @@ for conf in Path("/etc/nginx").rglob("*.conf"):
     else:
         t2 = re.sub(r"(server\s*\{)", r"\1\n    client_max_body_size 20m;", t, count=1)
     if t2 != t:
-        conf.write_text(t2, encoding="utf-8")
-        print(f"nginx {conf}: client_max_body_size 20m")
-        changed = True
+        try:
+            conf.write_text(t2, encoding="utf-8")
+            print(f"nginx {conf}: client_max_body_size 20m")
+            changed = True
+        except PermissionError:
+            print(f"WARN nginx non writable: {conf} (sudo)")
 if changed:
     print("→ sudo nginx -t && sudo systemctl reload nginx")
 PY
@@ -99,10 +133,16 @@ if command -v nginx >/dev/null 2>&1; then
   sudo nginx -t && sudo systemctl reload nginx || true
 fi
 
-pm2 restart la-forge 2>/dev/null || pm2 restart all || true
+pm2 restart la-forge --update-env 2>/dev/null || pm2 restart la-forge 2>/dev/null || pm2 restart all || true
+sleep 1
 
 echo ""
-echo "OK — vérifie :"
-echo "  https://app.torinvest-trading.com/resources.html"
-echo "  curl -s https://app.torinvest-trading.com/api/live-resources/ping"
+echo "Vérif locale :"
+grep -n 'lr-upload\|forge-live-resources.js' "$APP_DIR/public/resources.html" | head -5 || true
+grep -c 'live-resources/upload' "$APP_DIR/public/js/forge-live-resources.js" || true
+curl -sS -o /dev/null -w "resources.html HTTP %{http_code}\n" "http://127.0.0.1:3001/resources.html" || true
+curl -sS "http://127.0.0.1:3001/api/live-resources/ping" || true
+echo ""
+echo "→ Hard refresh navigateur (Ctrl+Shift+R) sur https://app.torinvest-trading.com/resources.html"
+echo "→ Tu dois voir « Déposer PDF / screens » (pas le message scp)"
 echo "======== FIN HOTFIX LIVE-RESOURCES UPLOAD ========"
