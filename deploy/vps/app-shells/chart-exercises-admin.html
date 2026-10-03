@@ -19,6 +19,33 @@
       background: rgba(0, 0, 0, 0.25);
     }
     .cex-admin-meta { color: var(--aqua); font-size: 0.9rem; margin-bottom: 0.35rem; }
+    .cex-admin-module {
+      color: var(--gold);
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0.25rem 0 0.5rem;
+      line-height: 1.35;
+    }
+    .cex-admin-module--detail { font-size: 1.05rem; }
+    .cex-module-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #111;
+      background: var(--gold);
+      border-radius: 4px;
+      padding: 0.12rem 0.4rem;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+    }
+    .cex-module-id {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 400;
+      margin-left: 0.35rem;
+    }
     .cex-admin-preview { color: var(--text); font-size: 0.92rem; margin: 0.35rem 0; }
     .cex-admin-stats { color: var(--muted); font-size: 0.8rem; margin: 0.35rem 0 0.65rem; }
     .cex-admin-notes {
@@ -33,8 +60,8 @@
     }
     .cex-admin-gallery {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 0.75rem;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.85rem;
       margin-top: 0.75rem;
     }
     .cex-admin-shot {
@@ -43,13 +70,75 @@
       border-radius: 10px;
       overflow: hidden;
       background: #000;
+      cursor: zoom-in;
     }
+    .cex-admin-shot:hover { border-color: rgba(255, 215, 0, 0.55); }
     .cex-admin-shot img { display: block; width: 100%; height: auto; }
+    .cex-admin-shot figcaption {
+      padding: 0.4rem 0.55rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      background: rgba(0, 0, 0, 0.45);
+    }
     .cex-admin-detail h2 { color: var(--gold); font-size: 1.2rem; }
     .cex-admin-detail h3 { color: var(--aqua); font-size: 0.95rem; margin: 1rem 0 0.45rem; }
     .cex-admin-hint { color: var(--muted); font-size: 0.88rem; line-height: 1.5; max-width: 40rem; }
     .cex-admin-toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; }
     .cex-admin-empty { margin: 0.5rem 0 1.5rem; }
+
+    /* Lightbox taille réelle */
+    .cex-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+    .cex-lightbox[hidden] { display: none !important; }
+    .cex-lightbox-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+    }
+    .cex-lightbox-panel {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
+    }
+    .cex-lightbox-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: rgba(12, 14, 18, 0.95);
+      border-bottom: 1px solid rgba(255, 215, 0, 0.25);
+    }
+    .cex-lightbox-caption { color: var(--gold); font-size: 0.92rem; }
+    .cex-lightbox-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .cex-lightbox-stage {
+      flex: 1;
+      overflow: auto;
+      padding: 1rem;
+      text-align: center;
+      -webkit-overflow-scrolling: touch;
+    }
+    .cex-lightbox-stage img {
+      /* taille réelle du fichier — pas de shrink forcé */
+      max-width: none;
+      width: auto;
+      height: auto;
+      display: inline-block;
+      vertical-align: top;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.55);
+    }
   </style>
 </head>
 <body>
@@ -60,9 +149,8 @@
       <span class="forge-hero-tag">Espace coach · exercices chart</span>
       <h1>Notes &amp; screens des élèves</h1>
       <p>
-        Les élèves enregistrent leurs annotations et screens dans l’exercice chart du module.
-        Tu les retrouves ici. Si une note n’apparaît pas encore, l’élève doit se reconnecter une fois
-        (ses notes locales remontent automatiquement sur le serveur).
+        Chaque entrée indique clairement le <strong>module</strong> (ex. F1 — Participants…).
+        Clique un screen pour l’afficher en <strong>taille réelle</strong>.
       </p>
     </div>
     <div id="chart-exercises-admin-root">
@@ -74,7 +162,8 @@
   <script src="/js/forge-brand.js"></script>
   <script src="/js/auth.js?v=8"></script>
   <script src="/js/forge-gate.js"></script>
-  <script src="/js/forge-chart-exercises-admin.js?v=2"></script>
+  <script src="/js/course-data.js"></script>
+  <script src="/js/forge-chart-exercises-admin.js?v=3"></script>
   <script>
     (function () {
       var root = document.getElementById("chart-exercises-admin-root");

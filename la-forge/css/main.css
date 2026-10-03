@@ -797,6 +797,10 @@ footer.site-footer {
   overflow: hidden;
   background: #000;
 }
+.chart-exercise-shot-link {
+  display: block;
+  cursor: zoom-in;
+}
 .chart-exercise-shot img {
   display: block;
   width: 100%;

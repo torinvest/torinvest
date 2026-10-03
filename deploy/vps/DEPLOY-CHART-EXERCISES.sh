@@ -7,7 +7,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Ignore REF ambiant (souvent resté sur une vieille branche → 404)
-SCRIPT_REF="${CHART_EX_REF:-${SHA:-main}}"
+SCRIPT_REF="${CHART_EX_REF:-${SHA:-cursor/chart-screens-admin-ux-691a}}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 
 echo "======== DEPLOY CHART EXERCISES ($SCRIPT_REF) ========"
@@ -22,6 +22,7 @@ pull "$RAW/deploy/vps/wire-formation-server-patches.js" "$APP_DIR/wire-formation
 pull "$RAW/la-forge/js/lesson-core.js" "$APP_DIR/public/js/lesson-core.js"
 pull "$RAW/la-forge/js/progress.js" "$APP_DIR/public/js/progress.js"
 pull "$RAW/la-forge/js/forge-gate.js" "$APP_DIR/public/js/forge-gate.js"
+pull "$RAW/la-forge/js/course-data.js" "$APP_DIR/public/js/course-data.js"
 pull "$RAW/la-forge/js/forge-chart-exercises-admin.js" "$APP_DIR/public/js/forge-chart-exercises-admin.js"
 pull "$RAW/la-forge/css/main.css" "$APP_DIR/public/css/main.css"
 pull "$RAW/deploy/vps/app-shells/chart-exercises-admin.html" "$APP_DIR/public/chart-exercises-admin.html"

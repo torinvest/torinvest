@@ -999,11 +999,14 @@ function initChartExercise(moduleId, config) {
           '<figure class="chart-exercise-shot" data-img="' +
           img.id +
           '">' +
+          '<a class="chart-exercise-shot-link" href="' +
+          mediaUrl(img.file) +
+          '" target="_blank" rel="noopener" title="Ouvrir en taille réelle">' +
           '<img src="' +
           mediaUrl(img.file) +
           '" alt="' +
           (img.caption || "Screen") +
-          '" loading="lazy" />' +
+          '" loading="lazy" /></a>' +
           (img.caption ? "<figcaption>" + img.caption + "</figcaption>" : "") +
           '<button type="button" class="btn btn-secondary chart-exercise-del" data-del="' +
           img.id +
@@ -1012,7 +1015,9 @@ function initChartExercise(moduleId, config) {
       })
       .join("");
     gal.querySelectorAll("[data-del]").forEach(function (btn) {
-      btn.addEventListener("click", async function () {
+      btn.addEventListener("click", async function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
         try {
           const res = await fetch(
             "/api/chart-exercises/" +
