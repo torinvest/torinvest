@@ -1,6 +1,6 @@
 /**
  * Admin — notes & screens exercices chart des élèves.
- * Affiche le libellé module (ex. F1 — …) + lightbox taille réelle.
+ * Libellé module clair + agrandissement taille réelle (lightbox robuste).
  */
 (function () {
   "use strict";
@@ -13,18 +13,17 @@
       .replace(/"/g, "&quot;");
   }
 
-  /** Libellé humain à partir de course-data.js (MODULES) ou fallback. */
   function moduleLabel(moduleId) {
-    const id = String(moduleId || "");
+    var id = String(moduleId || "");
     if (typeof MODULES !== "undefined" && Array.isArray(MODULES)) {
-      for (let i = 0; i < MODULES.length; i++) {
+      for (var i = 0; i < MODULES.length; i++) {
         if (MODULES[i] && MODULES[i].id === id) {
-          const num = MODULES[i].num ? String(MODULES[i].num) + " — " : "";
+          var num = MODULES[i].num ? String(MODULES[i].num) + " — " : "";
           return num + (MODULES[i].title || id);
         }
       }
     }
-    const FALLBACK = {
+    var FALLBACK = {
       intro: "0 — Le métier de trader & la vérité du marché",
       f01: "F1 — Participants & microstructure",
       f02: "F2 — XAUUSD — anatomie de l'or",
@@ -58,7 +57,7 @@
 
   function moduleHref(moduleId) {
     if (typeof MODULES !== "undefined" && Array.isArray(MODULES)) {
-      for (let i = 0; i < MODULES.length; i++) {
+      for (var i = 0; i < MODULES.length; i++) {
         if (MODULES[i] && MODULES[i].id === moduleId && MODULES[i].href) {
           return MODULES[i].href;
         }
@@ -68,8 +67,8 @@
   }
 
   async function api(url) {
-    const res = await fetch(url, { credentials: "same-origin" });
-    const data = await res.json().catch(function () {
+    var res = await fetch(url, { credentials: "same-origin" });
+    var data = await res.json().catch(function () {
       return {};
     });
     if (!res.ok) throw new Error(data.error || "Erreur " + res.status);
@@ -77,12 +76,12 @@
   }
 
   function ensureLightbox() {
-    let box = document.getElementById("cex-lightbox");
+    var box = document.getElementById("cex-lightbox");
     if (box) return box;
     box = document.createElement("div");
     box.id = "cex-lightbox";
     box.className = "cex-lightbox";
-    box.hidden = true;
+    box.setAttribute("aria-hidden", "true");
     box.innerHTML =
       '<div class="cex-lightbox-backdrop" data-cex-close="1"></div>' +
       '<div class="cex-lightbox-panel" role="dialog" aria-modal="true">' +
@@ -90,57 +89,127 @@
       '<span class="cex-lightbox-caption" id="cex-lightbox-caption"></span>' +
       '<div class="cex-lightbox-actions">' +
       '<a class="btn btn-secondary" id="cex-lightbox-open" target="_blank" rel="noopener">Ouvrir onglet</a>' +
-      '<button type="button" class="btn btn-secondary" data-cex-close="1">Fermer</button>' +
+      '<button type="button" class="btn btn-primary" data-cex-close="1">Fermer</button>' +
       "</div></div>" +
-      '<div class="cex-lightbox-stage">' +
+      '<div class="cex-lightbox-stage" id="cex-lightbox-stage">' +
       '<img id="cex-lightbox-img" alt="Screen élève — taille réelle" />' +
+      '<p class="cex-lightbox-hint" id="cex-lightbox-hint">Chargement…</p>' +
       "</div></div>";
     document.body.appendChild(box);
+
     box.addEventListener("click", function (ev) {
-      if (ev.target.closest("[data-cex-close]")) closeLightbox();
+      if (ev.target && ev.target.getAttribute && ev.target.getAttribute("data-cex-close") === "1") {
+        closeLightbox();
+        return;
+      }
+      if (ev.target && ev.target.classList && ev.target.classList.contains("cex-lightbox-backdrop")) {
+        closeLightbox();
+      }
     });
+
     document.addEventListener("keydown", function (ev) {
-      if (ev.key === "Escape" && !box.hidden) closeLightbox();
+      if (ev.key === "Escape" && box.classList.contains("cex-lightbox--open")) {
+        closeLightbox();
+      }
     });
     return box;
   }
 
   function openLightbox(src, caption) {
-    const box = ensureLightbox();
-    const img = document.getElementById("cex-lightbox-img");
-    const cap = document.getElementById("cex-lightbox-caption");
-    const link = document.getElementById("cex-lightbox-open");
-    img.src = src;
+    if (!src) {
+      alert("URL du screen manquante.");
+      return;
+    }
+    var box = ensureLightbox();
+    var img = document.getElementById("cex-lightbox-img");
+    var cap = document.getElementById("cex-lightbox-caption");
+    var link = document.getElementById("cex-lightbox-open");
+    var hint = document.getElementById("cex-lightbox-hint");
+
+    if (cap) cap.textContent = caption || "Screen — taille réelle";
+    if (link) {
+      link.href = src;
+      link.style.display = "";
+    }
+    if (hint) {
+      hint.hidden = false;
+      hint.textContent = "Chargement du screen…";
+    }
+
+    img.onload = function () {
+      if (hint) {
+        hint.textContent =
+          "Taille réelle : " +
+          (img.naturalWidth || "?") +
+          " × " +
+          (img.naturalHeight || "?") +
+          " px — scroll pour parcourir";
+      }
+    };
+    img.onerror = function () {
+      if (hint) {
+        hint.textContent = "Impossible de charger l’image. Utilise « Ouvrir onglet ».";
+      }
+      // Fallback automatique
+      try {
+        window.open(src, "_blank", "noopener");
+      } catch (_) {}
+    };
+
     img.removeAttribute("width");
     img.removeAttribute("height");
-    if (cap) cap.textContent = caption || "Screen — cliquez-glissez pour parcourir · molette pour zoomer le navigateur";
-    if (link) link.href = src;
-    box.hidden = false;
+    img.style.maxWidth = "none";
+    img.style.width = "auto";
+    img.style.height = "auto";
+    img.src = src;
+
+    box.classList.add("cex-lightbox--open");
+    box.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
 
   function closeLightbox() {
-    const box = document.getElementById("cex-lightbox");
+    var box = document.getElementById("cex-lightbox");
     if (!box) return;
-    box.hidden = true;
-    const img = document.getElementById("cex-lightbox-img");
-    if (img) img.removeAttribute("src");
+    box.classList.remove("cex-lightbox--open");
+    box.setAttribute("aria-hidden", "true");
+    var img = document.getElementById("cex-lightbox-img");
+    if (img) {
+      img.onload = null;
+      img.onerror = null;
+      img.removeAttribute("src");
+    }
     document.body.style.overflow = "";
   }
 
+  // Délégation globale — marche même après re-render
+  if (!window.__cexZoomBound) {
+    window.__cexZoomBound = true;
+    document.addEventListener(
+      "click",
+      function (ev) {
+        var btn = ev.target.closest("[data-cex-zoom]");
+        if (!btn) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        var src = btn.getAttribute("data-cex-zoom") || btn.getAttribute("href");
+        var cap = btn.getAttribute("data-cex-cap") || "";
+        openLightbox(src, cap);
+      },
+      true
+    );
+  }
+
   async function renderList(root) {
-    const data = await api("/api/chart-exercises-admin");
-    const items = data.items || [];
+    var data = await api("/api/chart-exercises-admin");
+    var items = data.items || [];
     if (!items.length) {
       root.innerHTML =
         '<div class="cex-admin-empty">' +
         '<p class="fmt-empty">Aucune note / screen synchronisé pour le moment.</p>' +
-        "<p class=\"cex-admin-hint\">Les annotations enregistrées uniquement dans le navigateur de l’élève " +
-        "remontent dès qu’il se reconnecte (dashboard ou module). " +
-        "Demande-lui d’ouvrir La Forge une fois — elles apparaîtront ici automatiquement.</p>" +
         '<button type="button" class="btn btn-secondary" id="cex-refresh">Rafraîchir</button>' +
         "</div>";
-      const btn = document.getElementById("cex-refresh");
+      var btn = document.getElementById("cex-refresh");
       if (btn) {
         btn.onclick = function () {
           renderList(root).catch(function (e) {
@@ -158,7 +227,7 @@
       '<div class="cex-admin-list">' +
       items
         .map(function (it) {
-          const label = moduleLabel(it.moduleId);
+          var label = moduleLabel(it.moduleId);
           return (
             '<article class="cex-admin-card" data-slug="' +
             esc(it.emailSlug) +
@@ -192,7 +261,7 @@
         .join("") +
       "</div>";
 
-    const refresh = document.getElementById("cex-refresh");
+    var refresh = document.getElementById("cex-refresh");
     if (refresh) {
       refresh.onclick = function () {
         renderList(root).catch(function (e) {
@@ -201,47 +270,54 @@
       };
     }
 
-    root.querySelectorAll(".cex-open").forEach(function (btn) {
-      btn.addEventListener("click", function () {
-        const card = btn.closest("[data-slug]");
+    root.querySelectorAll(".cex-open").forEach(function (openBtn) {
+      openBtn.addEventListener("click", function () {
+        var card = openBtn.closest("[data-slug]");
         openOne(root, card.getAttribute("data-slug"), card.getAttribute("data-mod"));
       });
     });
   }
 
   async function openOne(root, slug, moduleId) {
-    const data = await api(
+    var data = await api(
       "/api/chart-exercises-admin/" +
         encodeURIComponent(slug) +
         "/" +
         encodeURIComponent(moduleId)
     );
-    const ex = data.exercise || {};
-    const label = moduleLabel(moduleId);
-    const href = moduleHref(moduleId);
-    const imgs = (ex.images || [])
+    var ex = data.exercise || {};
+    var label = moduleLabel(moduleId);
+    var href = moduleHref(moduleId);
+    var imgs = (ex.images || [])
       .map(function (img, idx) {
-        const src =
+        var src =
           "/api/chart-exercises/" +
           encodeURIComponent(moduleId) +
           "/media/" +
           encodeURIComponent(img.file) +
           "?email=" +
           encodeURIComponent(ex.email || "");
+        var cap = label + " · screen " + (idx + 1);
         return (
-          '<figure class="cex-admin-shot" data-cex-src="' +
+          '<figure class="cex-admin-shot">' +
+          '<button type="button" class="cex-admin-shot-hit" data-cex-zoom="' +
           esc(src) +
           '" data-cex-cap="' +
-          esc(label + " · screen " + (idx + 1)) +
-          '">' +
+          esc(cap) +
+          '" title="Agrandir en taille réelle">' +
           '<img src="' +
           esc(src) +
           '" alt="Screen ' +
           (idx + 1) +
           '" loading="lazy" />' +
+          "</button>" +
           "<figcaption>" +
-          esc(img.caption || "Cliquer pour agrandir (taille réelle)") +
-          "</figcaption>" +
+          esc(img.caption || "") +
+          ' <button type="button" class="btn btn-primary cex-zoom-btn" data-cex-zoom="' +
+          esc(src) +
+          '" data-cex-cap="' +
+          esc(cap) +
+          '">🔍 Agrandir</button></figcaption>' +
           "</figure>"
         );
       })
@@ -272,7 +348,8 @@
       '<pre class="cex-admin-notes">' +
       esc(ex.notes || "—") +
       "</pre>" +
-      "<h3>Screens <span class=\"cex-admin-stats\">(cliquer pour taille réelle)</span></h3>" +
+      "<h3>Screens</h3>" +
+      '<p class="cex-admin-stats">Clique le screen ou le bouton « Agrandir » pour la taille réelle.</p>' +
       (imgs
         ? '<div class="cex-admin-gallery">' + imgs + "</div>"
         : '<p class="fmt-empty">Aucun screen.</p>') +
@@ -283,17 +360,12 @@
         root.innerHTML = '<p class="fmt-empty">' + esc(e.message) + "</p>";
       });
     };
-
-    root.querySelectorAll(".cex-admin-shot").forEach(function (fig) {
-      fig.addEventListener("click", function () {
-        openLightbox(fig.getAttribute("data-cex-src"), fig.getAttribute("data-cex-cap"));
-      });
-    });
   }
 
   window.initChartExercisesAdmin = async function () {
-    const root = document.getElementById("chart-exercises-admin-root");
+    var root = document.getElementById("chart-exercises-admin-root");
     if (!root) return;
+    ensureLightbox();
     try {
       await renderList(root);
     } catch (err) {
