@@ -1,6 +1,6 @@
 /**
- * Admin — notes & screens exercices chart des élèves.
- * Libellé module clair + agrandissement taille réelle (lightbox robuste).
+ * Admin — notes & screens exercices chart.
+ * Agrandir = lien direct (nouvel onglet) + overlay optionnel — sans dépendre du cache JS.
  */
 (function () {
   "use strict";
@@ -24,7 +24,7 @@
       }
     }
     var FALLBACK = {
-      intro: "0 — Le métier de trader & la vérité du marché",
+      intro: "0 — Le métier de trader",
       f01: "F1 — Participants & microstructure",
       f02: "F2 — XAUUSD — anatomie de l'or",
       f03: "F3 — Multi-timeframe & narrative",
@@ -75,126 +75,123 @@
     return data;
   }
 
-  function ensureLightbox() {
-    var box = document.getElementById("cex-lightbox");
-    if (box) return box;
-    box = document.createElement("div");
-    box.id = "cex-lightbox";
-    box.className = "cex-lightbox";
-    box.setAttribute("aria-hidden", "true");
-    box.innerHTML =
-      '<div class="cex-lightbox-backdrop" data-cex-close="1"></div>' +
-      '<div class="cex-lightbox-panel" role="dialog" aria-modal="true">' +
-      '<div class="cex-lightbox-bar">' +
-      '<span class="cex-lightbox-caption" id="cex-lightbox-caption"></span>' +
-      '<div class="cex-lightbox-actions">' +
-      '<a class="btn btn-secondary" id="cex-lightbox-open" target="_blank" rel="noopener">Ouvrir onglet</a>' +
-      '<button type="button" class="btn btn-primary" data-cex-close="1">Fermer</button>' +
-      "</div></div>" +
-      '<div class="cex-lightbox-stage" id="cex-lightbox-stage">' +
-      '<img id="cex-lightbox-img" alt="Screen élève — taille réelle" />' +
-      '<p class="cex-lightbox-hint" id="cex-lightbox-hint">Chargement…</p>' +
-      "</div></div>";
-    document.body.appendChild(box);
+  /** Overlay plein écran — styles inline pour battre le CSS ambient / cache. */
+  function showOverlay(src, caption) {
+    var old = document.getElementById("cex-screen-overlay");
+    if (old) old.remove();
 
-    box.addEventListener("click", function (ev) {
-      if (ev.target && ev.target.getAttribute && ev.target.getAttribute("data-cex-close") === "1") {
-        closeLightbox();
-        return;
-      }
-      if (ev.target && ev.target.classList && ev.target.classList.contains("cex-lightbox-backdrop")) {
-        closeLightbox();
-      }
-    });
+    var wrap = document.createElement("div");
+    wrap.id = "cex-screen-overlay";
+    wrap.setAttribute(
+      "style",
+      "position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.94);" +
+        "display:flex;flex-direction:column;padding:0;margin:0;"
+    );
 
-    document.addEventListener("keydown", function (ev) {
-      if (ev.key === "Escape" && box.classList.contains("cex-lightbox--open")) {
-        closeLightbox();
-      }
-    });
-    return box;
-  }
+    var bar = document.createElement("div");
+    bar.setAttribute(
+      "style",
+      "flex:0 0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between;" +
+        "padding:12px 16px;background:#111;border-bottom:1px solid rgba(255,215,0,.35);color:#ffd700;font:14px/1.4 sans-serif;"
+    );
+    bar.innerHTML =
+      "<span></span><span style='display:flex;gap:8px;flex-wrap:wrap'></span>";
+    bar.querySelector("span").textContent = caption || "Screen — taille réelle";
+    var actions = bar.querySelectorAll("span")[1];
 
-  function openLightbox(src, caption) {
-    if (!src) {
-      alert("URL du screen manquante.");
-      return;
-    }
-    var box = ensureLightbox();
-    var img = document.getElementById("cex-lightbox-img");
-    var cap = document.getElementById("cex-lightbox-caption");
-    var link = document.getElementById("cex-lightbox-open");
-    var hint = document.getElementById("cex-lightbox-hint");
+    var openTab = document.createElement("a");
+    openTab.href = src;
+    openTab.target = "_blank";
+    openTab.rel = "noopener";
+    openTab.textContent = "Ouvrir dans un onglet";
+    openTab.setAttribute(
+      "style",
+      "display:inline-block;padding:8px 12px;background:#ffd700;color:#111;text-decoration:none;border-radius:6px;font-weight:700;"
+    );
 
-    if (cap) cap.textContent = caption || "Screen — taille réelle";
-    if (link) {
-      link.href = src;
-      link.style.display = "";
-    }
-    if (hint) {
-      hint.hidden = false;
-      hint.textContent = "Chargement du screen…";
-    }
+    var closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.textContent = "Fermer";
+    closeBtn.setAttribute(
+      "style",
+      "padding:8px 12px;background:#333;color:#fff;border:1px solid #666;border-radius:6px;cursor:pointer;"
+    );
+    closeBtn.onclick = function () {
+      wrap.remove();
+      document.body.style.overflow = "";
+    };
+
+    actions.appendChild(openTab);
+    actions.appendChild(closeBtn);
+
+    var stage = document.createElement("div");
+    stage.setAttribute(
+      "style",
+      "flex:1;overflow:auto;padding:16px;text-align:center;-webkit-overflow-scrolling:touch;"
+    );
+
+    var img = document.createElement("img");
+    img.alt = "Screen taille réelle";
+    img.setAttribute(
+      "style",
+      "max-width:none!important;width:auto!important;height:auto!important;display:inline-block;box-shadow:0 8px 40px #000;"
+    );
+
+    var hint = document.createElement("p");
+    hint.setAttribute("style", "color:#aaa;font:13px sans-serif;margin:12px 0 0;");
+    hint.textContent = "Chargement…";
 
     img.onload = function () {
-      if (hint) {
-        hint.textContent =
-          "Taille réelle : " +
-          (img.naturalWidth || "?") +
-          " × " +
-          (img.naturalHeight || "?") +
-          " px — scroll pour parcourir";
-      }
+      hint.textContent =
+        "Taille réelle : " + img.naturalWidth + " × " + img.naturalHeight + " px — scroll pour parcourir";
     };
     img.onerror = function () {
-      if (hint) {
-        hint.textContent = "Impossible de charger l’image. Utilise « Ouvrir onglet ».";
-      }
-      // Fallback automatique
-      try {
-        window.open(src, "_blank", "noopener");
-      } catch (_) {}
+      hint.textContent = "Chargement image échoué — utilise « Ouvrir dans un onglet ».";
     };
-
-    img.removeAttribute("width");
-    img.removeAttribute("height");
-    img.style.maxWidth = "none";
-    img.style.width = "auto";
-    img.style.height = "auto";
     img.src = src;
 
-    box.classList.add("cex-lightbox--open");
-    box.setAttribute("aria-hidden", "false");
+    stage.appendChild(img);
+    stage.appendChild(hint);
+    wrap.appendChild(bar);
+    wrap.appendChild(stage);
+
+    wrap.addEventListener("click", function (ev) {
+      if (ev.target === wrap) {
+        wrap.remove();
+        document.body.style.overflow = "";
+      }
+    });
+    document.addEventListener(
+      "keydown",
+      function onEsc(ev) {
+        if (ev.key === "Escape") {
+          wrap.remove();
+          document.body.style.overflow = "";
+          document.removeEventListener("keydown", onEsc);
+        }
+      }
+    );
+
+    // Hors de body.forge-ambient > * si possible
+    (document.documentElement || document.body).appendChild(wrap);
     document.body.style.overflow = "hidden";
   }
 
-  function closeLightbox() {
-    var box = document.getElementById("cex-lightbox");
-    if (!box) return;
-    box.classList.remove("cex-lightbox--open");
-    box.setAttribute("aria-hidden", "true");
-    var img = document.getElementById("cex-lightbox-img");
-    if (img) {
-      img.onload = null;
-      img.onerror = null;
-      img.removeAttribute("src");
-    }
-    document.body.style.overflow = "";
-  }
-
-  // Délégation globale — marche même après re-render
-  if (!window.__cexZoomBound) {
-    window.__cexZoomBound = true;
+  if (!window.__cexOpenBound) {
+    window.__cexOpenBound = true;
     document.addEventListener(
       "click",
       function (ev) {
-        var btn = ev.target.closest("[data-cex-zoom]");
-        if (!btn) return;
+        var el = ev.target.closest("[data-cex-open]");
+        if (!el) return;
+        // Si c’est un lien avec modifier (ctrl/cmd) → laisser le navigateur
+        if (el.tagName === "A" && (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button === 1)) {
+          return;
+        }
+        var src = el.getAttribute("data-cex-open") || el.getAttribute("href");
+        if (!src) return;
         ev.preventDefault();
-        ev.stopPropagation();
-        var src = btn.getAttribute("data-cex-zoom") || btn.getAttribute("href");
-        var cap = btn.getAttribute("data-cex-cap") || "";
-        openLightbox(src, cap);
+        showOverlay(src, el.getAttribute("data-cex-cap") || "");
       },
       true
     );
@@ -205,20 +202,18 @@
     var items = data.items || [];
     if (!items.length) {
       root.innerHTML =
-        '<div class="cex-admin-empty">' +
-        '<p class="fmt-empty">Aucune note / screen synchronisé pour le moment.</p>' +
-        '<button type="button" class="btn btn-secondary" id="cex-refresh">Rafraîchir</button>' +
-        "</div>";
-      var btn = document.getElementById("cex-refresh");
-      if (btn) {
-        btn.onclick = function () {
+        '<p class="fmt-empty">Aucune note / screen pour le moment.</p>' +
+        '<button type="button" class="btn btn-secondary" id="cex-refresh">Rafraîchir</button>';
+      var b = document.getElementById("cex-refresh");
+      if (b)
+        b.onclick = function () {
           renderList(root).catch(function (e) {
             root.innerHTML = '<p class="fmt-empty">' + esc(e.message) + "</p>";
           });
         };
-      }
       return;
     }
+
     root.innerHTML =
       '<div class="cex-admin-toolbar"><button type="button" class="btn btn-secondary" id="cex-refresh">Rafraîchir</button> ' +
       '<span class="cex-admin-stats">' +
@@ -243,15 +238,13 @@
             esc(it.moduleId) +
             "</code></p>" +
             '<p class="cex-admin-preview">' +
-            esc(it.notesPreview || "(pas de texte — tâches / screens seulement)") +
+            esc(it.notesPreview || "(pas de texte)") +
             "</p>" +
             '<p class="cex-admin-stats">' +
-            (it.notesLen || 0) +
-            " car. · " +
-            (it.doneCount || 0) +
-            " tâche(s) · " +
             (it.imageCount || 0) +
             " screen(s) · " +
+            (it.doneCount || 0) +
+            " tâche(s) · " +
             esc((it.updatedAt || "").slice(0, 16).replace("T", " ")) +
             "</p>" +
             '<button type="button" class="btn btn-secondary cex-open">Ouvrir</button>' +
@@ -269,10 +262,9 @@
         });
       };
     }
-
-    root.querySelectorAll(".cex-open").forEach(function (openBtn) {
-      openBtn.addEventListener("click", function () {
-        var card = openBtn.closest("[data-slug]");
+    root.querySelectorAll(".cex-open").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var card = btn.closest("[data-slug]");
         openOne(root, card.getAttribute("data-slug"), card.getAttribute("data-mod"));
       });
     });
@@ -288,6 +280,7 @@
     var ex = data.exercise || {};
     var label = moduleLabel(moduleId);
     var href = moduleHref(moduleId);
+
     var imgs = (ex.images || [])
       .map(function (img, idx) {
         var src =
@@ -300,25 +293,28 @@
         var cap = label + " · screen " + (idx + 1);
         return (
           '<figure class="cex-admin-shot">' +
-          '<button type="button" class="cex-admin-shot-hit" data-cex-zoom="' +
+          '<a class="cex-admin-shot-hit" href="' +
+          esc(src) +
+          '" target="_blank" rel="noopener" data-cex-open="' +
           esc(src) +
           '" data-cex-cap="' +
           esc(cap) +
-          '" title="Agrandir en taille réelle">' +
+          '" title="Agrandir">' +
           '<img src="' +
           esc(src) +
           '" alt="Screen ' +
           (idx + 1) +
           '" loading="lazy" />' +
-          "</button>" +
+          "</a>" +
           "<figcaption>" +
-          esc(img.caption || "") +
-          ' <button type="button" class="btn btn-primary cex-zoom-btn" data-cex-zoom="' +
+          '<a class="btn btn-primary" href="' +
+          esc(src) +
+          '" target="_blank" rel="noopener" data-cex-open="' +
           esc(src) +
           '" data-cex-cap="' +
           esc(cap) +
-          '">🔍 Agrandir</button></figcaption>' +
-          "</figure>"
+          '">Agrandir (taille réelle)</a>' +
+          "</figcaption></figure>"
         );
       })
       .join("");
@@ -339,7 +335,7 @@
         ? ' · <a href="' + esc(href) + '" target="_blank" rel="noopener">Ouvrir le module</a>'
         : "") +
       "</p>" +
-      '<p class="cex-admin-stats">Tâches cochées : ' +
+      '<p class="cex-admin-stats">Tâches : ' +
       esc(JSON.stringify(ex.done || [])) +
       " · MAJ " +
       esc((ex.updatedAt || "").slice(0, 19).replace("T", " ")) +
@@ -349,7 +345,7 @@
       esc(ex.notes || "—") +
       "</pre>" +
       "<h3>Screens</h3>" +
-      '<p class="cex-admin-stats">Clique le screen ou le bouton « Agrandir » pour la taille réelle.</p>' +
+      '<p class="cex-admin-stats">Clique <strong>Agrandir (taille réelle)</strong> — overlay ou nouvel onglet.</p>' +
       (imgs
         ? '<div class="cex-admin-gallery">' + imgs + "</div>"
         : '<p class="fmt-empty">Aucun screen.</p>') +
@@ -365,7 +361,6 @@
   window.initChartExercisesAdmin = async function () {
     var root = document.getElementById("chart-exercises-admin-root");
     if (!root) return;
-    ensureLightbox();
     try {
       await renderList(root);
     } catch (err) {
