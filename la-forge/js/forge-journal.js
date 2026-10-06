@@ -290,7 +290,9 @@
         return;
       }
       var data = await api("/api/journal-trade-screens");
-      var trades = data.trades || [];
+      var trades = (data.trades || []).filter(function (t) {
+        return (t.imageCount || (t.images && t.images.length) || 0) > 0;
+      });
       if (!trades.length) {
         list.innerHTML =
           '<p class="jts-shell-meta">Aucun screen — glisse un JPG/PNG au-dessus du journal.</p>';

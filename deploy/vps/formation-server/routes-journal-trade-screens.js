@@ -183,6 +183,26 @@ function publicTrade(t) {
   };
 }
 
+/** Entrées sans image (ex. « add_trade add_trade · 0 screen(s) ») — à ne pas lister */
+function isEmptyTrade(t) {
+  const imgs = t && Array.isArray(t.images) ? t.images : [];
+  return imgs.length === 0;
+}
+
+function pruneEmptyTrades(email) {
+  const idx = readIndex(email);
+  let changed = false;
+  for (const k of Object.keys(idx.trades || {})) {
+    const t = idx.trades[k];
+    if (!t || isEmptyTrade(t)) {
+      delete idx.trades[k];
+      changed = true;
+    }
+  }
+  if (changed) writeIndex(email, idx);
+  return idx;
+}
+
 module.exports = function createJournalTradeScreensRouter() {
   const router = express.Router();
   fs.mkdirSync(screensRoot(), { recursive: true });
@@ -268,10 +288,10 @@ module.exports = function createJournalTradeScreensRouter() {
     try {
       const user = await requirePremium(req, res);
       if (!user) return;
-      const idx = readIndex(user.email);
+      const idx = pruneEmptyTrades(user.email);
       const items = Object.keys(idx.trades)
         .map((k) => publicTrade(idx.trades[k]))
-        .filter((t) => t.imageCount > 0 || t.label || t.pair)
+        .filter((t) => (t.imageCount || 0) > 0)
         .sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
       return res.json({ ok: true, count: items.length, trades: items });
     } catch (err) {
