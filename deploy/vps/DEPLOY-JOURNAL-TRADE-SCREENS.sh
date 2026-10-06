@@ -7,12 +7,12 @@
 #
 # Sur le VPS (copier-coller tel quel) :
 #   unset REF SHA BRANCH
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-screens-shell-691a/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-screens-jpg-png-691a/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Ignore REF ambiant — force la branche de ce hotfix
-SCRIPT_REF="${JOURNAL_SCREENS_REF:-cursor/journal-screens-shell-691a}"
+SCRIPT_REF="${JOURNAL_SCREENS_REF:-cursor/journal-screens-jpg-png-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 
 echo "======== DEPLOY JOURNAL TRADE SCREENS ($SCRIPT_REF) ========"
