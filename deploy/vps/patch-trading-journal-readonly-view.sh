@@ -7,6 +7,8 @@
 #
 # Sur le VPS **radar** (où se trouve trading_journal.php) :
 #   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-trade-readonly-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
+#
+# Toutes les écritures sur /var/www/torinvest/* passent par sudo.
 set -euo pipefail
 
 REF="${1:-cursor/journal-trade-readonly-691a}"
@@ -16,6 +18,8 @@ API_DIR="$ROOT/api"
 DST="$API_DIR/trading-journal-readonly-view.php"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 MARKER="torinvest-journal-readonly-view"
+WORKDIR="$(mktemp -d)"
+trap 'rm -rf "$WORKDIR"' EXIT
 
 echo "==> patch Trading Journal READ-ONLY view ($REF)"
 
@@ -36,42 +40,43 @@ if [[ ! -f "$JOURNAL" ]]; then
 fi
 
 sudo mkdir -p "$API_DIR"
-curl -fsSL "$BASE/api/trading-journal-readonly-view.php" -o /tmp/trading-journal-readonly-view.php
-grep -q 'torinvest_journal_readonly_boot' /tmp/trading-journal-readonly-view.php || {
+curl -fsSL "$BASE/api/trading-journal-readonly-view.php" -o "$WORKDIR/ro.php"
+grep -q 'torinvest_journal_readonly_boot' "$WORKDIR/ro.php" || {
   echo "ÉCHEC: artefact PHP invalide"
   exit 1
 }
-grep -q 'lecture seule' /tmp/trading-journal-readonly-view.php || {
+grep -q 'lecture seule' "$WORKDIR/ro.php" || {
   echo "ÉCHEC: labels FR manquants"
   exit 1
 }
-php -l /tmp/trading-journal-readonly-view.php
-sudo mv /tmp/trading-journal-readonly-view.php "$DST"
+php -l "$WORKDIR/ro.php"
+sudo cp -f "$WORKDIR/ro.php" "$DST"
 sudo chown www-data:www-data "$DST" 2>/dev/null || true
+echo "→ API: $DST"
 
 BAK="${JOURNAL}.bak.readonly.$(date +%Y%m%d%H%M%S)"
 sudo cp -a "$JOURNAL" "$BAK"
 echo "Backup: $BAK"
 
-# 1) Inject bootstrap (toujours avec MARKER)
-if sudo grep -q "$MARKER" "$JOURNAL"; then
-  echo "OK — bootstrap readonly déjà présent (API mise à jour)"
+# Copie lisible pour Python (évite write direct sur fichier root)
+sudo cp -a "$JOURNAL" "$WORKDIR/journal.php"
+sudo chmod u+rw "$WORKDIR/journal.php" 2>/dev/null || chmod u+rw "$WORKDIR/journal.php"
+
+# 1) Inject bootstrap si absent
+if grep -q "$MARKER" "$WORKDIR/journal.php"; then
+  echo "OK — bootstrap readonly déjà présent"
 else
-  TMP=/tmp/tj-readonly-$$.php
-  python3 - "$JOURNAL" "$MARKER" "$TMP" <<'PY'
+  python3 - "$WORKDIR/journal.php" "$MARKER" <<'PY'
 import pathlib, sys, re
-journal, marker, out = sys.argv[1:4]
-src = pathlib.Path(journal).read_text(encoding="utf-8", errors="replace")
+path = pathlib.Path(sys.argv[1])
+marker = sys.argv[2]
+src = path.read_text(encoding="utf-8", errors="replace")
 rel = "api/trading-journal-readonly-view.php"
 boot = (
     f"/* {marker} */\n"
     f"require_once __DIR__ . '/{rel}';\n"
     "torinvest_journal_readonly_boot();\n"
 )
-if marker in src:
-    pathlib.Path(out).write_text(src, encoding="utf-8")
-    print("already marked")
-    raise SystemExit(0)
 if re.search(r"torinvest_journal_forge_sso_boot\s*\(\s*\)\s*;", src):
     src2, n = re.subn(
         r"(torinvest_journal_forge_sso_boot\s*\(\s*\)\s*;)",
@@ -80,24 +85,22 @@ if re.search(r"torinvest_journal_forge_sso_boot\s*\(\s*\)\s*;", src):
         count=1,
     )
     if n:
-        pathlib.Path(out).write_text(src2, encoding="utf-8")
+        path.write_text(src2, encoding="utf-8")
         print("injected after SSO boot")
         raise SystemExit(0)
 if src.lstrip().startswith("<?php"):
     rest = re.sub(r"^\s*<\?php\s*", "", src, count=1)
-    pathlib.Path(out).write_text("<?php\n" + boot + rest, encoding="utf-8")
+    path.write_text("<?php\n" + boot + rest, encoding="utf-8")
     print("prefixed after <?php")
 else:
-    pathlib.Path(out).write_text("<?php\n" + boot + src, encoding="utf-8")
+    path.write_text("<?php\n" + boot + src, encoding="utf-8")
     print("prefixed file")
 PY
-  sudo mv "$TMP" "$JOURNAL"
-  sudo chown www-data:www-data "$JOURNAL" 2>/dev/null || true
-  echo "OK — bootstrap readonly injecté dans trading_journal.php"
+  echo "OK — bootstrap readonly préparé"
 fi
 
-# 2) Réécrire openTrade / liens history&edit= → view= dans le source (défense en profondeur)
-python3 - "$JOURNAL" <<'PY'
+# 2) Réécrire openTrade / liens edit= → view= dans la copie
+python3 - "$WORKDIR/journal.php" <<'PY'
 import re, sys
 from pathlib import Path
 path = Path(sys.argv[1])
@@ -105,8 +108,7 @@ src = path.read_text(encoding="utf-8", errors="replace")
 orig = src
 
 def rewrite_opentrade(m):
-    body = m.group(0)
-    return re.sub(r"([?&'\"`=])edit=", r"\1view=", body, flags=re.I)
+    return re.sub(r"([?&'\"`=])edit=", r"\1view=", m.group(0), flags=re.I)
 
 src = re.sub(
     r"function\s+openTrade\s*\([^)]*\)\s*\{.*?\}",
@@ -128,17 +130,16 @@ src = re.sub(
     src,
     flags=re.I,
 )
-
-if src != orig:
-    path.write_text(src, encoding="utf-8")
-    print("OK — openTrade / liens history edit= → view= réécrits")
-else:
-    print("INFO — pas de réécriture source (wrapper JS runtime couvre)")
+path.write_text(src, encoding="utf-8")
+print("OK — openTrade/liens edit→view" if src != orig else "INFO — pas de réécriture source (JS runtime OK)")
 PY
 
-sudo chown www-data:www-data "$JOURNAL" 2>/dev/null || true
+php -l "$WORKDIR/journal.php"
 php -l "$DST"
-php -l "$JOURNAL"
+
+# Dépose finale avec sudo (évite PermissionError)
+sudo cp -f "$WORKDIR/journal.php" "$JOURNAL"
+sudo chown www-data:www-data "$JOURNAL" 2>/dev/null || true
 
 sudo grep -q "$MARKER" "$JOURNAL" || {
   echo "ÉCHEC: marker absent de trading_journal.php"

@@ -58,12 +58,13 @@ fi
 
 [[ -f "$JOURNAL" ]] || { echo "ÉCHEC: trading_journal.php manquant après patch"; exit 1; }
 [[ -f "$RO" ]] || { echo "ÉCHEC: $RO manquant après patch"; exit 1; }
-grep -q 'torinvest-journal-readonly-view' "$JOURNAL" || {
+grep -q 'torinvest-journal-readonly-view' "$JOURNAL" 2>/dev/null \
+  || sudo grep -q 'torinvest-journal-readonly-view' "$JOURNAL" || {
   echo "ÉCHEC: marker absent de trading_journal.php"
   exit 1
 }
 php -l "$RO"
-php -l "$JOURNAL"
+php -l "$JOURNAL" 2>/dev/null || sudo php -l "$JOURNAL"
 
 sudo systemctl reload php8.3-fpm 2>/dev/null \
   || sudo systemctl reload php8.2-fpm 2>/dev/null \
