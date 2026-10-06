@@ -326,7 +326,7 @@ module.exports = function createJournalTradeScreensRouter() {
     res.json({
       ok: true,
       ready: true,
-      version: 14,
+      version: 15,
       jpgPng: true,
       mimeLoose: true,
       sniff: true,
@@ -344,11 +344,12 @@ module.exports = function createJournalTradeScreensRouter() {
       tradeRowObserver: true,
       relativeAssets: true,
       deepLinkFallback: true,
+      navFix: true,
       injectHardOff: true,
       injectDisabled: true,
       inject: "off",
       note:
-        "v14: CSP stripped + relative radar assets + MutationObserver + SSO deep-link fallback",
+        "v15: menu ?query stay in embed (no radar/www breakout) + CSP strip + observer",
     });
   });
 

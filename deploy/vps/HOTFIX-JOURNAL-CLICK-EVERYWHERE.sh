@@ -1,23 +1,26 @@
 #!/usr/bin/env bash
-# HOTFIX — clic trade PARTOUT (liste + calendrier TJ) v14 NUCLEAR + verify strict
+# HOTFIX — journal navFix v15: menu Calendrier/Historique restent dans embed
+# (+ clickEverywhere / CSP strip)
+#
+# HOTFIX — clic trade PARTOUT (liste + calendrier TJ) v15 NUCLEAR + verify strict
 #
 # Audit 2026-10-06: prod était coincée sur v13 partielle (#188) parce que le
 # vérificateur acceptait clickEverywhere sans exiger cspStrip.
 #
-# v14:
+# v15:
 #   - STRIP CSP entier sur /journal-embed/*
 #   - MutationObserver + bubble openTrade
 #   - assets relatifs → radar
 #   - deep-link SSO /api/journal-bridge/radar-url
-#   - ping DOIT contenir cspStrip + tradeRowObserver + version:14
+#   - ping DOIT contenir cspStrip + tradeRowObserver + version:15
 #   - CSP header DOIT être absente sur /journal-embed/ après restart
 #
 # UNE commande VPS :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/audit-journal-complet-691a/deploy/vps/HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-nav-fix-691a/deploy/vps/HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh" | bash
 set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF SCRIPT_REF 2>/dev/null || true
-BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/audit-journal-complet-691a}"
+BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/journal-nav-fix-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}"
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 
@@ -40,7 +43,7 @@ PM2_SCRIPT="$(echo "$PM2_META" | sed -n '2p')"
 
 echo ""
 echo "############################################################"
-echo "#  HOTFIX CLICK EVERYWHERE v14 — NUCLEAR + STRICT VERIFY  #"
+echo "#  HOTFIX CLICK EVERYWHERE v15 — NUCLEAR + STRICT VERIFY  #"
 echo "#  branch: $BRANCH                                        #"
 echo "############################################################"
 echo "APP=$APP_DIR"
@@ -62,11 +65,13 @@ grep -q 'clickEverywhere' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans clickE
 grep -q 'MutationObserver' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans MutationObserver"; exit 1; }
 grep -q '__tjCspStripped' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans CSP strip"; exit 1; }
 grep -q 'keepInFrame' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans keepInFrame"; exit 1; }
-grep -q 'version: 14' "$TMP/bridge.js" || { echo "ÉCHEC: bridge version != 14"; exit 1; }
+grep -q 'version: 15' "$TMP/bridge.js" || { echo "ÉCHEC: bridge version != 15"; exit 1; }
+grep -q 'navFix' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans navFix"; exit 1; }
+grep -q 'href="/journal-embed/?' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans rewrite href=? → embed"; exit 1; }
 grep -q 'radar-url' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans radar-url deep-link"; exit 1; }
 grep -q 'clickEverywhere' "$TMP/routes.js" || { echo "ÉCHEC: routes sans clickEverywhere"; exit 1; }
 grep -q 'cspStrip' "$TMP/routes.js" || { echo "ÉCHEC: routes sans cspStrip"; exit 1; }
-grep -q 'version: 14' "$TMP/routes.js" || { echo "ÉCHEC: routes version != 14"; exit 1; }
+grep -q 'version: 15' "$TMP/routes.js" || { echo "ÉCHEC: routes version != 15"; exit 1; }
 grep -q 'radar-url' "$TMP/forge-journal.js" || { echo "ÉCHEC: forge-journal sans radar-url"; exit 1; }
 
 echo "→ node --check…"
@@ -75,7 +80,7 @@ node --check "$TMP/routes.js"
 
 cat > "$TMP/js-stub.js" <<'STUB'
 /**
- * STUB — screens HARD OFF (clickEverywhere v14 nuclear).
+ * STUB — screens HARD OFF (clickEverywhere v15 nuclear).
  */
 (function () {
   "use strict";
@@ -177,7 +182,7 @@ done < <(find "$APP_DIR" -name 'forge-journal-trade-screens.js' -print0 2>/dev/n
 echo "→ Pre-restart disk verify…"
 FOUND=0
 while IFS= read -r -d '' f; do
-  if grep -q 'clickEverywhere' "$f" && grep -q 'version: 14' "$f" && grep -q 'MutationObserver' "$f" && grep -q '__tjCspStripped' "$f" && grep -q 'radar-url' "$f"; then
+  if grep -q 'clickEverywhere' "$f" && grep -q 'version: 15' "$f" && grep -q 'MutationObserver' "$f" && grep -q '__tjCspStripped' "$f" && grep -q 'radar-url' "$f"; then
     echo "  OK disk $f"
     FOUND=1
   else
@@ -214,13 +219,15 @@ for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
     && echo "$PING" | grep -q 'cspStrip' \
     && echo "$BRIDGE" | grep -q 'cspStrip' \
     && echo "$PING" | grep -q 'tradeRowObserver' \
+    && echo "$PING" | grep -q 'navFix' \
+    && echo "$BRIDGE" | grep -q 'navFix' \
     && echo "$BRIDGE" | grep -q 'tradeRowObserver' \
     && echo "$PING" | grep -qE '"version":\s*1[4-9]' \
     && echo "$BRIDGE" | grep -qE '"version":\s*1[4-9]'; then
     ok=1
     break
   fi
-  echo "  …attente ping v14 cspStrip ($i) bridge=$(echo "$BRIDGE" | head -c 120)"
+  echo "  …attente ping v15 cspStrip ($i) bridge=$(echo "$BRIDGE" | head -c 120)"
 done
 
 pm2 list || true
@@ -229,7 +236,7 @@ echo "PING bridge:  $BRIDGE"
 
 if [[ "$ok" -ne 1 ]]; then
   echo ""
-  echo "ÉCHEC: process encore sur ancien code (cspStrip/version:14 manquants)."
+  echo "ÉCHEC: process encore sur ancien code (cspStrip/version:15 manquants)."
   echo "→ pm2 describe la-forge (script path):"
   pm2 describe la-forge 2>/dev/null | head -40 || true
   echo "→ grep version/cspStrip on disk:"
@@ -254,8 +261,8 @@ echo "login.html → $LOGIN_CODE"
 
 echo ""
 echo "############################################################"
-echo "#  OK — clickEverywhere v14 NUCLEAR live                   #"
-echo "#  Attendu ping: version:14 clickEverywhere:true           #"
+echo "#  OK — clickEverywhere v15 NUCLEAR live                   #"
+echo "#  Attendu ping: version:15 clickEverywhere:true           #"
 echo "#                cspStrip:true tradeRowObserver:true       #"
 echo "#  CSP /journal-embed/ : ABSENTE                           #"
 echo "#  Ctrl+Shift+R → clic trade OU calendrier TJ → détail     #"
