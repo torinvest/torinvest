@@ -4,13 +4,16 @@
 # LIVE encore en v=9 / onglets ? → ce script n’a PAS été lancé après le merge.
 #
 # Sur le VPS (UNE seule commande, copier-coller tel quel) :
-#   unset REF SHA BRANCH JOURNAL_SCREENS_REF; curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
+#   unset REF SHA BRANCH JOURNAL_SCREENS_REF; curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-screens-live-0a04/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
+#
+# (Après merge sur main, tu peux aussi utiliser …/main/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh)
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Toujours tirer depuis main (ignore REF/SHA/BRANCH ambiants qui pointent vers d’anciennes PRs)
 unset REF SHA BRANCH 2>/dev/null || true
-SCRIPT_REF="${JOURNAL_SCREENS_REF:-main}"
+# Pin commit (évite main/v=10 ou mauvaises branches ambiantes)
+SCRIPT_REF="${JOURNAL_SCREENS_REF:-e888711bd58bff2666c0c9c82a8e1abbfa676a85}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 EXPECTED_JS_VER="v=11"
 
