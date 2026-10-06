@@ -1,11 +1,12 @@
 /**
- * La Forge — hub Trading Journal Pro + Screenshots JPG/PNG (natif).
+ * La Forge — Trading Journal Pro + dépôt screens JPG/PNG SUR la même page.
  */
 (function () {
   "use strict";
 
   var JOURNAL_APP = "/journal-embed/";
   var pendingFiles = [];
+  var screensExpanded = true;
 
   function esc(s) {
     return String(s || "")
@@ -33,11 +34,13 @@
   }
 
   function showGate() {
-    document.body.classList.remove("journal-app-open");
+    document.body.classList.remove("journal-app-open", "jts-panel-open");
     var g = document.getElementById("journal-gate");
     if (g) g.hidden = false;
-    var tabs = document.getElementById("journal-tabs");
-    if (tabs) tabs.hidden = true;
+    var bar = document.getElementById("journal-screens-bar");
+    if (bar) bar.hidden = true;
+    var wrap = document.getElementById("journal-frame-wrap");
+    if (wrap) wrap.hidden = true;
   }
 
   function hideGate() {
@@ -45,42 +48,27 @@
     if (g) g.hidden = true;
   }
 
-  function showTabs() {
-    var tabs = document.getElementById("journal-tabs");
-    if (tabs) tabs.hidden = false;
+  function setScreensExpanded(open) {
+    screensExpanded = !!open;
+    var body = document.getElementById("journal-screens-body");
+    var toggle = document.getElementById("jts-bar-toggle");
+    if (body) body.hidden = !screensExpanded;
+    if (toggle) toggle.setAttribute("aria-expanded", screensExpanded ? "true" : "false");
+    document.body.classList.toggle("jts-panel-open", screensExpanded);
   }
 
-  function setTab(tab) {
-    var appWrap = document.getElementById("journal-frame-wrap");
-    var screens = document.getElementById("journal-screens-panel");
-    var buttons = document.querySelectorAll("[data-journal-tab]");
-    buttons.forEach(function (b) {
-      b.classList.toggle("is-active", b.getAttribute("data-journal-tab") === tab);
-    });
-    if (tab === "screens") {
-      if (appWrap) appWrap.hidden = true;
-      if (screens) screens.hidden = false;
-      document.body.classList.add("journal-app-open");
-      loadScreensList();
-      loadAdminList();
-    } else {
-      if (screens) screens.hidden = true;
-      if (appWrap) appWrap.hidden = false;
-      document.body.classList.add("journal-app-open");
-      var frame = document.getElementById("journal-frame");
-      if (frame && !frame.getAttribute("src")) frame.src = JOURNAL_APP;
-    }
-    try {
-      var url = new URL(window.location.href);
-      url.searchParams.set("tab", tab === "app" ? "app" : "screens");
-      window.history.replaceState({}, "", url.pathname + url.search);
-    } catch (_) {}
-  }
-
-  function showApp(defaultTab) {
+  function showJournalWithScreens() {
     hideGate();
-    showTabs();
-    setTab(defaultTab || "screens");
+    document.body.classList.add("journal-app-open");
+    var bar = document.getElementById("journal-screens-bar");
+    if (bar) bar.hidden = false;
+    setScreensExpanded(true);
+    var wrap = document.getElementById("journal-frame-wrap");
+    if (wrap) wrap.hidden = false;
+    var frame = document.getElementById("journal-frame");
+    if (frame && !frame.getAttribute("src")) frame.src = JOURNAL_APP;
+    loadScreensList();
+    loadAdminList();
   }
 
   function isPremiumMe(me) {
@@ -133,7 +121,6 @@
     if (/\.png$/i.test(name)) return "image/png";
     if (/\.webp$/i.test(name)) return "image/webp";
     if (/\.gif$/i.test(name)) return "image/gif";
-    // Certains OS n’envoient pas de MIME — on tente quand même via canvas
     if (type.indexOf("image/") === 0) return type;
     return "";
   }
@@ -143,7 +130,6 @@
     if (mime === "image/jpeg" || mime === "image/png" || mime === "image/webp" || mime === "image/gif") {
       return true;
     }
-    // Fichier sans MIME mais extension absente : laisser tenter (canvas)
     var name = String((file && file.name) || "").toLowerCase();
     if (!name && file && file.type && file.type.indexOf("image/") === 0) return true;
     return false;
@@ -204,9 +190,7 @@
           var dataUrl = keepPng
             ? canvas.toDataURL("image/png")
             : canvas.toDataURL("image/jpeg", 0.82);
-          if (dataUrl.length > 700000) {
-            dataUrl = canvas.toDataURL("image/jpeg", 0.62);
-          }
+          if (dataUrl.length > 700000) dataUrl = canvas.toDataURL("image/jpeg", 0.62);
           URL.revokeObjectURL(url);
           resolve(dataUrl);
         } catch (e) {
@@ -309,7 +293,7 @@
       var trades = data.trades || [];
       if (!trades.length) {
         list.innerHTML =
-          '<p class="jts-shell-meta">Aucun screen pour l’instant — glisse un JPG/PNG dans la zone à gauche.</p>';
+          '<p class="jts-shell-meta">Aucun screen — glisse un JPG/PNG au-dessus du journal.</p>';
         return;
       }
       list.innerHTML = renderTradeCards(trades);
@@ -373,7 +357,6 @@
       if (isAllowedImageFile(f)) pendingFiles.push(f);
       else rejected.push(f.name || "?");
     });
-    // sync native input for UX
     var input = document.getElementById("jts-files");
     if (input) {
       try {
@@ -388,7 +371,8 @@
     if (rejected.length) {
       setUploadStatus("Ignorés (pas JPG/PNG) : " + rejected.join(", "), "error");
     } else if (pendingFiles.length) {
-      setUploadStatus(pendingFiles.length + " image(s) prête(s) — clique Enregistrer.", "ok");
+      setUploadStatus(pendingFiles.length + " image(s) prête(s) — Enregistrer.", "ok");
+      setScreensExpanded(true);
     }
   }
 
@@ -413,6 +397,7 @@
     if (!pair) {
       alert("Indique la paire (ex. XAUUSD).");
       document.getElementById("jts-pair").focus();
+      setScreensExpanded(true);
       return;
     }
     var tradeKey = tradeKeyFromForm();
@@ -462,13 +447,11 @@
   }
 
   function bindScreensUi() {
-    var tabs = document.getElementById("journal-tabs");
-    if (tabs && tabs.dataset.bound !== "1") {
-      tabs.dataset.bound = "1";
-      tabs.addEventListener("click", function (ev) {
-        var btn = ev.target.closest("[data-journal-tab]");
-        if (!btn) return;
-        setTab(btn.getAttribute("data-journal-tab"));
+    var toggle = document.getElementById("jts-bar-toggle");
+    if (toggle && toggle.dataset.bound !== "1") {
+      toggle.dataset.bound = "1";
+      toggle.addEventListener("click", function () {
+        setScreensExpanded(!screensExpanded);
       });
     }
 
@@ -537,18 +520,15 @@
         openLightbox(zoom.getAttribute("data-jts-zoom"), zoom.getAttribute("data-jts-caption"));
         return;
       }
-      if (ev.target.closest("[data-jts-close]")) {
-        closeLightbox();
-      }
+      if (ev.target.closest("[data-jts-close]")) closeLightbox();
     });
     document.addEventListener("keydown", function (ev) {
       if (ev.key === "Escape") closeLightbox();
     });
 
-    // Coller une image (Ctrl+V)
     document.addEventListener("paste", function (ev) {
-      var panel = document.getElementById("journal-screens-panel");
-      if (!panel || panel.hidden) return;
+      var bar = document.getElementById("journal-screens-bar");
+      if (!bar || bar.hidden) return;
       var items = ev.clipboardData && ev.clipboardData.items;
       if (!items) return;
       var files = [];
@@ -580,8 +560,8 @@
 
     if (openBtn) {
       openBtn.addEventListener("click", function () {
-        setStatus("Ouverture…", "ok");
-        showApp("screens");
+        setStatus("Ouverture du Journal…", "ok");
+        showJournalWithScreens();
       });
     }
 
@@ -598,13 +578,13 @@
 
     if (!me) {
       showGate();
-      setStatus("Connecte-toi à La Forge (email Premium) pour déposer tes screens JPG/PNG.", "warn");
+      setStatus("Connecte-toi à La Forge (email Premium) pour ouvrir le Trading Journal.", "warn");
       return;
     }
 
     if (!premium) {
       showGate();
-      setStatus("Le Trading Journal / screens est réservé aux abonnés La Forge Premium.", "warn");
+      setStatus("Le Trading Journal est réservé aux abonnés La Forge Premium.", "warn");
       return;
     }
 
@@ -613,8 +593,12 @@
     }
 
     setStatus("", "ok");
-    var wantApp = /[?&]tab=app\b/i.test(window.location.search);
-    showApp(wantApp ? "app" : "screens");
+    showJournalWithScreens();
+
+    // ?screens=0 → panneau plié ; ?screens=1 (défaut) ouvert
+    if (/[?&]screens=0\b/i.test(window.location.search)) {
+      setScreensExpanded(false);
+    }
   }
 
   if (document.readyState === "loading") {
