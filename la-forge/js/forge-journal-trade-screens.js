@@ -137,10 +137,59 @@
     return data;
   }
 
+  function guessImageMime(file) {
+    var type = String((file && file.type) || "").toLowerCase().trim();
+    if (type === "image/jpg" || type === "image/pjpeg") return "image/jpeg";
+    if (type === "image/x-png") return "image/png";
+    if (type.indexOf("image/") === 0) return type;
+    var name = String((file && file.name) || "").toLowerCase();
+    if (/\.jpe?g$/i.test(name)) return "image/jpeg";
+    if (/\.png$/i.test(name)) return "image/png";
+    if (/\.webp$/i.test(name)) return "image/webp";
+    if (/\.gif$/i.test(name)) return "image/gif";
+    return "";
+  }
+
+  function isAllowedImageFile(file) {
+    var mime = guessImageMime(file);
+    return (
+      mime === "image/jpeg" ||
+      mime === "image/png" ||
+      mime === "image/webp" ||
+      mime === "image/gif"
+    );
+  }
+
+  function readFileAsDataUrl(file, mime) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = String(reader.result || "");
+        if (!/^data:image\//i.test(result)) {
+          reject(new Error("Lecture image impossible"));
+          return;
+        }
+        if (mime && /^data:image\/[^;]+;base64,/i.test(result)) {
+          result = result.replace(/^data:image\/[^;]+;base64,/i, "data:" + mime + ";base64,");
+        }
+        resolve(result);
+      };
+      reader.onerror = function () {
+        reject(new Error("Lecture fichier impossible"));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   function compressImageFile(file) {
     return new Promise(function (resolve, reject) {
-      if (!file || !file.type || file.type.indexOf("image/") !== 0) {
-        reject(new Error("Image JPEG/PNG/WebP requise"));
+      var mime = guessImageMime(file);
+      if (!isAllowedImageFile(file)) {
+        reject(new Error("Fichier JPG ou PNG requis (.jpg / .jpeg / .png)"));
+        return;
+      }
+      if (file.size && file.size <= 2.8 * 1024 * 1024) {
+        readFileAsDataUrl(file, mime).then(resolve).catch(reject);
         return;
       }
       var url = URL.createObjectURL(file);
@@ -157,11 +206,20 @@
           canvas.width = w;
           canvas.height = h;
           var ctx = canvas.getContext("2d");
-          ctx.fillStyle = "#0b0f14";
-          ctx.fillRect(0, 0, w, h);
+          var keepPng = mime === "image/png";
+          if (!keepPng) {
+            ctx.fillStyle = "#0b0f14";
+            ctx.fillRect(0, 0, w, h);
+          }
           ctx.drawImage(img, 0, 0, w, h);
-          var dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-          if (dataUrl.length > 700000) dataUrl = canvas.toDataURL("image/jpeg", 0.62);
+          var dataUrl = keepPng
+            ? canvas.toDataURL("image/png")
+            : canvas.toDataURL("image/jpeg", 0.82);
+          if (dataUrl.length > 700000) {
+            dataUrl = keepPng
+              ? canvas.toDataURL("image/jpeg", 0.7)
+              : canvas.toDataURL("image/jpeg", 0.62);
+          }
           URL.revokeObjectURL(url);
           resolve(dataUrl);
         } catch (e) {
@@ -171,7 +229,7 @@
       };
       img.onerror = function () {
         URL.revokeObjectURL(url);
-        reject(new Error("Lecture image impossible"));
+        reject(new Error("Lecture image impossible (JPG/PNG)"));
       };
       img.src = url;
     });
@@ -265,7 +323,7 @@
       "<h3>Screenshots du trade</h3>" +
       '<p class="jts-hint">Dépose un ou plusieurs screens (TradingView, exécution…). Ils restent liés à ce trade sur ton compte Premium.</p>' +
       '<div class="jts-actions">' +
-      '<label class="jts-btn">+ Ajouter un screen<input type="file" id="forge-jts-file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden /></label>' +
+      '<label class="jts-btn">+ Ajouter un screen<input type="file" id="forge-jts-file" accept=".jpg,.jpeg,.png,image/jpeg,image/png,image/jpg,image/webp,image/gif" multiple hidden /></label>' +
       '<button type="button" class="jts-btn secondary" id="forge-jts-refresh">Rafraîchir</button>' +
       "</div>" +
       '<p class="jts-status"></p>' +

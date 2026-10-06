@@ -19,7 +19,10 @@ const crypto = require("crypto");
 const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 const ALLOWED_MIME = {
   "image/jpeg": ".jpg",
+  "image/jpg": ".jpg",
+  "image/pjpeg": ".jpg",
   "image/png": ".png",
+  "image/x-png": ".png",
   "image/webp": ".webp",
   "image/gif": ".gif",
 };
@@ -257,13 +260,16 @@ module.exports = function createJournalTradeScreensRouter() {
       if (!tradeKey) return res.status(400).json({ error: "tradeKey invalide" });
 
       const dataUrl = String(req.body?.dataUrl || "");
-      const m = dataUrl.match(/^data:(image\/(?:jpeg|png|webp|gif));base64,([A-Za-z0-9+/=\s]+)$/);
-      if (!m) return res.status(400).json({ error: "Image invalide (jpeg/png/webp/gif)" });
-      const ext = ALLOWED_MIME[m[1]];
-      if (!ext) return res.status(400).json({ error: "Type non supporté" });
+      const m = dataUrl.match(
+        /^data:(image\/(?:jpeg|jpg|pjpeg|png|x-png|webp|gif));base64,([A-Za-z0-9+/=\s]+)$/i
+      );
+      if (!m) return res.status(400).json({ error: "Image invalide (JPG ou PNG)" });
+      const mime = String(m[1] || "").toLowerCase();
+      const ext = ALLOWED_MIME[mime];
+      if (!ext) return res.status(400).json({ error: "Type non supporté (JPG ou PNG)" });
       let buf;
       try {
-        buf = Buffer.from(m[2].replace(/\s+/g, ""), "base64");
+        buf = Buffer.from(String(m[2]).replace(/\s+/g, ""), "base64");
       } catch (_) {
         return res.status(400).json({ error: "Décodage échoué" });
       }
