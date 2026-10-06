@@ -17,15 +17,15 @@ assert.ok(
   bridge.includes('getOwnPropertyDescriptor(Location.prototype, "href")'),
   "bridge must patch Location.href setter"
 );
-assert.ok(bridge.includes("version: 15"), "bridge ping version 15");
+assert.ok(bridge.includes("version: 16"), "bridge ping version 16");
 assert.ok(bridge.includes("navFix: true"), "navFix");
 assert.ok(
   bridge.includes('router.all("/trading_journal.php"'),
   "bridge must redirect /trading_journal.php → /journal-embed/"
 );
 assert.ok(
-  bridge.includes("forge-jts:injectHardOff navFix v15"),
-  "inject marker v15"
+  bridge.includes("forge-jts:injectHardOff navFix v16"),
+  "inject marker v16"
 );
 
 // Simulate fix() rules (same regexes as shim, unescaped)

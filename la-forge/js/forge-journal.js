@@ -1,7 +1,7 @@
 /**
  * La Forge — Trading Journal Pro.
  * v16 DEFAULT: ouverture SSO directe sur radar (TJ natif) — menus/clics OK.
- * Iframe /journal-embed/ = mode optionnel (?embed=1 ou bouton « Mode intégré »).
+ * Iframe /journal-embed/ = mode optionnel (?embed=1 ou « Mode intégré »).
  */
 (function () {
   "use strict";
@@ -52,6 +52,18 @@
     return plan === "premium" || plan === "subscribed";
   }
 
+  function goTop(url) {
+    try {
+      if (window.top && window.top.location) {
+        window.top.location = url;
+        return;
+      }
+    } catch (e) {
+      /* cross-origin top — fall through */
+    }
+    window.location.href = url;
+  }
+
   async function fetchRadarUrl() {
     var r = await fetch("/api/journal-bridge/radar-url", {
       credentials: "same-origin",
@@ -68,21 +80,17 @@
     return data.url;
   }
 
-  /** Default path: full navigation to native TJ (no iframe proxy). */
-  async function openRadarDirect(sameTab) {
-    setStatus("Ouverture du Trading Journal Pro (session Premium)…", "ok");
+  /** Default path: top-level navigation to native TJ (no iframe proxy). */
+  async function openRadarDirect() {
+    setStatus("Ouverture Trading Journal Pro (SSO)…", "ok");
     try {
       var url = await fetchRadarUrl();
-      if (sameTab !== false) {
-        window.location.href = url;
-        return;
-      }
-      window.open(url, "_blank", "noopener,noreferrer");
+      goTop(url);
     } catch (e) {
       setStatus(
-        "Ouverture SSO impossible (" +
+        "SSO indisponible (" +
           (e && e.message ? e.message : "erreur") +
-          "). Réessaie ou utilise le mode intégré.",
+          "). Réessaie ou passe en mode intégré.",
         "error"
       );
       showGate();
@@ -97,13 +105,13 @@
     if (openBtn) {
       openBtn.addEventListener("click", function () {
         localStorage.removeItem("forge_journal_embed");
-        openRadarDirect(true);
+        openRadarDirect();
       });
     }
     if (embedBtn) {
       embedBtn.addEventListener("click", function () {
         localStorage.setItem("forge_journal_embed", "1");
-        setStatus("Mode intégré (iframe)…", "ok");
+        setStatus("Mode intégré (iframe) — menus peuvent rester limités.", "warn");
         showFrame();
       });
     }
@@ -139,13 +147,13 @@
     }
 
     if (wantEmbed) {
-      setStatus("Mode intégré — si menus/clics cassés, utilise « Ouvrir le Journal ».", "warn");
+      setStatus("Mode intégré — préfère « Ouvrir Trading Journal Pro » si clics cassés.", "warn");
       showFrame();
       return;
     }
 
-    setStatus("Redirection vers Trading Journal Pro…", "ok");
-    await openRadarDirect(true);
+    setStatus("Redirection Trading Journal Pro…", "ok");
+    await openRadarDirect();
   }
 
   if (document.readyState === "loading") {

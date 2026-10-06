@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Guards: navFix v15 — menu ?query must stay in /journal-embed/ (never radar/www root).
+ * Guards: navFix v16 — menu ?query must stay in /journal-embed/ (never radar/www root).
  */
 const fs = require("fs");
 const path = require("path");
@@ -14,14 +14,15 @@ const screens = fs.readFileSync(
   "utf8"
 );
 const hotfix = fs.readFileSync(
-  path.join(__dirname, "../HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh"),
+  path.join(__dirname, "../HOTFIX-JOURNAL-SSO-DIRECT.sh"),
   "utf8"
 );
 
 assert.ok(bridge.includes("navFix: true"), "navFix flag");
-assert.ok(bridge.includes("version: 15"), "version 15");
+assert.ok(bridge.includes("version: 16"), "version 16");
 assert.ok(bridge.includes('href="/journal-embed/?$2"'), "query href → embed");
-assert.ok(bridge.includes("__tjForgeNavFix = 15"), "shim nav marker");
+assert.ok(bridge.includes("__tjForgeNavFix = 16"), "shim nav marker");
+assert.ok(bridge.includes("__tjSsoDirect"), "shim ssoDirect marker");
 assert.ok(bridge.includes("isJournalNav"), "isJournalNav helper");
 assert.ok(
   bridge.includes('out = out.replace(/\\bhref=(["\'])\\/\\?([^"\']*)\\1/gi'),
@@ -36,12 +37,12 @@ assert.ok(
   "relative non-assets not forced to radar"
 );
 assert.ok(screens.includes("navFix: true"), "screens navFix");
-assert.ok(screens.includes("version: 15"), "screens version 15");
-assert.ok(hotfix.includes("navFix"), "hotfix requires navFix");
-assert.ok(hotfix.includes("version: 15") || hotfix.includes('"version":\\s*15'), "hotfix v15");
+assert.ok(screens.includes("version: 16"), "screens version 16");
+assert.ok(hotfix.includes("ssoDirect"), "hotfix requires ssoDirect");
+assert.ok(hotfix.includes("version: 16") || hotfix.includes('"version":\\s*16'), "hotfix v16");
 assert.ok(
-  hotfix.includes("cursor/journal-nav-fix-691a"),
-  "hotfix pulls THIS branch"
+  hotfix.includes("cursor/journal-sso-direct-691a"),
+  "hotfix pulls SSO direct branch"
 );
 
 // Simulate critical HTML rewrite (query + root-query)
@@ -104,4 +105,4 @@ assert.strictEqual(
   "https://docs.example.com/guide"
 );
 
-console.log("OK — navFix v15 (menu stay in embed)");
+console.log("OK — navFix v16 (menu stay in embed)");
