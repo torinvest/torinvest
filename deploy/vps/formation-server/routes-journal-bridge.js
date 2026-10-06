@@ -262,22 +262,32 @@ function applyJournalEmbedCsp(res) {
 
 function absolutizeRadarAssets(html) {
   const base = radarBaseUrl().replace(/\/$/, "");
+  const assetExt =
+    /\.(?:js|mjs|css|map|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|eot|mp[34]|webm|json)(?:\?|#|$)/i;
   let out = String(html || "");
-  // Root-relative assets would hit app.* (404) — point them at radar.
+
+  // CRITICAL v15: menu links href="?view=calendrier|historique|…" must stay in embed.
+  // v14 wrongly rewrote them to https://radar.torinvest-trading.com/?… (sortie → site principal).
+  out = out.replace(/\bhref=(["'])\?([^"']*)\1/gi, 'href="/journal-embed/?$2"');
+
+  // Root-relative assets → radar (JS/CSS/img). Never rewrite non-asset href menus to radar.
   out = out.replace(
     /\b(src|href)=(["'])\/(?!\/|journal-embed\/)([^"']*)\2/gi,
     (m, attr, q, path) => {
       if (/^trading_journal\.php/i.test(path)) return m;
+      if (String(attr).toLowerCase() === "href" && !assetExt.test(path)) return m;
       return attr + "=" + q + base + "/" + path + q;
     }
   );
-  // Relative assets (no leading slash) would resolve under /journal-embed/ and
-  // hit the PHP proxy as HTML — point them at radar too. Skip URLs/schemes.
+
+  // Relative paths: ONLY static assets → radar. Leave menu words / php for shim fix().
   out = out.replace(
-    /\b(src|href)=(["'])(?!https?:|\/\/|\/|#|data:|blob:|javascript:|mailto:)([^"']+)\2/gi,
+    /\b(src|href)=(["'])(?!https?:|\/\/|\/|\?|#|data:|blob:|javascript:|mailto:)([^"']+)\2/gi,
     (m, attr, q, path) => {
       if (/^trading_journal\.php/i.test(path)) return m;
-      return attr + "=" + q + base + "/" + path.replace(/^\.\//, "") + q;
+      const clean = path.replace(/^\.\//, "");
+      if (!assetExt.test(clean)) return m;
+      return attr + "=" + q + base + "/" + clean + q;
     }
   );
   return out;
@@ -286,13 +296,14 @@ function absolutizeRadarAssets(html) {
 function injectProxyShim(html) {
   // HARD DELETE: never emit <script src=...forge-journal-trade-screens...>
   // v13: top/parent.location keep-in-frame + nuclear trade-row click fallback
-  const screens = "<!-- forge-jts:injectHardOff clickEverywhere v14 -->";
+  const screens = "<!-- forge-jts:injectHardOff navFix v15 -->";
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   window.__tjForgeHrefClickFix = 1;
   window.__tjForgeClickEverywhere = 1;
   window.__tjForgeCspStrip = 1;
-  window.__tjForgeBridgeVersion = 14;
+  window.__tjForgeNavFix = 15;
+  window.__tjForgeBridgeVersion = 15;
   var P = "/journal-embed/";
   var _lastGo = 0;
   function fix(u){
@@ -302,6 +313,8 @@ function injectProxyShim(html) {
     }
     var s = u.trim();
     if (!s) return u;
+    // Menu query-only (?view=historique) must stay on embed — never radar/www root
+    if (s.charAt(0) === "?") return P + s;
     if (/^https?:\\/\\/radar\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
       var q = s.indexOf("?"); return P + (q>=0 ? s.slice(q) : "");
     }
@@ -311,6 +324,14 @@ function injectProxyShim(html) {
     try {
       if (/^https?:\\/\\/app\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
         var q3 = s.indexOf("?"); return P + (q3>=0 ? s.slice(q3) : "");
+      }
+      // v14 bug residue: radar root + query (menu wrongly absolutized)
+      if (/^https?:\\/\\/radar\\.torinvest-trading\\.com\\/?\\?/i.test(s)) {
+        var q4 = s.indexOf("?"); return P + (q4>=0 ? s.slice(q4) : "");
+      }
+      // Principal/www journal links → embed
+      if (/^https?:\\/\\/(?:www\\.)?torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
+        var q5 = s.indexOf("?"); return P + (q5>=0 ? s.slice(q5) : "");
       }
     } catch(e){}
     return u;
@@ -401,15 +422,18 @@ function injectProxyShim(html) {
       window.open = function(u, n, f){ return oWinOpen.call(this, fix(String(u||"")), n, f); };
     }
   } catch(e){}
-  // Fix <a href> only — never stopPropagation
+  // Fix <a href> — keep menu inside iframe (never stopPropagation)
   document.addEventListener("click", function(e){
     var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
     if (!a) return;
-    var href = a.getAttribute("href");
+    var href = a.getAttribute("href") || "";
     var fixed = fix(href);
-    if (fixed && fixed !== href) {
-      a.setAttribute("href", fixed);
-      if (a.target === "_top" || a.target === "_parent") a.target = "_self";
+    if (fixed && fixed !== href) a.setAttribute("href", fixed);
+    // Any journal nav must not break out to parent/principal site
+    if (/journal-embed|trading_journal|^[?]/.test(fixed || href) ||
+        /torinvest-trading\\.com\\/trading_journal/i.test(href)) {
+      a.setAttribute("target", "_self");
+      try { a.removeAttribute("formtarget"); } catch(err){}
     }
   }, true);
 
@@ -790,8 +814,9 @@ module.exports = function createJournalBridgeRouter() {
       tradeRowObserver: true,
       relativeAssets: true,
       deepLinkFallback: true,
+      navFix: true,
       scriptSrcAttr: "none-stripped",
-      version: 14,
+      version: 15,
     });
   });
 
