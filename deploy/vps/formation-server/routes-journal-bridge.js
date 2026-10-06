@@ -271,17 +271,28 @@ function absolutizeRadarAssets(html) {
       return attr + "=" + q + base + "/" + path + q;
     }
   );
+  // Relative assets (no leading slash) would resolve under /journal-embed/ and
+  // hit the PHP proxy as HTML — point them at radar too. Skip URLs/schemes.
+  out = out.replace(
+    /\b(src|href)=(["'])(?!https?:|\/\/|\/|#|data:|blob:|javascript:|mailto:)([^"']+)\2/gi,
+    (m, attr, q, path) => {
+      if (/^trading_journal\.php/i.test(path)) return m;
+      return attr + "=" + q + base + "/" + path.replace(/^\.\//, "") + q;
+    }
+  );
   return out;
 }
 
 function injectProxyShim(html) {
   // HARD DELETE: never emit <script src=...forge-journal-trade-screens...>
   // v13: top/parent.location keep-in-frame + nuclear trade-row click fallback
-  const screens = "<!-- forge-jts:injectHardOff clickEverywhere v13 -->";
+  const screens = "<!-- forge-jts:injectHardOff clickEverywhere v14 -->";
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   window.__tjForgeHrefClickFix = 1;
   window.__tjForgeClickEverywhere = 1;
+  window.__tjForgeCspStrip = 1;
+  window.__tjForgeBridgeVersion = 14;
   var P = "/journal-embed/";
   var _lastGo = 0;
   function fix(u){
@@ -777,8 +788,10 @@ module.exports = function createJournalBridgeRouter() {
       clickEverywhere: true,
       cspStrip: true,
       tradeRowObserver: true,
+      relativeAssets: true,
+      deepLinkFallback: true,
       scriptSrcAttr: "none-stripped",
-      version: 13,
+      version: 14,
     });
   });
 
@@ -791,6 +804,29 @@ module.exports = function createJournalBridgeRouter() {
       premium: true,
       email: user.email,
       embed: EMBED_PATH,
+    });
+  });
+
+  /**
+   * Architecture B — temporary deep-link: open radar TJ in a new tab with SSO.
+   * Used when iframe click path is still unreliable for a given session.
+   */
+  router.get("/api/journal-bridge/radar-url", async (req, res) => {
+    const user = await requirePremium(req);
+    if (!user?.email) {
+      return res.status(403).json({ ok: false, error: "premium_required" });
+    }
+    const token = makeSsoToken(user.email);
+    if (!token) {
+      return res.status(503).json({ ok: false, error: "sso_secret_missing" });
+    }
+    const u = new URL(radarBaseUrl() + journalPhpPath());
+    u.searchParams.set("forge_sso", token);
+    return res.json({
+      ok: true,
+      url: u.toString(),
+      embed: EMBED_PATH,
+      note: "open in new tab — radar native TJ (no forge CSP)",
     });
   });
 
