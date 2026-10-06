@@ -223,9 +223,9 @@ function tradeScreensInjectEnabled() {
 }
 
 /**
- * Helmet CSP on app.* includes script-src-attr 'none', which blocks TJ Pro's
- * inline handlers (onclick="openTrade(...)"). Radar itself has no CSP.
- * Override CSP on every /journal-embed response — allow radar assets + attrs.
+ * NUCLEAR: strip Content-Security-Policy entirely for /journal-embed/*.
+ * Helmet on app.* historically set script-src-attr 'none' (blocks onclick=openTrade).
+ * Radar itself has no CSP — match that. Also block later setHeader("CSP", …).
  */
 function applyJournalEmbedCsp(res) {
   try {
@@ -234,26 +234,30 @@ function applyJournalEmbedCsp(res) {
   } catch (_) {
     /* ignore */
   }
-  const radar = radarBaseUrl();
-  res.setHeader(
-    "Content-Security-Policy",
-    [
-      "default-src 'self' " + radar,
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: " + radar,
-      // CRITICAL: TJ trade rows use onclick= / on* attributes
-      "script-src-attr 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline' " + radar + " https://fonts.googleapis.com",
-      "img-src 'self' data: blob: https:",
-      "connect-src 'self' https: " + radar,
-      "worker-src 'self' blob:",
-      "child-src 'self' blob:",
-      "font-src 'self' data: https: " + radar,
-      "frame-ancestors 'self'",
-      "base-uri 'self' " + radar,
-      "object-src 'none'",
-      "form-action 'self' " + radar,
-    ].join("; ")
-  );
+  if (res.__tjCspStripped) return;
+  res.__tjCspStripped = true;
+  const origSet = res.setHeader.bind(res);
+  res.setHeader = function (name, value) {
+    if (/^Content-Security-Policy/i.test(String(name || ""))) return res;
+    return origSet(name, value);
+  };
+  const origAppend = res.appendHeader ? res.appendHeader.bind(res) : null;
+  if (origAppend) {
+    res.appendHeader = function (name, value) {
+      if (/^Content-Security-Policy/i.test(String(name || ""))) return res;
+      return origAppend(name, value);
+    };
+  }
+  const origWriteHead = res.writeHead.bind(res);
+  res.writeHead = function () {
+    try {
+      res.removeHeader("Content-Security-Policy");
+      res.removeHeader("Content-Security-Policy-Report-Only");
+    } catch (_) {
+      /* ignore */
+    }
+    return origWriteHead.apply(res, arguments);
+  };
 }
 
 function absolutizeRadarAssets(html) {
@@ -272,13 +276,14 @@ function absolutizeRadarAssets(html) {
 
 function injectProxyShim(html) {
   // HARD DELETE: never emit <script src=...forge-journal-trade-screens...>
-  // v13: also rewrite top/parent.location — openTrade may break out of iframe → 404
+  // v13: top/parent.location keep-in-frame + nuclear trade-row click fallback
   const screens = "<!-- forge-jts:injectHardOff clickEverywhere v13 -->";
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   window.__tjForgeHrefClickFix = 1;
   window.__tjForgeClickEverywhere = 1;
   var P = "/journal-embed/";
+  var _lastGo = 0;
   function fix(u){
     if (u == null) return u;
     if (typeof u !== "string") {
@@ -376,7 +381,6 @@ function injectProxyShim(html) {
       });
     }
   } catch(e){}
-  // openTrade may use top/parent.location → 404 on app /trading_journal.php
   try { patchLoc(window.location, false); } catch(e){}
   try { if (window.top && window.top !== window) patchLoc(window.top.location, true); } catch(e){}
   try { if (window.parent && window.parent !== window) patchLoc(window.parent.location, true); } catch(e){}
@@ -386,6 +390,7 @@ function injectProxyShim(html) {
       window.open = function(u, n, f){ return oWinOpen.call(this, fix(String(u||"")), n, f); };
     }
   } catch(e){}
+  // Fix <a href> only — never stopPropagation
   document.addEventListener("click", function(e){
     var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
     if (!a) return;
@@ -396,6 +401,119 @@ function injectProxyShim(html) {
       if (a.target === "_top" || a.target === "_parent") a.target = "_self";
     }
   }, true);
+
+  function tradeIdFromEl(el){
+    if (!el || !el.getAttribute) return null;
+    var id = el.getAttribute("data-trade-id") || el.getAttribute("data-id") || el.getAttribute("data-trade");
+    if (id != null && String(id).trim() !== "" && /^\\d+$/.test(String(id).trim())) return String(id).trim();
+    var oc = el.getAttribute("onclick") || "";
+    var m = oc.match(/openTrade\\s*\\(\\s*['\"]?(\\d+)/i);
+    return m ? m[1] : null;
+  }
+  function goTrade(id){
+    if (id == null || id === "") return;
+    id = String(id).trim();
+    var now = Date.now();
+    if (now - _lastGo < 250) return;
+    _lastGo = now;
+    if (typeof window.openTrade === "function") {
+      try { window.openTrade(id); return; } catch(e){}
+    }
+    var dest = P + "?action=view&id=" + encodeURIComponent(id);
+    try { window.location.assign(dest); } catch(e2){ window.location.href = dest; }
+  }
+  function wrapOpenTrade(){
+    var o = window.openTrade;
+    if (typeof o !== "function" || o.__tjWrapped) return;
+    window.openTrade = function(id){
+      try { return o.apply(this, arguments); }
+      catch(e){
+        var dest = P + "?action=view&id=" + encodeURIComponent(String(id));
+        try { window.location.assign(dest); } catch(e2){ window.location.href = dest; }
+      }
+    };
+    window.openTrade.__tjWrapped = 1;
+  }
+  function isTradeRow(el){
+    if (!el || !el.getAttribute) return false;
+    if (el.getAttribute("data-trade-id")) return true;
+    var oc = el.getAttribute("onclick") || "";
+    if (/openTrade\\s*\\(/i.test(oc)) return true;
+    if (el.classList && (el.classList.contains("trade-row") || el.classList.contains("cal-trade"))) return true;
+    return false;
+  }
+  function armRows(root){
+    if (!root || !root.querySelectorAll) return;
+    var sel = "[data-trade-id], tr[onclick*=openTrade], [onclick*=openTrade], .trade-row, .cal-trade, .calendar-day [data-id], .cal-day [data-trade-id]";
+    var nodes = root.querySelectorAll(sel);
+    for (var i = 0; i < nodes.length; i++){
+      var n = nodes[i];
+      if (n.__tjArm) continue;
+      if (!isTradeRow(n) && !n.getAttribute("data-trade-id") && !(n.getAttribute("onclick")||"").match(/openTrade/i)) continue;
+      n.__tjArm = 1;
+      // Leave existing onclick; bubble backup if CSP blocked it or openTrade missing
+      n.addEventListener("click", function(ev){
+        var t = ev.target;
+        if (t && t.closest) {
+          var ctrl = t.closest("button, a[href], input, select, textarea");
+          if (ctrl && ctrl !== this) {
+            var coc = (ctrl.getAttribute && ctrl.getAttribute("onclick")) || "";
+            if (coc.indexOf("openTrade") < 0 && !ctrl.getAttribute("data-trade-id")) return;
+          }
+        }
+        var id = tradeIdFromEl(this);
+        if (!id) return;
+        var hasOc = /openTrade\\s*\\(/i.test(this.getAttribute("onclick") || "");
+        if (hasOc && typeof window.openTrade === "function") {
+          var before = String(location.href);
+          setTimeout(function(){
+            if (String(location.href) === before) goTrade(id);
+          }, 60);
+          return;
+        }
+        goTrade(id);
+      }, false);
+    }
+  }
+  function bootArm(){
+    wrapOpenTrade();
+    armRows(document);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", bootArm);
+  else bootArm();
+  try {
+    var mo = new MutationObserver(function(){
+      wrapOpenTrade();
+      armRows(document);
+    });
+    mo.observe(document.documentElement, { childList: true, subtree: true });
+  } catch(e){}
+  // Document bubble (list + calendar) — NO stopPropagation
+  document.addEventListener("click", function(e){
+    var el = e.target && e.target.closest
+      ? e.target.closest("[data-trade-id], tr[onclick*=\\"openTrade\\"], [onclick*=\\"openTrade\\"], .trade-row, .cal-trade")
+      : null;
+    if (!el) return;
+    var t = e.target;
+    if (t && t.closest) {
+      var ctrl = t.closest("button, a[href], input, select, textarea");
+      if (ctrl && ctrl !== el) {
+        var coc = (ctrl.getAttribute && ctrl.getAttribute("onclick")) || "";
+        if (coc.indexOf("openTrade") < 0 && !ctrl.getAttribute("data-trade-id")) return;
+      }
+    }
+    var id = tradeIdFromEl(el);
+    if (!id) return;
+    var hasOc = /openTrade\\s*\\(/i.test(el.getAttribute("onclick") || "");
+    if (hasOc && typeof window.openTrade === "function") {
+      var before = String(location.href);
+      setTimeout(function(){
+        if (String(location.href) === before) goTrade(id);
+      }, 60);
+      return;
+    }
+    goTrade(id);
+  }, false);
 })();</script>`;
   const inject = shim + screens;
   if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, inject + "</head>");
@@ -407,6 +525,16 @@ function rewriteJournalHtml(html) {
   let out = absolutizeRadarAssets(String(html));
   const radar = radarBaseUrl().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+  // Strip any meta http-equiv CSP (Helmet is not the only vector)
+  out = out.replace(
+    /<meta[^>]+http-equiv\s*=\s*["']Content-Security-Policy["'][^>]*>/gi,
+    ""
+  );
+  out = out.replace(
+    /<meta[^>]+http-equiv\s*=\s*["']Content-Security-Policy-Report-Only["'][^>]*>/gi,
+    ""
+  );
+
   out = out.replace(
     new RegExp(`https?:\\/\\/${radar.replace(/\\\//g, "/")}\\/trading_journal\\.php`, "gi"),
     "/journal-embed/"
@@ -415,6 +543,11 @@ function rewriteJournalHtml(html) {
   out = out.replace(
     /https?:\/\/radar\.torinvest-trading\.com\/trading_journal\.php/gi,
     "/journal-embed/"
+  );
+  // JS string literals: location.href = "trading_journal.php?..."
+  out = out.replace(
+    /(['"`])\/?trading_journal\.php/gi,
+    "$1/journal-embed/"
   );
   out = out.replace(
     /(<form[^>]*\saction=["'])\/?trading_journal\.php([^"']*)(["'][^>]*>)/gi,
@@ -642,7 +775,9 @@ module.exports = function createJournalBridgeRouter() {
       cspClickFix: true,
       hrefClickFix: true,
       clickEverywhere: true,
-      scriptSrcAttr: "unsafe-inline",
+      cspStrip: true,
+      tradeRowObserver: true,
+      scriptSrcAttr: "none-stripped",
       version: 13,
     });
   });

@@ -340,11 +340,13 @@ module.exports = function createJournalTradeScreensRouter() {
       cspClickFix: true,
       hrefClickFix: true,
       clickEverywhere: true,
+      cspStrip: true,
+      tradeRowObserver: true,
       injectHardOff: true,
       injectDisabled: true,
       inject: "off",
       note:
-        "v13: top/parent.location rewrite + radar assets CSP — list+calendar trade click",
+        "v13: CSP stripped + MutationObserver openTrade + top/parent keep-in-frame — list+calendar",
     });
   });
 
