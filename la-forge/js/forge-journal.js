@@ -1,6 +1,6 @@
 /**
  * La Forge — hub Trading Journal Pro (iframe /journal-embed/ uniquement).
- * Les screens JPG/PNG vivent DANS TJ Pro (inject forge-journal-trade-screens.js).
+ * Screens JPG/PNG: inject OFF by default (JOURNAL_TRADE_SCREENS=1 to re-enable).
  */
 (function () {
   "use strict";

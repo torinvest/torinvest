@@ -213,10 +213,22 @@ function mapRedirectToEmbed(location) {
   return null;
 }
 
+/**
+ * Screens inject OFF by default — reading trades must never break.
+ * Re-enable only with JOURNAL_TRADE_SCREENS=1 (or true/on/yes).
+ */
+function tradeScreensInjectEnabled() {
+  const v = String(process.env.JOURNAL_TRADE_SCREENS || "")
+    .trim()
+    .toLowerCase();
+  return v === "1" || v === "true" || v === "on" || v === "yes";
+}
+
 function injectProxyShim(html) {
-  // Screens JPG/PNG DANS TJ Pro (sidebar + Ajouter un trade) — pas sur le shell Forge
-  const screens =
-    '<script src="/js/forge-journal-trade-screens.js?v=11" defer></script>';
+  // Screens JPG/PNG OFF by default (click restore v10). Opt-in via JOURNAL_TRADE_SCREENS=1.
+  const screens = tradeScreensInjectEnabled()
+    ? '<script src="/js/forge-journal-trade-screens.js?v=12" defer></script>'
+    : "<!-- forge-jts:injectDisabled clickRestore v10 -->";
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   var P = "/journal-embed/";
@@ -477,6 +489,7 @@ module.exports = function createJournalBridgeRouter() {
   });
 
   router.get("/api/journal-bridge/ping", (req, res) => {
+    const screensOn = tradeScreensInjectEnabled();
     res.json({
       ok: true,
       mounted: true,
@@ -484,6 +497,10 @@ module.exports = function createJournalBridgeRouter() {
       upstream: radarBaseUrl() + journalPhpPath(),
       sso: !!bridgeSecret(),
       autoLoginEnv: !!(process.env.FORGE_JOURNAL_PASSWORD || process.env.TJ_PASSWORD),
+      tradeScreensInject: screensOn,
+      injectDisabled: !screensOn,
+      clickRestore: true,
+      version: 10,
     });
   });
 
