@@ -322,7 +322,7 @@ module.exports = function createJournalTradeScreensRouter() {
   }
 
   router.get("/api/journal-trade-screens/ping", (_req, res) => {
-    res.json({ ok: true, ready: true, version: 4, jpgPng: true, mimeLoose: true, sniff: true });
+    res.json({ ok: true, ready: true, version: 5, jpgPng: true, mimeLoose: true, sniff: true });
   });
 
   router.get("/api/journal-trade-screens-admin", async (req, res) => {
@@ -410,15 +410,18 @@ module.exports = function createJournalTradeScreensRouter() {
       const tradeKey = safeTradeKey(req.params.tradeKey);
       if (!tradeKey) return res.status(400).json({ error: "tradeKey invalide" });
 
-      const dataUrl = String(req.body?.dataUrl || req.body?.data_url || "");
-      let parsed = parseImageDataUrl(dataUrl);
-      // Fallback: mime + base64 séparés (certains clients / proxies)
-      if (!parsed && (req.body?.base64 || req.body?.imageBase64)) {
+      // Priorité mime+base64 (évite dataUrl tronqué par proxy / body limit)
+      let parsed = null;
+      if (req.body?.base64 || req.body?.imageBase64) {
         const mime = normalizeMime(
           req.body.mime || req.body.contentType || req.body.type || "image/jpeg"
         );
         const b64 = String(req.body.base64 || req.body.imageBase64 || "").replace(/\s+/g, "");
         if (b64.length >= 8) parsed = { mime, b64 };
+      }
+      if (!parsed) {
+        const dataUrl = String(req.body?.dataUrl || req.body?.data_url || "");
+        parsed = parseImageDataUrl(dataUrl);
       }
       if (!parsed) return res.status(400).json({ error: "Image invalide (JPG ou PNG)" });
 

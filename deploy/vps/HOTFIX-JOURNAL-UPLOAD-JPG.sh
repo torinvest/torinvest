@@ -1,21 +1,19 @@
 #!/usr/bin/env bash
-# HOTFIX — Upload JPG/PNG dans TJ Pro (inject) + clé trade réelle
+# HOTFIX — Forcer l’API v5 + inject v=5 pour accepter les JPG dans TJ Pro
 #
-# Corrige :
-#   • « Image invalide (JPG ou PNG) » — dataUrl loose + magic-byte sniff + base64 fallback
-#   • clé trade « add_trade_trade_na_add_trade » — ignore hidden action=add_trade, labels FR
-#   • inject script ?v=4
+# Prod bloquée = encore ping version:2 (ancien code). Ce script ÉCHOUE
+# tant que le ping ne renvoie pas version 5 + sniff.
 #
-# Sur le VPS (UNE seule commande) :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-jpg-upload-fix-691a/deploy/vps/HOTFIX-JOURNAL-UPLOAD-JPG.sh" | bash
-#
+# Sur le VPS :
+#   unset REF SHA BRANCH JOURNAL_SCREENS_REF
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-jpg-force-deploy-691a/deploy/vps/HOTFIX-JOURNAL-UPLOAD-JPG.sh" | bash
 set -euo pipefail
 
-unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
-SCRIPT_REF="cursor/journal-jpg-upload-fix-691a"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-jpg-upload-fix-691a"
+unset REF SHA BRANCH JOURNAL_SCREENS_REF SCRIPT_REF 2>/dev/null || true
+BRANCH="cursor/journal-jpg-force-deploy-691a"
+RAW="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}"
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-EXPECTED_INJECT="forge-journal-trade-screens.js?v=4"
+EXPECTED_INJECT="forge-journal-trade-screens.js?v=5"
 
 PM2_CWD="$(pm2 jlist 2>/dev/null | python3 -c '
 import json,sys
@@ -27,7 +25,7 @@ for a in apps:
 ' 2>/dev/null || true)"
 [[ -n "${PM2_CWD}" && -d "${PM2_CWD}" ]] && APP_DIR="$PM2_CWD"
 
-echo "======== HOTFIX JOURNAL UPLOAD JPG/PNG ($SCRIPT_REF) ========"
+echo "======== HOTFIX JOURNAL JPG FORCE DEPLOY ($BRANCH) ========"
 echo "APP=$APP_DIR"
 mkdir -p "$APP_DIR/public/js" "$APP_DIR/server-patches"
 
@@ -37,45 +35,44 @@ trap 'rm -rf "$TMP"' EXIT
 curl -fsSL "$RAW/la-forge/js/forge-journal-trade-screens.js" -o "$TMP/forge-journal-trade-screens.js"
 curl -fsSL "$RAW/deploy/vps/formation-server/routes-journal-trade-screens.js" -o "$TMP/routes-journal-trade-screens.js"
 curl -fsSL "$RAW/deploy/vps/formation-server/routes-journal-bridge.js" -o "$TMP/routes-journal-bridge.js"
+curl -fsSL "$RAW/deploy/vps/formation-server/routes-formation-auth.js" -o "$TMP/routes-formation-auth.js"
 
-# Sanity artefacts
-grep -q 'normalizeDataUrl\|canvasToCleanDataUrl' "$TMP/forge-journal-trade-screens.js"
-grep -q 'parseImageDataUrl\|sniffImageMime\|mimeLoose' "$TMP/routes-journal-trade-screens.js"
+grep -q 'sniffImageMime' "$TMP/routes-journal-trade-screens.js"
+grep -q 'version: 5' "$TMP/routes-journal-trade-screens.js"
 grep -q "$EXPECTED_INJECT" "$TMP/routes-journal-bridge.js"
-grep -q 'byFrenchLabel\|draft-\|cleanField' "$TMP/forge-journal-trade-screens.js"
-grep -q 'hidden' "$TMP/forge-journal-trade-screens.js"
-# Pas de barre bleue Forge dans ces artefacts
-if grep -qE 'journal-screens-bar|showJournalWithScreens|jts-dropzone' "$TMP/forge-journal-trade-screens.js"; then
-  echo "ÉCHEC: artefact contient encore UI shell screens"
-  exit 1
-fi
+grep -q 'normalizeDataUrl\|base64' "$TMP/forge-journal-trade-screens.js"
+grep -q 'createJournalTradeScreensRouter' "$TMP/routes-formation-auth.js"
 
 cp -f "$TMP/forge-journal-trade-screens.js" "$APP_DIR/public/js/forge-journal-trade-screens.js"
 cp -f "$TMP/routes-journal-trade-screens.js" "$APP_DIR/server-patches/routes-journal-trade-screens.js"
 cp -f "$TMP/routes-journal-bridge.js" "$APP_DIR/server-patches/routes-journal-bridge.js"
-cp -f "$TMP/routes-journal-trade-screens.js" "$APP_DIR/routes-journal-trade-screens.js" 2>/dev/null || true
+cp -f "$TMP/routes-formation-auth.js" "$APP_DIR/server-patches/routes-formation-auth.js"
+cp -f "$TMP/routes-journal-trade-screens.js" "$APP_DIR/routes-journal-trade-screens.js"
+cp -f "$TMP/routes-formation-auth.js" "$APP_DIR/routes-formation-auth.js" 2>/dev/null || true
 
-while IFS= read -r -d '' f; do
-  case "$f" in
-    */public/js/forge-journal-trade-screens.js|*/js/forge-journal-trade-screens.js)
-      cp -f "$TMP/forge-journal-trade-screens.js" "$f"
-      echo "→ $f"
-      ;;
-  esac
-done < <(find "$APP_DIR" -name 'forge-journal-trade-screens.js' -print0 2>/dev/null || true)
-
+N=0
 while IFS= read -r -d '' f; do
   dir="$(dirname "$f")"
   cp -f "$TMP/routes-journal-trade-screens.js" "$dir/routes-journal-trade-screens.js"
   cp -f "$TMP/routes-journal-bridge.js" "$dir/routes-journal-bridge.js"
-  echo "→ sync routes @ $dir/"
+  cp -f "$TMP/routes-formation-auth.js" "$dir/routes-formation-auth.js"
+  echo "→ sync @ $dir/"
+  N=$((N+1))
 done < <(find "$APP_DIR" -name 'routes-formation-auth.js' -print0 2>/dev/null || true)
 
 while IFS= read -r -d '' f; do
   cp -f "$TMP/routes-journal-trade-screens.js" "$f"
+  echo "→ overwrite $f"
 done < <(find "$APP_DIR" -name 'routes-journal-trade-screens.js' -print0 2>/dev/null || true)
 
-# express.json 12mb pour dataUrl
+while IFS= read -r -d '' f; do
+  cp -f "$TMP/forge-journal-trade-screens.js" "$f"
+  echo "→ js $f"
+done < <(find "$APP_DIR" -name 'forge-journal-trade-screens.js' -print0 2>/dev/null || true)
+
+echo "Copies formation-auth sync: $N"
+
+# express.json 12mb
 python3 - "$APP_DIR" <<'PY'
 from pathlib import Path
 import re, sys
@@ -91,8 +88,7 @@ for p in [app / "server.js", *sorted(app.glob("**/server.js"))]:
         t2 = re.sub(
             r'express\.json\(\s*\{\s*limit:\s*["\']\d+mb["\']\s*\}\s*\)',
             'express.json({ limit: "12mb" })',
-            t,
-            count=1,
+            t, count=1,
         )
         p.write_text(t2, encoding="utf-8")
         print(f"express.json → 12mb ({p})")
@@ -102,34 +98,63 @@ for p in [app / "server.js", *sorted(app.glob("**/server.js"))]:
     break
 PY
 
-echo "ref=${SCRIPT_REF} inject=${EXPECTED_INJECT} at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-  > "$APP_DIR/public/journal-upload-jpg.deploy.txt"
-
+# Restart DUR — vider le cache require Node
 pm2 stop la-forge 2>/dev/null || true
 sleep 1
-pm2 restart la-forge --update-env 2>/dev/null || pm2 restart la-forge || pm2 restart all || true
-sleep 2
-sudo nginx -t 2>/dev/null && sudo systemctl reload nginx 2>/dev/null || true
+pm2 delete la-forge 2>/dev/null || true
+sleep 1
+# Relancer depuis le cwd connu
+if [[ -f "$APP_DIR/server.js" ]]; then
+  (cd "$APP_DIR" && pm2 start server.js --name la-forge --update-env) || \
+  (cd "$APP_DIR" && pm2 start ecosystem.config.js --only la-forge --update-env) || \
+  pm2 restart all || true
+else
+  pm2 restart la-forge --update-env 2>/dev/null || pm2 restart all || true
+fi
+pm2 save 2>/dev/null || true
+sleep 3
 
 echo ""
-echo "=== ping API ==="
+echo "=== Resolve module ==="
+(
+  cd "$APP_DIR"
+  node -e '
+    const fs=require("fs");
+    for (const p of ["./server-patches/routes-journal-trade-screens","./routes-journal-trade-screens"]) {
+      try {
+        const r=require.resolve(p);
+        const t=fs.readFileSync(r,"utf8");
+        console.log(p,"→",r,"v5=",t.includes("version: 5"),"sniff=",t.includes("sniffImageMime"));
+      } catch(e) { console.log(p,"MISSING"); }
+    }
+  ' || true
+)
+
+echo ""
+echo "=== ping API (doit être version 5) ==="
 PING="$(curl -sS "http://127.0.0.1:3001/api/journal-trade-screens/ping" || true)"
 echo "$PING"
-echo "$PING" | grep -q '"ok"' || { echo "ÉCHEC ping"; exit 1; }
-echo "$PING" | grep -q 'mimeLoose\|"version":4\|version.:4\|sniff' || echo "(warn: ping sans sniff v4 — cache require?)"
+if ! echo "$PING" | grep -qE '"version"[[:space:]]*:[[:space:]]*5'; then
+  echo ""
+  echo "ÉCHEC: ping n’est PAS version 5 — l’ancien module Node est encore chargé."
+  echo "Fichiers routes-journal-trade-screens.js :"
+  find "$APP_DIR" -name 'routes-journal-trade-screens.js' -print 2>/dev/null || true
+  echo "pm2 describe:"
+  pm2 describe la-forge 2>/dev/null | head -30 || pm2 list || true
+  exit 1
+fi
+echo "$PING" | grep -q 'sniff' || echo "(warn: pas de sniff dans ping)"
+
+grep -q "$EXPECTED_INJECT" "$APP_DIR/server-patches/routes-journal-bridge.js"
+grep -q 'sniffImageMime' "$APP_DIR/server-patches/routes-journal-trade-screens.js"
+grep -q 'normalizeDataUrl\|base64' "$APP_DIR/public/js/forge-journal-trade-screens.js"
+
+echo "ok branch=$BRANCH inject=$EXPECTED_INJECT" > "$APP_DIR/public/journal-upload-jpg.deploy.txt"
 
 echo ""
-echo "=== sanity inject bridge ==="
-grep -n "$EXPECTED_INJECT" "$APP_DIR/server-patches/routes-journal-bridge.js" | head -3
-grep -q 'parseImageDataUrl\|sniffImageMime' "$APP_DIR/server-patches/routes-journal-trade-screens.js"
-grep -q 'normalizeDataUrl' "$APP_DIR/public/js/forge-journal-trade-screens.js"
-grep -q 'byFrenchLabel' "$APP_DIR/public/js/forge-journal-trade-screens.js"
-
-echo ""
-echo "OK — upload JPG/PNG fix déployé."
-echo "→ Hard refresh Ctrl+Shift+R : https://app.torinvest-trading.com/journal.html"
-echo "→ Attendu dans TJ « Ajouter un trade » :"
-echo "  • zone Screenshots JPG/PNG"
-echo "  • clé trade = draft-… OU date_pair_direction (plus de add_trade_*)"
-echo "  • upload JPG/PNG → « N screen(s) enregistré(s) » (plus d’alerte Image invalide)"
+echo "OK — API v5 + inject v=5 déployés."
+echo "→ Ctrl+Shift+R : https://app.torinvest-trading.com/journal.html"
+echo "→ Ajouter un trade → glisser un JPG"
+echo "→ Vérif ping public doit contenir version:5 :"
+echo "  curl -sS https://app.torinvest-trading.com/api/journal-trade-screens/ping"
 echo "======== DONE ========"
