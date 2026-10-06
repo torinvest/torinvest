@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# DEPRECATED (2026-10-06 audit) — DO NOT RUN.
-# This script would OVERWRITE the nuclear v14 bridge (cspStrip + tradeRowObserver).
-# Use ONLY: deploy/vps/HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh (branch cursor/audit-journal-complet-691a).
-# See: deploy/vps/AUDIT-JOURNAL-COMPLET.md
-echo 'DEPRECATED: refuse to run. Use HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh (v14).' >&2
+# DEPRECATED — DO NOT RUN.
+# Use ONLY: HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh on branch cursor/journal-nav-fix-691a (v15 navFix).
+# Old v13/v14 hotfixes break menu nav (Calendrier/Historique → site principal).
+echo 'DEPRECATED: refuse to run. Use HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh (v15 navFix, branch cursor/journal-nav-fix-691a).' >&2
 exit 99
 
 # HOTFIX — ROOT CAUSE: Helmet CSP script-src-attr 'none' bloque onclick TJ

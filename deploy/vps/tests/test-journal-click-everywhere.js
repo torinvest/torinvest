@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Guards: nuclear clickEverywhere v14 — CSP strip + MutationObserver + deep-link.
+ * Guards: nuclear clickEverywhere v15 navFix — CSP strip + MutationObserver + deep-link.
  */
 const fs = require("fs");
 const path = require("path");
@@ -26,15 +26,16 @@ const forgeJournal = fs.readFileSync(
 assert.ok(bridge.includes("clickEverywhere"), "clickEverywhere flag");
 assert.ok(bridge.includes("keepInFrame"), "top/parent keepInFrame");
 assert.ok(bridge.includes("absolutizeRadarAssets"), "radar asset absolutize");
-assert.ok(bridge.includes("version: 14"), "version 14");
+assert.ok(bridge.includes("version: 15"), "version 15");
+assert.ok(bridge.includes("navFix: true"), "navFix");
 assert.ok(bridge.includes("__tjCspStripped"), "CSP strip nuclear");
 assert.ok(bridge.includes("MutationObserver"), "trade row MutationObserver");
 assert.ok(bridge.includes("goTrade"), "goTrade fallback");
 assert.ok(bridge.includes("tradeIdFromEl"), "tradeIdFromEl");
 assert.ok(bridge.includes("radar-url"), "SSO deep-link API");
 assert.ok(
-  bridge.includes("(?!https?:|\\/\\/|\\/|#|data:|blob:|javascript:|mailto:)"),
-  "relative asset absolutize"
+  bridge.includes("(?!https?:|\\/\\/|\\/|\\?|#|data:|blob:|javascript:|mailto:)"),
+  "relative asset absolutize (skip query)"
 );
 assert.ok(
   bridge.includes("Content-Security-Policy"),
@@ -46,8 +47,8 @@ assert.ok(
   "strips meta CSP"
 );
 assert.ok(
-  bridge.includes("forge-jts:injectHardOff clickEverywhere v14"),
-  "inject marker v14"
+  bridge.includes("forge-jts:injectHardOff navFix v15"),
+  "inject marker v15"
 );
 {
   const shimMatch = bridge.match(/const shim = `([\s\S]*?)`;/);
@@ -66,14 +67,16 @@ assert.ok(
 assert.ok(screens.includes("clickEverywhere"), "screens ping clickEverywhere");
 assert.ok(screens.includes("cspStrip"), "screens ping cspStrip");
 assert.ok(screens.includes("tradeRowObserver"), "screens ping tradeRowObserver");
-assert.ok(screens.includes("version: 14"), "screens version 14");
+assert.ok(screens.includes("version: 15"), "screens version 15");
+assert.ok(screens.includes("navFix: true"), "screens navFix");
 
 assert.ok(hotfix.includes("MutationObserver"), "hotfix checks MutationObserver");
 assert.ok(hotfix.includes("PM2_SCRIPT"), "hotfix pm2 script walk");
 assert.ok(hotfix.includes("node --check"), "hotfix node --check");
 assert.ok(hotfix.includes("cspStrip"), "hotfix requires cspStrip ping");
 assert.ok(hotfix.includes("tradeRowObserver"), "hotfix requires tradeRowObserver");
-assert.ok(hotfix.includes("version: 14") || hotfix.includes("version:14"), "hotfix v14");
+assert.ok(hotfix.includes("navFix"), "hotfix requires navFix");
+assert.ok(hotfix.includes("version: 15") || hotfix.includes("version:15"), "hotfix v15");
 assert.ok(
   hotfix.includes("Content-Security-Policy"),
   "hotfix verifies CSP absence"
@@ -82,4 +85,4 @@ assert.ok(
 assert.ok(forgeJournal.includes("radar-url"), "shell deep-link");
 assert.ok(forgeJournal.includes("journal-open-radar"), "shell rescue button");
 
-console.log("OK — clickEverywhere v14 nuclear + deep-link guards");
+console.log("OK — clickEverywhere v15 navFix nuclear + deep-link guards");

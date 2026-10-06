@@ -191,14 +191,32 @@ function mapRedirectToEmbed(location) {
   if (loc.startsWith("?")) {
     return "/journal-embed/" + loc;
   }
+  if (loc.startsWith("/?")) {
+    return "/journal-embed/" + loc.slice(1);
+  }
 
   try {
     const abs = new URL(loc, radarBaseUrl());
-    const isJournal =
-      /trading_journal\.php$/i.test(abs.pathname) ||
-      abs.pathname === "/" ||
-      abs.hostname.includes("radar.torinvest-trading.com");
-    if (isJournal || /trading_journal\.php/i.test(loc)) {
+    const isRadar = /radar\.torinvest-trading\.com$/i.test(abs.hostname);
+    const isApp = /app\.torinvest-trading\.com$/i.test(abs.hostname);
+    const isWww = /^(?:www\.)?torinvest-trading\.com$/i.test(abs.hostname);
+    const isJournalPhp = /trading_journal\.php$/i.test(abs.pathname);
+    const isRoot = abs.pathname === "/" || abs.pathname === "";
+
+    // TJ PHP anywhere → embed
+    if (isJournalPhp || /trading_journal\.php/i.test(loc)) {
+      return "/journal-embed/" + (abs.search || "");
+    }
+    // Radar root (login/menu redirects) → embed — never leave user on radar MAIN SITE HTML
+    if (isRadar && isRoot) {
+      return "/journal-embed/" + (abs.search || "");
+    }
+    // app.* root + query (iframe breakout residue)
+    if (isApp && isRoot && abs.search) {
+      return "/journal-embed/" + abs.search;
+    }
+    // www only for explicit journal PHP (already handled) — skip marketing URLs
+    if (isWww && isJournalPhp) {
       return "/journal-embed/" + (abs.search || "");
     }
   } catch (_) {
@@ -268,13 +286,18 @@ function absolutizeRadarAssets(html) {
 
   // CRITICAL v15: menu links href="?view=calendrier|historique|…" must stay in embed.
   // v14 wrongly rewrote them to https://radar.torinvest-trading.com/?… (sortie → site principal).
+  // Also catch href="/?…" which would resolve to app.* root (landing « old site »).
   out = out.replace(/\bhref=(["'])\?([^"']*)\1/gi, 'href="/journal-embed/?$2"');
+  out = out.replace(/\bhref=(["'])\/\?([^"']*)\1/gi, 'href="/journal-embed/?$2"');
+  out = out.replace(/\baction=(["'])\?([^"']*)\1/gi, 'action="/journal-embed/?$2"');
+  out = out.replace(/\baction=(["'])\/\?([^"']*)\1/gi, 'action="/journal-embed/?$2"');
 
   // Root-relative assets → radar (JS/CSS/img). Never rewrite non-asset href menus to radar.
   out = out.replace(
     /\b(src|href)=(["'])\/(?!\/|journal-embed\/)([^"']*)\2/gi,
     (m, attr, q, path) => {
       if (/^trading_journal\.php/i.test(path)) return m;
+      if (path.startsWith("?")) return m;
       if (String(attr).toLowerCase() === "href" && !assetExt.test(path)) return m;
       return attr + "=" + q + base + "/" + path + q;
     }
@@ -313,8 +336,9 @@ function injectProxyShim(html) {
     }
     var s = u.trim();
     if (!s) return u;
-    // Menu query-only (?view=historique) must stay on embed — never radar/www root
+    // Menu query-only (?view=historique) must stay on embed — never radar/www/app root
     if (s.charAt(0) === "?") return P + s;
+    if (/^\\/\\?/.test(s)) return P + s.slice(1);
     if (/^https?:\\/\\/radar\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
       var q = s.indexOf("?"); return P + (q>=0 ? s.slice(q) : "");
     }
@@ -325,16 +349,30 @@ function injectProxyShim(html) {
       if (/^https?:\\/\\/app\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
         var q3 = s.indexOf("?"); return P + (q3>=0 ? s.slice(q3) : "");
       }
-      // v14 bug residue: radar root + query (menu wrongly absolutized)
+      // v14 bug residue: radar root + query (menu wrongly absolutized → MAIN SITE HTML)
       if (/^https?:\\/\\/radar\\.torinvest-trading\\.com\\/?\\?/i.test(s)) {
         var q4 = s.indexOf("?"); return P + (q4>=0 ? s.slice(q4) : "");
+      }
+      // app.* root + query (target=_top breakout resolved against parent)
+      if (/^https?:\\/\\/app\\.torinvest-trading\\.com\\/?\\?/i.test(s)) {
+        var q6 = s.indexOf("?"); return P + (q6>=0 ? s.slice(q6) : "");
       }
       // Principal/www journal links → embed
       if (/^https?:\\/\\/(?:www\\.)?torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
         var q5 = s.indexOf("?"); return P + (q5>=0 ? s.slice(q5) : "");
       }
+      // www/principal root + journal-ish query (page|view|action|id)
+      if (/^https?:\\/\\/(?:www\\.)?torinvest-trading\\.com\\/?\\?(?:[^#]*\\b(?:page|view|action|id)=)/i.test(s)) {
+        var q7 = s.indexOf("?"); return P + (q7>=0 ? s.slice(q7) : "");
+      }
     } catch(e){}
     return u;
+  }
+  function isJournalNav(u){
+    var s = String(u || "");
+    return /\\/journal-embed\\/?|trading_journal\\.php|^\\?|^\\/\\?/.test(s)
+      || /radar\\.torinvest-trading\\.com\\/?\\?/i.test(s)
+      || /torinvest-trading\\.com\\/trading_journal/i.test(s);
   }
   function patchLoc(loc, keepInFrame){
     if (!loc) return;
@@ -342,7 +380,7 @@ function injectProxyShim(html) {
       var oAssign = loc.assign.bind(loc);
       loc.assign = function(u){
         var fixed = fix(String(u));
-        if (keepInFrame && /\\/journal-embed\\/?|trading_journal\\.php/i.test(fixed)) {
+        if (keepInFrame && isJournalNav(fixed)) {
           return window.location.assign(fixed);
         }
         return oAssign(fixed);
@@ -350,7 +388,7 @@ function injectProxyShim(html) {
       var oReplace = loc.replace.bind(loc);
       loc.replace = function(u){
         var fixed = fix(String(u));
-        if (keepInFrame && /\\/journal-embed\\/?|trading_journal\\.php/i.test(fixed)) {
+        if (keepInFrame && isJournalNav(fixed)) {
           return window.location.replace(fixed);
         }
         return oReplace(fixed);
@@ -366,7 +404,7 @@ function injectProxyShim(html) {
           get: function(){ return hrefDesc.get.call(loc); },
           set: function(u){
             var fixed = fix(String(u));
-            if (keepInFrame && /\\/journal-embed\\/?|trading_journal\\.php/i.test(fixed)) {
+            if (keepInFrame && isJournalNav(fixed)) {
               window.location.href = fixed;
               return;
             }
@@ -427,13 +465,23 @@ function injectProxyShim(html) {
     var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
     if (!a) return;
     var href = a.getAttribute("href") || "";
+    if (!href || href.charAt(0) === "#" || /^javascript:/i.test(href) || /^mailto:/i.test(href)) return;
+    var tg0 = (a.getAttribute("target") || "").toLowerCase();
+    var breakout = tg0 === "_top" || tg0 === "_parent";
     var fixed = fix(href);
     if (fixed && fixed !== href) a.setAttribute("href", fixed);
-    // Any journal nav must not break out to parent/principal site
-    if (/journal-embed|trading_journal|^[?]/.test(fixed || href) ||
-        /torinvest-trading\\.com\\/trading_journal/i.test(href)) {
-      a.setAttribute("target", "_self");
-      try { a.removeAttribute("formtarget"); } catch(err){}
+    var dest = fixed || href;
+    var journal = isJournalNav(dest) || isJournalNav(href);
+    if (!journal) return;
+    a.setAttribute("target", "_self");
+    try { a.removeAttribute("formtarget"); } catch(err){}
+    // Ruthless: breakout attrs OR absolute radar/www/app root query → navigate in-frame only
+    if (breakout ||
+        /^https?:\\/\\/(?:radar\\.|www\\.|app\\.)?torinvest-trading\\.com\\/?\\?/i.test(href) ||
+        /^https?:\\/\\/radar\\.torinvest-trading\\.com\\/trading_journal/i.test(href) ||
+        (fixed && fixed !== href && fixed.indexOf(P) === 0)) {
+      e.preventDefault();
+      try { window.location.assign(dest); } catch(err2){ window.location.href = dest; }
     }
   }, true);
 
@@ -579,6 +627,15 @@ function rewriteJournalHtml(html) {
     /https?:\/\/radar\.torinvest-trading\.com\/trading_journal\.php/gi,
     "/journal-embed/"
   );
+  // Radar/www ROOT + query (v14 absolutize residue or absolute menu) → embed — NOT main site
+  out = out.replace(
+    /https?:\/\/radar\.torinvest-trading\.com\/?\?/gi,
+    "/journal-embed/?"
+  );
+  out = out.replace(
+    /https?:\/\/(?:www\.)?torinvest-trading\.com\/trading_journal\.php/gi,
+    "/journal-embed/"
+  );
   // JS string literals: location.href = "trading_journal.php?..."
   out = out.replace(
     /(['"`])\/?trading_journal\.php/gi,
@@ -596,6 +653,15 @@ function rewriteJournalHtml(html) {
   out = out.replace(
     /action=(["'])\/?trading_journal\.php([^"']*)\1/gi,
     'action="/journal-embed/$2"'
+  );
+  // Strip target=_top/_parent on journal-embed anchors (iframe breakout → principal site)
+  out = out.replace(
+    /(<a\b[^>]*\bhref=["']\/journal-embed\/[^"']*["'][^>]*?)\s+target=["']_(?:top|parent)["']/gi,
+    '$1 target="_self"'
+  );
+  out = out.replace(
+    /(<a\b[^>]*?)\s+target=["']_(?:top|parent)["']([^>]*\bhref=["']\/journal-embed\/[^"']*["'])/gi,
+    '$1 target="_self"$2'
   );
 
   return injectProxyShim(out);
