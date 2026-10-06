@@ -21,11 +21,42 @@ const ALLOWED_MIME = {
   "image/jpeg": ".jpg",
   "image/jpg": ".jpg",
   "image/pjpeg": ".jpg",
+  "image/x-jpeg": ".jpg",
+  "image/jfif": ".jpg",
   "image/png": ".png",
   "image/x-png": ".png",
   "image/webp": ".webp",
   "image/gif": ".gif",
 };
+
+function normalizeMime(raw) {
+  const m = String(raw || "")
+    .toLowerCase()
+    .trim()
+    .split(";")[0]
+    .trim();
+  if (m === "image/jpg" || m === "image/pjpeg" || m === "image/x-jpeg" || m === "image/jfif") {
+    return "image/jpeg";
+  }
+  if (m === "image/x-png") return "image/png";
+  return m;
+}
+
+/** Parse data URL — tolerates charset= / extra params / whitespace in base64. */
+function parseImageDataUrl(dataUrl) {
+  const raw = String(dataUrl || "");
+  if (!raw) return null;
+  // data:[mime][;param=…]*;base64,<payload>
+  const m = raw.match(/^data:([^;,]+)?((?:;[^,]*)*);base64,([\s\S]+)$/i);
+  if (!m) return null;
+  let mime = normalizeMime(m[1] || "");
+  if (!mime || mime === "application/octet-stream" || mime === "binary/octet-stream") {
+    mime = "image/jpeg";
+  }
+  const b64 = String(m[3] || "").replace(/\s+/g, "");
+  if (!b64 || b64.length < 8) return null;
+  return { mime, b64 };
+}
 
 function screensRoot() {
   const fromEnv = String(process.env.JOURNAL_TRADE_SCREENS_DIR || "").trim();
@@ -266,7 +297,7 @@ module.exports = function createJournalTradeScreensRouter() {
   }
 
   router.get("/api/journal-trade-screens/ping", (_req, res) => {
-    res.json({ ok: true, ready: true, version: 2, jpgPng: true });
+    res.json({ ok: true, ready: true, version: 3, jpgPng: true, mimeLoose: true });
   });
 
   router.get("/api/journal-trade-screens-admin", async (req, res) => {
@@ -355,22 +386,42 @@ module.exports = function createJournalTradeScreensRouter() {
       if (!tradeKey) return res.status(400).json({ error: "tradeKey invalide" });
 
       const dataUrl = String(req.body?.dataUrl || "");
-      const m = dataUrl.match(
-        /^data:(image\/(?:jpeg|jpg|pjpeg|png|x-png|webp|gif));base64,([A-Za-z0-9+/=\s]+)$/i
-      );
-      if (!m) return res.status(400).json({ error: "Image invalide (JPG ou PNG)" });
-      const mime = String(m[1] || "").toLowerCase();
-      const ext = ALLOWED_MIME[mime];
-      if (!ext) return res.status(400).json({ error: "Type non supporté (JPG ou PNG)" });
+      let parsed = parseImageDataUrl(dataUrl);
+      // Fallback: mime + base64 séparés (certains clients)
+      if (!parsed && req.body?.base64) {
+        const mime = normalizeMime(req.body.mime || req.body.contentType || "image/jpeg");
+        const b64 = String(req.body.base64 || "").replace(/\s+/g, "");
+        if (b64.length >= 8) parsed = { mime, b64 };
+      }
+      if (!parsed) return res.status(400).json({ error: "Image invalide (JPG ou PNG)" });
+      const mime = normalizeMime(parsed.mime);
+      const ext = ALLOWED_MIME[mime] || ALLOWED_MIME[normalizeMime(mime)];
+      if (!ext || (mime !== "image/jpeg" && mime !== "image/png" && mime !== "image/webp" && mime !== "image/gif")) {
+        return res.status(400).json({ error: "Type non supporté (JPG ou PNG)" });
+      }
       let buf;
       try {
-        buf = Buffer.from(String(m[2]).replace(/\s+/g, ""), "base64");
+        buf = Buffer.from(parsed.b64, "base64");
       } catch (_) {
         return res.status(400).json({ error: "Décodage échoué" });
       }
       if (!buf.length || buf.length > MAX_IMAGE_BYTES) {
         return res.status(400).json({ error: "Image trop lourde (max 6 Mo)" });
       }
+      // Magic-byte soft check (reject obvious non-images)
+      const isJpeg = buf[0] === 0xff && buf[1] === 0xd8;
+      const isPng = buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47;
+      const isGif = buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46;
+      const isWebp =
+        buf.length > 12 &&
+        buf[0] === 0x52 &&
+        buf[1] === 0x49 &&
+        buf[8] === 0x57 &&
+        buf[9] === 0x45;
+      if (!isJpeg && !isPng && !isGif && !isWebp) {
+        return res.status(400).json({ error: "Image invalide (JPG ou PNG)" });
+      }
+      const finalExt = isPng ? ".png" : isGif ? ".gif" : isWebp ? ".webp" : ".jpg";
 
       const idx = readIndex(user.email);
       const prev = idx.trades[tradeKey] || emptyTrade(tradeKey);
@@ -380,7 +431,7 @@ module.exports = function createJournalTradeScreensRouter() {
       }
 
       const imgId = newId("jts_");
-      const fileName = imgId + ext;
+      const fileName = imgId + finalExt;
       const mediaDir = path.join(userDir(user.email), "media", tradeKey);
       fs.mkdirSync(mediaDir, { recursive: true });
       fs.writeFileSync(path.join(mediaDir, fileName), buf);
