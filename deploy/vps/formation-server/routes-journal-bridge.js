@@ -52,6 +52,7 @@ function radarFetchHeaders(baseUrl, extra) {
 
 function isPremiumSessionUser(user) {
   if (!user?.email) return false;
+  if (user.isAdmin === true || user.role === "admin") return true;
   if (user.subscribed === true || user.subscribed === 1 || user.subscribed === "true") {
     return true;
   }

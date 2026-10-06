@@ -1,10 +1,11 @@
 /**
- * La Forge — hub Trading Journal Pro + onglet Screenshots trades (natif).
+ * La Forge — hub Trading Journal Pro + Screenshots JPG/PNG (natif).
  */
 (function () {
   "use strict";
 
   var JOURNAL_APP = "/journal-embed/";
+  var pendingFiles = [];
 
   function esc(s) {
     return String(s || "")
@@ -21,6 +22,14 @@
     el.className =
       "alert " + (kind === "ok" ? "alert-success" : kind === "warn" ? "alert-warn" : "alert-error");
     el.hidden = !text;
+  }
+
+  function setUploadStatus(text, kind) {
+    var status = document.getElementById("jts-status");
+    if (!status) return;
+    status.textContent = text || "";
+    status.className =
+      "jts-shell-status" + (kind === "error" ? " is-error" : kind === "ok" ? " is-ok" : "");
   }
 
   function showGate() {
@@ -53,6 +62,7 @@
       if (screens) screens.hidden = false;
       document.body.classList.add("journal-app-open");
       loadScreensList();
+      loadAdminList();
     } else {
       if (screens) screens.hidden = true;
       if (appWrap) appWrap.hidden = false;
@@ -60,16 +70,22 @@
       var frame = document.getElementById("journal-frame");
       if (frame && !frame.getAttribute("src")) frame.src = JOURNAL_APP;
     }
+    try {
+      var url = new URL(window.location.href);
+      url.searchParams.set("tab", tab === "app" ? "app" : "screens");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    } catch (_) {}
   }
 
-  function showApp() {
+  function showApp(defaultTab) {
     hideGate();
     showTabs();
-    setTab("app");
+    setTab(defaultTab || "screens");
   }
 
   function isPremiumMe(me) {
     if (!me) return false;
+    if (me.isAdmin === true || me.role === "admin") return true;
     if (me.subscribed === true || me.subscribed === 1 || me.subscribed === "true") return true;
     var plan = String(me.plan || "").toLowerCase();
     return plan === "premium" || plan === "subscribed";
@@ -109,23 +125,28 @@
     var type = String((file && file.type) || "").toLowerCase().trim();
     if (type === "image/jpg" || type === "image/pjpeg") return "image/jpeg";
     if (type === "image/x-png") return "image/png";
-    if (type.indexOf("image/") === 0) return type;
+    if (type === "image/jpeg" || type === "image/png" || type === "image/webp" || type === "image/gif") {
+      return type;
+    }
     var name = String((file && file.name) || "").toLowerCase();
     if (/\.jpe?g$/i.test(name)) return "image/jpeg";
     if (/\.png$/i.test(name)) return "image/png";
     if (/\.webp$/i.test(name)) return "image/webp";
     if (/\.gif$/i.test(name)) return "image/gif";
+    // Certains OS n’envoient pas de MIME — on tente quand même via canvas
+    if (type.indexOf("image/") === 0) return type;
     return "";
   }
 
   function isAllowedImageFile(file) {
     var mime = guessImageMime(file);
-    return (
-      mime === "image/jpeg" ||
-      mime === "image/png" ||
-      mime === "image/webp" ||
-      mime === "image/gif"
-    );
+    if (mime === "image/jpeg" || mime === "image/png" || mime === "image/webp" || mime === "image/gif") {
+      return true;
+    }
+    // Fichier sans MIME mais extension absente : laisser tenter (canvas)
+    var name = String((file && file.name) || "").toLowerCase();
+    if (!name && file && file.type && file.type.indexOf("image/") === 0) return true;
+    return false;
   }
 
   function readFileAsDataUrl(file, mime) {
@@ -133,13 +154,12 @@
       var reader = new FileReader();
       reader.onload = function () {
         var result = String(reader.result || "");
-        if (!/^data:image\//i.test(result)) {
+        if (!/^data:image\//i.test(result) && !/^data:application\/octet-stream;base64,/i.test(result)) {
           reject(new Error("Lecture image impossible"));
           return;
         }
-        // Normalise MIME (ex. image/jpg → image/jpeg) pour l’API
-        if (mime && /^data:image\/[^;]+;base64,/i.test(result)) {
-          result = result.replace(/^data:image\/[^;]+;base64,/i, "data:" + mime + ";base64,");
+        if (mime) {
+          result = result.replace(/^data:[^;]+;base64,/i, "data:" + mime + ";base64,");
         }
         resolve(result);
       };
@@ -152,13 +172,12 @@
 
   function compressImageFile(file) {
     return new Promise(function (resolve, reject) {
-      var mime = guessImageMime(file);
-      if (!isAllowedImageFile(file)) {
+      var mime = guessImageMime(file) || "image/jpeg";
+      if (!isAllowedImageFile(file) && !mime) {
         reject(new Error("Fichier JPG ou PNG requis (.jpg / .jpeg / .png)"));
         return;
       }
-      // Petits JPG/PNG : envoi tel quel (sans recompression canvas)
-      if (file.size && file.size <= 2.8 * 1024 * 1024) {
+      if (file.size && file.size <= 2.8 * 1024 * 1024 && (mime === "image/jpeg" || mime === "image/png")) {
         readFileAsDataUrl(file, mime).then(resolve).catch(reject);
         return;
       }
@@ -186,9 +205,7 @@
             ? canvas.toDataURL("image/png")
             : canvas.toDataURL("image/jpeg", 0.82);
           if (dataUrl.length > 700000) {
-            dataUrl = keepPng
-              ? canvas.toDataURL("image/jpeg", 0.7)
-              : canvas.toDataURL("image/jpeg", 0.62);
+            dataUrl = canvas.toDataURL("image/jpeg", 0.62);
           }
           URL.revokeObjectURL(url);
           resolve(dataUrl);
@@ -205,66 +222,242 @@
     });
   }
 
-  function mediaUrl(tradeKey, file) {
-    return (
+  function mediaUrl(tradeKey, file, memberEmail) {
+    var u =
       "/api/journal-trade-screens/" +
       encodeURIComponent(tradeKey) +
       "/media/" +
-      encodeURIComponent(file)
-    );
+      encodeURIComponent(file);
+    if (memberEmail) u += "?member=" + encodeURIComponent(memberEmail);
+    return u;
+  }
+
+  function openLightbox(src, caption) {
+    var box = document.getElementById("jts-lightbox");
+    var img = document.getElementById("jts-lightbox-img");
+    var cap = document.getElementById("jts-lightbox-caption");
+    var open = document.getElementById("jts-lightbox-open");
+    if (!box || !img) {
+      window.open(src, "_blank", "noopener");
+      return;
+    }
+    img.src = src;
+    if (cap) cap.textContent = caption || "Screen";
+    if (open) open.href = src;
+    box.hidden = false;
+    box.classList.add("is-open");
+  }
+
+  function closeLightbox() {
+    var box = document.getElementById("jts-lightbox");
+    var img = document.getElementById("jts-lightbox-img");
+    if (box) {
+      box.classList.remove("is-open");
+      box.hidden = true;
+    }
+    if (img) img.removeAttribute("src");
+  }
+
+  function renderTradeCards(trades, opts) {
+    opts = opts || {};
+    return trades
+      .map(function (t) {
+        var thumbs = (t.images || [])
+          .map(function (img) {
+            var src = mediaUrl(t.tradeKey, img.file, opts.member || t.email || "");
+            return (
+              '<button type="button" data-jts-zoom="' +
+              esc(src) +
+              '" data-jts-caption="' +
+              esc(t.label || t.pair || t.tradeKey) +
+              '" title="Agrandir"><img src="' +
+              esc(src) +
+              '" alt="" loading="lazy" /></button>'
+            );
+          })
+          .join("");
+        return (
+          '<article class="jts-shell-card"><strong>' +
+          esc(opts.showEmail && t.email ? t.email + " · " : "") +
+          esc(t.label || t.pair || t.tradeKey) +
+          '</strong><div class="jts-shell-meta">' +
+          esc(t.tradeDate || "") +
+          (t.direction ? " · " + esc(t.direction) : "") +
+          " · " +
+          (t.imageCount || 0) +
+          " screen(s)</div><div class=\"jts-shell-thumbs\">" +
+          thumbs +
+          "</div></article>"
+        );
+      })
+      .join("");
   }
 
   async function loadScreensList() {
     var list = document.getElementById("jts-list");
-    var status = document.getElementById("jts-status");
     if (!list) return;
     try {
       var ping = await fetch("/api/journal-trade-screens/ping", { credentials: "same-origin" });
       if (!ping.ok) {
         list.innerHTML =
-          '<p class="jts-shell-meta">API screens absente sur le serveur (ping ' +
+          '<p class="jts-shell-meta">API screens absente (ping ' +
           ping.status +
-          "). Relance le script de déploiement VPS.</p>";
+          "). Relance le déploiement VPS.</p>";
         return;
       }
       var data = await api("/api/journal-trade-screens");
       var trades = data.trades || [];
       if (!trades.length) {
         list.innerHTML =
-          '<p class="jts-shell-meta">Aucun screen pour l’instant — utilise le formulaire à gauche.</p>';
+          '<p class="jts-shell-meta">Aucun screen pour l’instant — glisse un JPG/PNG dans la zone à gauche.</p>';
         return;
       }
-      list.innerHTML = trades
-        .map(function (t) {
-          var thumbs = (t.images || [])
-            .map(function (img) {
-              var src = mediaUrl(t.tradeKey, img.file);
-              return (
-                '<a href="' +
-                esc(src) +
-                '" target="_blank" rel="noopener" title="Ouvrir taille réelle"><img src="' +
-                esc(src) +
-                '" alt="" loading="lazy" /></a>'
-              );
-            })
-            .join("");
-          return (
-            '<article class="jts-shell-card"><strong>' +
-            esc(t.label || t.pair || t.tradeKey) +
-            '</strong><div class="jts-shell-meta">' +
-            esc(t.tradeDate || "") +
-            (t.direction ? " · " + esc(t.direction) : "") +
-            " · " +
-            (t.imageCount || 0) +
-            " screen(s)</div><div class=\"jts-shell-thumbs\">" +
-            thumbs +
-            "</div></article>"
-          );
-        })
-        .join("");
-      if (status && !status.dataset.keep) status.textContent = trades.length + " trade(s) avec screens.";
+      list.innerHTML = renderTradeCards(trades);
+      setUploadStatus(trades.length + " trade(s) avec screens.", "ok");
     } catch (err) {
       list.innerHTML = '<p class="jts-shell-meta">Erreur : ' + esc(err.message || err) + "</p>";
+      setUploadStatus(err.message || String(err), "error");
+    }
+  }
+
+  async function loadAdminList() {
+    var block = document.getElementById("jts-admin-block");
+    var list = document.getElementById("jts-admin-list");
+    if (!block || !list) return;
+    try {
+      var res = await fetch("/api/journal-trade-screens-admin", { credentials: "same-origin" });
+      if (res.status === 403 || res.status === 401) {
+        block.hidden = true;
+        return;
+      }
+      var data = await res.json().catch(function () {
+        return {};
+      });
+      if (!res.ok) {
+        block.hidden = true;
+        return;
+      }
+      block.hidden = false;
+      var trades = data.trades || [];
+      if (!trades.length) {
+        list.innerHTML = '<p class="jts-shell-meta">Aucun screen membre pour l’instant.</p>';
+        return;
+      }
+      list.innerHTML = renderTradeCards(trades, { showEmail: true });
+    } catch (_) {
+      block.hidden = true;
+    }
+  }
+
+  function syncFileNames() {
+    var el = document.getElementById("jts-file-names");
+    if (!el) return;
+    if (!pendingFiles.length) {
+      el.textContent = "";
+      return;
+    }
+    el.textContent =
+      pendingFiles.length +
+      " fichier(s) : " +
+      pendingFiles
+        .map(function (f) {
+          return f.name || "image";
+        })
+        .join(", ");
+  }
+
+  function addFiles(fileList) {
+    var arr = Array.prototype.slice.call(fileList || []);
+    var rejected = [];
+    arr.forEach(function (f) {
+      if (isAllowedImageFile(f)) pendingFiles.push(f);
+      else rejected.push(f.name || "?");
+    });
+    // sync native input for UX
+    var input = document.getElementById("jts-files");
+    if (input) {
+      try {
+        var dt = new DataTransfer();
+        pendingFiles.forEach(function (f) {
+          dt.items.add(f);
+        });
+        input.files = dt.files;
+      } catch (_) {}
+    }
+    syncFileNames();
+    if (rejected.length) {
+      setUploadStatus("Ignorés (pas JPG/PNG) : " + rejected.join(", "), "error");
+    } else if (pendingFiles.length) {
+      setUploadStatus(pendingFiles.length + " image(s) prête(s) — clique Enregistrer.", "ok");
+    }
+  }
+
+  async function doUpload() {
+    var upload = document.getElementById("jts-upload");
+    var files = pendingFiles.slice();
+    if (!files.length) {
+      var fileInput = document.getElementById("jts-files");
+      files = fileInput && fileInput.files ? Array.prototype.slice.call(fileInput.files) : [];
+    }
+    if (!files.length) {
+      alert("Choisis au moins un screenshot JPG ou PNG.");
+      return;
+    }
+    for (var fi = 0; fi < files.length; fi++) {
+      if (!isAllowedImageFile(files[fi])) {
+        alert("Fichier non supporté : " + (files[fi].name || "?") + " — JPG ou PNG uniquement.");
+        return;
+      }
+    }
+    var pair = String(document.getElementById("jts-pair").value || "").trim();
+    if (!pair) {
+      alert("Indique la paire (ex. XAUUSD).");
+      document.getElementById("jts-pair").focus();
+      return;
+    }
+    var tradeKey = tradeKeyFromForm();
+    var direction = document.getElementById("jts-direction").value;
+    var date = document.getElementById("jts-date").value;
+    var label = document.getElementById("jts-label").value;
+    try {
+      if (upload) upload.disabled = true;
+      setUploadStatus("Préparation…", "");
+      await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey), {
+        method: "PUT",
+        body: JSON.stringify({
+          label: label || pair + " " + direction,
+          pair: pair,
+          direction: direction,
+          tradeDate: date,
+        }),
+      });
+      for (var i = 0; i < files.length; i++) {
+        setUploadStatus("Envoi " + (i + 1) + "/" + files.length + "…", "");
+        var dataUrl = await compressImageFile(files[i]);
+        await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey) + "/images", {
+          method: "POST",
+          body: JSON.stringify({
+            dataUrl: dataUrl,
+            caption: "",
+            label: label || pair + " " + direction,
+            pair: pair,
+            direction: direction,
+            tradeDate: date,
+          }),
+        });
+      }
+      setUploadStatus(files.length + " screen(s) enregistré(s).", "ok");
+      pendingFiles = [];
+      var fileInput2 = document.getElementById("jts-files");
+      if (fileInput2) fileInput2.value = "";
+      syncFileNames();
+      await loadScreensList();
+      await loadAdminList();
+    } catch (err) {
+      setUploadStatus(err.message || String(err), "error");
+      alert("Upload : " + (err.message || err));
+    } finally {
+      if (upload) upload.disabled = false;
     }
   }
 
@@ -284,79 +477,93 @@
       refresh.dataset.bound = "1";
       refresh.onclick = function () {
         loadScreensList();
+        loadAdminList();
       };
     }
 
     var upload = document.getElementById("jts-upload");
     if (upload && upload.dataset.bound !== "1") {
       upload.dataset.bound = "1";
-      upload.onclick = async function () {
-        var status = document.getElementById("jts-status");
-        var fileInput = document.getElementById("jts-files");
-        var files = fileInput && fileInput.files ? Array.prototype.slice.call(fileInput.files) : [];
-        if (!files.length) {
-          alert("Choisis au moins un screenshot JPG ou PNG.");
-          return;
-        }
-        for (var fi = 0; fi < files.length; fi++) {
-          if (!isAllowedImageFile(files[fi])) {
-            alert("Fichier non supporté : " + (files[fi].name || "?") + " — JPG ou PNG uniquement.");
-            return;
-          }
-        }
-        var pair = String(document.getElementById("jts-pair").value || "").trim();
-        if (!pair) {
-          alert("Indique la paire (ex. XAUUSD).");
-          return;
-        }
-        var tradeKey = tradeKeyFromForm();
-        var direction = document.getElementById("jts-direction").value;
-        var date = document.getElementById("jts-date").value;
-        var label = document.getElementById("jts-label").value;
-        try {
-          upload.disabled = true;
-          if (status) {
-            status.dataset.keep = "1";
-            status.textContent = "Préparation…";
-          }
-          await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey), {
-            method: "PUT",
-            body: JSON.stringify({
-              label: label || pair + " " + direction,
-              pair: pair,
-              direction: direction,
-              tradeDate: date,
-            }),
-          });
-          for (var i = 0; i < files.length; i++) {
-            if (status) status.textContent = "Envoi " + (i + 1) + "/" + files.length + "…";
-            var dataUrl = await compressImageFile(files[i]);
-            await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey) + "/images", {
-              method: "POST",
-              body: JSON.stringify({
-                dataUrl: dataUrl,
-                caption: "",
-                label: label || pair + " " + direction,
-                pair: pair,
-                direction: direction,
-                tradeDate: date,
-              }),
-            });
-          }
-          if (status) status.textContent = files.length + " screen(s) enregistré(s).";
-          fileInput.value = "";
-          await loadScreensList();
-        } catch (err) {
-          if (status) status.textContent = err.message || String(err);
-          alert("Upload : " + (err.message || err));
-        } finally {
-          upload.disabled = false;
-          if (status) delete status.dataset.keep;
-        }
+      upload.onclick = function () {
+        doUpload();
       };
     }
 
-    // Date par défaut = maintenant
+    var drop = document.getElementById("jts-dropzone");
+    var fileInput = document.getElementById("jts-files");
+    if (drop && drop.dataset.bound !== "1") {
+      drop.dataset.bound = "1";
+      drop.addEventListener("click", function (ev) {
+        if (ev.target === fileInput) return;
+        if (fileInput) fileInput.click();
+      });
+      drop.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          if (fileInput) fileInput.click();
+        }
+      });
+      ["dragenter", "dragover"].forEach(function (evt) {
+        drop.addEventListener(evt, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          drop.classList.add("is-drag");
+        });
+      });
+      ["dragleave", "drop"].forEach(function (evt) {
+        drop.addEventListener(evt, function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          drop.classList.remove("is-drag");
+        });
+      });
+      drop.addEventListener("drop", function (e) {
+        var files = e.dataTransfer && e.dataTransfer.files;
+        if (files && files.length) addFiles(files);
+      });
+    }
+    if (fileInput && fileInput.dataset.bound !== "1") {
+      fileInput.dataset.bound = "1";
+      fileInput.addEventListener("change", function () {
+        pendingFiles = [];
+        addFiles(fileInput.files);
+      });
+    }
+
+    document.addEventListener("click", function (ev) {
+      var zoom = ev.target.closest("[data-jts-zoom]");
+      if (zoom) {
+        ev.preventDefault();
+        openLightbox(zoom.getAttribute("data-jts-zoom"), zoom.getAttribute("data-jts-caption"));
+        return;
+      }
+      if (ev.target.closest("[data-jts-close]")) {
+        closeLightbox();
+      }
+    });
+    document.addEventListener("keydown", function (ev) {
+      if (ev.key === "Escape") closeLightbox();
+    });
+
+    // Coller une image (Ctrl+V)
+    document.addEventListener("paste", function (ev) {
+      var panel = document.getElementById("journal-screens-panel");
+      if (!panel || panel.hidden) return;
+      var items = ev.clipboardData && ev.clipboardData.items;
+      if (!items) return;
+      var files = [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.indexOf("image/") === 0) {
+          var f = items[i].getAsFile();
+          if (f) files.push(f);
+        }
+      }
+      if (files.length) {
+        ev.preventDefault();
+        addFiles(files);
+      }
+    });
+
     var dateEl = document.getElementById("jts-date");
     if (dateEl && !dateEl.value) {
       var d = new Date();
@@ -373,8 +580,8 @@
 
     if (openBtn) {
       openBtn.addEventListener("click", function () {
-        setStatus("Ouverture du Journal…", "ok");
-        showApp();
+        setStatus("Ouverture…", "ok");
+        showApp("screens");
       });
     }
 
@@ -391,13 +598,13 @@
 
     if (!me) {
       showGate();
-      setStatus("Connecte-toi à La Forge (email Premium) pour ouvrir le Trading Journal.", "warn");
+      setStatus("Connecte-toi à La Forge (email Premium) pour déposer tes screens JPG/PNG.", "warn");
       return;
     }
 
     if (!premium) {
       showGate();
-      setStatus("Le Trading Journal est réservé aux abonnés La Forge Premium.", "warn");
+      setStatus("Le Trading Journal / screens est réservé aux abonnés La Forge Premium.", "warn");
       return;
     }
 
@@ -406,12 +613,8 @@
     }
 
     setStatus("", "ok");
-    showApp();
-
-    // Deep-link ?tab=screens
-    if (/[?&]tab=screens\b/i.test(window.location.search)) {
-      setTab("screens");
-    }
+    var wantApp = /[?&]tab=app\b/i.test(window.location.search);
+    showApp(wantApp ? "app" : "screens");
   }
 
   if (document.readyState === "loading") {

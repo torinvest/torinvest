@@ -7,12 +7,12 @@
 #
 # Sur le VPS (copier-coller tel quel) :
 #   unset REF SHA BRANCH
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-screens-jpg-png-691a/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-screens-ux-fix-691a/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Ignore REF ambiant — force la branche de ce hotfix
-SCRIPT_REF="${JOURNAL_SCREENS_REF:-cursor/journal-screens-jpg-png-691a}"
+SCRIPT_REF="${JOURNAL_SCREENS_REF:-cursor/journal-screens-ux-fix-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 
 echo "======== DEPLOY JOURNAL TRADE SCREENS ($SCRIPT_REF) ========"
@@ -46,6 +46,7 @@ pull() {
 
 TMP="$(mktemp -d)"
 pull "$RAW/deploy/vps/app-shells/journal.html" "$TMP/journal.html"
+pull "$RAW/deploy/vps/app-shells/dashboard.html" "$TMP/dashboard.html"
 pull "$RAW/la-forge/js/forge-journal.js" "$TMP/forge-journal.js"
 pull "$RAW/la-forge/js/forge-journal-trade-screens.js" "$TMP/forge-journal-trade-screens.js"
 pull "$RAW/deploy/vps/formation-server/routes-journal-trade-screens.js" "$TMP/routes-journal-trade-screens.js"
@@ -54,14 +55,16 @@ pull "$RAW/deploy/vps/formation-server/routes-formation-auth.js" "$TMP/routes-fo
 
 # Sanity des artefacts
 grep -q 'data-journal-tab="screens"' "$TMP/journal.html"
-grep -q 'forge-journal.js?v=8' "$TMP/journal.html"
-grep -q '\.jpg,\.jpeg,\.png\|JPG / PNG' "$TMP/journal.html"
+grep -q 'forge-journal.js?v=9' "$TMP/journal.html"
+grep -q 'jts-dropzone\|Glisse tes JPG' "$TMP/journal.html"
 grep -q 'loadScreensList\|journal-trade-screens/ping' "$TMP/forge-journal.js"
+grep -q 'jts-dropzone\|pendingFiles\|openLightbox' "$TMP/forge-journal.js"
 grep -q 'journal-trade-screens/ping' "$TMP/routes-journal-trade-screens.js"
 grep -q 'createJournalTradeScreensRouter' "$TMP/routes-formation-auth.js"
 grep -q 'forge-journal-trade-screens.js' "$TMP/routes-journal-bridge.js"
 
 cp -f "$TMP/journal.html" "$APP_DIR/public/journal.html"
+cp -f "$TMP/dashboard.html" "$APP_DIR/public/dashboard.html"
 cp -f "$TMP/forge-journal.js" "$APP_DIR/public/js/forge-journal.js"
 cp -f "$TMP/forge-journal-trade-screens.js" "$APP_DIR/public/js/forge-journal-trade-screens.js"
 cp -f "$TMP/routes-journal-trade-screens.js" "$APP_DIR/server-patches/routes-journal-trade-screens.js"
@@ -187,7 +190,7 @@ grep -q 'loadScreensList\|journal-trade-screens/ping' "$APP_DIR/public/js/forge-
 
 rm -rf "$TMP"
 echo ""
-echo "→ Hard refresh Ctrl+Shift+R : https://app.torinvest-trading.com/journal.html"
-echo "→ Ou direct : https://app.torinvest-trading.com/journal.html?tab=screens"
-echo "→ Onglets : Journal | Screenshots trades"
+echo "→ Hard refresh Ctrl+Shift+R :"
+echo "  https://app.torinvest-trading.com/journal.html?tab=screens"
+echo "→ Zone glisser-déposer JPG/PNG + agrandir au clic"
 echo "======== DONE ========"
