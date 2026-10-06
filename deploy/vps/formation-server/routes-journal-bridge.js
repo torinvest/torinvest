@@ -257,18 +257,28 @@ function applyJournalEmbedCsp(res) {
 
 function injectProxyShim(html) {
   // HARD DELETE: never emit <script src=...forge-journal-trade-screens...>
-  const screens = "<!-- forge-jts:injectHardOff cspClickFix v11 -->";
+  // v12: also rewrite location.href — openTrade often sets href to trading_journal.php
+  // which 404s on app.* (only /journal-embed/ is proxied).
+  const screens = "<!-- forge-jts:injectHardOff hrefClickFix v12 -->";
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
+  window.__tjForgeHrefClickFix = 1;
   var P = "/journal-embed/";
   function fix(u){
     if (!u || typeof u !== "string") return u;
-    if (/^https?:\\/\\/radar\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(u)) {
-      var q = u.indexOf("?"); return P + (q>=0 ? u.slice(q) : "");
+    var s = u.trim();
+    if (/^https?:\\/\\/radar\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
+      var q = s.indexOf("?"); return P + (q>=0 ? s.slice(q) : "");
     }
-    if (/^\\/?trading_journal\\.php/i.test(u)) {
-      var q2 = u.indexOf("?"); return P + (q2>=0 ? u.slice(q2) : "");
+    if (/^\\/?trading_journal\\.php/i.test(s)) {
+      var q2 = s.indexOf("?"); return P + (q2>=0 ? s.slice(q2) : "");
     }
+    // Absolute app path mistakenly hitting PHP file on Forge host
+    try {
+      if (/^https?:\\/\\/app\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
+        var q3 = s.indexOf("?"); return P + (q3>=0 ? s.slice(q3) : "");
+      }
+    } catch(e){}
     return u;
   }
   document.addEventListener("submit", function(e){
@@ -291,12 +301,29 @@ function injectProxyShim(html) {
     arguments[1] = fix(url);
     return oOpen.apply(this, arguments);
   };
-  // TJ openTrade() often uses location.assign/replace or location.href
+  // TJ openTrade() uses location.assign/replace AND location.href (=)
   try {
     var oAssign = Location.prototype.assign;
     Location.prototype.assign = function(u){ return oAssign.call(this, fix(String(u))); };
     var oReplace = Location.prototype.replace;
     Location.prototype.replace = function(u){ return oReplace.call(this, fix(String(u))); };
+  } catch(e){}
+  try {
+    var hrefDesc = Object.getOwnPropertyDescriptor(Location.prototype, "href");
+    if (hrefDesc && hrefDesc.set && hrefDesc.get) {
+      Object.defineProperty(Location.prototype, "href", {
+        configurable: true,
+        enumerable: true,
+        get: function(){ return hrefDesc.get.call(this); },
+        set: function(u){ hrefDesc.set.call(this, fix(String(u))); }
+      });
+    }
+  } catch(e){}
+  try {
+    var oWinOpen = window.open;
+    if (oWinOpen) {
+      window.open = function(u, n, f){ return oWinOpen.call(this, fix(String(u||"")), n, f); };
+    }
   } catch(e){}
   document.addEventListener("click", function(e){
     var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
@@ -549,8 +576,9 @@ module.exports = function createJournalBridgeRouter() {
       injectHardOff: true,
       clickRestore: true,
       cspClickFix: true,
+      hrefClickFix: true,
       scriptSrcAttr: "unsafe-inline",
-      version: 11,
+      version: 12,
     });
   });
 
@@ -580,6 +608,12 @@ module.exports = function createJournalBridgeRouter() {
   router.all("/appjournal", proxy);
   router.all("/appjournal/", proxy);
   router.all("/appjournal/*", proxy);
+  // Safety net: openTrade location.href → /trading_journal.php 404 on app.*
+  router.all("/trading_journal.php", (req, res) => {
+    const q = req.url.includes("?") ? req.url.slice(req.url.indexOf("?")) : "";
+    applyJournalEmbedCsp(res);
+    res.redirect(302, "/journal-embed/" + q);
+  });
 
   return router;
 };

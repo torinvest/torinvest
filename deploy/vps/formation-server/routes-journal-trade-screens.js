@@ -326,7 +326,7 @@ module.exports = function createJournalTradeScreensRouter() {
     res.json({
       ok: true,
       ready: true,
-      version: 11,
+      version: 12,
       jpgPng: true,
       mimeLoose: true,
       sniff: true,
@@ -338,11 +338,12 @@ module.exports = function createJournalTradeScreensRouter() {
       safeMode: true,
       clickRestore: true,
       cspClickFix: true,
+      hrefClickFix: true,
       injectHardOff: true,
       injectDisabled: true,
       inject: "off",
       note:
-        "screens inject HARD OFF + CSP script-src-attr unsafe-inline for TJ onclick",
+        "screens off + CSP onclick OK + location.href → /journal-embed/ (no 404 trading_journal.php)",
     });
   });
 
