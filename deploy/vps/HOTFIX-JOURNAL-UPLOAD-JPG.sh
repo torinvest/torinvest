@@ -12,8 +12,8 @@
 set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
-SCRIPT_REF="${SCRIPT_REF:-cursor/journal-jpg-upload-fix-691a}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
+SCRIPT_REF="cursor/journal-jpg-upload-fix-691a"
+RAW="https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-jpg-upload-fix-691a"
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 EXPECTED_INJECT="forge-journal-trade-screens.js?v=4"
 

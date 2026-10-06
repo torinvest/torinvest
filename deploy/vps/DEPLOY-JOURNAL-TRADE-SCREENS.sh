@@ -9,8 +9,8 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Ignore REF/SHA/BRANCH ambiants — tire TOUJOURS les artefacts depuis SCRIPT_REF
 unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
-SCRIPT_REF="${SCRIPT_REF:-cursor/journal-jpg-upload-fix-691a}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
+SCRIPT_REF="cursor/journal-jpg-upload-fix-691a"
+RAW="https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-jpg-upload-fix-691a"
 EXPECTED_JS_VER="v=14"
 EXPECTED_INJECT="forge-journal-trade-screens.js?v=4"
 
