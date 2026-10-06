@@ -403,32 +403,54 @@
   /** Force a clean data:image/jpeg|png;base64,… payload for the API. */
   function normalizeDataUrl(dataUrl, preferMime) {
     var raw = String(dataUrl || "").replace(/\s+/g, "");
-    var m = raw.match(/^data:([^;,]+)?(?:;[^,]*)*;base64,(.+)$/i);
-    if (!m || !m[2]) return "";
-    var mime = String(m[1] || preferMime || "image/jpeg")
-      .toLowerCase()
-      .trim();
-    if (mime === "image/jpg" || mime === "image/pjpeg" || mime === "image/x-jpeg" || mime === "image/jfif") {
-      mime = "image/jpeg";
-    }
-    if (mime === "image/x-png") mime = "image/png";
-    if (mime === "application/octet-stream" || mime === "binary/octet-stream" || !mime) {
-      mime = preferMime === "image/png" ? "image/png" : "image/jpeg";
-    }
-    if (mime !== "image/jpeg" && mime !== "image/png" && mime !== "image/webp" && mime !== "image/gif") {
-      mime = preferMime === "image/png" ? "image/png" : "image/jpeg";
-    }
-    var b64 = m[2].replace(/[^A-Za-z0-9+/=]/g, "");
+    var idx = raw.toLowerCase().indexOf("base64,");
+    if (idx < 0) return "";
+    var header = raw.slice(0, idx);
+    var b64 = raw.slice(idx + 7).replace(/[^A-Za-z0-9+/=]/g, "");
     if (b64.length < 16) return "";
+    var mime = preferMime === "image/png" ? "image/png" : "image/jpeg";
+    var hm = header.match(/^data:([^;,]+)/i);
+    if (hm && hm[1]) {
+      var declared = String(hm[1]).toLowerCase().trim();
+      if (declared === "image/jpg" || declared === "image/pjpeg" || declared === "image/x-jpeg" || declared === "image/jfif") {
+        mime = "image/jpeg";
+      } else if (declared === "image/png" || declared === "image/x-png") {
+        mime = "image/png";
+      } else if (declared === "image/webp") mime = "image/webp";
+      else if (declared === "image/gif") mime = "image/gif";
+      else if (declared === "image/jpeg") mime = "image/jpeg";
+      // octet-stream / vide / autre → preferMime (jpeg par défaut)
+    }
     return "data:" + mime + ";base64," + b64;
   }
 
   function readFileAsDataUrl(file, mime) {
     return new Promise(function (resolve, reject) {
+      if (!file) {
+        reject(new Error("Aucun fichier"));
+        return;
+      }
       var reader = new FileReader();
       reader.onload = function () {
-        var normalized = normalizeDataUrl(reader.result, mime || "image/jpeg");
+        var normalized = normalizeDataUrl(reader.result, mime || guessImageMime(file) || "image/jpeg");
         if (!normalized) {
+          // Dernier recours : ArrayBuffer → base64 manuel
+          try {
+            var ab = reader.result;
+            if (ab && typeof ab === "string" && ab.indexOf(",") >= 0) {
+              var only = ab.split(",")[1] || "";
+              only = only.replace(/[^A-Za-z0-9+/=]/g, "");
+              if (only.length >= 16) {
+                resolve(
+                  "data:" +
+                    (mime || guessImageMime(file) || "image/jpeg") +
+                    ";base64," +
+                    only
+                );
+                return;
+              }
+            }
+          } catch (_) {}
           reject(new Error("Lecture image impossible"));
           return;
         }
@@ -632,14 +654,28 @@
       }
       var file = list[i];
       var prefer = guessImageMime(file) || "image/jpeg";
+      if (prefer !== "image/png") prefer = "image/jpeg";
       var dataUrl;
+      // 1) FileReader d’abord (évite CSP blob: / Image() cassé dans l’iframe TJ)
       try {
-        dataUrl = await compressImageFile(file);
-      } catch (compErr) {
-        dataUrl = await readFileAsDataUrl(file, prefer === "image/png" ? "image/png" : "image/jpeg");
+        dataUrl = await readFileAsDataUrl(file, prefer);
+      } catch (readErr) {
+        try {
+          dataUrl = await compressImageFile(file);
+        } catch (compErr) {
+          throw new Error(
+            "Lecture image impossible — réessaie en JPG/PNG classique (pas HEIC/Live Photo)"
+          );
+        }
       }
-      dataUrl = normalizeDataUrl(dataUrl, prefer === "image/png" ? "image/png" : "image/jpeg");
-      if (!dataUrl || !/^data:image\/(jpeg|png|webp|gif);base64,/i.test(dataUrl)) {
+      // 2) Si trop gros, tenter compression canvas (optionnel)
+      if (dataUrl && dataUrl.length > 900000) {
+        try {
+          dataUrl = await compressImageFile(file);
+        } catch (_) {}
+      }
+      dataUrl = normalizeDataUrl(dataUrl, prefer);
+      if (!dataUrl || dataUrl.indexOf("base64,") < 0) {
         throw new Error("Image invalide après conversion (JPG/PNG requis)");
       }
       var parts = dataUrlParts(dataUrl);
