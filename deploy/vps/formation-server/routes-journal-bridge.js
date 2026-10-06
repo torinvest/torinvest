@@ -291,6 +291,20 @@ function injectProxyShim(html) {
     arguments[1] = fix(url);
     return oOpen.apply(this, arguments);
   };
+  // TJ openTrade() often uses location.assign/replace or location.href
+  try {
+    var oAssign = Location.prototype.assign;
+    Location.prototype.assign = function(u){ return oAssign.call(this, fix(String(u))); };
+    var oReplace = Location.prototype.replace;
+    Location.prototype.replace = function(u){ return oReplace.call(this, fix(String(u))); };
+  } catch(e){}
+  document.addEventListener("click", function(e){
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+    var href = a.getAttribute("href");
+    var fixed = fix(href);
+    if (fixed && fixed !== href) a.setAttribute("href", fixed);
+  }, true);
 })();</script>`;
   const inject = shim + screens;
   if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, inject + "</head>");
