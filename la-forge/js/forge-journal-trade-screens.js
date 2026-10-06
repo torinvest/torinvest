@@ -737,22 +737,46 @@
     return { parent: form, after: null, form: form };
   }
 
+  function guardTradeFormSubmit(form) {
+    if (!form || form.dataset.jtsSubmitGuard === "1") return;
+    form.dataset.jtsSubmitGuard = "1";
+    form.addEventListener(
+      "submit",
+      function (ev) {
+        // Anti double/triple clic → 3 trades identiques
+        var now = Date.now();
+        var last = Number(form.dataset.jtsLastSubmit || 0);
+        if (form.dataset.jtsSubmitting === "1" || now - last < 2500) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          return false;
+        }
+        form.dataset.jtsSubmitting = "1";
+        form.dataset.jtsLastSubmit = String(now);
+        setTimeout(function () {
+          form.dataset.jtsSubmitting = "";
+        }, 4000);
+      },
+      true
+    );
+  }
+
   function mountAddTradePanel() {
     if (!isAddTradePage()) {
       var existing = document.getElementById(PANEL_ID);
-      if (existing && !isAddTradePage()) existing.remove();
+      if (existing) existing.remove();
       return;
     }
     if (document.getElementById(PANEL_ID)) return;
 
-    var anchor = findInsertAnchor();
-    if (!anchor.parent) return;
+    var form = document.querySelector("form");
+    guardTradeFormSubmit(form);
 
     var panel = document.createElement("div");
     panel.id = PANEL_ID;
     panel.innerHTML =
       "<h3>Screenshots du trade (JPG / PNG)</h3>" +
-      '<p class="jts-hint">Dépose tes screens TradingView / exécution ici. Ils restent liés à ce trade sur ton compte Premium.</p>' +
+      '<p class="jts-hint">Dépose tes screens ici <strong>après</strong> avoir enregistré le trade — ou juste avant, sans cliquer plusieurs fois sur Enregistrer.</p>' +
       '<div class="jts-drop" id="forge-jts-drop" role="button" tabindex="0" aria-label="Zone de dépôt JPG ou PNG">' +
       "<strong>Glisse tes JPG / PNG ici</strong>" +
       "<span>ou clique — plusieurs fichiers OK</span>" +
@@ -766,13 +790,39 @@
       '<p class="jts-status"></p>' +
       '<div class="jts-gallery"></div>';
 
-    if (anchor.before && anchor.before.parentElement) {
-      anchor.before.parentElement.insertBefore(panel, anchor.before);
-    } else if (anchor.after) {
-      anchor.after.insertAdjacentElement("afterend", panel);
+    // IMPORTANT: hors du <form> TJ — sinon clics/Enter renvoyaient le trade (x3)
+    if (form && form.parentElement) {
+      form.insertAdjacentElement("afterend", panel);
     } else {
-      anchor.parent.appendChild(panel);
+      var anchor = findInsertAnchor();
+      if (!anchor.parent) return;
+      if (anchor.before && anchor.before.parentElement) {
+        anchor.before.parentElement.insertBefore(panel, anchor.before);
+      } else if (anchor.after) {
+        anchor.after.insertAdjacentElement("afterend", panel);
+      } else {
+        anchor.parent.appendChild(panel);
+      }
     }
+
+    // Ne jamais laisser Enter / clic remonter au form parent
+    panel.addEventListener(
+      "keydown",
+      function (ev) {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+      },
+      true
+    );
+    panel.addEventListener(
+      "click",
+      function (ev) {
+        ev.stopPropagation();
+      },
+      true
+    );
 
     var fileInput = panel.querySelector("#forge-jts-file");
     var drop = panel.querySelector("#forge-jts-drop");
