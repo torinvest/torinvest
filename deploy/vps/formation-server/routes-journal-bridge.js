@@ -213,6 +213,8 @@ function mapRedirectToEmbed(location) {
 }
 
 function injectProxyShim(html) {
+  const screens =
+    '<script src="/js/forge-journal-trade-screens.js?v=1" defer></script>';
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   var P = "/journal-embed/";
@@ -247,9 +249,10 @@ function injectProxyShim(html) {
     return oOpen.apply(this, arguments);
   };
 })();</script>`;
-  if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, shim + "</head>");
-  if (/<body[^>]*>/i.test(html)) return html.replace(/<body([^>]*)>/i, "<body$1>" + shim);
-  return shim + html;
+  const inject = shim + screens;
+  if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, inject + "</head>");
+  if (/<body[^>]*>/i.test(html)) return html.replace(/<body([^>]*)>/i, "<body$1>" + inject);
+  return inject + html;
 }
 
 function rewriteJournalHtml(html) {
