@@ -44,11 +44,19 @@ function normalizeMime(raw) {
 
 /** Parse data URL — tolerates charset= / extra params / whitespace in base64. */
 function parseImageDataUrl(dataUrl) {
-  const raw = String(dataUrl || "");
+  const raw = String(dataUrl || "").trim();
   if (!raw) return null;
   // data:[mime][;param=…]*;base64,<payload>
-  const m = raw.match(/^data:([^;,]+)?((?:;[^,]*)*);base64,([\s\S]+)$/i);
-  if (!m) return null;
+  let m = raw.match(/^data:([^;,]+)?((?:;[^,]*)*);base64,([\s\S]+)$/i);
+  if (!m) {
+    // Rare: data:base64,… or bare base64 payload
+    m = raw.match(/^data:;?base64,([\s\S]+)$/i);
+    if (m) return { mime: "image/jpeg", b64: String(m[1] || "").replace(/\s+/g, "") };
+    if (/^[A-Za-z0-9+/=\s]+$/.test(raw) && raw.replace(/\s+/g, "").length >= 32) {
+      return { mime: "image/jpeg", b64: raw.replace(/\s+/g, "") };
+    }
+    return null;
+  }
   let mime = normalizeMime(m[1] || "");
   if (!mime || mime === "application/octet-stream" || mime === "binary/octet-stream") {
     mime = "image/jpeg";
@@ -56,6 +64,23 @@ function parseImageDataUrl(dataUrl) {
   const b64 = String(m[3] || "").replace(/\s+/g, "");
   if (!b64 || b64.length < 8) return null;
   return { mime, b64 };
+}
+
+function sniffImageMime(buf) {
+  if (!buf || buf.length < 4) return null;
+  if (buf[0] === 0xff && buf[1] === 0xd8) return "image/jpeg";
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return "image/png";
+  if (buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46) return "image/gif";
+  if (
+    buf.length > 12 &&
+    buf[0] === 0x52 &&
+    buf[1] === 0x49 &&
+    buf[8] === 0x57 &&
+    buf[9] === 0x45
+  ) {
+    return "image/webp";
+  }
+  return null;
 }
 
 function screensRoot() {
@@ -297,7 +322,7 @@ module.exports = function createJournalTradeScreensRouter() {
   }
 
   router.get("/api/journal-trade-screens/ping", (_req, res) => {
-    res.json({ ok: true, ready: true, version: 3, jpgPng: true, mimeLoose: true });
+    res.json({ ok: true, ready: true, version: 4, jpgPng: true, mimeLoose: true, sniff: true });
   });
 
   router.get("/api/journal-trade-screens-admin", async (req, res) => {
@@ -385,20 +410,18 @@ module.exports = function createJournalTradeScreensRouter() {
       const tradeKey = safeTradeKey(req.params.tradeKey);
       if (!tradeKey) return res.status(400).json({ error: "tradeKey invalide" });
 
-      const dataUrl = String(req.body?.dataUrl || "");
+      const dataUrl = String(req.body?.dataUrl || req.body?.data_url || "");
       let parsed = parseImageDataUrl(dataUrl);
-      // Fallback: mime + base64 séparés (certains clients)
-      if (!parsed && req.body?.base64) {
-        const mime = normalizeMime(req.body.mime || req.body.contentType || "image/jpeg");
-        const b64 = String(req.body.base64 || "").replace(/\s+/g, "");
+      // Fallback: mime + base64 séparés (certains clients / proxies)
+      if (!parsed && (req.body?.base64 || req.body?.imageBase64)) {
+        const mime = normalizeMime(
+          req.body.mime || req.body.contentType || req.body.type || "image/jpeg"
+        );
+        const b64 = String(req.body.base64 || req.body.imageBase64 || "").replace(/\s+/g, "");
         if (b64.length >= 8) parsed = { mime, b64 };
       }
       if (!parsed) return res.status(400).json({ error: "Image invalide (JPG ou PNG)" });
-      const mime = normalizeMime(parsed.mime);
-      const ext = ALLOWED_MIME[mime] || ALLOWED_MIME[normalizeMime(mime)];
-      if (!ext || (mime !== "image/jpeg" && mime !== "image/png" && mime !== "image/webp" && mime !== "image/gif")) {
-        return res.status(400).json({ error: "Type non supporté (JPG ou PNG)" });
-      }
+
       let buf;
       try {
         buf = Buffer.from(parsed.b64, "base64");
@@ -408,20 +431,21 @@ module.exports = function createJournalTradeScreensRouter() {
       if (!buf.length || buf.length > MAX_IMAGE_BYTES) {
         return res.status(400).json({ error: "Image trop lourde (max 6 Mo)" });
       }
-      // Magic-byte soft check (reject obvious non-images)
-      const isJpeg = buf[0] === 0xff && buf[1] === 0xd8;
-      const isPng = buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47;
-      const isGif = buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46;
-      const isWebp =
-        buf.length > 12 &&
-        buf[0] === 0x52 &&
-        buf[1] === 0x49 &&
-        buf[8] === 0x57 &&
-        buf[9] === 0x45;
-      if (!isJpeg && !isPng && !isGif && !isWebp) {
-        return res.status(400).json({ error: "Image invalide (JPG ou PNG)" });
+
+      // Magic bytes win over declared MIME (image/jpg, empty type, octet-stream, etc.)
+      const sniffed = sniffImageMime(buf);
+      let mime = sniffed || normalizeMime(parsed.mime);
+      if (!sniffed) {
+        // Last resort: declared jpeg/png family even if magic soft-fail (truncated prefix)
+        if (mime !== "image/jpeg" && mime !== "image/png" && mime !== "image/webp" && mime !== "image/gif") {
+          return res.status(400).json({ error: "Image invalide (JPG ou PNG)" });
+        }
       }
-      const finalExt = isPng ? ".png" : isGif ? ".gif" : isWebp ? ".webp" : ".jpg";
+      mime = normalizeMime(mime);
+      const ext = ALLOWED_MIME[mime] || ALLOWED_MIME[normalizeMime(mime)];
+      if (!ext) return res.status(400).json({ error: "Type non supporté (JPG ou PNG)" });
+      const finalExt =
+        mime === "image/png" ? ".png" : mime === "image/gif" ? ".gif" : mime === "image/webp" ? ".webp" : ".jpg";
 
       const idx = readIndex(user.email);
       const prev = idx.trades[tradeKey] || emptyTrade(tradeKey);

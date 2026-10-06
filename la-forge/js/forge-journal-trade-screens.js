@@ -105,6 +105,7 @@
       var tag = String(el.tagName || "").toLowerCase();
       if (tag !== "input" && tag !== "select" && tag !== "textarea") return false;
       var type = String(el.type || "text").toLowerCase();
+      // CRITICAL: skip hidden — TJ often has action=add_trade / page=add_trade
       if (
         type === "hidden" ||
         type === "submit" ||
@@ -117,8 +118,20 @@
       ) {
         return false;
       }
-      if (el.disabled || el.readOnly) return false;
+      if (el.disabled) return false;
+      // readOnly OK (certains date pickers)
       return true;
+    }
+
+    function fieldValue(el) {
+      if (!el) return "";
+      var v = String(el.value || "").trim();
+      if (v) return v;
+      if (String(el.tagName || "").toLowerCase() === "select" && el.selectedIndex >= 0) {
+        var opt = el.options[el.selectedIndex];
+        if (opt) return String(opt.text || opt.value || "").trim();
+      }
+      return "";
     }
 
     function fieldHint(el) {
@@ -133,21 +146,33 @@
         } catch (_) {}
       }
       var parentLab = el.closest("label");
-      var group = el.closest(".form-group, .field, .mb-3, .form-floating, .input-group");
+      var group = el.closest(
+        ".form-group, .field, .mb-3, .form-floating, .input-group, .row > div, .col, td, tr"
+      );
       var groupLab = "";
       if (group) {
-        var gl = group.querySelector("label, .form-label, .label, legend, small, span");
-        if (gl && String(gl.textContent || "").length < 80) {
+        var gl = null;
+        var kids = group.children || [];
+        for (var ci = 0; ci < kids.length; ci++) {
+          var tag = String(kids[ci].tagName || "").toLowerCase();
+          var cls = String(kids[ci].className || "");
+          if (tag === "label" || tag === "legend" || /\bform-label\b|\blabel\b/.test(cls)) {
+            gl = kids[ci];
+            break;
+          }
+        }
+        if (!gl) gl = group.querySelector("label, .form-label, .label, legend");
+        if (gl && String(gl.textContent || "").trim().length < 60) {
           groupLab = String(gl.textContent || "");
         }
       }
       return (
         lab ||
-        (parentLab ? String(parentLab.textContent || "").slice(0, 80) : "") ||
+        (parentLab ? String(parentLab.textContent || "").slice(0, 60) : "") ||
         groupLab ||
         el.getAttribute("aria-label") ||
-        el.name ||
         el.placeholder ||
+        el.name ||
         id ||
         ""
       )
@@ -156,14 +181,59 @@
         .trim();
     }
 
+    /** French TJ labels first — walk <label> then associated control. */
+    function byFrenchLabel(re) {
+      var labs = document.querySelectorAll("label, .form-label, .label, legend, th");
+      for (var i = 0; i < labs.length; i++) {
+        var lab = labs[i];
+        var txt = String(lab.textContent || "")
+          .toLowerCase()
+          .replace(/\s+/g, " ")
+          .trim();
+        if (!txt || txt.length > 48) continue;
+        if (!re.test(txt)) continue;
+        var el = null;
+        var forId = lab.getAttribute("for");
+        if (forId) {
+          try {
+            el = document.getElementById(forId);
+          } catch (_) {}
+        }
+        if (!el) {
+          el = lab.querySelector("input, select, textarea");
+        }
+        if (!el) {
+          var wrap = lab.closest(".form-group, .field, .mb-3, .form-floating, td, tr, div");
+          if (wrap) el = wrap.querySelector("input, select, textarea");
+        }
+        if (!el) {
+          var next = lab.nextElementSibling;
+          while (next && !el) {
+            if (/^(INPUT|SELECT|TEXTAREA)$/i.test(next.tagName)) el = next;
+            else el = next.querySelector && next.querySelector("input, select, textarea");
+            if (!el) next = next.nextElementSibling;
+          }
+        }
+        if (el && isFieldEl(el)) {
+          var v = fieldValue(el);
+          if (v && !/^add[_-\s]?trade$/i.test(v)) return v;
+        }
+      }
+      return "";
+    }
+
     function byName(res) {
       var nodes = document.querySelectorAll("input, select, textarea");
       for (var i = 0; i < nodes.length; i++) {
         var el = nodes[i];
         if (!isFieldEl(el)) continue;
         var name = String(el.name || el.id || "").toLowerCase();
+        if (/add[_-]?trade|action|page|view|tab|nav/i.test(name)) continue;
         for (var j = 0; j < res.length; j++) {
-          if (res[j].test(name)) return String(el.value || "").trim();
+          if (res[j].test(name)) {
+            var v = fieldValue(el);
+            if (v && !/^add[_-\s]?trade$/i.test(v)) return v;
+          }
         }
       }
       return "";
@@ -176,45 +246,61 @@
         if (!isFieldEl(el)) continue;
         var hint = fieldHint(el);
         // Ignore huge wraps that would match every field on the page
-        if (!hint || hint.length > 120) continue;
-        if (re.test(hint)) return String(el.value || "").trim();
+        if (!hint || hint.length > 80) continue;
+        if (/ajouter\s*un\s*trade|screenshots?\s*du\s*trade/i.test(hint)) continue;
+        if (re.test(hint)) {
+          var v = fieldValue(el);
+          if (v && !/^add[_-\s]?trade$/i.test(v)) return v;
+        }
       }
       return "";
     }
 
     function byType(types) {
       for (var t = 0; t < types.length; t++) {
-        var el = document.querySelector('input[type="' + types[t] + '"]');
-        if (el && isFieldEl(el)) return String(el.value || "").trim();
+        var nodes = document.querySelectorAll('input[type="' + types[t] + '"]');
+        for (var i = 0; i < nodes.length; i++) {
+          var el = nodes[i];
+          if (el && isFieldEl(el)) {
+            var v = fieldValue(el);
+            if (v) return v;
+          }
+        }
       }
       return "";
     }
 
     var pair =
-      byName([/pair|symbol|asset|instrument|ticker|actif|paire/]) ||
-      byLabel(/^(?!.*entr).*(\bactif\b|\bpaire\b|\bsymbol|\binstrument)/);
+      byFrenchLabel(/^(actif|paire|symbol|instrument|ticker)\b/) ||
+      byName([/^(pair|symbol|asset|instrument|ticker|actif|paire)/]) ||
+      byLabel(/^(?!.*entr).*(\bactif\b|\bpaire\b|\bsymbol|\binstrument|\bticker\b)/);
     var direction =
-      byName([/direction|side|sens|buy.?sell|long.?short/]) ||
-      byLabel(/\bdirection\b|\bsens\b|\bside\b|\blong\b|\bshort\b/);
+      byFrenchLabel(/^(direction|sens|side|long\s*\/\s*short)\b/) ||
+      byName([/^(direction|side|sens|buy.?sell|long.?short)/]) ||
+      byLabel(/^\s*(direction|sens|side|long|short)\b/);
     var entry =
-      byName([/entr[eyi]|open.?price|prix.?entr/]) ||
-      byLabel(/prix\s*d['’]?entr|entry\s*price|\bentr[ée]e\b/);
+      byFrenchLabel(/prix\s*d['’]?entr|entry\s*price|^(entr[ée]e)\b/) ||
+      byName([/^(entr[eyi]|open.?price|prix.?entr|entry)/]) ||
+      byLabel(/prix\s*d['’]?entr|entry\s*price|^\s*entr[ée]e\b/);
     var date =
-      byName([/date|time|heure|datetime|opened/]) ||
+      byFrenchLabel(/^(date|heure|date\s*\/\s*heure|date\s*et\s*heure)\b/) ||
       byType(["datetime-local", "date", "time"]) ||
-      byLabel(/\bdate\b|\bheure\b|date\s*\/\s*heure/);
+      byName([/^(date|time|heure|datetime|opened|open_date)/]) ||
+      byLabel(/^\s*(date|heure|date\s*\/\s*heure)\b/);
     var setup =
-      byName([/setup|strat|strategy/]) || byLabel(/\bsetup\b|\bstrat/);
+      byFrenchLabel(/^(setup|strat)/) ||
+      byName([/^(setup|strat|strategy)/]) ||
+      byLabel(/^\s*(setup|strat)/);
     return { pair: pair, direction: direction, entry: entry, date: date, setup: setup };
   }
 
   function cleanField(s) {
     var v = String(s || "").trim();
     if (!v) return "";
-    if (/^add[_-\s]?trade$/i.test(v)) return "";
+    if (/add[_-\s]?trade/i.test(v)) return "";
     if (/ajouter\s*un\s*trade/i.test(v)) return "";
     if (/^screens?/i.test(v) && v.length < 12) return "";
-    if (/^(na|n\/a|null|undefined|none|—|-)$/i.test(v)) return "";
+    if (/^(na|n\/a|null|undefined|none|—|-|\.|choisir|select|sélection)/i.test(v)) return "";
     return v;
   }
 
@@ -499,12 +585,12 @@
       renderGallery(gal, tradeKey, (data.trade && data.trade.images) || []);
       if (status) {
         status.className = "jts-status";
-        status.textContent =
-          "Clé trade : " +
-          tradeKey +
-          (meta.pair ? " · " + meta.pair : "") +
-          (meta.direction ? " · " + meta.direction : "") +
-          (meta.date ? " · " + meta.date.slice(0, 16) : "");
+        var bits = ["Clé trade : " + tradeKey];
+        if (meta.pair) bits.push(meta.pair);
+        if (meta.direction) bits.push(meta.direction);
+        if (meta.date) bits.push(meta.date.slice(0, 16));
+        if (!meta.pair && !meta.date) bits.push("(remplis Actif / Date pour lier)");
+        status.textContent = bits.join(" · ");
       }
     } catch (err) {
       if (status) {
@@ -514,8 +600,20 @@
     }
   }
 
+  function dataUrlParts(dataUrl) {
+    var m = String(dataUrl || "").match(/^data:(image\/(?:jpeg|png|webp|gif));base64,(.+)$/i);
+    if (!m) return null;
+    return { mime: m[1].toLowerCase(), base64: m[2] };
+  }
+
   async function uploadFiles(panel, files) {
     var list = Array.prototype.slice.call(files || []).filter(isAllowedImageFile);
+    if (!list.length) {
+      // Last chance: accept by extension even if MIME filter missed
+      list = Array.prototype.slice.call(files || []).filter(function (f) {
+        return /\.(jpe?g|png|jfif)$/i.test(String((f && f.name) || ""));
+      });
+    }
     if (!list.length) {
       throw new Error("Choisis un fichier JPG ou PNG");
     }
@@ -532,14 +630,25 @@
         status.className = "jts-status";
         status.textContent = "Envoi screen " + (i + 1) + "/" + list.length + "…";
       }
-      var dataUrl = await compressImageFile(list[i]);
+      var file = list[i];
+      var prefer = guessImageMime(file) || "image/jpeg";
+      var dataUrl;
+      try {
+        dataUrl = await compressImageFile(file);
+      } catch (compErr) {
+        dataUrl = await readFileAsDataUrl(file, prefer === "image/png" ? "image/png" : "image/jpeg");
+      }
+      dataUrl = normalizeDataUrl(dataUrl, prefer === "image/png" ? "image/png" : "image/jpeg");
       if (!dataUrl || !/^data:image\/(jpeg|png|webp|gif);base64,/i.test(dataUrl)) {
         throw new Error("Image invalide après conversion (JPG/PNG requis)");
       }
+      var parts = dataUrlParts(dataUrl);
       await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey) + "/images", {
         method: "POST",
         body: JSON.stringify({
           dataUrl: dataUrl,
+          mime: parts ? parts.mime : "image/jpeg",
+          base64: parts ? parts.base64 : "",
           caption: "",
           pair: meta.pair,
           direction: meta.direction,

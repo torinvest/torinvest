@@ -2,21 +2,20 @@
 # HOTFIX — Upload JPG/PNG dans TJ Pro (inject) + clé trade réelle
 #
 # Corrige :
-#   • « Image invalide (JPG ou PNG) » — dataUrl normalisé côté client + MIME loose serveur
-#   • clé trade « add_trade_trade_na_add_trade » — lecture DOM TJ (pair/date/direction)
-#   • inject script ?v=3
+#   • « Image invalide (JPG ou PNG) » — dataUrl loose + magic-byte sniff + base64 fallback
+#   • clé trade « add_trade_trade_na_add_trade » — ignore hidden action=add_trade, labels FR
+#   • inject script ?v=4
 #
 # Sur le VPS (UNE seule commande) :
-#   unset REF SHA BRANCH JOURNAL_SCREENS_REF
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-upload-jpg-fix-691a/deploy/vps/HOTFIX-JOURNAL-UPLOAD-JPG.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-jpg-upload-fix-691a/deploy/vps/HOTFIX-JOURNAL-UPLOAD-JPG.sh" | bash
 #
 set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
-SCRIPT_REF="${SCRIPT_REF:-cursor/journal-upload-jpg-fix-691a}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
+SCRIPT_REF="cursor/journal-jpg-upload-fix-691a"
+RAW="https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-jpg-upload-fix-691a"
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-EXPECTED_INJECT="forge-journal-trade-screens.js?v=3"
+EXPECTED_INJECT="forge-journal-trade-screens.js?v=4"
 
 PM2_CWD="$(pm2 jlist 2>/dev/null | python3 -c '
 import json,sys
@@ -41,9 +40,10 @@ curl -fsSL "$RAW/deploy/vps/formation-server/routes-journal-bridge.js" -o "$TMP/
 
 # Sanity artefacts
 grep -q 'normalizeDataUrl\|canvasToCleanDataUrl' "$TMP/forge-journal-trade-screens.js"
-grep -q 'parseImageDataUrl\|mimeLoose' "$TMP/routes-journal-trade-screens.js"
+grep -q 'parseImageDataUrl\|sniffImageMime\|mimeLoose' "$TMP/routes-journal-trade-screens.js"
 grep -q "$EXPECTED_INJECT" "$TMP/routes-journal-bridge.js"
-grep -q 'draft-\|cleanField' "$TMP/forge-journal-trade-screens.js"
+grep -q 'byFrenchLabel\|draft-\|cleanField' "$TMP/forge-journal-trade-screens.js"
+grep -q 'hidden' "$TMP/forge-journal-trade-screens.js"
 # Pas de barre bleue Forge dans ces artefacts
 if grep -qE 'journal-screens-bar|showJournalWithScreens|jts-dropzone' "$TMP/forge-journal-trade-screens.js"; then
   echo "ÉCHEC: artefact contient encore UI shell screens"
@@ -116,13 +116,14 @@ echo "=== ping API ==="
 PING="$(curl -sS "http://127.0.0.1:3001/api/journal-trade-screens/ping" || true)"
 echo "$PING"
 echo "$PING" | grep -q '"ok"' || { echo "ÉCHEC ping"; exit 1; }
-echo "$PING" | grep -q 'mimeLoose\|"version":3\|version.:3' || echo "(warn: ping sans mimeLoose — cache require?)"
+echo "$PING" | grep -q 'mimeLoose\|"version":4\|version.:4\|sniff' || echo "(warn: ping sans sniff v4 — cache require?)"
 
 echo ""
 echo "=== sanity inject bridge ==="
 grep -n "$EXPECTED_INJECT" "$APP_DIR/server-patches/routes-journal-bridge.js" | head -3
-grep -q 'parseImageDataUrl' "$APP_DIR/server-patches/routes-journal-trade-screens.js"
+grep -q 'parseImageDataUrl\|sniffImageMime' "$APP_DIR/server-patches/routes-journal-trade-screens.js"
 grep -q 'normalizeDataUrl' "$APP_DIR/public/js/forge-journal-trade-screens.js"
+grep -q 'byFrenchLabel' "$APP_DIR/public/js/forge-journal-trade-screens.js"
 
 echo ""
 echo "OK — upload JPG/PNG fix déployé."
