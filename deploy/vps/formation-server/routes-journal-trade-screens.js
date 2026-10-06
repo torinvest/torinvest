@@ -7,6 +7,7 @@
  * PUT    /api/journal-trade-screens/:tradeKey
  * POST   /api/journal-trade-screens/:tradeKey/images
  * DELETE /api/journal-trade-screens/:tradeKey/images/:imageId
+ * POST   /api/journal-trade-screens/:tradeKey/images/:imageId/delete  (fallback)
  * GET    /api/journal-trade-screens/:tradeKey/media/:fileName
  */
 "use strict";
@@ -322,7 +323,16 @@ module.exports = function createJournalTradeScreensRouter() {
   }
 
   router.get("/api/journal-trade-screens/ping", (_req, res) => {
-    res.json({ ok: true, ready: true, version: 5, jpgPng: true, mimeLoose: true, sniff: true });
+    res.json({
+      ok: true,
+      ready: true,
+      version: 6,
+      jpgPng: true,
+      mimeLoose: true,
+      sniff: true,
+      deleteFix: true,
+      deletePostFallback: true,
+    });
   });
 
   router.get("/api/journal-trade-screens-admin", async (req, res) => {
@@ -489,30 +499,65 @@ module.exports = function createJournalTradeScreensRouter() {
     }
   });
 
-  router.delete("/api/journal-trade-screens/:tradeKey/images/:imageId", async (req, res) => {
+  async function deleteTradeImage(req, res) {
     try {
       const user = await requirePremium(req, res);
       if (!user) return;
       const tradeKey = safeTradeKey(req.params.tradeKey);
       if (!tradeKey) return res.status(400).json({ error: "tradeKey invalide" });
+      const imageIdRaw = String(req.params.imageId || "").trim();
+      let imageId = imageIdRaw;
+      try {
+        imageId = decodeURIComponent(imageIdRaw);
+      } catch (_) {
+        imageId = imageIdRaw;
+      }
+      if (!imageId) return res.status(400).json({ error: "imageId invalide" });
       const idx = readIndex(user.email);
       const prev = idx.trades[tradeKey];
       if (!prev) return res.status(404).json({ error: "Trade introuvable" });
-      const img = (prev.images || []).find((i) => i.id === req.params.imageId);
-      if (!img) return res.status(404).json({ error: "Image introuvable" });
-      prev.images = prev.images.filter((i) => i.id !== req.params.imageId);
+      const imgs = prev.images || [];
+      const img = imgs.find(
+        (i) =>
+          i &&
+          (i.id === imageId ||
+            i.file === imageId ||
+            String(i.id || "") === imageIdRaw ||
+            String(i.file || "") === imageIdRaw ||
+            String(i.file || "").startsWith(imageId) ||
+            String(i.file || "").replace(/\.[^.]+$/, "") === imageId)
+      );
+      if (!img) {
+        console.warn(
+          "[journal-trade-screens] delete miss",
+          tradeKey,
+          imageId,
+          "have=",
+          imgs.map((i) => i && i.id)
+        );
+        return res.status(404).json({
+          error: "Image introuvable",
+          imageId,
+          knownIds: imgs.map((i) => (i && i.id) || null).filter(Boolean),
+        });
+      }
+      prev.images = (prev.images || []).filter((i) => i && i.id !== img.id);
       prev.updatedAt = new Date().toISOString();
       idx.trades[tradeKey] = prev;
       writeIndex(user.email, idx);
       try {
         fs.unlinkSync(path.join(userDir(user.email), "media", tradeKey, img.file));
       } catch (_) {}
-      return res.json({ ok: true, trade: publicTrade(prev) });
+      return res.json({ ok: true, deleted: img.id, trade: publicTrade(prev) });
     } catch (err) {
       console.error("[journal-trade-screens] delete", err && err.message);
       return res.status(500).json({ error: "Erreur serveur" });
     }
-  });
+  }
+
+  router.delete("/api/journal-trade-screens/:tradeKey/images/:imageId", deleteTradeImage);
+  // Fallback si DELETE bloqué (proxy / CDN)
+  router.post("/api/journal-trade-screens/:tradeKey/images/:imageId/delete", deleteTradeImage);
 
   router.get("/api/journal-trade-screens/:tradeKey/media/:fileName", async (req, res) => {
     try {

@@ -41,7 +41,10 @@
       "#forge-jts-panel .jts-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.65rem;margin-top:.75rem}" +
       "#forge-jts-panel .jts-shot{margin:0;border:1px solid var(--border,#e2e8f0);border-radius:10px;overflow:hidden;background:#000;position:relative}" +
       "#forge-jts-panel .jts-shot img{display:block;width:100%;height:auto;cursor:zoom-in}" +
-      "#forge-jts-panel .jts-shot button{position:absolute;top:6px;right:6px;font-size:.7rem;padding:.2rem .4rem;border-radius:6px;border:0;background:rgba(0,0,0,.7);color:#fff;cursor:pointer}" +
+      "#forge-jts-panel .jts-shot button,#forge-jts-drawer .jts-del{position:absolute;top:6px;right:6px;font-size:.75rem;padding:.35rem .55rem;border-radius:6px;border:0;background:#c53030;color:#fff;font-weight:700;cursor:pointer;z-index:2}" +
+      "#forge-jts-drawer .jts-shot{position:relative;display:inline-block;width:72px;margin:2px}" +
+      "#forge-jts-drawer .jts-shot img{width:100%;border-radius:6px;display:block}" +
+      "#forge-jts-drawer .jts-del{position:absolute}" +
       "#forge-jts-panel .jts-status{font-size:.8rem;color:var(--text2,#718096);min-height:1.2em}" +
       "#forge-jts-panel .jts-status.is-error{color:#c53030}" +
       "#forge-jts-panel .jts-status.is-ok{color:#276749}" +
@@ -566,6 +569,29 @@
     ov.classList.add("open");
   }
 
+  async function deleteScreen(tradeKey, imageId) {
+    var tk = String(tradeKey || "").trim();
+    var id = String(imageId || "").trim();
+    if (!tk || !id) throw new Error("tradeKey / imageId manquant");
+    var path =
+      "/api/journal-trade-screens/" +
+      encodeURIComponent(tk) +
+      "/images/" +
+      encodeURIComponent(id);
+    try {
+      return await api(path, { method: "DELETE" });
+    } catch (err) {
+      // Fallback POST si DELETE refusé (proxy / CDN / method override)
+      try {
+        return await api(path + "/delete", { method: "POST", body: "{}" });
+      } catch (err2) {
+        throw new Error(
+          (err2 && err2.message) || (err && err.message) || "Suppression impossible"
+        );
+      }
+    }
+  }
+
   function renderGallery(root, tradeKey, images) {
     if (!images || !images.length) {
       root.innerHTML = '<p class="jts-hint">Aucun screen pour ce trade.</p>';
@@ -574,14 +600,17 @@
     root.innerHTML = images
       .map(function (img) {
         var src = mediaUrl(tradeKey, img.file);
+        var id = img.id || img.file || "";
         return (
           '<figure class="jts-shot" data-src="' +
           esc(src) +
           '"><img src="' +
           esc(src) +
-          '" alt="" loading="lazy" /><button type="button" data-del="' +
-          esc(img.id) +
-          '">Retirer</button></figure>'
+          '" alt="" loading="lazy" /><button type="button" class="jts-del" data-del="' +
+          esc(id) +
+          '" data-trade="' +
+          esc(tradeKey) +
+          '" title="Supprimer ce screen">✕ Effacer</button></figure>'
         );
       })
       .join("");
@@ -805,7 +834,8 @@
       }
     }
 
-    // Ne jamais laisser Enter / clic remonter au form parent
+    // Enter ne doit pas submit le form TJ — mais NE PAS bloquer les clics
+    // en capture (sinon le bouton Effacer ne marche jamais).
     panel.addEventListener(
       "keydown",
       function (ev) {
@@ -816,13 +846,10 @@
       },
       true
     );
-    panel.addEventListener(
-      "click",
-      function (ev) {
-        ev.stopPropagation();
-      },
-      true
-    );
+    panel.addEventListener("click", function (ev) {
+      // Bubble only: laisse les handlers internes (Effacer) tourner d’abord
+      ev.stopPropagation();
+    });
 
     var fileInput = panel.querySelector("#forge-jts-file");
     var drop = panel.querySelector("#forge-jts-drop");
@@ -888,20 +915,24 @@
     panel.querySelector(".jts-gallery").addEventListener("click", async function (ev) {
       var btn = ev.target.closest("[data-del]");
       if (!btn) return;
-      var tradeKey = panel.dataset.tradeKey;
-      if (!tradeKey) return;
-      if (!confirm("Retirer ce screen ?")) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      var tradeKey = btn.getAttribute("data-trade") || panel.dataset.tradeKey;
+      var imageId = btn.getAttribute("data-del");
+      if (!tradeKey || !imageId) return;
+      if (!confirm("Effacer ce screen définitivement ?")) return;
+      btn.disabled = true;
       try {
-        await api(
-          "/api/journal-trade-screens/" +
-            encodeURIComponent(tradeKey) +
-            "/images/" +
-            encodeURIComponent(btn.getAttribute("data-del")),
-          { method: "DELETE" }
-        );
+        await deleteScreen(tradeKey, imageId);
         await refreshPanel(panel);
+        var status = panel.querySelector(".jts-status");
+        if (status) {
+          status.className = "jts-status is-ok";
+          status.textContent = "Screen effacé.";
+        }
       } catch (err) {
-        alert(err.message || String(err));
+        btn.disabled = false;
+        alert("Effacer screen : " + (err.message || err));
       }
     });
 
@@ -946,15 +977,21 @@
       list.innerHTML = trades
         .map(function (t) {
           var thumbs = (t.images || [])
-            .slice(0, 4)
             .map(function (img) {
               var src = mediaUrl(t.tradeKey, img.file);
+              var id = img.id || img.file || "";
               return (
-                '<a href="' +
+                '<figure class="jts-shot" data-src="' +
                 esc(src) +
-                '" target="_blank" rel="noopener" style="display:inline-block;width:64px;margin:2px"><img src="' +
+                '"><a href="' +
                 esc(src) +
-                '" alt="" style="width:100%;border-radius:6px" /></a>'
+                '" target="_blank" rel="noopener"><img src="' +
+                esc(src) +
+                '" alt="" /></a><button type="button" class="jts-del" data-del="' +
+                esc(id) +
+                '" data-trade="' +
+                esc(t.tradeKey) +
+                '" title="Supprimer ce screen">✕ Effacer</button></figure>'
               );
             })
             .join("");
@@ -973,6 +1010,27 @@
           );
         })
         .join("");
+      if (!drawer.dataset.jtsDelBound) {
+        drawer.dataset.jtsDelBound = "1";
+        list.addEventListener("click", async function (ev) {
+          var btn = ev.target.closest("[data-del]");
+          if (!btn) return;
+          ev.preventDefault();
+          ev.stopPropagation();
+          var tradeKey = btn.getAttribute("data-trade");
+          var imageId = btn.getAttribute("data-del");
+          if (!tradeKey || !imageId) return;
+          if (!confirm("Effacer ce screen définitivement ?")) return;
+          btn.disabled = true;
+          try {
+            await deleteScreen(tradeKey, imageId);
+            openDrawer();
+          } catch (err) {
+            btn.disabled = false;
+            alert("Effacer screen : " + (err.message || err));
+          }
+        });
+      }
     } catch (err) {
       list.innerHTML = '<p class="jts-hint">' + esc(err.message || err) + "</p>";
     }
