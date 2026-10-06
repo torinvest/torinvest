@@ -48,17 +48,20 @@
       "#forge-jts-panel .jts-status{font-size:.8rem;color:var(--text2,#718096);min-height:1.2em}" +
       "#forge-jts-panel .jts-status.is-error{color:#c53030}" +
       "#forge-jts-panel .jts-status.is-ok{color:#276749}" +
-      "#forge-jts-drawer{position:fixed;inset:0;z-index:2147483000;display:none;background:rgba(0,0,0,.45)}" +
-      "#forge-jts-drawer.open{display:block}" +
-      "#forge-jts-drawer .jts-drawer-card{position:absolute;top:0;right:0;width:min(420px,100%);height:100%;background:var(--bg2,#fff);color:var(--text,#1a202c);padding:1rem 1.1rem;overflow:auto;box-shadow:-8px 0 32px rgba(0,0,0,.25)}" +
+      "#forge-jts-drawer{position:fixed;inset:0;z-index:2147483000;display:none;pointer-events:none;background:rgba(0,0,0,.45)}" +
+      "#forge-jts-drawer.open{display:block;pointer-events:auto}" +
+      "#forge-jts-drawer .jts-drawer-card{position:absolute;top:0;right:0;width:min(420px,100%);height:100%;background:var(--bg2,#fff);color:var(--text,#1a202c);padding:1rem 1.1rem;overflow:auto;box-shadow:-8px 0 32px rgba(0,0,0,.25);pointer-events:auto}" +
       "#forge-jts-drawer .jts-drawer-card h2{margin:0 0 .75rem;font-size:1.1rem;color:#6366f1}" +
       "#forge-jts-drawer .jts-trade{border:1px solid var(--border,#e2e8f0);border-radius:10px;padding:.7rem;margin-bottom:.65rem}" +
       "#forge-jts-drawer .jts-trade strong{display:block;margin-bottom:.25rem}" +
-      "#forge-jts-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.92);display:none;flex-direction:column}" +
-      "#forge-jts-overlay.open{display:flex}" +
+      "#forge-jts-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.92);display:none;pointer-events:none;flex-direction:column}" +
+      "#forge-jts-overlay.open{display:flex;pointer-events:auto}" +
       "#forge-jts-overlay .bar{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;background:#111;color:#ffd700}" +
       "#forge-jts-overlay .stage{flex:1;overflow:auto;text-align:center;padding:12px}" +
-      "#forge-jts-overlay img{max-width:none!important;width:auto!important;height:auto!important}";
+      "#forge-jts-overlay img{max-width:none!important;width:auto!important;height:auto!important}" +
+      /* Panel stays in document flow — never cover the trade list */
+      "#forge-jts-panel{position:relative;z-index:1;pointer-events:auto}" +
+      "#forge-jts-nav{position:relative;z-index:1}";
     document.head.appendChild(st);
   }
 
@@ -87,19 +90,95 @@
     return document.querySelector("aside, nav.sidebar, .sidebar, #sidebar, .side-nav");
   }
 
-  function pageText() {
-    return document.body ? String(document.body.innerText || "") : "";
+  function mainContentRoot() {
+    return (
+      document.querySelector(
+        "main, .content, .card, #content, .main-content, .page-content, .container"
+      ) || document.body
+    );
   }
 
+  /** True only on the real « Ajouter un trade » form — never on trade list / detail. */
   function isAddTradePage() {
     var qs = String(location.search || "") + String(location.hash || "");
-    if (/add[_-]?trade|action=add|page=add|nouveau.?trade/i.test(qs)) return true;
-    var h = document.querySelector("h1,h2,.card-title,.page-title,.content h1,.content h2");
-    if (h && /ajouter\s*un\s*trade/i.test(h.textContent || "")) return true;
-    var t = pageText();
-    if (/ajouter\s*un\s*trade/i.test(t) && /prix\s*d['’]?entr/i.test(t)) return true;
-    if (/ajouter\s*un\s*trade/i.test(t) && /direction|actif|paire/i.test(t)) return true;
+    if (/add[_-]?trade|action=add[_-]?trade|page=add|nouveau.?trade/i.test(qs)) {
+      // Still require we are not clearly on a list-only URL
+      if (!/action=list|page=trades|view=list/i.test(qs)) return true;
+    }
+
+    var main = mainContentRoot();
+    if (!main) return false;
+
+    // Heading in main content (ignore sidebar link « Ajouter un trade »)
+    var headings = main.querySelectorAll("h1, h2, .card-title, .page-title");
+    var titled = false;
+    for (var hi = 0; hi < headings.length; hi++) {
+      var ht = String(headings[hi].textContent || "").replace(/\s+/g, " ").trim();
+      if (/^ajouter\s*un\s*trade$/i.test(ht) || /^nouveau\s*trade$/i.test(ht)) {
+        titled = true;
+        break;
+      }
+    }
+
+    // Must have a real add-trade form with entry / direction fields (not table headers)
+    var form = findAddTradeForm();
+    if (!form) return false;
+    if (titled) return true;
+
+    var formText = String(form.innerText || form.textContent || "").replace(/\s+/g, " ");
+    if (!/prix\s*d['’]?entr|entry\s*price/i.test(formText)) return false;
+    if (!/(direction|sens|actif|paire|long|short)/i.test(formText)) return false;
+    if (!/(enregistr|sauvegard|ajouter|save)/i.test(formText)) return false;
+    // Exclude trade list pages that happen to include a small filter form
+    if (looksLikeTradeListPage(main) && !titled) return false;
+    return true;
+  }
+
+  function looksLikeTradeListPage(root) {
+    var el = root || document.body;
+    if (!el) return false;
+    var tables = el.querySelectorAll("table tbody tr, .trade-row, [data-trade-id], .trades-list .trade");
+    if (tables.length >= 3) {
+      // List pages rarely have a visible "Prix d'entrée" input
+      var inputs = el.querySelectorAll("input, select, textarea");
+      var hasEntry = false;
+      for (var ii = 0; ii < inputs.length; ii++) {
+        var tip = String(
+          (inputs[ii].name || "") +
+            " " +
+            (inputs[ii].id || "") +
+            " " +
+            (inputs[ii].placeholder || "")
+        ).toLowerCase();
+        if (/entr[eyi]|entry|prix/.test(tip) && inputs[ii].type !== "hidden") {
+          hasEntry = true;
+          break;
+        }
+      }
+      if (!hasEntry) return true;
+    }
+    var h = el.querySelector("h1, h2, .card-title, .page-title");
+    var ht = h ? String(h.textContent || "").replace(/\s+/g, " ").trim() : "";
+    if (/^(trades|journal|historique|mes\s*trades|dashboard)$/i.test(ht)) return true;
     return false;
+  }
+
+  function findAddTradeForm() {
+    var forms = document.querySelectorAll("form");
+    for (var i = 0; i < forms.length; i++) {
+      var f = forms[i];
+      var t = String(f.innerText || f.textContent || "").replace(/\s+/g, " ");
+      if (/prix\s*d['’]?entr|entry\s*price/i.test(t) && /(direction|sens|actif|paire)/i.test(t)) {
+        return f;
+      }
+    }
+    // Fallback: first form only if page title says add trade
+    var main = mainContentRoot();
+    var h = main && main.querySelector("h1, h2, .card-title, .page-title");
+    if (h && /ajouter\s*un\s*trade/i.test(h.textContent || "")) {
+      return document.querySelector("form");
+    }
+    return null;
   }
 
   function readFormMeta() {
@@ -552,21 +631,41 @@
     );
   }
 
+  function closeOverlay() {
+    var ov = document.getElementById("forge-jts-overlay");
+    if (!ov) return;
+    ov.classList.remove("open");
+    ov.setAttribute("aria-hidden", "true");
+  }
+
   function openOverlay(src) {
     var ov = document.getElementById("forge-jts-overlay");
     if (!ov) {
       ov = document.createElement("div");
       ov.id = "forge-jts-overlay";
+      ov.setAttribute("role", "dialog");
+      ov.setAttribute("aria-modal", "true");
       ov.innerHTML =
         '<div class="bar"><span>Screen trade — taille réelle</span><span><a id="forge-jts-ov-open" target="_blank" rel="noopener" style="color:#ffd700;margin-right:12px">Onglet</a><button type="button" id="forge-jts-ov-close" style="cursor:pointer">Fermer</button></span></div><div class="stage"><img id="forge-jts-ov-img" alt="" /></div>';
       document.documentElement.appendChild(ov);
-      ov.querySelector("#forge-jts-ov-close").onclick = function () {
-        ov.classList.remove("open");
+      ov.querySelector("#forge-jts-ov-close").onclick = function (ev) {
+        if (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+        closeOverlay();
       };
+      // Click on dark backdrop (not the image) closes — never trap TJ forever
+      ov.addEventListener("click", function (ev) {
+        if (ev.target === ov || (ev.target && ev.target.classList && ev.target.classList.contains("stage"))) {
+          closeOverlay();
+        }
+      });
     }
     ov.querySelector("#forge-jts-ov-img").src = src;
     ov.querySelector("#forge-jts-ov-open").href = src;
     ov.classList.add("open");
+    ov.setAttribute("aria-hidden", "false");
   }
 
   async function deleteScreen(tradeKey, imageId) {
@@ -740,7 +839,7 @@
   }
 
   function findInsertAnchor() {
-    var form = document.querySelector("form");
+    var form = findAddTradeForm() || document.querySelector("form");
     if (!form) {
       var main =
         document.querySelector("main, .content, .card, .container, #content") || document.body;
@@ -794,11 +893,19 @@
     if (!isAddTradePage()) {
       var existing = document.getElementById(PANEL_ID);
       if (existing) existing.remove();
+      // Never leave full-screen blockers if we left add-trade
+      closeOverlay();
+      var drawer = document.getElementById("forge-jts-drawer");
+      if (drawer && !drawer.classList.contains("open")) {
+        drawer.style.pointerEvents = "none";
+      }
       return;
     }
     if (document.getElementById(PANEL_ID)) return;
 
-    var form = document.querySelector("form");
+    // Never bind to a random filter/list form — wait until the add-trade form exists
+    var form = findAddTradeForm();
+    if (!form) return;
     guardTradeFormSubmit(form);
 
     var panel = document.createElement("div");
@@ -834,22 +941,21 @@
       }
     }
 
-    // Enter ne doit pas submit le form TJ — mais NE PAS bloquer les clics
-    // en capture (sinon le bouton Effacer ne marche jamais).
+    // Enter dans le panel ne doit pas submit le form TJ.
+    // CRITICAL: ne JAMAIS stopPropagation sur click (capture OU bubble) —
+    // ça cassait Effacer et pouvait gêner la délégation TJ hors du panel.
     panel.addEventListener(
       "keydown",
       function (ev) {
-        if (ev.key === "Enter") {
+        if (ev.key === "Enter" && ev.target && ev.target.id !== "forge-jts-drop") {
+          // Allow Enter on dropzone (opens file picker); block other Enter→submit
+          if (ev.target.tagName === "TEXTAREA") return;
+          if (ev.target.closest && ev.target.closest("button, a, [data-del]")) return;
           ev.preventDefault();
-          ev.stopPropagation();
         }
       },
       true
     );
-    panel.addEventListener("click", function (ev) {
-      // Bubble only: laisse les handlers internes (Effacer) tourner d’abord
-      ev.stopPropagation();
-    });
 
     var fileInput = panel.querySelector("#forge-jts-file");
     var drop = panel.querySelector("#forge-jts-drop");
@@ -936,15 +1042,23 @@
       }
     });
 
-    document.addEventListener(
-      "change",
-      function () {
-        if (document.getElementById(PANEL_ID)) refreshPanel(panel);
-      },
-      true
-    );
+    // Scope to the add-trade form only — never document capture (breaks TJ list/detail)
+    if (form && form.dataset.jtsChangeBound !== "1") {
+      form.dataset.jtsChangeBound = "1";
+      form.addEventListener("change", function () {
+        var p = document.getElementById(PANEL_ID);
+        if (p) refreshPanel(p);
+      });
+    }
 
     refreshPanel(panel);
+  }
+
+  function closeDrawer() {
+    var drawer = document.getElementById("forge-jts-drawer");
+    if (!drawer) return;
+    drawer.classList.remove("open");
+    drawer.setAttribute("aria-hidden", "true");
   }
 
   async function openDrawer() {
@@ -952,17 +1066,23 @@
     if (!drawer) {
       drawer = document.createElement("div");
       drawer.id = "forge-jts-drawer";
+      drawer.setAttribute("aria-hidden", "true");
       drawer.innerHTML =
         '<div class="jts-drawer-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><h2>Screens des trades</h2><button type="button" id="forge-jts-drawer-close" class="jts-btn secondary">Fermer</button></div><div id="forge-jts-drawer-list"><p class="jts-hint">Chargement…</p></div></div>';
       document.documentElement.appendChild(drawer);
       drawer.addEventListener("click", function (ev) {
-        if (ev.target === drawer) drawer.classList.remove("open");
+        if (ev.target === drawer) closeDrawer();
       });
-      drawer.querySelector("#forge-jts-drawer-close").onclick = function () {
-        drawer.classList.remove("open");
+      drawer.querySelector("#forge-jts-drawer-close").onclick = function (ev) {
+        if (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+        closeDrawer();
       };
     }
     drawer.classList.add("open");
+    drawer.setAttribute("aria-hidden", "false");
     var list = drawer.querySelector("#forge-jts-drawer-list");
     try {
       var data = await api("/api/journal-trade-screens");
@@ -1057,14 +1177,51 @@
     else side.appendChild(a);
   }
 
+  var bootScheduled = null;
+  var bootQuietUntil = 0;
+
   function boot() {
     try {
       ensureStyles();
+      // Safety: closed overlays must never eat TJ trade-row clicks
+      var ov = document.getElementById("forge-jts-overlay");
+      if (ov && !ov.classList.contains("open")) {
+        ov.style.pointerEvents = "none";
+        ov.setAttribute("aria-hidden", "true");
+      }
+      var dr = document.getElementById("forge-jts-drawer");
+      if (dr && !dr.classList.contains("open")) {
+        dr.style.pointerEvents = "none";
+        dr.setAttribute("aria-hidden", "true");
+      }
       mountNav();
       mountAddTradePanel();
     } catch (e) {
       console.warn("[forge-jts]", e);
     }
+  }
+
+  function scheduleBoot(delay) {
+    if (bootScheduled) clearTimeout(bootScheduled);
+    bootScheduled = setTimeout(function () {
+      bootScheduled = null;
+      boot();
+    }, delay || 150);
+  }
+
+  function isOurNode(node) {
+    if (!node || node.nodeType !== 1) return false;
+    if (node.id === PANEL_ID || node.id === NAV_ID) return true;
+    if (node.id === "forge-jts-drawer" || node.id === "forge-jts-overlay") return true;
+    if (node.id === STYLE_ID) return true;
+    if (node.closest) {
+      return !!(
+        node.closest("#" + PANEL_ID) ||
+        node.closest("#forge-jts-drawer") ||
+        node.closest("#forge-jts-overlay")
+      );
+    }
+    return false;
   }
 
   if (document.readyState === "loading") {
@@ -1077,14 +1234,59 @@
   setTimeout(boot, 400);
   setTimeout(boot, 1200);
   setTimeout(boot, 3000);
+
+  // Escape ferme overlay/drawer sans toucher aux clics TJ
+  document.addEventListener(
+    "keydown",
+    function (ev) {
+      if (ev.key !== "Escape") return;
+      var ov = document.getElementById("forge-jts-overlay");
+      if (ov && ov.classList.contains("open")) {
+        closeOverlay();
+        return;
+      }
+      var dr = document.getElementById("forge-jts-drawer");
+      if (dr && dr.classList.contains("open")) closeDrawer();
+    },
+    false
+  );
+
   if (typeof MutationObserver !== "undefined" && document.documentElement) {
-    var obsTimer = null;
-    var obs = new MutationObserver(function () {
-      if (obsTimer) clearTimeout(obsTimer);
-      obsTimer = setTimeout(boot, 120);
+    var obs = new MutationObserver(function (mutations) {
+      if (Date.now() < bootQuietUntil) return;
+      var relevant = false;
+      for (var i = 0; i < mutations.length; i++) {
+        var m = mutations[i];
+        var nodes = [];
+        if (m.addedNodes && m.addedNodes.length) {
+          for (var a = 0; a < m.addedNodes.length; a++) nodes.push(m.addedNodes[a]);
+        }
+        if (m.removedNodes && m.removedNodes.length) {
+          for (var r = 0; r < m.removedNodes.length; r++) nodes.push(m.removedNodes[r]);
+        }
+        if (!nodes.length && m.target && !isOurNode(m.target)) {
+          relevant = true;
+          break;
+        }
+        for (var n = 0; n < nodes.length; n++) {
+          if (!isOurNode(nodes[n])) {
+            relevant = true;
+            break;
+          }
+        }
+        if (relevant) break;
+      }
+      if (!relevant) return;
+      // Quiet window after our own mounts to avoid observer feedback loops
+      bootQuietUntil = Date.now() + 80;
+      scheduleBoot(180);
     });
     obs.observe(document.documentElement, { childList: true, subtree: true });
   }
-  window.addEventListener("hashchange", boot);
-  window.addEventListener("popstate", boot);
+  window.addEventListener("hashchange", function () {
+    scheduleBoot(50);
+  });
+  window.addEventListener("popstate", function () {
+    scheduleBoot(50);
+  });
 })();

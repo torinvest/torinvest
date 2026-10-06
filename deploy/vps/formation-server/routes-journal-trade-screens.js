@@ -326,12 +326,13 @@ module.exports = function createJournalTradeScreensRouter() {
     res.json({
       ok: true,
       ready: true,
-      version: 6,
+      version: 7,
       jpgPng: true,
       mimeLoose: true,
       sniff: true,
       deleteFix: true,
       deletePostFallback: true,
+      clickDetailFix: true,
     });
   });
 

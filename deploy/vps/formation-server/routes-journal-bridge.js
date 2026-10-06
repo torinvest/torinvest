@@ -216,7 +216,7 @@ function mapRedirectToEmbed(location) {
 function injectProxyShim(html) {
   // Screens JPG/PNG DANS TJ Pro (sidebar + Ajouter un trade) — pas sur le shell Forge
   const screens =
-    '<script src="/js/forge-journal-trade-screens.js?v=8" defer></script>';
+    '<script src="/js/forge-journal-trade-screens.js?v=9" defer></script>';
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   var P = "/journal-embed/";
