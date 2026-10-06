@@ -326,7 +326,7 @@ module.exports = function createJournalTradeScreensRouter() {
     res.json({
       ok: true,
       ready: true,
-      version: 8,
+      version: 9,
       jpgPng: true,
       mimeLoose: true,
       sniff: true,
@@ -334,7 +334,9 @@ module.exports = function createJournalTradeScreensRouter() {
       deletePostFallback: true,
       clickDetailFix: true,
       tradeClickFix2: true,
-      inject: "v10",
+      tradeClickNuke: true,
+      safeMode: true,
+      inject: "v11",
     });
   });
 
