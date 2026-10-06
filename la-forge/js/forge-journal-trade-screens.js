@@ -1,6 +1,6 @@
 /**
- * Injection UI — Screenshots de trades dans Trading Journal Pro (iframe /journal-embed/).
- * Ajoute un onglet sidebar « Screens » + zone upload sur « Ajouter un trade ».
+ * Injection UI — Screenshots JPG/PNG dans Trading Journal Pro (iframe /journal-embed/).
+ * Sidebar « Screens trades » + zone upload sur « Ajouter un trade ».
  */
 (function () {
   "use strict";
@@ -10,6 +10,8 @@
   var STYLE_ID = "forge-jts-style";
   var PANEL_ID = "forge-jts-panel";
   var NAV_ID = "forge-jts-nav";
+  var ACCEPT =
+    "image/jpeg,image/png,image/jpg,.jpg,.jpeg,.png,image/webp,image/gif,image/*";
 
   function esc(s) {
     return String(s || "")
@@ -29,6 +31,10 @@
       "#forge-jts-panel{margin:1rem 0;padding:1rem;border:1px solid rgba(99,102,241,.35);border-radius:12px;background:rgba(99,102,241,.06)}" +
       "#forge-jts-panel h3{margin:0 0 .35rem;font-size:1rem;color:#6366f1}" +
       "#forge-jts-panel .jts-hint{font-size:.82rem;color:var(--text2,#718096);margin:0 0 .75rem;line-height:1.45}" +
+      "#forge-jts-panel .jts-drop{margin:.5rem 0;padding:1rem;border:2px dashed rgba(99,102,241,.45);border-radius:12px;background:rgba(99,102,241,.05);text-align:center;cursor:pointer}" +
+      "#forge-jts-panel .jts-drop.is-drag{border-color:#6366f1;background:rgba(99,102,241,.14)}" +
+      "#forge-jts-panel .jts-drop strong{display:block;color:#6366f1;margin-bottom:.25rem}" +
+      "#forge-jts-panel .jts-drop span{font-size:.82rem;color:var(--text2,#718096)}" +
       "#forge-jts-panel .jts-actions{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}" +
       "#forge-jts-panel .jts-btn{display:inline-flex;align-items:center;gap:.35rem;padding:.45rem .8rem;border-radius:8px;border:1px solid #6366f1;background:#6366f1;color:#fff;font-weight:600;font-size:.85rem;cursor:pointer}" +
       "#forge-jts-panel .jts-btn.secondary{background:transparent;color:#6366f1}" +
@@ -37,6 +43,8 @@
       "#forge-jts-panel .jts-shot img{display:block;width:100%;height:auto;cursor:zoom-in}" +
       "#forge-jts-panel .jts-shot button{position:absolute;top:6px;right:6px;font-size:.7rem;padding:.2rem .4rem;border-radius:6px;border:0;background:rgba(0,0,0,.7);color:#fff;cursor:pointer}" +
       "#forge-jts-panel .jts-status{font-size:.8rem;color:var(--text2,#718096);min-height:1.2em}" +
+      "#forge-jts-panel .jts-status.is-error{color:#c53030}" +
+      "#forge-jts-panel .jts-status.is-ok{color:#276749}" +
       "#forge-jts-drawer{position:fixed;inset:0;z-index:2147483000;display:none;background:rgba(0,0,0,.45)}" +
       "#forge-jts-drawer.open{display:block}" +
       "#forge-jts-drawer .jts-drawer-card{position:absolute;top:0;right:0;width:min(420px,100%);height:100%;background:var(--bg2,#fff);color:var(--text,#1a202c);padding:1rem 1.1rem;overflow:auto;box-shadow:-8px 0 32px rgba(0,0,0,.25)}" +
@@ -52,50 +60,83 @@
   }
 
   function findSidebar() {
-    var links = Array.prototype.slice.call(document.querySelectorAll("a, button, [role='link']"));
+    var links = Array.prototype.slice.call(
+      document.querySelectorAll("a, button, [role='link'], .nav-link, .menu-item, li")
+    );
     var addLink = links.find(function (el) {
       return /ajouter\s*un\s*trade/i.test(el.textContent || "");
     });
-    if (addLink && addLink.parentElement) return addLink.parentElement;
-    var hist = links.find(function (el) {
-      return /^historique$/i.test(String(el.textContent || "").trim());
+    if (addLink) {
+      var parent =
+        addLink.closest("ul, nav, aside, .sidebar, #sidebar, .menu, .nav") ||
+        addLink.parentElement;
+      if (parent) return parent;
+    }
+    var dash = links.find(function (el) {
+      return /^dashboard$/i.test(String(el.textContent || "").trim());
     });
-    if (hist && hist.parentElement) return hist.parentElement;
-    var aside = document.querySelector("aside, nav, .sidebar, #sidebar");
-    return aside || null;
+    if (dash) {
+      return (
+        dash.closest("ul, nav, aside, .sidebar, #sidebar, .menu, .nav") ||
+        dash.parentElement
+      );
+    }
+    return document.querySelector("aside, nav.sidebar, .sidebar, #sidebar, .side-nav");
+  }
+
+  function pageText() {
+    return document.body ? String(document.body.innerText || "") : "";
   }
 
   function isAddTradePage() {
-    var t = document.body ? document.body.innerText || "" : "";
-    if (/ajouter\s*un\s*trade/i.test(t) && /prix\s*d['’]?entr/i.test(t)) return true;
-    var h = document.querySelector("h1,h2,.card-title,.page-title");
+    var qs = String(location.search || "") + String(location.hash || "");
+    if (/add[_-]?trade|action=add|page=add|nouveau.?trade/i.test(qs)) return true;
+    var h = document.querySelector("h1,h2,.card-title,.page-title,.content h1,.content h2");
     if (h && /ajouter\s*un\s*trade/i.test(h.textContent || "")) return true;
+    var t = pageText();
+    if (/ajouter\s*un\s*trade/i.test(t) && /prix\s*d['’]?entr/i.test(t)) return true;
+    if (/ajouter\s*un\s*trade/i.test(t) && /direction|actif|paire/i.test(t)) return true;
     return false;
   }
 
   function readFormMeta() {
     function val(sel) {
-      var el = document.querySelector(sel);
-      return el ? String(el.value || "").trim() : "";
+      try {
+        var el = document.querySelector(sel);
+        return el ? String(el.value || "").trim() : "";
+      } catch (_) {
+        return "";
+      }
     }
-    // Heuristiques labels FR de TJ Pro
     var inputs = Array.prototype.slice.call(document.querySelectorAll("input, select, textarea"));
     function byLabel(re) {
       for (var i = 0; i < inputs.length; i++) {
         var el = inputs[i];
         var id = el.id;
-        var lab = id ? document.querySelector('label[for="' + id + '"]') : null;
-        var wrap = el.closest("label, .form-group, .field, div");
-        var txt = ((lab && lab.textContent) || (wrap && wrap.textContent) || el.name || el.placeholder || "")
-          .toLowerCase();
+        var lab = id
+          ? document.querySelector('label[for="' + String(id).replace(/"/g, '\\"') + '"]')
+          : null;
+        var wrap = el.closest("label, .form-group, .field, .mb-3, .row, div");
+        var txt = (
+          (lab && lab.textContent) ||
+          (wrap && wrap.textContent) ||
+          el.name ||
+          el.placeholder ||
+          ""
+        ).toLowerCase();
         if (re.test(txt)) return String(el.value || "").trim();
       }
       return "";
     }
-    var pair = byLabel(/actif|paire|symbol|instrument/) || val('[name*="pair" i], [name*="symbol" i], [name*="asset" i]');
-    var direction = byLabel(/direction|sens|side/) || val('[name*="direction" i], [name*="side" i]');
+    var pair =
+      byLabel(/actif|paire|symbol|instrument/) ||
+      val('[name*="pair" i], [name*="symbol" i], [name*="asset" i]');
+    var direction =
+      byLabel(/direction|sens|side/) || val('[name*="direction" i], [name*="side" i]');
     var entry = byLabel(/entr|entry/) || val('[name*="entry" i], [name*="open" i]');
-    var date = byLabel(/date|heure/) || val('input[type="datetime-local"], input[type="date"], [name*="date" i]');
+    var date =
+      byLabel(/date|heure/) ||
+      val('input[type="datetime-local"], input[type="date"], [name*="date" i]');
     var setup = byLabel(/setup|strat/) || val('[name*="setup" i], [name*="strategy" i]');
     return { pair: pair, direction: direction, entry: entry, date: date, setup: setup };
   }
@@ -124,7 +165,6 @@
       .replace(/^-+|-+$/g, "")
       .slice(0, 80);
     if (!key || key === "trade_na_0" || /^_*trade_na_0/.test(key)) {
-      // brouillon stable pour la session page
       var draft = sessionStorage.getItem("forge_jts_draft");
       if (!draft) {
         draft = "draft-" + Date.now().toString(36);
@@ -152,23 +192,32 @@
     var type = String((file && file.type) || "").toLowerCase().trim();
     if (type === "image/jpg" || type === "image/pjpeg") return "image/jpeg";
     if (type === "image/x-png") return "image/png";
-    if (type.indexOf("image/") === 0) return type;
+    if (
+      type === "image/jpeg" ||
+      type === "image/png" ||
+      type === "image/webp" ||
+      type === "image/gif"
+    ) {
+      return type;
+    }
     var name = String((file && file.name) || "").toLowerCase();
     if (/\.jpe?g$/i.test(name)) return "image/jpeg";
     if (/\.png$/i.test(name)) return "image/png";
     if (/\.webp$/i.test(name)) return "image/webp";
     if (/\.gif$/i.test(name)) return "image/gif";
+    if (type.indexOf("image/") === 0) return type;
     return "";
   }
 
   function isAllowedImageFile(file) {
     var mime = guessImageMime(file);
-    return (
-      mime === "image/jpeg" ||
-      mime === "image/png" ||
-      mime === "image/webp" ||
-      mime === "image/gif"
-    );
+    if (mime === "image/jpeg" || mime === "image/png" || mime === "image/webp" || mime === "image/gif") {
+      return true;
+    }
+    var name = String((file && file.name) || "").toLowerCase();
+    if (/\.(jpe?g|png|webp|gif)$/i.test(name)) return true;
+    if (!name && file && file.type && String(file.type).indexOf("image/") === 0) return true;
+    return false;
   }
 
   function readFileAsDataUrl(file, mime) {
@@ -176,12 +225,15 @@
       var reader = new FileReader();
       reader.onload = function () {
         var result = String(reader.result || "");
-        if (!/^data:image\//i.test(result)) {
+        if (
+          !/^data:image\//i.test(result) &&
+          !/^data:application\/octet-stream;base64,/i.test(result)
+        ) {
           reject(new Error("Lecture image impossible"));
           return;
         }
-        if (mime && /^data:image\/[^;]+;base64,/i.test(result)) {
-          result = result.replace(/^data:image\/[^;]+;base64,/i, "data:" + mime + ";base64,");
+        if (mime) {
+          result = result.replace(/^data:[^;]+;base64,/i, "data:" + mime + ";base64,");
         }
         resolve(result);
       };
@@ -194,7 +246,7 @@
 
   function compressImageFile(file) {
     return new Promise(function (resolve, reject) {
-      var mime = guessImageMime(file);
+      var mime = guessImageMime(file) || "image/jpeg";
       if (!isAllowedImageFile(file)) {
         reject(new Error("Fichier JPG ou PNG requis (.jpg / .jpeg / .png)"));
         return;
@@ -240,7 +292,9 @@
       };
       img.onerror = function () {
         URL.revokeObjectURL(url);
-        reject(new Error("Lecture image impossible (JPG/PNG)"));
+        readFileAsDataUrl(file, mime).then(resolve).catch(function () {
+          reject(new Error("Lecture image impossible (JPG/PNG)"));
+        });
       };
       img.src = url;
     });
@@ -308,6 +362,7 @@
       var data = await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey));
       renderGallery(gal, tradeKey, (data.trade && data.trade.images) || []);
       if (status) {
+        status.className = "jts-status";
         status.textContent =
           "Clé trade : " +
           tradeKey +
@@ -315,74 +370,168 @@
           (meta.direction ? " · " + meta.direction : "");
       }
     } catch (err) {
-      if (status) status.textContent = err.message || String(err);
+      if (status) {
+        status.className = "jts-status is-error";
+        status.textContent = err.message || String(err);
+      }
     }
   }
 
-  function mountAddTradePanel() {
-    if (document.getElementById(PANEL_ID)) return;
-    var form = document.querySelector("form");
-    if (!form) return;
-    var notes =
-      form.querySelector("textarea") ||
-      Array.prototype.find.call(form.querySelectorAll("label"), function (l) {
-        return /notes/i.test(l.textContent || "");
+  async function uploadFiles(panel, files) {
+    var list = Array.prototype.slice.call(files || []).filter(isAllowedImageFile);
+    if (!list.length) {
+      throw new Error("Choisis un fichier JPG ou PNG");
+    }
+    var status = panel.querySelector(".jts-status");
+    var meta = readFormMeta();
+    meta.pair = cleanField(meta.pair);
+    meta.direction = cleanField(meta.direction);
+    var tradeKey = tradeKeyFromMeta(meta);
+    panel.dataset.tradeKey = tradeKey;
+    for (var i = 0; i < list.length; i++) {
+      if (status) {
+        status.className = "jts-status";
+        status.textContent = "Envoi screen " + (i + 1) + "/" + list.length + "…";
+      }
+      var dataUrl = await compressImageFile(list[i]);
+      await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey) + "/images", {
+        method: "POST",
+        body: JSON.stringify({
+          dataUrl: dataUrl,
+          caption: "",
+          pair: meta.pair,
+          direction: meta.direction,
+          tradeDate: meta.date,
+          label: (meta.pair || "Trade") + (meta.direction ? " " + meta.direction : ""),
+        }),
       });
+    }
+    if (status) {
+      status.className = "jts-status is-ok";
+      status.textContent = list.length + " screen(s) enregistré(s).";
+    }
+    await refreshPanel(panel);
+  }
+
+  function findInsertAnchor() {
+    var form = document.querySelector("form");
+    if (!form) {
+      var main =
+        document.querySelector("main, .content, .card, .container, #content") || document.body;
+      return { parent: main, after: null, form: null };
+    }
+    var labels = Array.prototype.slice.call(form.querySelectorAll("label, h3, h4, legend"));
+    var notesLab = labels.find(function (l) {
+      return /notes|commentaire|commentaire/i.test(l.textContent || "");
+    });
+    if (notesLab) {
+      var block = notesLab.closest(".form-group, .field, .mb-3, div") || notesLab;
+      return { parent: block.parentElement || form, after: block, form: form };
+    }
+    var ta = form.querySelector("textarea");
+    if (ta) {
+      var wrap = ta.closest(".form-group, .field, .mb-3, div") || ta;
+      return { parent: wrap.parentElement || form, after: wrap, form: form };
+    }
+    var submit = form.querySelector("button[type='submit'], .btn-primary, input[type='submit']");
+    if (submit && submit.parentElement) {
+      return { parent: submit.parentElement.parentElement || form, after: null, before: submit.parentElement, form: form };
+    }
+    return { parent: form, after: null, form: form };
+  }
+
+  function mountAddTradePanel() {
+    if (!isAddTradePage()) {
+      var existing = document.getElementById(PANEL_ID);
+      if (existing && !isAddTradePage()) existing.remove();
+      return;
+    }
+    if (document.getElementById(PANEL_ID)) return;
+
+    var anchor = findInsertAnchor();
+    if (!anchor.parent) return;
+
     var panel = document.createElement("div");
     panel.id = PANEL_ID;
     panel.innerHTML =
-      "<h3>Screenshots du trade</h3>" +
-      '<p class="jts-hint">Dépose un ou plusieurs screens (TradingView, exécution…). Ils restent liés à ce trade sur ton compte Premium.</p>' +
+      "<h3>Screenshots du trade (JPG / PNG)</h3>" +
+      '<p class="jts-hint">Dépose tes screens TradingView / exécution ici. Ils restent liés à ce trade sur ton compte Premium.</p>' +
+      '<div class="jts-drop" id="forge-jts-drop" role="button" tabindex="0" aria-label="Zone de dépôt JPG ou PNG">' +
+      "<strong>Glisse tes JPG / PNG ici</strong>" +
+      "<span>ou clique — plusieurs fichiers OK</span>" +
+      "</div>" +
       '<div class="jts-actions">' +
-      '<label class="jts-btn">+ Ajouter un screen<input type="file" id="forge-jts-file" accept=".jpg,.jpeg,.png,image/jpeg,image/png,image/jpg,image/webp,image/gif" multiple hidden /></label>' +
+      '<label class="jts-btn">+ Ajouter un screen<input type="file" id="forge-jts-file" accept="' +
+      ACCEPT +
+      '" multiple hidden /></label>' +
       '<button type="button" class="jts-btn secondary" id="forge-jts-refresh">Rafraîchir</button>' +
       "</div>" +
       '<p class="jts-status"></p>' +
       '<div class="jts-gallery"></div>';
 
-    if (notes && notes.parentElement) {
-      notes.parentElement.insertAdjacentElement("afterend", panel);
+    if (anchor.before && anchor.before.parentElement) {
+      anchor.before.parentElement.insertBefore(panel, anchor.before);
+    } else if (anchor.after) {
+      anchor.after.insertAdjacentElement("afterend", panel);
     } else {
-      var btns = form.querySelector("button[type='submit'], .btn-primary, button");
-      if (btns && btns.parentElement) btns.parentElement.insertAdjacentElement("beforebegin", panel);
-      else form.appendChild(panel);
+      anchor.parent.appendChild(panel);
     }
+
+    var fileInput = panel.querySelector("#forge-jts-file");
+    var drop = panel.querySelector("#forge-jts-drop");
 
     panel.querySelector("#forge-jts-refresh").onclick = function () {
       refreshPanel(panel);
     };
 
-    panel.querySelector("#forge-jts-file").addEventListener("change", async function (ev) {
-      var files = Array.prototype.slice.call(ev.target.files || []);
-      if (!files.length) return;
-      var status = panel.querySelector(".jts-status");
-      var meta = readFormMeta();
-      meta.pair = cleanField(meta.pair);
-      meta.direction = cleanField(meta.direction);
-      var tradeKey = tradeKeyFromMeta(meta);
-      panel.dataset.tradeKey = tradeKey;
+    function pickFiles() {
+      fileInput.click();
+    }
+    drop.addEventListener("click", pickFiles);
+    drop.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        pickFiles();
+      }
+    });
+    ["dragenter", "dragover"].forEach(function (evt) {
+      drop.addEventListener(evt, function (ev) {
+        ev.preventDefault();
+        drop.classList.add("is-drag");
+      });
+    });
+    ["dragleave", "drop"].forEach(function (evt) {
+      drop.addEventListener(evt, function (ev) {
+        ev.preventDefault();
+        drop.classList.remove("is-drag");
+      });
+    });
+    drop.addEventListener("drop", async function (ev) {
+      var files = ev.dataTransfer && ev.dataTransfer.files;
+      if (!files || !files.length) return;
       try {
-        // Ne crée pas d’entrée « add_trade · 0 screen(s) » : meta d’abord via 1er POST image
-        for (var i = 0; i < files.length; i++) {
-          if (status) status.textContent = "Envoi screen " + (i + 1) + "/" + files.length + "…";
-          var dataUrl = await compressImageFile(files[i]);
-          await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey) + "/images", {
-            method: "POST",
-            body: JSON.stringify({
-              dataUrl: dataUrl,
-              caption: "",
-              pair: meta.pair,
-              direction: meta.direction,
-              tradeDate: meta.date,
-              label:
-                (meta.pair || "Trade") + (meta.direction ? " " + meta.direction : ""),
-            }),
-          });
-        }
-        if (status) status.textContent = files.length + " screen(s) enregistré(s).";
-        await refreshPanel(panel);
+        await uploadFiles(panel, files);
       } catch (err) {
-        if (status) status.textContent = err.message || String(err);
+        var status = panel.querySelector(".jts-status");
+        if (status) {
+          status.className = "jts-status is-error";
+          status.textContent = err.message || String(err);
+        }
+        alert("Upload screen : " + (err.message || err));
+      }
+    });
+
+    fileInput.addEventListener("change", async function (ev) {
+      var files = ev.target.files;
+      if (!files || !files.length) return;
+      try {
+        await uploadFiles(panel, files);
+      } catch (err) {
+        var status = panel.querySelector(".jts-status");
+        if (status) {
+          status.className = "jts-status is-error";
+          status.textContent = err.message || String(err);
+        }
         alert("Upload screen : " + (err.message || err));
       } finally {
         ev.target.value = "";
@@ -409,7 +558,6 @@
       }
     });
 
-    // Met à jour la clé quand les champs changent
     document.addEventListener(
       "change",
       function () {
@@ -445,7 +593,7 @@
       });
       if (!trades.length) {
         list.innerHTML =
-          '<p class="jts-hint">Aucun screen encore. Va dans <strong>Ajouter un trade</strong> et utilise la zone Screenshots.</p>';
+          '<p class="jts-hint">Aucun screen encore. Va dans <strong>Ajouter un trade</strong> et utilise la zone Screenshots JPG/PNG.</p>';
         return;
       }
       list.innerHTML = trades
@@ -490,12 +638,11 @@
     var a = document.createElement("a");
     a.id = NAV_ID;
     a.href = "#screens-trades";
-    a.innerHTML = "🖼 Screens trades";
+    a.textContent = "Screens trades";
     a.addEventListener("click", function (ev) {
       ev.preventDefault();
       openDrawer();
     });
-    // Insérer après « Ajouter un trade » si possible
     var kids = Array.prototype.slice.call(side.children);
     var after = kids.find(function (el) {
       return /ajouter\s*un\s*trade/i.test(el.textContent || "");
@@ -506,9 +653,13 @@
   }
 
   function boot() {
-    ensureStyles();
-    mountNav();
-    if (isAddTradePage()) mountAddTradePanel();
+    try {
+      ensureStyles();
+      mountNav();
+      mountAddTradePanel();
+    } catch (e) {
+      console.warn("[forge-jts]", e);
+    }
   }
 
   if (document.readyState === "loading") {
@@ -516,7 +667,19 @@
   } else {
     boot();
   }
-  // TJ peut re-rendre en SPA légère
-  setTimeout(boot, 800);
-  setTimeout(boot, 2000);
+
+  // TJ Pro peut re-rendre / naviguer sans reload complet
+  setTimeout(boot, 400);
+  setTimeout(boot, 1200);
+  setTimeout(boot, 3000);
+  if (typeof MutationObserver !== "undefined" && document.documentElement) {
+    var obsTimer = null;
+    var obs = new MutationObserver(function () {
+      if (obsTimer) clearTimeout(obsTimer);
+      obsTimer = setTimeout(boot, 120);
+    });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+  }
+  window.addEventListener("hashchange", boot);
+  window.addEventListener("popstate", boot);
 })();
