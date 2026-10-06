@@ -6,13 +6,13 @@
 #   - OU routes-journal-trade-screens.js jamais copié à côté du require Node
 #
 # Sur le VPS (copier-coller tel quel) :
-#   unset REF SHA BRANCH
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-screens-onpage-691a/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
+#   unset REF SHA BRANCH JOURNAL_SCREENS_REF
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-# Ignore REF ambiant — force la branche de ce hotfix
-SCRIPT_REF="${JOURNAL_SCREENS_REF:-cursor/journal-screens-onpage-691a}"
+# Toujours tirer depuis main (ignore REF/SHA ambiants)
+SCRIPT_REF="${JOURNAL_SCREENS_REF:-main}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 
 echo "======== DEPLOY JOURNAL TRADE SCREENS ($SCRIPT_REF) ========"
@@ -54,7 +54,7 @@ pull "$RAW/deploy/vps/formation-server/routes-journal-bridge.js" "$TMP/routes-jo
 pull "$RAW/deploy/vps/formation-server/routes-formation-auth.js" "$TMP/routes-formation-auth.js"
 
 # Sanity des artefacts
-grep -q 'data-journal-tab="screens"' "$TMP/journal.html"
+grep -q 'journal-screens-bar' "$TMP/journal.html"
 grep -q 'forge-journal.js?v=10' "$TMP/journal.html"
 grep -q 'journal-screens-bar\|jts-dropzone' "$TMP/journal.html"
 grep -q 'loadScreensList\|journal-trade-screens/ping' "$TMP/forge-journal.js"
@@ -184,13 +184,19 @@ fi
 
 echo "OK — ping API monté."
 
-# Sanity shell public
-grep -q 'data-journal-tab="screens"' "$APP_DIR/public/journal.html"
-grep -q 'loadScreensList\|journal-trade-screens/ping' "$APP_DIR/public/js/forge-journal.js"
+# Sanity shell public — doit être la version SANS onglets séparés
+grep -q 'journal-screens-bar' "$APP_DIR/public/journal.html"
+grep -q 'forge-journal.js?v=10' "$APP_DIR/public/journal.html"
+grep -q 'showJournalWithScreens\|journal-screens-bar' "$APP_DIR/public/js/forge-journal.js"
+if grep -q 'journal-tabs\|Screenshots JPG/PNG' "$APP_DIR/public/journal.html"; then
+  echo "ÉCHEC: ancienne UI à onglets encore présente dans journal.html"
+  exit 1
+fi
 
 rm -rf "$TMP"
 echo ""
-echo "→ Hard refresh Ctrl+Shift+R :"
+echo "→ Hard refresh Ctrl+Shift+R (pas ?tab=screens) :"
 echo "  https://app.torinvest-trading.com/journal.html"
-echo "→ Panneau screens AU-DESSUS du Journal Pro (même page)"
+echo "→ Attendu : panneau screens AU-DESSUS du Journal Pro (même page)"
+echo "→ Si tu vois encore « Screenshots JPG/PNG » + « Journal Pro » = mauvais fichier / cache"
 echo "======== DONE ========"
