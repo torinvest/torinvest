@@ -81,7 +81,7 @@
     #journal-screens-panel[hidden] { display: none !important; }
     .jts-shell-grid {
       display: grid;
-      grid-template-columns: minmax(240px, 320px) 1fr;
+      grid-template-columns: minmax(260px, 360px) 1fr;
       gap: 1rem;
     }
     @media (max-width: 800px) {
@@ -102,6 +102,45 @@
       padding: 0.5rem 0.7rem;
       font-size: 0.9rem;
     }
+    .jts-dropzone {
+      margin-top: 0.75rem;
+      border: 2px dashed rgba(255, 215, 0, 0.45);
+      border-radius: 12px;
+      background: rgba(255, 215, 0, 0.06);
+      padding: 1.25rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .jts-dropzone.is-drag {
+      border-color: var(--gold);
+      background: rgba(255, 215, 0, 0.14);
+    }
+    .jts-dropzone strong {
+      display: block;
+      color: var(--gold);
+      font-size: 1rem;
+      margin-bottom: 0.35rem;
+    }
+    .jts-dropzone span {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.45;
+    }
+    .jts-dropzone input[type="file"] {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      overflow: hidden;
+    }
+    .jts-file-names {
+      color: var(--aqua);
+      font-size: 0.82rem;
+      margin: 0.45rem 0 0;
+      min-height: 1.1em;
+      word-break: break-all;
+    }
     .jts-shell-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.85rem; }
     .jts-shell-list { display: grid; gap: 0.65rem; }
     .jts-shell-card {
@@ -112,16 +151,66 @@
     }
     .jts-shell-card strong { color: var(--gold); }
     .jts-shell-thumbs { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.45rem; }
+    .jts-shell-thumbs button,
     .jts-shell-thumbs a {
       display: block;
-      width: 88px;
+      width: 96px;
+      padding: 0;
       border-radius: 8px;
       overflow: hidden;
       border: 1px solid rgba(255, 215, 0, 0.2);
+      background: #0a0c12;
+      cursor: zoom-in;
     }
     .jts-shell-thumbs img { display: block; width: 100%; height: auto; }
     .jts-shell-meta { color: var(--muted); font-size: 0.8rem; margin-top: 0.2rem; }
     .jts-shell-status { color: var(--muted); font-size: 0.85rem; margin: 0.5rem 0; min-height: 1.2em; }
+    .jts-shell-status.is-error { color: #ff8a8a; }
+    .jts-shell-status.is-ok { color: #7dffa3; }
+    #jts-admin-block { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(255,215,0,0.2); }
+    #jts-admin-block[hidden] { display: none !important; }
+    .jts-lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .jts-lightbox.is-open { display: flex; }
+    .jts-lightbox-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+    }
+    .jts-lightbox-panel {
+      position: relative;
+      z-index: 1;
+      max-width: min(96vw, 1200px);
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+    .jts-lightbox-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .jts-lightbox-bar span { color: var(--gold); font-size: 0.9rem; }
+    .jts-lightbox-panel img {
+      max-width: 96vw;
+      max-height: 82vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      background: #0a0c12;
+    }
     body.journal-app-open footer[data-forge-footer] { display: none; }
     body.journal-app-open .container.journal-shell {
       max-width: none;
@@ -165,12 +254,12 @@
           <span class="forge-hero-tag">Espace membre · outil pédagogique</span>
           <h1>Trading Journal</h1>
           <p>
-            <strong>Trading Journal Pro</strong> — journalise tes trades, et dépose les
-            <strong>screenshots</strong> dans l’onglet dédié.
+            Dépose tes <strong>screens JPG / PNG</strong> dans l’onglet
+            <strong>Screenshots</strong>, puis ouvre le Journal Pro.
           </p>
           <div class="journal-access-pills">
             <span class="journal-pill">La Forge Premium</span>
-            <span class="journal-pill">Screens liés à ton compte</span>
+            <span class="journal-pill">JPG · PNG · plusieurs fichiers</span>
           </div>
         </div>
         <div id="journal-status" class="alert" hidden></div>
@@ -182,20 +271,16 @@
           <button type="button" id="journal-open-premium" class="btn btn-primary" hidden>
             Ouvrir le Journal (Premium)
           </button>
-          <a id="journal-login-hint" class="btn btn-secondary" href="/login.html?next=%2Fjournal.html" style="margin-left:0.5rem" hidden>
+          <a id="journal-login-hint" class="btn btn-secondary" href="/login.html?next=%2Fjournal.html%3Ftab%3Dscreens" style="margin-left:0.5rem" hidden>
             Connexion La Forge
           </a>
         </div>
       </div>
 
       <div class="journal-tabs" id="journal-tabs" hidden>
-        <button type="button" class="journal-tab is-active" data-journal-tab="app">Journal</button>
-        <button type="button" class="journal-tab" data-journal-tab="screens">Screenshots trades</button>
+        <button type="button" class="journal-tab is-active" data-journal-tab="screens">Screenshots JPG/PNG</button>
+        <button type="button" class="journal-tab" data-journal-tab="app">Journal Pro</button>
       </div>
-    </div>
-
-    <div id="journal-frame-wrap" hidden>
-      <iframe id="journal-frame" title="Trading Journal Pro" loading="lazy" allow="clipboard-read; clipboard-write"></iframe>
     </div>
 
     <div id="journal-screens-panel" hidden>
@@ -203,10 +288,10 @@
         <div class="jts-shell-form">
           <h2 style="margin:0;color:var(--gold);font-size:1.1rem">Déposer des screens</h2>
           <p style="color:var(--muted);font-size:0.88rem;line-height:1.5;margin:0.4rem 0 0.75rem">
-            Lie tes captures TradingView / exécution à un trade (paire + date).
+            Glisse-dépose ou choisis des fichiers <strong>.jpg / .jpeg / .png</strong>.
           </p>
           <label for="jts-pair">Actif / paire</label>
-          <input id="jts-pair" placeholder="XAUUSD" />
+          <input id="jts-pair" placeholder="XAUUSD" autocomplete="off" />
           <label for="jts-direction">Direction</label>
           <select id="jts-direction">
             <option value="Long">Long</option>
@@ -216,21 +301,51 @@
           <input id="jts-date" type="datetime-local" />
           <label for="jts-label">Libellé (optionnel)</label>
           <input id="jts-label" placeholder="Ex. London MSS + FVG" />
-          <label for="jts-files">Screens JPG / PNG (plusieurs possibles)</label>
-          <input id="jts-files" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png,image/jpg,image/webp,image/gif" multiple />
+
+          <div class="jts-dropzone" id="jts-dropzone" role="button" tabindex="0" aria-label="Zone de dépôt JPG ou PNG">
+            <strong>Glisse tes JPG / PNG ici</strong>
+            <span>ou clique pour choisir — plusieurs fichiers OK</span>
+            <input id="jts-files" type="file" accept="image/jpeg,image/png,image/jpg,.jpg,.jpeg,.png,image/*" multiple />
+          </div>
+          <p class="jts-file-names" id="jts-file-names"></p>
+
           <div class="jts-shell-actions">
             <button type="button" class="btn btn-primary" id="jts-upload">Enregistrer les screens</button>
-            <button type="button" class="btn btn-secondary" id="jts-refresh">Rafraîchir la liste</button>
+            <button type="button" class="btn btn-secondary" id="jts-refresh">Rafraîchir</button>
           </div>
           <p class="jts-shell-status" id="jts-status"></p>
         </div>
         <div>
-          <h3 style="margin:0 0 0.65rem;color:var(--aqua);font-size:0.95rem">Tes screens enregistrés</h3>
+          <h3 style="margin:0 0 0.65rem;color:var(--aqua);font-size:0.95rem">Tes screens — clique pour agrandir</h3>
           <div class="jts-shell-list" id="jts-list">
             <p class="jts-shell-meta">Chargement…</p>
           </div>
+          <div id="jts-admin-block" hidden>
+            <h3 style="margin:0 0 0.65rem;color:var(--gold);font-size:0.95rem">Admin — screens membres</h3>
+            <div class="jts-shell-list" id="jts-admin-list">
+              <p class="jts-shell-meta">Chargement…</p>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+
+    <div id="journal-frame-wrap" hidden>
+      <iframe id="journal-frame" title="Trading Journal Pro" loading="lazy" allow="clipboard-read; clipboard-write"></iframe>
+    </div>
+  </div>
+
+  <div class="jts-lightbox" id="jts-lightbox" hidden>
+    <div class="jts-lightbox-backdrop" data-jts-close></div>
+    <div class="jts-lightbox-panel">
+      <div class="jts-lightbox-bar">
+        <span id="jts-lightbox-caption">Screen</span>
+        <div style="display:flex;gap:0.45rem;flex-wrap:wrap">
+          <a class="btn btn-secondary" id="jts-lightbox-open" href="#" target="_blank" rel="noopener">Taille réelle</a>
+          <button type="button" class="btn btn-primary" data-jts-close>Fermer</button>
+        </div>
+      </div>
+      <img id="jts-lightbox-img" alt="Screenshot agrandi" />
     </div>
   </div>
 
@@ -240,6 +355,6 @@
   <script src="/js/auth.js?v=6"></script>
   <script src="/js/forge-gate.js"></script>
   <script src="/js/forge-onboarding.js?v=1"></script>
-  <script src="/js/forge-journal.js?v=8"></script>
+  <script src="/js/forge-journal.js?v=9"></script>
 </body>
 </html>

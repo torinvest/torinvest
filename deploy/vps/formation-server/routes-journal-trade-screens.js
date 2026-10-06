@@ -39,8 +39,24 @@ function normalizeEmail(email) {
     .toLowerCase();
 }
 
+function parseAdminEmails() {
+  const raw = String(process.env.FORGE_ADMIN_EMAILS || process.env.ADMIN_EMAILS || "").trim();
+  if (!raw) return [];
+  return raw
+    .split(/[,;\s]+/)
+    .map(normalizeEmail)
+    .filter(Boolean);
+}
+
+function isAdminUser(user) {
+  if (!user?.email) return false;
+  if (user.isAdmin === true || user.role === "admin") return true;
+  return parseAdminEmails().includes(normalizeEmail(user.email));
+}
+
 function isPremiumUser(user) {
   if (!user?.email) return false;
+  if (isAdminUser(user)) return true;
   if (user.subscribed === true || user.subscribed === 1 || user.subscribed === "true") {
     return true;
   }
@@ -182,11 +198,70 @@ module.exports = function createJournalTradeScreensRouter() {
       return null;
     }
     req.user = user;
+    req._jtsAdmin = isAdminUser(user);
     return user;
   }
 
+  function listAllMemberTrades() {
+    const root = screensRoot();
+    if (!fs.existsSync(root)) return [];
+    const out = [];
+    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const indexFile = path.join(root, entry.name, "index.json");
+      if (!fs.existsSync(indexFile)) continue;
+      let idx;
+      try {
+        idx = JSON.parse(fs.readFileSync(indexFile, "utf8"));
+      } catch (_) {
+        continue;
+      }
+      const trades = idx && idx.trades && typeof idx.trades === "object" ? idx.trades : {};
+      let memberEmail = "";
+      for (const t of Object.values(trades)) {
+        if (t && t.email) {
+          memberEmail = normalizeEmail(t.email);
+          break;
+        }
+      }
+      if (!memberEmail) {
+        memberEmail = entry.name.includes("@") ? entry.name : entry.name;
+      }
+      for (const k of Object.keys(trades)) {
+        const pub = publicTrade(trades[k]);
+        if (!pub.imageCount) continue;
+        out.push({
+          email: memberEmail,
+          ...pub,
+          mediaBase:
+            "/api/journal-trade-screens/" +
+            encodeURIComponent(pub.tradeKey) +
+            "/media/",
+          mediaQuery: "?member=" + encodeURIComponent(memberEmail),
+        });
+      }
+    }
+    out.sort((a, b) => String(b.updatedAt || "").localeCompare(String(a.updatedAt || "")));
+    return out;
+  }
+
   router.get("/api/journal-trade-screens/ping", (_req, res) => {
-    res.json({ ok: true, ready: true, version: 1 });
+    res.json({ ok: true, ready: true, version: 2, jpgPng: true });
+  });
+
+  router.get("/api/journal-trade-screens-admin", async (req, res) => {
+    try {
+      const user = await requirePremium(req, res);
+      if (!user) return;
+      if (!req._jtsAdmin) {
+        return res.status(403).json({ error: "Accès admin requis" });
+      }
+      const trades = listAllMemberTrades();
+      return res.json({ ok: true, count: trades.length, trades });
+    } catch (err) {
+      console.error("[journal-trade-screens] admin", err && err.message);
+      return res.status(500).json({ error: "Erreur serveur" });
+    }
   });
 
   router.get("/api/journal-trade-screens", async (req, res) => {
@@ -350,12 +425,20 @@ module.exports = function createJournalTradeScreensRouter() {
       if (!tradeKey || !fileName || fileName.includes("..")) {
         return res.status(400).json({ error: "Requête invalide" });
       }
-      const idx = readIndex(user.email);
+      let ownerEmail = normalizeEmail(user.email);
+      const memberQ = normalizeEmail(req.query.member || req.query.email || "");
+      if (memberQ && memberQ !== ownerEmail) {
+        if (!req._jtsAdmin) {
+          return res.status(403).json({ error: "Accès admin requis" });
+        }
+        ownerEmail = memberQ;
+      }
+      const idx = readIndex(ownerEmail);
       const t = idx.trades[tradeKey];
       if (!t || !(t.images || []).some((i) => i.file === fileName)) {
         return res.status(404).json({ error: "Fichier inconnu" });
       }
-      const full = path.join(userDir(user.email), "media", tradeKey, fileName);
+      const full = path.join(userDir(ownerEmail), "media", tradeKey, fileName);
       if (!fs.existsSync(full)) return res.status(404).json({ error: "Manquant" });
       return res.sendFile(full);
     } catch (err) {
