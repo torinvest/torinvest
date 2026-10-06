@@ -48,14 +48,14 @@
       "#forge-jts-panel .jts-status{font-size:.8rem;color:var(--text2,#718096);min-height:1.2em}" +
       "#forge-jts-panel .jts-status.is-error{color:#c53030}" +
       "#forge-jts-panel .jts-status.is-ok{color:#276749}" +
-      "#forge-jts-drawer{position:fixed;inset:0;z-index:2147483000;display:none;pointer-events:none;background:rgba(0,0,0,.45)}" +
-      "#forge-jts-drawer.open{display:block;pointer-events:auto}" +
+      "#forge-jts-drawer{position:fixed;inset:0;z-index:2147483000;display:none!important;pointer-events:none!important;visibility:hidden;background:rgba(0,0,0,.45)}" +
+      "#forge-jts-drawer.open{display:block!important;pointer-events:auto!important;visibility:visible}" +
       "#forge-jts-drawer .jts-drawer-card{position:absolute;top:0;right:0;width:min(420px,100%);height:100%;background:var(--bg2,#fff);color:var(--text,#1a202c);padding:1rem 1.1rem;overflow:auto;box-shadow:-8px 0 32px rgba(0,0,0,.25);pointer-events:auto}" +
       "#forge-jts-drawer .jts-drawer-card h2{margin:0 0 .75rem;font-size:1.1rem;color:#6366f1}" +
       "#forge-jts-drawer .jts-trade{border:1px solid var(--border,#e2e8f0);border-radius:10px;padding:.7rem;margin-bottom:.65rem}" +
       "#forge-jts-drawer .jts-trade strong{display:block;margin-bottom:.25rem}" +
-      "#forge-jts-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.92);display:none;pointer-events:none;flex-direction:column}" +
-      "#forge-jts-overlay.open{display:flex;pointer-events:auto}" +
+      "#forge-jts-overlay{position:fixed;inset:0;z-index:2147483646;background:rgba(0,0,0,.92);display:none!important;pointer-events:none!important;visibility:hidden;flex-direction:column}" +
+      "#forge-jts-overlay.open{display:flex!important;pointer-events:auto!important;visibility:visible}" +
       "#forge-jts-overlay .bar{display:flex;justify-content:space-between;gap:8px;padding:10px 14px;background:#111;color:#ffd700}" +
       "#forge-jts-overlay .stage{flex:1;overflow:auto;text-align:center;padding:12px}" +
       "#forge-jts-overlay img{max-width:none!important;width:auto!important;height:auto!important}" +
@@ -91,94 +91,307 @@
   }
 
   function mainContentRoot() {
+    // Prefer real content roots — NEVER bare .card/.container (too common in sidebars/widgets)
     return (
       document.querySelector(
-        "main, .content, .card, #content, .main-content, .page-content, .container"
-      ) || document.body
+        "main, #content, .main-content, .page-content, #main, .content-area, .tj-content"
+      ) ||
+      document.querySelector(".content") ||
+      document.body
     );
   }
 
-  /** True only on the real « Ajouter un trade » form — never on trade list / detail. */
-  function isAddTradePage() {
-    var qs = String(location.search || "") + String(location.hash || "");
-    if (/add[_-]?trade|action=add[_-]?trade|page=add|nouveau.?trade/i.test(qs)) {
-      // Still require we are not clearly on a list-only URL
-      if (!/action=list|page=trades|view=list/i.test(qs)) return true;
+  function isVisibleField(el) {
+    if (!el) return false;
+    var tag = String(el.tagName || "").toLowerCase();
+    if (tag !== "input" && tag !== "select" && tag !== "textarea") return false;
+    var type = String(el.type || "text").toLowerCase();
+    if (
+      type === "hidden" ||
+      type === "submit" ||
+      type === "button" ||
+      type === "reset" ||
+      type === "file" ||
+      type === "image" ||
+      type === "checkbox" ||
+      type === "radio"
+    ) {
+      return false;
     }
+    if (el.disabled) return false;
+    return true;
+  }
 
-    var main = mainContentRoot();
-    if (!main) return false;
+  function nearFieldLabel(el) {
+    if (!el) return "";
+    var id = el.id ? String(el.id) : "";
+    var bits = [];
+    if (id) {
+      try {
+        var labEl = document.querySelector(
+          'label[for="' + id.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"]'
+        );
+        if (labEl) bits.push(String(labEl.textContent || ""));
+      } catch (_) {}
+    }
+    var parentLab = el.closest && el.closest("label");
+    if (parentLab) bits.push(String(parentLab.textContent || "").slice(0, 80));
+    var group = el.closest && el.closest(".form-group, .field, .mb-3, .form-floating, td, tr, div");
+    if (group) {
+      var gl = group.querySelector("label, .form-label, .label, legend");
+      if (gl) bits.push(String(gl.textContent || "").slice(0, 80));
+    }
+    bits.push(el.getAttribute && el.getAttribute("aria-label"));
+    bits.push(el.placeholder);
+    bits.push(el.name);
+    bits.push(id);
+    return bits
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  }
 
-    // Heading in main content (ignore sidebar link « Ajouter un trade »)
-    var headings = main.querySelectorAll("h1, h2, .card-title, .page-title");
-    var titled = false;
-    for (var hi = 0; hi < headings.length; hi++) {
-      var ht = String(headings[hi].textContent || "").replace(/\s+/g, " ").trim();
-      if (/^ajouter\s*un\s*trade$/i.test(ht) || /^nouveau\s*trade$/i.test(ht)) {
-        titled = true;
-        break;
+  /** True if form has a real editable entry-price control (not a table header). */
+  function formHasEntryField(form) {
+    if (!form) return false;
+    var nodes = form.querySelectorAll("input, select, textarea");
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (!isVisibleField(el)) continue;
+      var hint = nearFieldLabel(el);
+      if (!hint || hint.length > 100) continue;
+      if (/prix\s*d['’]?entr|entry\s*price|entr[ée]e|entry.?price|open.?price|prix.?entr/i.test(hint)) {
+        return true;
+      }
+      var name = String(el.name || el.id || "").toLowerCase();
+      if (/^(entr[eyi]|entry|open.?price|prix.?entr)/i.test(name)) return true;
+    }
+    return false;
+  }
+
+  function formHasDirectionOrAssetField(form) {
+    if (!form) return false;
+    var nodes = form.querySelectorAll("input, select, textarea");
+    var hasDir = false;
+    var hasAsset = false;
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (!isVisibleField(el)) continue;
+      var hint = nearFieldLabel(el);
+      var name = String(el.name || el.id || "").toLowerCase();
+      if (
+        /^(direction|sens|side|long.?short)/i.test(name) ||
+        /^\s*(direction|sens|side|long\s*\/\s*short)\b/i.test(hint)
+      ) {
+        hasDir = true;
+      }
+      if (
+        /^(pair|symbol|asset|instrument|ticker|actif|paire)/i.test(name) ||
+        /^\s*(actif|paire|symbol|instrument|ticker)\b/i.test(hint)
+      ) {
+        hasAsset = true;
       }
     }
+    return hasDir || hasAsset;
+  }
 
-    // Must have a real add-trade form with entry / direction fields (not table headers)
-    var form = findAddTradeForm();
+  /** Submit control that creates/saves a trade — not "Ajouter un screen". */
+  function formHasAddSubmit(form) {
     if (!form) return false;
-    if (titled) return true;
+    var btns = form.querySelectorAll("button, input[type='submit'], input[type='button']");
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i];
+      var t = String(b.textContent || b.value || b.getAttribute("aria-label") || "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (!t || t.length > 60) continue;
+      if (/screen|screenshot|image|photo|upload|fichier/i.test(t)) continue;
+      if (
+        /^(ajouter|enregistr|sauvegard|créer|create|save)\b/i.test(t) ||
+        /ajouter\s*(un\s*|le\s*)?trade/i.test(t) ||
+        /enregistr(er)?\s*(le\s*)?trade/i.test(t) ||
+        /^submit$/i.test(t)
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-    var formText = String(form.innerText || form.textContent || "").replace(/\s+/g, " ");
-    if (!/prix\s*d['’]?entr|entry\s*price/i.test(formText)) return false;
-    if (!/(direction|sens|actif|paire|long|short)/i.test(formText)) return false;
-    if (!/(enregistr|sauvegard|ajouter|save)/i.test(formText)) return false;
-    // Exclude trade list pages that happen to include a small filter form
-    if (looksLikeTradeListPage(main) && !titled) return false;
-    return true;
+  function hasAddTradeHeading(root) {
+    var main = root || mainContentRoot();
+    if (!main) return false;
+    var headings = main.querySelectorAll("h1, h2, h3, .card-title, .page-title, legend");
+    for (var hi = 0; hi < headings.length; hi++) {
+      var ht = String(headings[hi].textContent || "").replace(/\s+/g, " ").trim();
+      if (/^ajouter\s*un\s*trade$/i.test(ht) || /^nouveau\s*trade$/i.test(ht)) return true;
+      if (/^créer\s*un\s*trade$/i.test(ht)) return true;
+    }
+    return false;
+  }
+
+  function tradeRowCount(root) {
+    var el = root || document.body;
+    if (!el) return 0;
+    return el.querySelectorAll(
+      "table tbody tr, .trade-row, [data-trade-id], .trades-list .trade, tr[data-id], tr[onclick]"
+    ).length;
+  }
+
+  function hasTradeTableHeaders(root) {
+    var el = root || document.body;
+    if (!el) return false;
+    var ths = el.querySelectorAll("table th, table thead td, .list-header, .trades-header");
+    var blob = "";
+    for (var i = 0; i < ths.length; i++) {
+      blob += " " + String(ths[i].textContent || "");
+    }
+    blob = blob.replace(/\s+/g, " ").toLowerCase();
+    var hits = 0;
+    if (/\b(actif|paire|symbol|instrument)\b/.test(blob)) hits++;
+    if (/\b(direction|sens|side|long|short)\b/.test(blob)) hits++;
+    if (/\b(pnl|p\s*&\s*l|résultat|resultat|profit|perte)\b/.test(blob)) hits++;
+    if (/\b(date|heure|ouvert)\b/.test(blob)) hits++;
+    if (/\b(prix|entr)/.test(blob)) hits++;
+    return hits >= 2;
   }
 
   function looksLikeTradeListPage(root) {
     var el = root || document.body;
     if (!el) return false;
-    var tables = el.querySelectorAll("table tbody tr, .trade-row, [data-trade-id], .trades-list .trade");
-    if (tables.length >= 3) {
-      // List pages rarely have a visible "Prix d'entrée" input
-      var inputs = el.querySelectorAll("input, select, textarea");
-      var hasEntry = false;
-      for (var ii = 0; ii < inputs.length; ii++) {
-        var tip = String(
-          (inputs[ii].name || "") +
-            " " +
-            (inputs[ii].id || "") +
-            " " +
-            (inputs[ii].placeholder || "")
-        ).toLowerCase();
-        if (/entr[eyi]|entry|prix/.test(tip) && inputs[ii].type !== "hidden") {
-          hasEntry = true;
-          break;
-        }
-      }
-      if (!hasEntry) return true;
+    var rows = tradeRowCount(el);
+    // ANY trade table with list-like headers and no create-entry inputs → list
+    if (hasTradeTableHeaders(el) && rows >= 1 && !formHasEntryField(el)) return true;
+    // Even a single row / empty tbody placeholder with trade headers
+    if (hasTradeTableHeaders(el) && !formHasEntryField(el) && !hasAddTradeHeading(el)) return true;
+    // 1+ clickable rows without entry inputs (user may have only 1–2 trades)
+    if (rows >= 1 && !formHasEntryField(el) && !hasAddTradeHeading(el)) {
+      if (el.querySelector("table")) return true;
     }
     var h = el.querySelector("h1, h2, .card-title, .page-title");
     var ht = h ? String(h.textContent || "").replace(/\s+/g, " ").trim() : "";
-    if (/^(trades|journal|historique|mes\s*trades|dashboard)$/i.test(ht)) return true;
+    if (/^(trades|journal|historique|mes\s*trades|dashboard|liste(\s*des)?\s*trades?)$/i.test(ht)) {
+      return true;
+    }
     return false;
+  }
+
+  function looksLikeTradeDetailPage(root) {
+    var el = root || document.body;
+    if (!el) return false;
+    var qs = String((typeof location !== "undefined" && location.search) || "") +
+      String((typeof location !== "undefined" && location.hash) || "");
+    if (/add[_-]?trade|nouveau.?trade|action=add/i.test(qs)) return false;
+    if (
+      /action=(view|detail|show|read|edit)|view=(trade|detail)|trade_id=|id=\d+/i.test(qs)
+    ) {
+      return true;
+    }
+    var h = el.querySelector("h1, h2, .card-title, .page-title");
+    var ht = h ? String(h.textContent || "").replace(/\s+/g, " ").trim() : "";
+    if (/détail|detail|voir\s*(le\s*)?trade|lecture|trade\s*#\d+/i.test(ht)) return true;
+    // Detail/read: few fields, often "Retour" / "Modifier" / "supprimer", no create submit
+    var form = el.querySelector("form");
+    if (form && formHasEntryField(form) && !formHasAddSubmit(form) && !hasAddTradeHeading(el)) {
+      var pageTxt = String(el.innerText || el.textContent || "").slice(0, 2000);
+      if (/retour|back to|modifier|supprimer|delete|edit/i.test(pageTxt) && tradeRowCount(el) < 2) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** Submit that clearly creates (Ajouter…) — stronger than generic Enregistrer/Save. */
+  function formHasAjouterSubmit(form) {
+    if (!form) return false;
+    var btns = form.querySelectorAll("button, input[type='submit'], input[type='button']");
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i];
+      var t = String(b.textContent || b.value || b.getAttribute("aria-label") || "")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (!t || t.length > 60) continue;
+      if (/screen|screenshot|image|photo|upload|fichier/i.test(t)) continue;
+      if (/ajouter/i.test(t)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * DEFAULT OFF. True ONLY when the real create-trade FORM is present:
+   * editable entry + direction/asset controls + submit Ajouter/Enregistrer.
+   * NEVER true on list or detail/read from sidebar text or column headers alone.
+   * URL hints alone are NOT enough (#180 gap).
+   */
+  function isAddTradePage() {
+    try {
+      if (looksLikeTradeListPage(document.body)) return false;
+      if (looksLikeTradeDetailPage(document.body)) return false;
+
+      var form = findAddTradeForm();
+      if (!form) return false;
+
+      // Hard requirements — real controls, not label/table text
+      if (!formHasEntryField(form)) return false;
+      if (!formHasDirectionOrAssetField(form)) return false;
+      if (!formHasAddSubmit(form)) return false;
+
+      // Form must not be a page-wide wrapper that also contains the trade list
+      if (tradeRowCount(form) >= 2) return false;
+      if (hasTradeTableHeaders(form) && tradeRowCount(form) >= 1) return false;
+
+      // Positive identity: heading, Ajouter button, or add_trade URL — not Enregistrer alone
+      // (edit/detail pages often share Enregistrer + same fields)
+      var qs =
+        String((typeof location !== "undefined" && location.search) || "") +
+        String((typeof location !== "undefined" && location.hash) || "");
+      var urlHint = /add[_-]?trade|nouveau.?trade|(?:[?&#])action=add\b/i.test(qs);
+      if (hasAddTradeHeading() || formHasAjouterSubmit(form) || urlHint) return true;
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 
   function findAddTradeForm() {
     var forms = document.querySelectorAll("form");
+    var best = null;
+    var bestScore = Infinity;
     for (var i = 0; i < forms.length; i++) {
       var f = forms[i];
-      var t = String(f.innerText || f.textContent || "").replace(/\s+/g, " ");
-      if (/prix\s*d['’]?entr|entry\s*price/i.test(t) && /(direction|sens|actif|paire)/i.test(t)) {
-        return f;
+      if (!formHasEntryField(f)) continue;
+      if (!formHasDirectionOrAssetField(f)) continue;
+      // Skip giant wrappers that include the trades table
+      if (tradeRowCount(f) >= 2) continue;
+      var score = String(f.innerHTML || "").length;
+      if (score < bestScore) {
+        bestScore = score;
+        best = f;
       }
     }
-    // Fallback: first form only if page title says add trade
-    var main = mainContentRoot();
-    var h = main && main.querySelector("h1, h2, .card-title, .page-title");
-    if (h && /ajouter\s*un\s*trade/i.test(h.textContent || "")) {
-      return document.querySelector("form");
+    if (best) return best;
+    // Last resort: titled page + any form with entry field (still need controls)
+    if (hasAddTradeHeading()) {
+      for (var j = 0; j < forms.length; j++) {
+        if (formHasEntryField(forms[j])) return forms[j];
+      }
     }
     return null;
+  }
+
+  /** Expose detectors for node/jsdom fixtures (tradeClickFix2). */
+  function getDetectors() {
+    return {
+      isAddTradePage: isAddTradePage,
+      looksLikeTradeListPage: looksLikeTradeListPage,
+      looksLikeTradeDetailPage: looksLikeTradeDetailPage,
+      findAddTradeForm: findAddTradeForm,
+      formHasEntryField: formHasEntryField,
+      formHasAddSubmit: formHasAddSubmit,
+      tradeClickFix2: true,
+    };
   }
 
   function readFormMeta() {
@@ -633,39 +846,36 @@
 
   function closeOverlay() {
     var ov = document.getElementById("forge-jts-overlay");
-    if (!ov) return;
-    ov.classList.remove("open");
-    ov.setAttribute("aria-hidden", "true");
+    // REMOVE from DOM — closed full-bleed layers must never sit above TJ rows
+    if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
   }
 
   function openOverlay(src) {
-    var ov = document.getElementById("forge-jts-overlay");
-    if (!ov) {
-      ov = document.createElement("div");
-      ov.id = "forge-jts-overlay";
-      ov.setAttribute("role", "dialog");
-      ov.setAttribute("aria-modal", "true");
-      ov.innerHTML =
-        '<div class="bar"><span>Screen trade — taille réelle</span><span><a id="forge-jts-ov-open" target="_blank" rel="noopener" style="color:#ffd700;margin-right:12px">Onglet</a><button type="button" id="forge-jts-ov-close" style="cursor:pointer">Fermer</button></span></div><div class="stage"><img id="forge-jts-ov-img" alt="" /></div>';
-      document.documentElement.appendChild(ov);
-      ov.querySelector("#forge-jts-ov-close").onclick = function (ev) {
-        if (ev) {
-          ev.preventDefault();
-          ev.stopPropagation();
-        }
+    closeOverlay();
+    var ov = document.createElement("div");
+    ov.id = "forge-jts-overlay";
+    ov.className = "open";
+    ov.setAttribute("role", "dialog");
+    ov.setAttribute("aria-modal", "true");
+    ov.setAttribute("aria-hidden", "false");
+    ov.innerHTML =
+      '<div class="bar"><span>Screen trade — taille réelle</span><span><a id="forge-jts-ov-open" target="_blank" rel="noopener" style="color:#ffd700;margin-right:12px">Onglet</a><button type="button" id="forge-jts-ov-close" style="cursor:pointer">Fermer</button></span></div><div class="stage"><img id="forge-jts-ov-img" alt="" /></div>';
+    document.documentElement.appendChild(ov);
+    ov.querySelector("#forge-jts-ov-close").onclick = function (ev) {
+      if (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+      closeOverlay();
+    };
+    // Click on dark backdrop (not the image) closes — never trap TJ forever
+    ov.addEventListener("click", function (ev) {
+      if (ev.target === ov || (ev.target && ev.target.classList && ev.target.classList.contains("stage"))) {
         closeOverlay();
-      };
-      // Click on dark backdrop (not the image) closes — never trap TJ forever
-      ov.addEventListener("click", function (ev) {
-        if (ev.target === ov || (ev.target && ev.target.classList && ev.target.classList.contains("stage"))) {
-          closeOverlay();
-        }
-      });
-    }
+      }
+    });
     ov.querySelector("#forge-jts-ov-img").src = src;
     ov.querySelector("#forge-jts-ov-open").href = src;
-    ov.classList.add("open");
-    ov.setAttribute("aria-hidden", "false");
   }
 
   async function deleteScreen(tradeKey, imageId) {
@@ -889,16 +1099,22 @@
     );
   }
 
+  /** Strip every full-bleed / panel artifact so list+detail clicks stay free. */
+  function neutralizeNonAddPage() {
+    var existing = document.getElementById(PANEL_ID);
+    if (existing) existing.remove();
+    closeOverlay();
+    // Keep drawer only if user explicitly opened it (class open + in DOM)
+    var drawer = document.getElementById("forge-jts-drawer");
+    if (drawer && !drawer.classList.contains("open")) {
+      closeDrawer();
+    }
+  }
+
   function mountAddTradePanel() {
+    // DEFAULT OFF — zero panel / zero form listeners outside real add-trade
     if (!isAddTradePage()) {
-      var existing = document.getElementById(PANEL_ID);
-      if (existing) existing.remove();
-      // Never leave full-screen blockers if we left add-trade
-      closeOverlay();
-      var drawer = document.getElementById("forge-jts-drawer");
-      if (drawer && !drawer.classList.contains("open")) {
-        drawer.style.pointerEvents = "none";
-      }
+      neutralizeNonAddPage();
       return;
     }
     if (document.getElementById(PANEL_ID)) return;
@@ -1056,33 +1272,29 @@
 
   function closeDrawer() {
     var drawer = document.getElementById("forge-jts-drawer");
-    if (!drawer) return;
-    drawer.classList.remove("open");
-    drawer.setAttribute("aria-hidden", "true");
+    // REMOVE from DOM when closed — zero full-bleed risk on trade list/detail
+    if (drawer && drawer.parentNode) drawer.parentNode.removeChild(drawer);
   }
 
   async function openDrawer() {
-    var drawer = document.getElementById("forge-jts-drawer");
-    if (!drawer) {
-      drawer = document.createElement("div");
-      drawer.id = "forge-jts-drawer";
-      drawer.setAttribute("aria-hidden", "true");
-      drawer.innerHTML =
-        '<div class="jts-drawer-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><h2>Screens des trades</h2><button type="button" id="forge-jts-drawer-close" class="jts-btn secondary">Fermer</button></div><div id="forge-jts-drawer-list"><p class="jts-hint">Chargement…</p></div></div>';
-      document.documentElement.appendChild(drawer);
-      drawer.addEventListener("click", function (ev) {
-        if (ev.target === drawer) closeDrawer();
-      });
-      drawer.querySelector("#forge-jts-drawer-close").onclick = function (ev) {
-        if (ev) {
-          ev.preventDefault();
-          ev.stopPropagation();
-        }
-        closeDrawer();
-      };
-    }
-    drawer.classList.add("open");
+    closeDrawer();
+    var drawer = document.createElement("div");
+    drawer.id = "forge-jts-drawer";
+    drawer.className = "open";
     drawer.setAttribute("aria-hidden", "false");
+    drawer.innerHTML =
+      '<div class="jts-drawer-card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem"><h2>Screens des trades</h2><button type="button" id="forge-jts-drawer-close" class="jts-btn secondary">Fermer</button></div><div id="forge-jts-drawer-list"><p class="jts-hint">Chargement…</p></div></div>';
+    document.documentElement.appendChild(drawer);
+    drawer.addEventListener("click", function (ev) {
+      if (ev.target === drawer) closeDrawer();
+    });
+    drawer.querySelector("#forge-jts-drawer-close").onclick = function (ev) {
+      if (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+      closeDrawer();
+    };
     var list = drawer.querySelector("#forge-jts-drawer-list");
     try {
       var data = await api("/api/journal-trade-screens");
@@ -1183,19 +1395,21 @@
   function boot() {
     try {
       ensureStyles();
-      // Safety: closed overlays must never eat TJ trade-row clicks
+      // Nuclear: closed overlays must not exist in DOM (tradeClickFix2)
       var ov = document.getElementById("forge-jts-overlay");
       if (ov && !ov.classList.contains("open")) {
-        ov.style.pointerEvents = "none";
-        ov.setAttribute("aria-hidden", "true");
+        if (ov.parentNode) ov.parentNode.removeChild(ov);
       }
       var dr = document.getElementById("forge-jts-drawer");
       if (dr && !dr.classList.contains("open")) {
-        dr.style.pointerEvents = "none";
-        dr.setAttribute("aria-hidden", "true");
+        if (dr.parentNode) dr.parentNode.removeChild(dr);
       }
+      // Sidebar link only — never covers trade rows
       mountNav();
       mountAddTradePanel();
+      // Flag for deploy verification
+      window.__forgeJtsClickFix2 = true;
+      window.__forgeJtsDetectors = getDetectors();
     } catch (e) {
       console.warn("[forge-jts]", e);
     }
@@ -1235,7 +1449,7 @@
   setTimeout(boot, 1200);
   setTimeout(boot, 3000);
 
-  // Escape ferme overlay/drawer sans toucher aux clics TJ
+  // Escape ferme overlay/drawer sans toucher aux clics TJ (bubble only, no capture)
   document.addEventListener(
     "keydown",
     function (ev) {
