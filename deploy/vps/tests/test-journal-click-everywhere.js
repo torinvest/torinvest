@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Guards: nuclear clickEverywhere v13 — CSP strip + MutationObserver openTrade.
+ * Guards: nuclear clickEverywhere v14 — CSP strip + MutationObserver + deep-link.
  */
 const fs = require("fs");
 const path = require("path");
@@ -18,15 +18,24 @@ const hotfix = fs.readFileSync(
   path.join(__dirname, "../HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh"),
   "utf8"
 );
+const forgeJournal = fs.readFileSync(
+  path.join(__dirname, "../../../la-forge/js/forge-journal.js"),
+  "utf8"
+);
 
 assert.ok(bridge.includes("clickEverywhere"), "clickEverywhere flag");
 assert.ok(bridge.includes("keepInFrame"), "top/parent keepInFrame");
 assert.ok(bridge.includes("absolutizeRadarAssets"), "radar asset absolutize");
-assert.ok(bridge.includes("version: 13"), "version 13");
+assert.ok(bridge.includes("version: 14"), "version 14");
 assert.ok(bridge.includes("__tjCspStripped"), "CSP strip nuclear");
 assert.ok(bridge.includes("MutationObserver"), "trade row MutationObserver");
 assert.ok(bridge.includes("goTrade"), "goTrade fallback");
 assert.ok(bridge.includes("tradeIdFromEl"), "tradeIdFromEl");
+assert.ok(bridge.includes("radar-url"), "SSO deep-link API");
+assert.ok(
+  bridge.includes("(?!https?:|\\/\\/|\\/|#|data:|blob:|javascript:|mailto:)"),
+  "relative asset absolutize"
+);
 assert.ok(
   bridge.includes("Content-Security-Policy"),
   "mentions CSP (to strip)"
@@ -37,11 +46,9 @@ assert.ok(
   "strips meta CSP"
 );
 assert.ok(
-  bridge.includes("forge-jts:injectHardOff clickEverywhere v13"),
-  "inject marker v13"
+  bridge.includes("forge-jts:injectHardOff clickEverywhere v14"),
+  "inject marker v14"
 );
-// Trade-click path must not stopPropagation (capture kill). Comments mentioning
-// "never stopPropagation" are fine; ban the call itself in the shim body.
 {
   const shimMatch = bridge.match(/const shim = `([\s\S]*?)`;/);
   assert.ok(shimMatch, "shim template exists");
@@ -59,10 +66,20 @@ assert.ok(
 assert.ok(screens.includes("clickEverywhere"), "screens ping clickEverywhere");
 assert.ok(screens.includes("cspStrip"), "screens ping cspStrip");
 assert.ok(screens.includes("tradeRowObserver"), "screens ping tradeRowObserver");
+assert.ok(screens.includes("version: 14"), "screens version 14");
 
 assert.ok(hotfix.includes("MutationObserver"), "hotfix checks MutationObserver");
 assert.ok(hotfix.includes("PM2_SCRIPT"), "hotfix pm2 script walk");
 assert.ok(hotfix.includes("node --check"), "hotfix node --check");
-assert.ok(hotfix.includes("clickEverywhere"), "hotfix requires clickEverywhere ping");
+assert.ok(hotfix.includes("cspStrip"), "hotfix requires cspStrip ping");
+assert.ok(hotfix.includes("tradeRowObserver"), "hotfix requires tradeRowObserver");
+assert.ok(hotfix.includes("version: 14") || hotfix.includes("version:14"), "hotfix v14");
+assert.ok(
+  hotfix.includes("Content-Security-Policy"),
+  "hotfix verifies CSP absence"
+);
 
-console.log("OK — clickEverywhere v13 nuclear guards");
+assert.ok(forgeJournal.includes("radar-url"), "shell deep-link");
+assert.ok(forgeJournal.includes("journal-open-radar"), "shell rescue button");
+
+console.log("OK — clickEverywhere v14 nuclear + deep-link guards");

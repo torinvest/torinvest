@@ -1,4 +1,11 @@
 #!/usr/bin/env bash
+# DEPRECATED (2026-10-06 audit) — DO NOT RUN.
+# This script would OVERWRITE the nuclear v14 bridge (cspStrip + tradeRowObserver).
+# Use ONLY: deploy/vps/HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh (branch cursor/audit-journal-complet-691a).
+# See: deploy/vps/AUDIT-JOURNAL-COMPLET.md
+echo 'DEPRECATED: refuse to run. Use HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh (v14).' >&2
+exit 99
+
 # HOTFIX — « TOUJOURS PAS CLIQUER UN TRADE → DÉTAIL » (NUKE / SAFE MODE)
 #
 # Constat prod: PR #180/#181 (fix2, ping v8, inject v10) ÉTAIENT déjà live

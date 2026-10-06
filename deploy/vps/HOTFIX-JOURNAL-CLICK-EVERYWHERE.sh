@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
-# HOTFIX — clic trade PARTOUT (liste + calendrier TJ) v13 NUCLEAR
+# HOTFIX — clic trade PARTOUT (liste + calendrier TJ) v14 NUCLEAR + verify strict
 #
-# v12 hrefClickFix était live mais clic toujours mort (liste + calendrier).
-# v13:
-#   - STRIP CSP entier sur /journal-embed/* (pas seulement override)
-#   - strip meta http-equiv CSP dans HTML
-#   - MutationObserver + bubble: openTrade(id) / navigate detail
-#   - top/parent.location keep-in-frame
-#   - rewrite trading_journal.php dans les strings JS
-#   - find ALL copies next to routes-formation-auth.js + pm2 script walk
+# Audit 2026-10-06: prod était coincée sur v13 partielle (#188) parce que le
+# vérificateur acceptait clickEverywhere sans exiger cspStrip.
+#
+# v14:
+#   - STRIP CSP entier sur /journal-embed/*
+#   - MutationObserver + bubble openTrade
+#   - assets relatifs → radar
+#   - deep-link SSO /api/journal-bridge/radar-url
+#   - ping DOIT contenir cspStrip + tradeRowObserver + version:14
+#   - CSP header DOIT être absente sur /journal-embed/ après restart
 #
 # UNE commande VPS :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-click-everywhere-691a/deploy/vps/HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/audit-journal-complet-691a/deploy/vps/HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh" | bash
 set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF SCRIPT_REF 2>/dev/null || true
-BRANCH="cursor/journal-click-everywhere-691a"
+BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/audit-journal-complet-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}"
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 
@@ -38,7 +40,7 @@ PM2_SCRIPT="$(echo "$PM2_META" | sed -n '2p')"
 
 echo ""
 echo "############################################################"
-echo "#  HOTFIX CLICK EVERYWHERE v13 — NUCLEAR list+calendar    #"
+echo "#  HOTFIX CLICK EVERYWHERE v14 — NUCLEAR + STRICT VERIFY  #"
 echo "#  branch: $BRANCH                                        #"
 echo "############################################################"
 echo "APP=$APP_DIR"
@@ -53,14 +55,19 @@ trap 'rm -rf "$TMP"' EXIT
 echo "→ Download…"
 curl -fsSL "$RAW/deploy/vps/formation-server/routes-journal-bridge.js" -o "$TMP/bridge.js"
 curl -fsSL "$RAW/deploy/vps/formation-server/routes-journal-trade-screens.js" -o "$TMP/routes.js"
+curl -fsSL "$RAW/la-forge/js/forge-journal.js" -o "$TMP/forge-journal.js"
+curl -fsSL "$RAW/deploy/vps/app-shells/journal.html" -o "$TMP/journal.html"
 
 grep -q 'clickEverywhere' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans clickEverywhere"; exit 1; }
 grep -q 'MutationObserver' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans MutationObserver"; exit 1; }
 grep -q '__tjCspStripped' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans CSP strip"; exit 1; }
 grep -q 'keepInFrame' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans keepInFrame"; exit 1; }
-grep -q 'version: 13' "$TMP/bridge.js" || { echo "ÉCHEC: bridge version != 13"; exit 1; }
+grep -q 'version: 14' "$TMP/bridge.js" || { echo "ÉCHEC: bridge version != 14"; exit 1; }
+grep -q 'radar-url' "$TMP/bridge.js" || { echo "ÉCHEC: bridge sans radar-url deep-link"; exit 1; }
 grep -q 'clickEverywhere' "$TMP/routes.js" || { echo "ÉCHEC: routes sans clickEverywhere"; exit 1; }
 grep -q 'cspStrip' "$TMP/routes.js" || { echo "ÉCHEC: routes sans cspStrip"; exit 1; }
+grep -q 'version: 14' "$TMP/routes.js" || { echo "ÉCHEC: routes version != 14"; exit 1; }
+grep -q 'radar-url' "$TMP/forge-journal.js" || { echo "ÉCHEC: forge-journal sans radar-url"; exit 1; }
 
 echo "→ node --check…"
 node --check "$TMP/bridge.js"
@@ -68,7 +75,7 @@ node --check "$TMP/routes.js"
 
 cat > "$TMP/js-stub.js" <<'STUB'
 /**
- * STUB — screens HARD OFF (clickEverywhere v13 nuclear).
+ * STUB — screens HARD OFF (clickEverywhere v14 nuclear).
  */
 (function () {
   "use strict";
@@ -77,6 +84,7 @@ cat > "$TMP/js-stub.js" <<'STUB'
   window.__forgeJtsInjectHardOff = true;
   window.__forgeJtsClickEverywhere = true;
   window.__forgeJtsCspStrip = true;
+  window.__forgeJtsVersion = 14;
 })();
 STUB
 
@@ -86,7 +94,6 @@ find "$APP_DIR" -name 'routes-journal-bridge.js' 2>/dev/null | sed 's/^/  bridge
 
 OVERWRITE_DIRS=()
 
-# Walk from pm2 script path upward — land on the file Node require() loads
 if [[ -n "${PM2_SCRIPT}" && -e "${PM2_SCRIPT}" ]]; then
   d="$(dirname "$PM2_SCRIPT")"
   while [[ "$d" != "/" ]]; do
@@ -95,7 +102,6 @@ if [[ -n "${PM2_SCRIPT}" && -e "${PM2_SCRIPT}" ]]; then
       echo "  → pm2-walk hit: $d"
       break
     fi
-    # also check one-level server-patches sibling
     if [[ -f "$d/server-patches/routes-journal-bridge.js" ]]; then
       OVERWRITE_DIRS+=("$d")
       echo "  → pm2-walk server-patches parent: $d"
@@ -112,7 +118,6 @@ while IFS= read -r -d '' f; do
   OVERWRITE_DIRS+=("$(dirname "$f")")
 done < <(find "$APP_DIR" -name 'routes-formation-auth.js' -print0 2>/dev/null || true)
 
-# Dedupe
 mapfile -t OVERWRITE_DIRS < <(printf '%s\n' "${OVERWRITE_DIRS[@]}" | awk 'NF && !seen[$0]++')
 
 echo "→ Overwrite ALL copies…"
@@ -143,12 +148,17 @@ for dir in "${OVERWRITE_DIRS[@]}"; do
     fi
     if [[ -d "$dir/public/js" ]]; then
       cp -f "$TMP/js-stub.js" "$dir/public/js/forge-journal-trade-screens.js"
+      cp -f "$TMP/forge-journal.js" "$dir/public/js/forge-journal.js"
       echo "  → $dir/public/js/forge-journal-trade-screens.js"
+      echo "  → $dir/public/js/forge-journal.js"
+    fi
+    if [[ -d "$dir/public" ]]; then
+      cp -f "$TMP/journal.html" "$dir/public/journal.html"
+      echo "  → $dir/public/journal.html"
     fi
   fi
 done
 
-# Force every remaining copy under APP_DIR
 while IFS= read -r -d '' f; do
   cp -f "$TMP/bridge.js" "$f"
   WRITTEN+=("$f")
@@ -167,7 +177,7 @@ done < <(find "$APP_DIR" -name 'forge-journal-trade-screens.js' -print0 2>/dev/n
 echo "→ Pre-restart disk verify…"
 FOUND=0
 while IFS= read -r -d '' f; do
-  if grep -q 'clickEverywhere' "$f" && grep -q 'version: 13' "$f" && grep -q 'MutationObserver' "$f" && grep -q '__tjCspStripped' "$f"; then
+  if grep -q 'clickEverywhere' "$f" && grep -q 'version: 14' "$f" && grep -q 'MutationObserver' "$f" && grep -q '__tjCspStripped' "$f" && grep -q 'radar-url' "$f"; then
     echo "  OK disk $f"
     FOUND=1
   else
@@ -195,18 +205,22 @@ fi
 
 ok=0
 PING=""; BRIDGE=""
-for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
   sleep 1
   PING="$(curl -sS --connect-timeout 3 http://127.0.0.1:3001/api/journal-trade-screens/ping 2>/dev/null || true)"
   BRIDGE="$(curl -sS --connect-timeout 3 http://127.0.0.1:3001/api/journal-bridge/ping 2>/dev/null || true)"
   if echo "$PING" | grep -q 'clickEverywhere' \
     && echo "$BRIDGE" | grep -q 'clickEverywhere' \
-    && echo "$PING" | grep -qE '"version":\s*1[3-9]' \
-    && echo "$BRIDGE" | grep -qE '"version":\s*1[3-9]'; then
+    && echo "$PING" | grep -q 'cspStrip' \
+    && echo "$BRIDGE" | grep -q 'cspStrip' \
+    && echo "$PING" | grep -q 'tradeRowObserver' \
+    && echo "$BRIDGE" | grep -q 'tradeRowObserver' \
+    && echo "$PING" | grep -qE '"version":\s*1[4-9]' \
+    && echo "$BRIDGE" | grep -qE '"version":\s*1[4-9]'; then
     ok=1
     break
   fi
-  echo "  …attente ping v13 clickEverywhere ($i) screens=$(echo "$PING" | head -c 100)"
+  echo "  …attente ping v14 cspStrip ($i) bridge=$(echo "$BRIDGE" | head -c 120)"
 done
 
 pm2 list || true
@@ -215,26 +229,35 @@ echo "PING bridge:  $BRIDGE"
 
 if [[ "$ok" -ne 1 ]]; then
   echo ""
-  echo "ÉCHEC: process encore sur ancien code."
+  echo "ÉCHEC: process encore sur ancien code (cspStrip/version:14 manquants)."
   echo "→ pm2 describe la-forge (script path):"
   pm2 describe la-forge 2>/dev/null | head -40 || true
-  echo "→ grep clickEverywhere on disk:"
-  grep -Rnl 'clickEverywhere' "$APP_DIR" --include='routes-journal*.js' 2>/dev/null | head -20 || true
-  echo "→ grep hrefClickFix still without clickEverywhere:"
+  echo "→ grep version/cspStrip on disk:"
   find "$APP_DIR" -name 'routes-journal-bridge.js' -print 2>/dev/null | while read -r f; do
     echo "--- $f ---"
-    grep -n 'version:\|clickEverywhere\|hrefClickFix' "$f" | head -10 || true
+    grep -n 'version:\|clickEverywhere\|cspStrip\|tradeRowObserver' "$f" | head -15 || true
   done
   exit 1
 fi
+
+echo "→ Verify CSP stripped on /journal-embed/…"
+EMBED_HEADERS="$(curl -sS -D - -o /dev/null --connect-timeout 5 http://127.0.0.1:3001/journal-embed/ 2>/dev/null || true)"
+if echo "$EMBED_HEADERS" | grep -qi '^Content-Security-Policy:'; then
+  echo "ÉCHEC: CSP encore présente sur /journal-embed/ — nuclear strip non actif"
+  echo "$EMBED_HEADERS" | grep -i content-security-policy | head -3
+  exit 1
+fi
+echo "OK — pas de Content-Security-Policy sur /journal-embed/"
 
 LOGIN_CODE="$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/login.html 2>/dev/null || echo 000)"
 echo "login.html → $LOGIN_CODE"
 
 echo ""
 echo "############################################################"
-echo "#  OK — clickEverywhere v13 NUCLEAR live                   #"
-echo "#  Attendu ping: version:13 clickEverywhere:true           #"
+echo "#  OK — clickEverywhere v14 NUCLEAR live                   #"
+echo "#  Attendu ping: version:14 clickEverywhere:true           #"
 echo "#                cspStrip:true tradeRowObserver:true       #"
-echo "#  Ctrl+Shift+R → clic trade liste OU calendrier → détail  #"
+echo "#  CSP /journal-embed/ : ABSENTE                           #"
+echo "#  Ctrl+Shift+R → clic trade OU calendrier TJ → détail     #"
+echo "#  Secours: bouton « onglet radar SSO » sur journal.html   #"
 echo "############################################################"

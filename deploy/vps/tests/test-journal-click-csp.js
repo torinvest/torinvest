@@ -1,7 +1,8 @@
 /**
  * Forensic guards for journal click→detail root cause:
  * Helmet script-src-attr 'none' blocked TJ onclick="openTrade(...)".
- * Bridge must override CSP + never inject trade-screens script.
+ * v14: bridge STRIPS CSP entirely on /journal-embed/* (match radar = no CSP).
+ * Helmet patch still allows unsafe-inline as defense-in-depth for non-embed pages.
  */
 "use strict";
 
@@ -25,8 +26,12 @@ const routes = fs.readFileSync(routesPath, "utf8");
 const helmet = fs.readFileSync(helmetPath, "utf8");
 
 assert.ok(
-  bridge.includes("script-src-attr 'unsafe-inline'"),
-  "bridge CSP must allow script-src-attr unsafe-inline"
+  bridge.includes("__tjCspStripped"),
+  "bridge must nuclear-strip CSP on journal-embed"
+);
+assert.ok(
+  bridge.includes('scriptSrcAttr: "none-stripped"'),
+  "bridge ping must advertise none-stripped"
 );
 assert.ok(
   bridge.includes("applyJournalEmbedCsp"),
@@ -41,14 +46,16 @@ assert.ok(
   "bridge source must contain ZERO trade-screens script tags"
 );
 assert.ok(bridge.includes("cspClickFix: true"), "bridge ping cspClickFix");
-assert.ok(bridge.includes("version: 11"), "bridge ping version 11");
+assert.ok(bridge.includes("cspStrip: true"), "bridge ping cspStrip");
+assert.ok(bridge.includes("version: 14"), "bridge ping version 14");
 assert.ok(
   bridge.includes("return false;"),
   "tradeScreensInjectEnabled must hard-return false"
 );
 
-assert.ok(routes.includes("version: 11"), "routes ping version 11");
+assert.ok(routes.includes("version: 14"), "routes ping version 14");
 assert.ok(routes.includes("cspClickFix: true"), "routes ping cspClickFix");
+assert.ok(routes.includes("cspStrip: true"), "routes ping cspStrip");
 assert.ok(routes.includes("injectHardOff: true"), "routes injectHardOff");
 
 assert.ok(
@@ -69,4 +76,4 @@ const sample =
   '<tr data-trade-id="1" onclick="openTrade(1)"><td>EURUSD</td></tr>';
 assert.ok(/onclick="openTrade\(1\)"/.test(sample), "TJ onclick contract");
 
-console.log("OK — journal click CSP root-cause guards passed");
+console.log("OK — journal click CSP strip (v14) guards passed");

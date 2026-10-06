@@ -17,14 +17,14 @@ assert.ok(
   bridge.includes('getOwnPropertyDescriptor(Location.prototype, "href")'),
   "bridge must patch Location.href setter"
 );
-assert.ok(bridge.includes("version: 13"), "bridge ping version 12");
+assert.ok(bridge.includes("version: 14"), "bridge ping version 14");
 assert.ok(
   bridge.includes('router.all("/trading_journal.php"'),
   "bridge must redirect /trading_journal.php → /journal-embed/"
 );
 assert.ok(
-  bridge.includes("forge-jts:injectHardOff clickEverywhere v13"),
-  "inject marker v12"
+  bridge.includes("forge-jts:injectHardOff clickEverywhere v14"),
+  "inject marker v14"
 );
 
 // Simulate fix() rules (same regexes as shim, unescaped)

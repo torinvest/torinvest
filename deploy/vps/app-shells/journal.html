@@ -96,6 +96,9 @@
         <button type="button" id="journal-open-premium" class="btn btn-primary" hidden>
           Ouvrir le Journal (Premium)
         </button>
+        <button type="button" id="journal-open-radar" class="btn btn-secondary" hidden style="margin-left:0.5rem">
+          Ouvrir hors iframe (SSO radar)
+        </button>
         <a id="journal-login-hint" class="btn btn-secondary" href="/login.html?next=%2Fjournal.html" style="margin-left:0.5rem" hidden>
           Connexion La Forge
         </a>
@@ -106,6 +109,11 @@
     </div>
 
     <div id="journal-frame-wrap" hidden>
+      <div style="display:flex;justify-content:flex-end;gap:0.5rem;padding:0.35rem 0.5rem;background:#0a0c12;border-bottom:1px solid rgba(255,215,0,0.18)">
+        <button type="button" id="journal-open-radar-bar" class="btn btn-secondary" style="font-size:0.75rem;padding:0.25rem 0.55rem" hidden>
+          Secours : onglet radar SSO
+        </button>
+      </div>
       <iframe id="journal-frame" title="Trading Journal Pro" loading="lazy" allow="clipboard-read; clipboard-write"></iframe>
     </div>
   </div>
@@ -116,6 +124,6 @@
   <script src="/js/auth.js?v=6"></script>
   <script src="/js/forge-gate.js"></script>
   <script src="/js/forge-onboarding.js?v=1"></script>
-  <script src="/js/forge-journal.js?v=14"></script>
+  <script src="/js/forge-journal.js?v=15"></script>
 </body>
 </html>

@@ -326,7 +326,7 @@ module.exports = function createJournalTradeScreensRouter() {
     res.json({
       ok: true,
       ready: true,
-      version: 13,
+      version: 14,
       jpgPng: true,
       mimeLoose: true,
       sniff: true,
@@ -342,11 +342,13 @@ module.exports = function createJournalTradeScreensRouter() {
       clickEverywhere: true,
       cspStrip: true,
       tradeRowObserver: true,
+      relativeAssets: true,
+      deepLinkFallback: true,
       injectHardOff: true,
       injectDisabled: true,
       inject: "off",
       note:
-        "v13: CSP stripped + MutationObserver openTrade + top/parent keep-in-frame — list+calendar",
+        "v14: CSP stripped + relative radar assets + MutationObserver + SSO deep-link fallback",
     });
   });
 
