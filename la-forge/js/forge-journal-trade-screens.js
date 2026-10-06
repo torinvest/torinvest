@@ -1,6 +1,11 @@
 /**
  * Injection UI — Screenshots JPG/PNG dans Trading Journal Pro (iframe /journal-embed/).
- * Sidebar « Screens trades » + zone upload sur « Ajouter un trade ».
+ *
+ * tradeClickNuke / SAFE MODE (v11):
+ * - Liste + détail/lecture : ZERO UI, ZERO styles inset:0, ZERO listeners utiles.
+ * - « Ajouter un trade » : bouton opt-in « Joindre un screen » uniquement.
+ * - Panel / drawer / overlay uniquement APRÈS ce clic explicite.
+ * Priorité absolue : clics trade → détail lecture ne doivent jamais être bloqués.
  */
 (function () {
   "use strict";
@@ -10,6 +15,8 @@
   var STYLE_ID = "forge-jts-style";
   var PANEL_ID = "forge-jts-panel";
   var NAV_ID = "forge-jts-nav";
+  var OPTIN_ID = "forge-jts-optin";
+  var ENABLE_KEY = "forge_jts_screens_on";
   var ACCEPT =
     "image/jpeg,image/png,image/jpg,.jpg,.jpeg,.png,image/webp,image/gif,image/*";
 
@@ -381,16 +388,92 @@
     return null;
   }
 
-  /** Expose detectors for node/jsdom fixtures (tradeClickFix2). */
+  /** URL hard-kill: list / detail / dashboard — never mount screens chrome. */
+  function urlLooksLikeListOrDetail() {
+    try {
+      var qs =
+        String((typeof location !== "undefined" && location.search) || "") +
+        String((typeof location !== "undefined" && location.hash) || "");
+      if (/add[_-]?trade|nouveau.?trade|(?:[?&#])action=add\b/i.test(qs)) {
+        return false;
+      }
+      if (
+        /(?:[?&#])action=(view|detail|show|read|edit|list|dashboard|home|trades)\b/i.test(
+          qs
+        ) ||
+        /(?:[?&#])view=(trade|detail|list|dashboard)\b/i.test(qs) ||
+        /(?:[?&#])(?:trade_id|id)=\d+/i.test(qs) ||
+        /(?:[?&#])page=(list|trades|dashboard|home|detail|view)\b/i.test(qs)
+      ) {
+        return true;
+      }
+      // Empty / bare embed URL is almost always the trade list / dashboard
+      if (!qs || qs === "?" || qs === "#" || qs === "?#" ) {
+        return true;
+      }
+      return false;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  /**
+   * Absolute off-switch: anything that is not unambiguously the create form.
+   * Used by SAFE MODE boot — prefer false negatives (missed screens) over
+   * blocking trade-row clicks.
+   */
+  function shouldStayCompletelyOff() {
+    try {
+      if (urlLooksLikeListOrDetail() && !isAddTradePage()) return true;
+      if (looksLikeTradeListPage(document.body)) return true;
+      if (looksLikeTradeDetailPage(document.body)) return true;
+      if (!isAddTradePage()) return true;
+      return false;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  function isScreensEnabled() {
+    try {
+      return sessionStorage.getItem(ENABLE_KEY) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function setScreensEnabled(on) {
+    try {
+      if (on) sessionStorage.setItem(ENABLE_KEY, "1");
+      else sessionStorage.removeItem(ENABLE_KEY);
+    } catch (_) {}
+  }
+
+  /** Strip every forge-jts node (and optional styles) so TJ clicks stay free. */
+  function nukeForgeArtifacts(keepStyle, keepOptin) {
+    var ids = [PANEL_ID, NAV_ID, "forge-jts-drawer", "forge-jts-overlay"];
+    if (!keepOptin) ids.push(OPTIN_ID);
+    if (!keepStyle) ids.push(STYLE_ID);
+    for (var i = 0; i < ids.length; i++) {
+      var el = document.getElementById(ids[i]);
+      if (el && el.parentNode) el.parentNode.removeChild(el);
+    }
+  }
+
+  /** Expose detectors for node/jsdom fixtures (tradeClickNuke). */
   function getDetectors() {
     return {
       isAddTradePage: isAddTradePage,
       looksLikeTradeListPage: looksLikeTradeListPage,
       looksLikeTradeDetailPage: looksLikeTradeDetailPage,
+      shouldStayCompletelyOff: shouldStayCompletelyOff,
+      urlLooksLikeListOrDetail: urlLooksLikeListOrDetail,
       findAddTradeForm: findAddTradeForm,
       formHasEntryField: formHasEntryField,
       formHasAddSubmit: formHasAddSubmit,
       tradeClickFix2: true,
+      tradeClickNuke: true,
+      safeMode: true,
     };
   }
 
@@ -1101,20 +1184,62 @@
 
   /** Strip every full-bleed / panel artifact so list+detail clicks stay free. */
   function neutralizeNonAddPage() {
-    var existing = document.getElementById(PANEL_ID);
-    if (existing) existing.remove();
-    closeOverlay();
-    // Keep drawer only if user explicitly opened it (class open + in DOM)
-    var drawer = document.getElementById("forge-jts-drawer");
-    if (drawer && !drawer.classList.contains("open")) {
-      closeDrawer();
-    }
+    nukeForgeArtifacts(false);
+    setScreensEnabled(false);
+  }
+
+  /** SAFE MODE: tiny opt-in on add form only — no inset:0 CSS until clicked. */
+  function mountOptInButton() {
+    if (document.getElementById(OPTIN_ID)) return;
+    if (document.getElementById(PANEL_ID)) return;
+    if (!isAddTradePage()) return;
+    var form = findAddTradeForm();
+    if (!form || !form.parentElement) return;
+
+    var wrap = document.createElement("div");
+    wrap.id = OPTIN_ID;
+    wrap.setAttribute("data-forge-jts", "optin");
+    wrap.style.cssText =
+      "margin:0.75rem 0;padding:0;position:relative;z-index:1;pointer-events:auto";
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = "Joindre un screen";
+    btn.setAttribute("aria-label", "Activer l'upload de screenshots JPG/PNG");
+    btn.style.cssText =
+      "display:inline-flex;align-items:center;gap:0.35rem;padding:0.45rem 0.85rem;" +
+      "border-radius:8px;border:1px solid #6366f1;background:transparent;color:#6366f1;" +
+      "font-weight:600;font-size:0.85rem;cursor:pointer";
+    var hint = document.createElement("span");
+    hint.style.cssText =
+      "display:block;margin-top:0.35rem;font-size:0.78rem;color:#718096;line-height:1.4";
+    hint.textContent =
+      "Optionnel — n'active les screens qu'ici. La liste des trades reste cliquable.";
+    btn.addEventListener("click", function (ev) {
+      if (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+      }
+      setScreensEnabled(true);
+      if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      ensureStyles();
+      mountNav();
+      mountAddTradePanel();
+    });
+    wrap.appendChild(btn);
+    wrap.appendChild(hint);
+    form.insertAdjacentElement("afterend", wrap);
   }
 
   function mountAddTradePanel() {
-    // DEFAULT OFF — zero panel / zero form listeners outside real add-trade
-    if (!isAddTradePage()) {
-      neutralizeNonAddPage();
+    // SAFE MODE: never mount panel unless user opted in on this add form
+    if (!isScreensEnabled() || !isAddTradePage()) {
+      if (!isAddTradePage()) neutralizeNonAddPage();
+      else {
+        var existing = document.getElementById(PANEL_ID);
+        if (existing) existing.remove();
+        closeOverlay();
+        closeDrawer();
+      }
       return;
     }
     if (document.getElementById(PANEL_ID)) return;
@@ -1369,6 +1494,8 @@
   }
 
   function mountNav() {
+    // Nav only after SAFE MODE opt-in — never on list/detail
+    if (!isScreensEnabled() || shouldStayCompletelyOff()) return;
     if (document.getElementById(NAV_ID)) return;
     var side = findSidebar();
     if (!side) return;
@@ -1391,11 +1518,17 @@
 
   var bootScheduled = null;
   var bootQuietUntil = 0;
+  var moInstance = null;
 
   function boot() {
     try {
-      ensureStyles();
-      // Nuclear: closed overlays must not exist in DOM (tradeClickFix2)
+      // Flags for deploy verification
+      window.__forgeJtsTradeClickNuke = true;
+      window.__forgeJtsClickFix2 = true;
+      window.__forgeJtsSafeMode = true;
+      window.__forgeJtsDetectors = getDetectors();
+
+      // Nuclear: closed overlays must never sit in DOM
       var ov = document.getElementById("forge-jts-overlay");
       if (ov && !ov.classList.contains("open")) {
         if (ov.parentNode) ov.parentNode.removeChild(ov);
@@ -1404,14 +1537,30 @@
       if (dr && !dr.classList.contains("open")) {
         if (dr.parentNode) dr.parentNode.removeChild(dr);
       }
-      // Sidebar link only — never covers trade rows
+
+      // HARD KILL on list / detail / anything that isn't the create form
+      if (shouldStayCompletelyOff()) {
+        neutralizeNonAddPage();
+        return;
+      }
+
+      // Add form present — SAFE MODE opt-in unless already enabled this session
+      if (!isScreensEnabled()) {
+        // Strip aggressive chrome but keep opt-in if already mounted (avoid MO flicker)
+        nukeForgeArtifacts(false, true);
+        mountOptInButton();
+        return;
+      }
+
+      ensureStyles();
       mountNav();
       mountAddTradePanel();
-      // Flag for deploy verification
-      window.__forgeJtsClickFix2 = true;
-      window.__forgeJtsDetectors = getDetectors();
     } catch (e) {
       console.warn("[forge-jts]", e);
+      // On any error: strip everything so TJ stays usable
+      try {
+        neutralizeNonAddPage();
+      } catch (_) {}
     }
   }
 
@@ -1425,12 +1574,20 @@
 
   function isOurNode(node) {
     if (!node || node.nodeType !== 1) return false;
-    if (node.id === PANEL_ID || node.id === NAV_ID) return true;
-    if (node.id === "forge-jts-drawer" || node.id === "forge-jts-overlay") return true;
-    if (node.id === STYLE_ID) return true;
+    if (
+      node.id === PANEL_ID ||
+      node.id === NAV_ID ||
+      node.id === OPTIN_ID ||
+      node.id === "forge-jts-drawer" ||
+      node.id === "forge-jts-overlay" ||
+      node.id === STYLE_ID
+    ) {
+      return true;
+    }
     if (node.closest) {
       return !!(
         node.closest("#" + PANEL_ID) ||
+        node.closest("#" + OPTIN_ID) ||
         node.closest("#forge-jts-drawer") ||
         node.closest("#forge-jts-overlay")
       );
@@ -1466,7 +1623,7 @@
   );
 
   if (typeof MutationObserver !== "undefined" && document.documentElement) {
-    var obs = new MutationObserver(function (mutations) {
+    moInstance = new MutationObserver(function (mutations) {
       if (Date.now() < bootQuietUntil) return;
       var relevant = false;
       for (var i = 0; i < mutations.length; i++) {
@@ -1495,7 +1652,7 @@
       bootQuietUntil = Date.now() + 80;
       scheduleBoot(180);
     });
-    obs.observe(document.documentElement, { childList: true, subtree: true });
+    moInstance.observe(document.documentElement, { childList: true, subtree: true });
   }
   window.addEventListener("hashchange", function () {
     scheduleBoot(50);
