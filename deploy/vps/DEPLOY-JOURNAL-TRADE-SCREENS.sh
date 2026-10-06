@@ -1,23 +1,19 @@
 #!/usr/bin/env bash
-# Journal — panneau screens JPG/PNG SUR la page Journal (pas d’onglets) + API
+# Journal — shell Forge = iframe TJ Pro UNIQUEMENT + screens JPG/PNG injectés DANS TJ
 #
-# LIVE encore en v=9 / onglets ? → ce script n’a PAS été lancé après le merge.
+# Sur le VPS (UNE seule commande) :
+#   unset REF SHA BRANCH JOURNAL_SCREENS_REF; curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-tj-only-screens-691a/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
 #
-# Sur le VPS (UNE seule commande, copier-coller tel quel) :
-#   unset REF SHA BRANCH JOURNAL_SCREENS_REF; curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-screens-live-0a04/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
-#
-# (Après merge sur main, tu peux aussi utiliser …/main/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh)
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-# Toujours tirer depuis main (ignore REF/SHA/BRANCH ambiants qui pointent vers d’anciennes PRs)
+# Toujours tirer depuis ce déploiement (ignore REF/SHA/BRANCH ambiants)
 unset REF SHA BRANCH 2>/dev/null || true
-# Pin commit (évite main/v=10 ou mauvaises branches ambiantes)
-SCRIPT_REF="${JOURNAL_SCREENS_REF:-e888711bd58bff2666c0c9c82a8e1abbfa676a85}"
+SCRIPT_REF="${JOURNAL_SCREENS_REF:-cursor/journal-tj-only-screens-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
-EXPECTED_JS_VER="v=11"
+EXPECTED_JS_VER="v=12"
 
-echo "======== DEPLOY JOURNAL TRADE SCREENS ($SCRIPT_REF) ========"
+echo "======== DEPLOY JOURNAL TJ-ONLY + SCREENS INJECT ($SCRIPT_REF) ========"
 echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
 # Résoudre le vrai cwd PM2 (évite de déployer dans le mauvais dossier)
@@ -64,16 +60,23 @@ pull "$RAW/deploy/vps/formation-server/routes-journal-trade-screens.js" "$TMP/ro
 pull "$RAW/deploy/vps/formation-server/routes-journal-bridge.js" "$TMP/routes-journal-bridge.js"
 pull "$RAW/deploy/vps/formation-server/routes-formation-auth.js" "$TMP/routes-formation-auth.js"
 
-# Sanity des artefacts GitHub AVANT copie
-grep -q 'journal-screens-bar' "$TMP/journal.html"
+# Sanity des artefacts GitHub AVANT copie — shell TJ-only (PAS de barre bleue screens)
+grep -q 'journal-frame' "$TMP/journal.html"
 grep -q "forge-journal.js?${EXPECTED_JS_VER}" "$TMP/journal.html"
-grep -q 'journal-screens-bar\|jts-dropzone' "$TMP/journal.html"
-grep -q 'loadScreensList\|journal-trade-screens/ping' "$TMP/forge-journal.js"
-grep -q 'showJournalWithScreens\|journal-screens-bar\|pendingFiles' "$TMP/forge-journal.js"
+grep -q 'showFrame\|journal-embed' "$TMP/forge-journal.js"
 grep -q 'journal-trade-screens/ping' "$TMP/routes-journal-trade-screens.js"
 grep -q 'pruneEmptyTrades\|imageCount' "$TMP/routes-journal-trade-screens.js"
 grep -q 'createJournalTradeScreensRouter' "$TMP/routes-formation-auth.js"
 grep -q 'forge-journal-trade-screens.js' "$TMP/routes-journal-bridge.js"
+grep -q 'Screens trades\|forge-jts-nav\|forge-jts-panel' "$TMP/forge-journal-trade-screens.js"
+if grep -q 'journal-screens-bar\|Déposer des screens\|showJournalWithScreens\|jts-dropzone' "$TMP/journal.html"; then
+  echo "ÉCHEC: artefact GitHub encore en UI shell screens (barre bleue) — mauvais SCRIPT_REF=$SCRIPT_REF ?"
+  exit 1
+fi
+if grep -q 'journal-screens-bar\|showJournalWithScreens\|pendingFiles' "$TMP/forge-journal.js"; then
+  echo "ÉCHEC: forge-journal.js encore en UI shell screens — mauvais SCRIPT_REF=$SCRIPT_REF ?"
+  exit 1
+fi
 if grep -q 'journal-tabs\|Screenshots JPG/PNG' "$TMP/journal.html"; then
   echo "ÉCHEC: artefact GitHub encore en UI onglets — mauvais SCRIPT_REF=$SCRIPT_REF ?"
   exit 1
@@ -91,7 +94,7 @@ cp -f "$TMP/routes-formation-auth.js" "$APP_DIR/server-patches/routes-formation-
 cp -f "$TMP/routes-journal-trade-screens.js" "$APP_DIR/routes-journal-trade-screens.js"
 cp -f "$TMP/routes-formation-auth.js" "$APP_DIR/routes-formation-auth.js" 2>/dev/null || true
 
-# Écraser TOUTES les copies journal.html / forge-journal.js sous l’app (évite mauvaises racines)
+# Écraser TOUTES les copies journal.html / forge-journal.js sous l’app
 UPDATED=0
 while IFS= read -r -d '' f; do
   cp -f "$TMP/journal.html" "$f"
@@ -104,6 +107,16 @@ while IFS= read -r -d '' f; do
     */public/js/forge-journal.js|*/js/forge-journal.js) cp -f "$TMP/forge-journal.js" "$f"; echo "→ forge-journal.js @ $f"; UPDATED=$((UPDATED + 1)) ;;
   esac
 done < <(find "$APP_DIR" -name 'forge-journal.js' -print0 2>/dev/null || true)
+
+while IFS= read -r -d '' f; do
+  case "$f" in
+    */public/js/forge-journal-trade-screens.js|*/js/forge-journal-trade-screens.js)
+      cp -f "$TMP/forge-journal-trade-screens.js" "$f"
+      echo "→ forge-journal-trade-screens.js @ $f"
+      UPDATED=$((UPDATED + 1))
+      ;;
+  esac
+done < <(find "$APP_DIR" -name 'forge-journal-trade-screens.js' -print0 2>/dev/null || true)
 
 while IFS= read -r -d '' f; do
   dir="$(dirname "$f")"
@@ -123,7 +136,7 @@ done < <(find "$APP_DIR" -name 'routes-journal-trade-screens.js' -print0 2>/dev/
 echo "Copies mises à jour: $UPDATED"
 
 # Stamp version pour debug
-echo "ref=${SCRIPT_REF} js=${EXPECTED_JS_VER} at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$APP_DIR/public/journal-screens.deploy.txt"
+echo "ref=${SCRIPT_REF} js=${EXPECTED_JS_VER} mode=tj-only-inject at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$APP_DIR/public/journal-screens.deploy.txt"
 
 BAD=0
 while IFS= read -r -d '' f; do
@@ -183,13 +196,14 @@ echo "=== Resolve module Node ==="
       "./server-patches/routes-journal-trade-screens",
       "./routes-journal-trade-screens",
       "./server-patches/routes-formation-auth",
+      "./server-patches/routes-journal-bridge",
     ];
     for (const p of paths) {
       try {
         const r=require.resolve(p);
         const txt=fs.readFileSync(r,"utf8");
-        const ok=txt.includes("journal-trade-screens/ping") || txt.includes("createJournalTradeScreensRouter");
-        console.log(p, "→", r, "ok=", ok, "prune=", txt.includes("pruneEmptyTrades"));
+        const ok=txt.includes("journal-trade-screens/ping") || txt.includes("createJournalTradeScreensRouter") || txt.includes("forge-journal-trade-screens");
+        console.log(p, "→", r, "ok=", ok);
       } catch (e) {
         console.log(p, "→ MISSING");
       }
@@ -220,33 +234,38 @@ fi
 
 echo "OK — ping API monté."
 
-# Sanity shell public — doit être la version SANS onglets séparés
+# Sanity shell public — TJ Pro only, PAS de barre bleue
 echo ""
 echo "=== Sanity fichiers locaux ==="
-grep -q 'journal-screens-bar' "$APP_DIR/public/journal.html"
+grep -q 'journal-frame' "$APP_DIR/public/journal.html"
 grep -q "forge-journal.js?${EXPECTED_JS_VER}" "$APP_DIR/public/journal.html"
-grep -q 'showJournalWithScreens\|journal-screens-bar' "$APP_DIR/public/js/forge-journal.js"
+grep -q 'showFrame\|journal-embed' "$APP_DIR/public/js/forge-journal.js"
+grep -q 'Screens trades\|forge-jts-nav' "$APP_DIR/public/js/forge-journal-trade-screens.js"
+grep -q 'forge-journal-trade-screens.js' "$APP_DIR/server-patches/routes-journal-bridge.js"
+if grep -q 'journal-screens-bar\|Déposer des screens\|showJournalWithScreens' "$APP_DIR/public/journal.html" \
+  || grep -q 'journal-screens-bar\|showJournalWithScreens' "$APP_DIR/public/js/forge-journal.js"; then
+  echo "ÉCHEC: barre bleue / shell screens encore présente"
+  exit 1
+fi
 if grep -q 'journal-tabs\|Screenshots JPG/PNG' "$APP_DIR/public/journal.html"; then
   echo "ÉCHEC: ancienne UI à onglets encore présente dans journal.html"
   exit 1
 fi
-echo "local journal.html: screens-bar + ${EXPECTED_JS_VER} OK"
+echo "local journal.html: TJ-only + ${EXPECTED_JS_VER} OK"
 
-# Vérif HTTP public (si DNS/nginx joignable depuis le VPS)
+# Vérif HTTP public
 echo ""
 echo "=== Sanity HTTP public ==="
 PUB_HTML="$(curl -fsSL -H 'Cache-Control: no-cache' "https://app.torinvest-trading.com/journal.html?_=$(date +%s)" 2>/dev/null || true)"
 if [[ -n "$PUB_HTML" ]]; then
-  if echo "$PUB_HTML" | grep -q 'journal-tabs\|Screenshots JPG/PNG'; then
-    echo "ATTENTION: le site public sert ENCORE l’ancienne UI onglets."
-    echo "→ Vérifie qu’nginx pointe bien vers $APP_DIR/public"
-    echo "→ Ou qu’un reverse-proxy / CDN cache encore journal.html"
-    # Ne pas exit 1 ici si le fichier local est bon — souvent cache edge ; on force indices
+  if echo "$PUB_HTML" | grep -q 'journal-screens-bar\|Déposer des screens'; then
+    echo "ATTENTION: le site public sert ENCORE la barre bleue screens."
+    echo "→ Vérifie qu’nginx pointe bien vers $APP_DIR/public + hard refresh"
   fi
-  if echo "$PUB_HTML" | grep -q "forge-journal.js?${EXPECTED_JS_VER}" && echo "$PUB_HTML" | grep -q 'journal-screens-bar'; then
-    echo "public journal.html: screens-bar + ${EXPECTED_JS_VER} OK"
+  if echo "$PUB_HTML" | grep -q "forge-journal.js?${EXPECTED_JS_VER}" && ! echo "$PUB_HTML" | grep -q 'journal-screens-bar'; then
+    echo "public journal.html: TJ-only + ${EXPECTED_JS_VER} OK"
   else
-    echo "public journal.html: pas encore ${EXPECTED_JS_VER} / screens-bar (cache ou mauvais root nginx)"
+    echo "public journal.html: pas encore ${EXPECTED_JS_VER} / TJ-only (cache ou mauvais root nginx)"
     echo "Fichier local sha1: $(sha1sum "$APP_DIR/public/journal.html" | awk '{print $1}')"
   fi
 else
@@ -256,9 +275,8 @@ fi
 echo ""
 echo "→ Hard refresh Ctrl+Shift+R sur :"
 echo "  https://app.torinvest-trading.com/journal.html"
-echo "  (PAS journal.html?tab=screens)"
 echo "→ Attendu :"
-echo "  • panneau « Déposer des screens JPG / PNG » AU-DESSUS du Journal Pro"
-echo "  • forge-journal.js?${EXPECTED_JS_VER} (plus de v=9, plus d’onglets)"
-echo "  • PAS « Screenshots JPG/PNG » | « Journal Pro »"
+echo "  • UNIQUEMENT le journal blanc TJ Pro (iframe) — PAS de barre bleue au-dessus"
+echo "  • forge-journal.js?${EXPECTED_JS_VER}"
+echo "  • Dans TJ : sidebar « Screens trades » + upload JPG/PNG sur Ajouter un trade"
 echo "======== DONE ========"

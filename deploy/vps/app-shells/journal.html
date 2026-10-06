@@ -33,129 +33,8 @@
       background: var(--panel2);
     }
     #journal-gate h3 { margin: 0 0 0.5rem; font-size: 1rem; color: var(--gold); }
-
-    /* Barre screens INTEGRÉE au journal (pas une autre page) */
-    #journal-screens-bar {
-      border: 1px solid rgba(255, 215, 0, 0.28);
-      border-radius: 12px;
-      background: var(--panel2);
-      margin: 0.5rem 0 0.65rem;
-      overflow: hidden;
-    }
-    #journal-screens-bar[hidden] { display: none !important; }
-    .jts-bar-toggle {
-      width: 100%;
-      appearance: none;
-      border: 0;
-      background: rgba(255, 215, 0, 0.1);
-      color: var(--gold);
-      font-weight: 700;
-      font-size: 0.95rem;
-      text-align: left;
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .jts-bar-toggle span.hint {
-      color: var(--muted);
-      font-weight: 500;
-      font-size: 0.8rem;
-    }
-    #journal-screens-body {
-      padding: 0.85rem 1rem 1rem;
-      border-top: 1px solid rgba(255, 215, 0, 0.18);
-    }
-    #journal-screens-body[hidden] { display: none !important; }
-    .jts-shell-grid {
-      display: grid;
-      grid-template-columns: minmax(240px, 340px) 1fr;
-      gap: 1rem;
-    }
-    @media (max-width: 800px) {
-      .jts-shell-grid { grid-template-columns: 1fr; }
-    }
-    .jts-shell-form label {
-      display: block;
-      font-size: 0.78rem;
-      color: var(--muted);
-      margin: 0.45rem 0 0.2rem;
-    }
-    .jts-shell-form input, .jts-shell-form select {
-      width: 100%;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 8px;
-      padding: 0.45rem 0.65rem;
-      font-size: 0.9rem;
-    }
-    .jts-dropzone {
-      margin-top: 0.65rem;
-      border: 2px dashed rgba(255, 215, 0, 0.45);
-      border-radius: 12px;
-      background: rgba(255, 215, 0, 0.06);
-      padding: 1rem 0.85rem;
-      text-align: center;
-      cursor: pointer;
-    }
-    .jts-dropzone.is-drag {
-      border-color: var(--gold);
-      background: rgba(255, 215, 0, 0.14);
-    }
-    .jts-dropzone strong {
-      display: block;
-      color: var(--gold);
-      font-size: 0.95rem;
-      margin-bottom: 0.3rem;
-    }
-    .jts-dropzone span { color: var(--muted); font-size: 0.82rem; line-height: 1.4; }
-    .jts-dropzone input[type="file"] {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      overflow: hidden;
-    }
-    .jts-file-names {
-      color: var(--aqua);
-      font-size: 0.8rem;
-      margin: 0.4rem 0 0;
-      min-height: 1.1em;
-      word-break: break-all;
-    }
-    .jts-shell-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
-    .jts-shell-list { display: grid; gap: 0.55rem; max-height: 320px; overflow: auto; }
-    .jts-shell-card {
-      border: 1px solid rgba(255, 215, 0, 0.2);
-      border-radius: 10px;
-      padding: 0.65rem;
-      background: rgba(0, 0, 0, 0.22);
-    }
-    .jts-shell-card strong { color: var(--gold); font-size: 0.9rem; }
-    .jts-shell-thumbs { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
-    .jts-shell-thumbs button {
-      display: block;
-      width: 72px;
-      padding: 0;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid rgba(255, 215, 0, 0.2);
-      background: #0a0c12;
-      cursor: zoom-in;
-    }
-    .jts-shell-thumbs img { display: block; width: 100%; height: auto; }
-    .jts-shell-meta { color: var(--muted); font-size: 0.78rem; margin-top: 0.15rem; }
-    .jts-shell-status { color: var(--muted); font-size: 0.85rem; margin: 0.45rem 0 0; min-height: 1.2em; }
-    .jts-shell-status.is-error { color: #ff8a8a; }
-    .jts-shell-status.is-ok { color: #7dffa3; }
-    #jts-admin-block { margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,215,0,0.2); }
-    #jts-admin-block[hidden] { display: none !important; }
-
     #journal-frame-wrap {
-      margin-top: 0.35rem;
+      margin-top: 1rem;
       border: 1px solid rgba(255, 215, 0, 0.28);
       border-radius: 12px;
       overflow: hidden;
@@ -169,50 +48,6 @@
       border: 0;
       background: #0a0c12;
     }
-
-    .jts-lightbox {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    .jts-lightbox.is-open { display: flex; }
-    .jts-lightbox-backdrop {
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.88);
-    }
-    .jts-lightbox-panel {
-      position: relative;
-      z-index: 1;
-      max-width: min(96vw, 1200px);
-      max-height: 92vh;
-      display: flex;
-      flex-direction: column;
-      gap: 0.65rem;
-    }
-    .jts-lightbox-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .jts-lightbox-bar span { color: var(--gold); font-size: 0.9rem; }
-    .jts-lightbox-panel img {
-      max-width: 96vw;
-      max-height: 82vh;
-      width: auto;
-      height: auto;
-      object-fit: contain;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 215, 0, 0.25);
-      background: #0a0c12;
-    }
-
     body.journal-app-open footer[data-forge-footer] { display: none; }
     body.journal-app-open .container.journal-shell {
       max-width: none;
@@ -220,23 +55,13 @@
       padding: 0;
       width: 100%;
     }
-    body.journal-app-open .journal-chrome-hero { display: none; }
-    body.journal-app-open #journal-screens-bar {
-      margin: 0;
-      border: none;
-      border-radius: 0;
-      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-    }
+    body.journal-app-open .journal-chrome { display: none; }
     body.journal-app-open #journal-frame-wrap {
       margin: 0;
       border: none;
       border-radius: 0;
-      min-height: calc(100vh - 10rem);
-      height: calc(100vh - 10rem);
-    }
-    body.journal-app-open.jts-panel-open #journal-frame-wrap {
-      min-height: calc(100vh - 22rem);
-      height: calc(100vh - 22rem);
+      min-height: calc(100vh - 3.25rem);
+      height: calc(100vh - 3.25rem);
     }
     body.journal-app-open #journal-frame {
       height: 100%;
@@ -249,100 +74,41 @@
 
   <div class="container journal-shell">
     <div class="journal-chrome">
-      <div class="journal-chrome-hero">
-        <div class="journal-hero">
-          <span class="forge-hero-tag">Espace membre · outil pédagogique</span>
-          <h1>Trading Journal</h1>
-          <p>
-            <strong>Trading Journal Pro</strong> — et dépose tes screens
-            <strong>JPG / PNG</strong> juste au-dessus du journal.
-          </p>
-          <div class="journal-access-pills">
-            <span class="journal-pill">La Forge Premium</span>
-            <span class="journal-pill">Screens sur la même page</span>
-          </div>
-        </div>
-        <div id="journal-status" class="alert" hidden></div>
-        <div id="journal-gate" hidden>
-          <h3>Accéder au Trading Journal</h3>
-          <p style="color:var(--muted);font-size:0.88rem;line-height:1.55;margin:0 0 0.75rem">
-            Réservé aux <strong>abonnés Premium La Forge</strong>.
-          </p>
-          <button type="button" id="journal-open-premium" class="btn btn-primary" hidden>
-            Ouvrir le Journal (Premium)
-          </button>
-          <a id="journal-login-hint" class="btn btn-secondary" href="/login.html?next=%2Fjournal.html" style="margin-left:0.5rem" hidden>
-            Connexion La Forge
-          </a>
+      <div class="journal-hero">
+        <span class="forge-hero-tag">Espace membre · outil pédagogique</span>
+        <h1>Trading Journal</h1>
+        <p>
+          <strong>Trading Journal Pro</strong> — journalise tes trades ici.
+          Screens JPG / PNG dans le journal (menu <strong>Screens trades</strong>).
+        </p>
+        <div class="journal-access-pills">
+          <span class="journal-pill">La Forge Premium</span>
+          <span class="journal-pill">Journal Pro embarqué</span>
         </div>
       </div>
-    </div>
 
-    <!-- Screens = panneau sur le Journal, PAS une autre page -->
-    <div id="journal-screens-bar" hidden>
-      <button type="button" class="jts-bar-toggle" id="jts-bar-toggle" aria-expanded="true">
-        <span>Déposer des screens JPG / PNG</span>
-        <span class="hint" id="jts-bar-hint">sur ce journal · cliquer pour plier/déplier</span>
-      </button>
-      <div id="journal-screens-body">
-        <div class="jts-shell-grid">
-          <div class="jts-shell-form">
-            <label for="jts-pair">Actif / paire</label>
-            <input id="jts-pair" placeholder="XAUUSD" autocomplete="off" />
-            <label for="jts-direction">Direction</label>
-            <select id="jts-direction">
-              <option value="Long">Long</option>
-              <option value="Short">Short</option>
-            </select>
-            <label for="jts-date">Date du trade</label>
-            <input id="jts-date" type="datetime-local" />
-            <label for="jts-label">Libellé (optionnel)</label>
-            <input id="jts-label" placeholder="Ex. London MSS + FVG" />
+      <div id="journal-status" class="alert" hidden></div>
 
-            <div class="jts-dropzone" id="jts-dropzone" role="button" tabindex="0" aria-label="Zone de dépôt JPG ou PNG">
-              <strong>Glisse tes JPG / PNG ici</strong>
-              <span>ou clique — plusieurs fichiers OK</span>
-              <input id="jts-files" type="file" accept="image/jpeg,image/png,image/jpg,.jpg,.jpeg,.png,image/*" multiple />
-            </div>
-            <p class="jts-file-names" id="jts-file-names"></p>
-            <div class="jts-shell-actions">
-              <button type="button" class="btn btn-primary" id="jts-upload">Enregistrer</button>
-              <button type="button" class="btn btn-secondary" id="jts-refresh">Rafraîchir</button>
-            </div>
-            <p class="jts-shell-status" id="jts-status"></p>
-          </div>
-          <div>
-            <h3 style="margin:0 0 0.5rem;color:var(--aqua);font-size:0.9rem">Screens de ce compte — clic pour agrandir</h3>
-            <div class="jts-shell-list" id="jts-list">
-              <p class="jts-shell-meta">Chargement…</p>
-            </div>
-            <div id="jts-admin-block" hidden>
-              <h3 style="margin:0.75rem 0 0.5rem;color:var(--gold);font-size:0.9rem">Admin — screens membres</h3>
-              <div class="jts-shell-list" id="jts-admin-list">
-                <p class="jts-shell-meta">Chargement…</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div id="journal-gate" hidden>
+        <h3>Accéder au Trading Journal</h3>
+        <p style="color:var(--muted);font-size:0.88rem;line-height:1.55;margin:0 0 0.75rem">
+          Réservé aux <strong>abonnés Premium La Forge</strong>.
+          Ouverture via proxy + SSO Premium.
+        </p>
+        <button type="button" id="journal-open-premium" class="btn btn-primary" hidden>
+          Ouvrir le Journal (Premium)
+        </button>
+        <a id="journal-login-hint" class="btn btn-secondary" href="/login.html?next=%2Fjournal.html" style="margin-left:0.5rem" hidden>
+          Connexion La Forge
+        </a>
+        <a class="btn btn-secondary" href="https://www.torinvest-trading.com/la-forge/pricing.html" style="margin-left:0.5rem">
+          Souscrire La Forge Premium
+        </a>
       </div>
     </div>
 
     <div id="journal-frame-wrap" hidden>
       <iframe id="journal-frame" title="Trading Journal Pro" loading="lazy" allow="clipboard-read; clipboard-write"></iframe>
-    </div>
-  </div>
-
-  <div class="jts-lightbox" id="jts-lightbox" hidden>
-    <div class="jts-lightbox-backdrop" data-jts-close></div>
-    <div class="jts-lightbox-panel">
-      <div class="jts-lightbox-bar">
-        <span id="jts-lightbox-caption">Screen</span>
-        <div style="display:flex;gap:0.45rem;flex-wrap:wrap">
-          <a class="btn btn-secondary" id="jts-lightbox-open" href="#" target="_blank" rel="noopener">Taille réelle</a>
-          <button type="button" class="btn btn-primary" data-jts-close>Fermer</button>
-        </div>
-      </div>
-      <img id="jts-lightbox-img" alt="Screenshot agrandi" />
     </div>
   </div>
 
@@ -352,6 +118,6 @@
   <script src="/js/auth.js?v=6"></script>
   <script src="/js/forge-gate.js"></script>
   <script src="/js/forge-onboarding.js?v=1"></script>
-  <script src="/js/forge-journal.js?v=11"></script>
+  <script src="/js/forge-journal.js?v=12"></script>
 </body>
 </html>
