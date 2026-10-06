@@ -9,7 +9,8 @@ set -euo pipefail
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Toujours tirer depuis ce déploiement (ignore REF/SHA/BRANCH ambiants)
 unset REF SHA BRANCH 2>/dev/null || true
-SCRIPT_REF="${JOURNAL_SCREENS_REF:-cursor/journal-tj-only-screens-691a}"
+# Pin commit (évite branches ambiantes / cache) — branche: cursor/journal-tj-only-screens-691a
+SCRIPT_REF="${JOURNAL_SCREENS_REF:-743c84dcda01c3f77a5a50b771469620e71d3211}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 EXPECTED_JS_VER="v=12"
 
