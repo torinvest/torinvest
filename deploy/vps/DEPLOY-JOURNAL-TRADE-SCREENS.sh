@@ -2,15 +2,15 @@
 # Journal — shell Forge = iframe TJ Pro UNIQUEMENT + screens JPG/PNG injectés DANS TJ
 #
 # Sur le VPS (UNE seule commande) :
-#   unset REF SHA BRANCH JOURNAL_SCREENS_REF; curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-tj-only-screens-691a/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
+#   unset REF SHA BRANCH JOURNAL_SCREENS_REF
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
 #
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-# Toujours tirer depuis ce déploiement (ignore REF/SHA/BRANCH ambiants)
-unset REF SHA BRANCH 2>/dev/null || true
-# Branche feature (curl URL) ou SHA via JOURNAL_SCREENS_REF=
-SCRIPT_REF="${JOURNAL_SCREENS_REF:-cursor/journal-tj-only-screens-691a}"
+# Ignore REF/SHA/BRANCH ambiants — tire TOUJOURS les artefacts depuis main
+unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
+SCRIPT_REF="main"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 EXPECTED_JS_VER="v=12"
 
