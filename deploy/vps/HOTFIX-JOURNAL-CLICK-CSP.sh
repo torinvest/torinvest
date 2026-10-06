@@ -153,8 +153,13 @@ PY
 import pathlib, sys, re
 p = pathlib.Path(sys.argv[1])
 src = p.read_text(encoding="utf-8")
-src2 = src.replace("\"script-src-attr\": [\"'none'\"]", "\"script-src-attr\": [\"'unsafe-inline']\"")
-src2 = src2.replace('"script-src-attr": ["\'none\']"', '"script-src-attr": ["\'unsafe-inline\']"')
+# CRITICAL: closing quote MUST be before ]  →  ["'unsafe-inline'"]
+# (a prior typo wrote ["'unsafe-inline']" and SyntaxError'd server.js → 502)
+fixed = '"script-src-attr": ["\'unsafe-inline\'"]'
+src2 = src.replace('"script-src-attr": ["\'none\'"]', fixed)
+src2 = src2.replace("\"script-src-attr\": [\"'none'\"]", fixed)
+# Also heal the corrupt form if re-running after a bad deploy
+src2 = src2.replace('"script-src-attr": ["\'unsafe-inline\']"', fixed)
 src2 = re.sub(r"script-src-attr 'none'", "script-src-attr 'unsafe-inline'", src2)
 if src2 != src:
     p.write_text(src2, encoding="utf-8")
@@ -162,6 +167,11 @@ if src2 != src:
 else:
     print("no literal none left or already fixed")
 PY
+      # Never leave a SyntaxError behind
+      if ! node --check "$APP_DIR/server.js"; then
+        echo "ÉCHEC: server.js syntaxe invalide après replace — abort"
+        exit 1
+      fi
     fi
   fi
 else
@@ -169,6 +179,13 @@ else
 fi
 
 find /var/cache/nginx -type f \( -name '*forge-journal*' -o -name '*journal*' \) -delete 2>/dev/null || true
+
+# Guard: never restart Node on a SyntaxError (would prolong 502)
+if [[ -f "$APP_DIR/server.js" ]] && ! node --check "$APP_DIR/server.js"; then
+  echo "ÉCHEC: server.js SyntaxError — abort pm2 restart (évite 502)"
+  node --check "$APP_DIR/server.js" 2>&1 || true
+  exit 1
+fi
 
 echo "→ Restart PM2…"
 pm2 restart la-forge --update-env 2>/dev/null || true
@@ -184,7 +201,7 @@ for a in apps:
     print(n)
     subprocess.call(["pm2","restart",n,"--update-env"])
 ' 2>/dev/null || true
-pm2 restart all --update-env 2>/dev/null || pm2 restart all 2>/dev/null || true
+# NOTE: do NOT pm2 restart all — that can flap unrelated apps during a hotfix
 
 sleep 3
 

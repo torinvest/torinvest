@@ -75,15 +75,27 @@ function stripExistingCspPatch(input) {
   const start = input.indexOf(marker);
   if (start < 0) return input;
   const after = input.slice(start);
+  // Prefer matching from try { ... } catch (...) { ... } that follows the marker
+  const tryCatch = after.match(
+    /try\s*\{[\s\S]*?\}\s*catch\s*\([^)]*\)\s*\{[\s\S]*?\}\s*\n?/
+  );
+  if (tryCatch && tryCatch.index != null) {
+    const end = start + tryCatch.index + tryCatch[0].length;
+    return input.slice(0, start) + input.slice(end);
+  }
   const endMatch = after.match(
     /\}\s*catch\s*\([^)]*\)\s*\{[\s\S]*?\}\s*\n?/
   );
   if (!endMatch || endMatch.index == null) {
-    // Fallback : retirer jusqu'à 80 lignes
-    const lines = input.split("\n");
-    const lineStart = input.slice(0, start).split("\n").length - 1;
-    lines.splice(lineStart, 80);
-    return lines.join("\n");
+    // SAFE fallback: only strip comment markers — never delete 80 arbitrary lines
+    // (old behavior could corrupt server.js → SyntaxError → nginx 502).
+    console.warn(
+      "[torinvest] stripExistingCspPatch: try/catch bounds not found — marker-only strip"
+    );
+    return input
+      .replace(/\/\* torinvest-journal-csp \*\//g, "")
+      .replace(/\/\* torinvest-csp-v4-tj-onclick \*\//g, "")
+      .replace(/\/\* torinvest-csp-v3-youtube \*\//g, "");
   }
   const end = start + endMatch.index + endMatch[0].length;
   return input.slice(0, start) + input.slice(end);
