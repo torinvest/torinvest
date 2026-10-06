@@ -54,7 +54,8 @@ pull "$RAW/deploy/vps/formation-server/routes-formation-auth.js" "$TMP/routes-fo
 
 # Sanity des artefacts
 grep -q 'data-journal-tab="screens"' "$TMP/journal.html"
-grep -q 'forge-journal.js?v=7' "$TMP/journal.html"
+grep -q 'forge-journal.js?v=8' "$TMP/journal.html"
+grep -q '\.jpg,\.jpeg,\.png\|JPG / PNG' "$TMP/journal.html"
 grep -q 'loadScreensList\|journal-trade-screens/ping' "$TMP/forge-journal.js"
 grep -q 'journal-trade-screens/ping' "$TMP/routes-journal-trade-screens.js"
 grep -q 'createJournalTradeScreensRouter' "$TMP/routes-formation-auth.js"
