@@ -10,17 +10,16 @@ set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF SCRIPT_REF 2>/dev/null || true
 
-# Commit connu avec écriture via /tmp + sudo cp (PAS write_text sur /var/www)
-PIN_COMMIT="${JOURNAL_HOTFIX_COMMIT:-3c9cf6ef0448ff0be20fb82db254f8459dfa5288}"
+# Commit : laisser vide pour utiliser la branche, ou pin explicite
+PIN_COMMIT="${JOURNAL_HOTFIX_COMMIT:-}"
 BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/journal-trade-readonly-691a}"
-# Préférer le commit piné pour tous les downloads
-REF="${JOURNAL_HOTFIX_REF:-$PIN_COMMIT}"
+REF="${JOURNAL_HOTFIX_REF:-${PIN_COMMIT:-$BRANCH}}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 BUST="$(date +%s)"
 
 echo ""
 echo "############################################################"
-echo "#  HOTFIX JOURNAL TRADE READ-ONLY DETAIL v2               #"
+echo "#  HOTFIX JOURNAL TRADE READ-ONLY DETAIL v3               #"
 echo "#  ref: $REF                                              #"
 echo "############################################################"
 
