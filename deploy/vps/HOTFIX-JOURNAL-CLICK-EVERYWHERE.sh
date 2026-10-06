@@ -182,11 +182,13 @@ done < <(find "$APP_DIR" -name 'forge-journal-trade-screens.js' -print0 2>/dev/n
 echo "→ Pre-restart disk verify…"
 FOUND=0
 while IFS= read -r -d '' f; do
-  if grep -q 'clickEverywhere' "$f" && grep -q 'version: 15' "$f" && grep -q 'MutationObserver' "$f" && grep -q '__tjCspStripped' "$f" && grep -q 'radar-url' "$f"; then
+  if grep -q 'clickEverywhere' "$f" && grep -q 'version: 15' "$f" && grep -q 'navFix' "$f" \
+    && grep -q 'MutationObserver' "$f" && grep -q '__tjCspStripped' "$f" && grep -q 'radar-url' "$f" \
+    && grep -q 'href="/journal-embed/?' "$f"; then
     echo "  OK disk $f"
     FOUND=1
   else
-    echo "  BAD disk $f"
+    echo "  BAD disk $f (need v15+navFix+query→embed)"
     exit 1
   fi
 done < <(find "$APP_DIR" -name 'routes-journal-bridge.js' -print0 2>/dev/null || true)
@@ -219,15 +221,15 @@ for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
     && echo "$PING" | grep -q 'cspStrip' \
     && echo "$BRIDGE" | grep -q 'cspStrip' \
     && echo "$PING" | grep -q 'tradeRowObserver' \
+    && echo "$BRIDGE" | grep -q 'tradeRowObserver' \
     && echo "$PING" | grep -q 'navFix' \
     && echo "$BRIDGE" | grep -q 'navFix' \
-    && echo "$BRIDGE" | grep -q 'tradeRowObserver' \
-    && echo "$PING" | grep -qE '"version":\s*1[4-9]' \
-    && echo "$BRIDGE" | grep -qE '"version":\s*1[4-9]'; then
+    && echo "$PING" | grep -qE '"version":\s*15' \
+    && echo "$BRIDGE" | grep -qE '"version":\s*15'; then
     ok=1
     break
   fi
-  echo "  …attente ping v15 cspStrip ($i) bridge=$(echo "$BRIDGE" | head -c 120)"
+  echo "  …attente ping v15 navFix ($i) bridge=$(echo "$BRIDGE" | head -c 160)"
 done
 
 pm2 list || true
@@ -236,13 +238,14 @@ echo "PING bridge:  $BRIDGE"
 
 if [[ "$ok" -ne 1 ]]; then
   echo ""
-  echo "ÉCHEC: process encore sur ancien code (cspStrip/version:15 manquants)."
+  echo "ÉCHEC: process encore sur ancien code (exigence: version:15 + navFix + cspStrip + tradeRowObserver)."
+  echo "→ NE PAS utiliser les anciens HOTFIX-JOURNAL-CLICK-* (v13/v14) — ce script seul."
   echo "→ pm2 describe la-forge (script path):"
   pm2 describe la-forge 2>/dev/null | head -40 || true
-  echo "→ grep version/cspStrip on disk:"
+  echo "→ grep version/navFix/cspStrip on disk:"
   find "$APP_DIR" -name 'routes-journal-bridge.js' -print 2>/dev/null | while read -r f; do
     echo "--- $f ---"
-    grep -n 'version:\|clickEverywhere\|cspStrip\|tradeRowObserver' "$f" | head -15 || true
+    grep -n 'version:\|clickEverywhere\|cspStrip\|tradeRowObserver\|navFix' "$f" | head -20 || true
   done
   exit 1
 fi
@@ -261,10 +264,12 @@ echo "login.html → $LOGIN_CODE"
 
 echo ""
 echo "############################################################"
-echo "#  OK — clickEverywhere v15 NUCLEAR live                   #"
-echo "#  Attendu ping: version:15 clickEverywhere:true           #"
-echo "#                cspStrip:true tradeRowObserver:true       #"
+echo "#  OK — journal navFix v15 LIVE                            #"
+echo "#  Attendu ping: version:15 navFix:true                    #"
+echo "#                clickEverywhere:true cspStrip:true        #"
+echo "#                tradeRowObserver:true                     #"
 echo "#  CSP /journal-embed/ : ABSENTE                           #"
-echo "#  Ctrl+Shift+R → clic trade OU calendrier TJ → détail     #"
-echo "#  Secours: bouton « onglet radar SSO » sur journal.html   #"
+echo "#  Vérif: Calendrier/Historique restent dans iframe blanc  #"
+echo "#  Vérif: clic trade → détail                              #"
+echo "#  DEPRECATED: HOTFIX-JOURNAL-CLICK-{CSP,DETAIL,HREF,…}    #"
 echo "############################################################"
