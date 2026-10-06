@@ -41,6 +41,7 @@ JS_FILES=(
   forge-consent.js
   forge-fondamental.js
   forge-journal.js
+  forge-journal-trade-screens.js
   forge-atlas.js
   forge-ict-atlas.js
   forge-styles-atlas.js
