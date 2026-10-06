@@ -881,8 +881,9 @@ module.exports = function createJournalBridgeRouter() {
       relativeAssets: true,
       deepLinkFallback: true,
       navFix: true,
+      ssoDirect: true,
       scriptSrcAttr: "none-stripped",
-      version: 15,
+      version: 16,
     });
   });
 
@@ -917,7 +918,7 @@ module.exports = function createJournalBridgeRouter() {
       ok: true,
       url: u.toString(),
       embed: EMBED_PATH,
-      note: "open in new tab — radar native TJ (no forge CSP)",
+      note: "default open = radar SSO direct (native TJ); embed optional",
     });
   });
 
