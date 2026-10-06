@@ -3,16 +3,16 @@
 #
 # Sur le VPS (UNE seule commande) :
 #   unset REF SHA BRANCH JOURNAL_SCREENS_REF
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-JOURNAL-TRADE-SCREENS.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-remove-blue-bar-691a/deploy/vps/HOTFIX-REMOVE-JOURNAL-BLUE-BAR.sh" | bash
 #
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Ignore REF/SHA/BRANCH ambiants — tire TOUJOURS les artefacts depuis main
 unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
-SCRIPT_REF="main"
+SCRIPT_REF="cursor/journal-remove-blue-bar-691a"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
-EXPECTED_JS_VER="v=12"
+EXPECTED_JS_VER="v=14"
 
 echo "======== DEPLOY JOURNAL TJ-ONLY + SCREENS INJECT ($SCRIPT_REF) ========"
 echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
