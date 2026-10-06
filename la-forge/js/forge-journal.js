@@ -1,6 +1,6 @@
 /**
  * La Forge — hub Trading Journal Pro (iframe /journal-embed/ uniquement).
- * Screens JPG/PNG: inject OFF by default (JOURNAL_TRADE_SCREENS=1 to re-enable).
+ * Screens JPG/PNG: inject HARD OFF (CSP/onclick restore — see routes-journal-bridge).
  */
 (function () {
   "use strict";
