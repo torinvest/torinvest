@@ -43,3 +43,14 @@ curl -s https://app.torinvest-trading.com/api/journal-bridge/ping
 # sso: true
 grep -n torinvest-journal-forge-sso /var/www/torinvest/trading_journal.php
 ```
+
+## Vue détail lecture seule (view=)
+
+Par défaut, un clic trade ouvre `?page=history&edit=N` (formulaire).  
+Pour ouvrir une **fiche lecture seule** :
+
+```bash
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-trade-readonly-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
+```
+
+Attendu : clic → `view=ID` + « lecture seule » ; bouton **Modifier** → `edit=ID`.

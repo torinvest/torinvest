@@ -1,30 +1,47 @@
 <?php
 /**
- * Trading Journal Pro — vue lecture seule d’un trade.
+ * Trading Journal Pro — vue détail trade en lecture seule.
  *
- * Inclus au début de trading_journal.php (après le SSO) via
+ * Inclus au début de /var/www/torinvest/trading_journal.php via
  * deploy/vps/patch-trading-journal-readonly-view.sh
  *
- * - ?page=history&view=ID  → charge le même écran que edit=ID mais en lecture
- * - Clics Historique / Calendrier → view= (pas edit=)
- * - Bouton « Modifier » sur la fiche → edit=ID
+ * Contrat URL :
+ *   ?page=history&view=ID  → détail lecture seule (champs désactivés)
+ *   ?page=history&edit=ID  → formulaire édition (inchangé)
+ *
+ * Stratégie : réutilise le chargeur edit= pour afficher les données du trade,
+ * puis convertit le formulaire en lecture seule + boutons Modifier / Retour.
+ * Sur toutes les pages : openTrade(id) et liens edit= (liste/calendrier) → view=.
  */
 declare(strict_types=1);
 
 function torinvest_journal_readonly_boot(): void
 {
-    if (!empty($_GET['view']) && (string) $_GET['view'] !== '') {
-        if (empty($_GET['edit'])) {
-            $_GET['edit'] = (string) $_GET['view'];
-        }
+    static $booted = false;
+    if ($booted) {
+        return;
+    }
+    $booted = true;
+
+    $viewRaw = $_GET['view'] ?? null;
+    $editRaw = $_GET['edit'] ?? null;
+    $viewId = torinvest_journal_readonly_parse_id($viewRaw);
+    $editId = torinvest_journal_readonly_parse_id($editRaw);
+
+    // Clic trade → view=ID uniquement. Si edit= déjà présent (bouton Modifier), édition.
+    if ($viewId !== null && $editId === null) {
+        $_GET['edit'] = (string) $viewId;
+        $_REQUEST['edit'] = (string) $viewId;
         $GLOBALS['torinvest_tj_readonly'] = true;
+        $GLOBALS['torinvest_tj_readonly_id'] = (string) $viewId;
+    } else {
+        $GLOBALS['torinvest_tj_readonly'] = false;
     }
 
     if (PHP_SAPI === 'cli') {
         return;
     }
 
-    // Évite double buffer si déjà actif
     if (!empty($GLOBALS['torinvest_tj_readonly_ob'])) {
         return;
     }
@@ -32,18 +49,87 @@ function torinvest_journal_readonly_boot(): void
     ob_start('torinvest_journal_readonly_ob_filter');
 }
 
+/**
+ * @param mixed $raw
+ */
+function torinvest_journal_readonly_parse_id($raw): ?int
+{
+    if ($raw === null || $raw === '' || is_array($raw)) {
+        return null;
+    }
+    $s = trim((string) $raw);
+    if ($s === '' || !preg_match('/^\d{1,12}$/', $s)) {
+        return null;
+    }
+    return (int) $s;
+}
+
 function torinvest_journal_readonly_ob_filter(string $html): string
 {
-    if ($html === '' || stripos($html, '<html') === false) {
+    if ($html === '') {
+        return $html;
+    }
+    $trim = ltrim($html);
+    if ($trim !== '' && ($trim[0] === '{' || $trim[0] === '[')) {
+        return $html;
+    }
+    if (stripos($html, '<html') === false && stripos($html, '</body>') === false) {
+        return $html;
+    }
+    if (strpos($html, 'torinvest-tj-readonly-v1') !== false) {
         return $html;
     }
 
     $readonly = !empty($GLOBALS['torinvest_tj_readonly']);
     $flag = $readonly ? '1' : '0';
+    $id = (string) ($GLOBALS['torinvest_tj_readonly_id'] ?? '');
+    if ($id === '' || !preg_match('/^\d{1,12}$/', $id)) {
+        $parsed = torinvest_journal_readonly_parse_id($_GET['view'] ?? null);
+        $id = $parsed !== null ? (string) $parsed : '';
+    }
+    $idJson = json_encode($id !== '' ? $id : null, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($idJson === false) {
+        $idJson = 'null';
+    }
+
     $script = <<<HTML
+<!-- torinvest-tj-readonly-ui -->
+<style id="torinvest-tj-readonly-css">
+#tj-readonly-banner{
+  margin:0 0 14px;padding:10px 12px;border-radius:8px;
+  background:#f0f4f8;color:#1a2332;font-size:13px;font-weight:600;
+  border:1px solid #d5dee8;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+#tj-readonly-actions{
+  display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+#tj-readonly-actions a{
+  display:inline-flex;align-items:center;padding:10px 16px;border-radius:8px;
+  font-weight:600;text-decoration:none;line-height:1.2;
+}
+#tj-readonly-actions a.tj-ro-edit{
+  background:#1a5fb4;color:#fff;border:1px solid #1a5fb4;
+}
+#tj-readonly-actions a.tj-ro-edit:hover{background:#154a8c}
+#tj-readonly-actions a.tj-ro-back{
+  background:#fff;color:#1a2332;border:1px solid #c5ced8;
+}
+#tj-readonly-actions a.tj-ro-back:hover{background:#eef2f6}
+body.tj-readonly input:not([type=hidden]):not([type=checkbox]):not([type=radio]),
+body.tj-readonly select,
+body.tj-readonly textarea{
+  pointer-events:none!important;background:#f0f2f5!important;color:#222!important;
+  opacity:1!important;
+}
+body.tj-readonly input[type=checkbox],
+body.tj-readonly input[type=radio]{pointer-events:none!important}
+</style>
 <script id="torinvest-tj-readonly-v1">(function(){
   if (window.__tjReadonlyView) return; window.__tjReadonlyView = 1;
   var READONLY = {$flag};
+  var TRADE_ID = {$idJson};
 
   function qs(u){
     try { return new URL(u, location.href); } catch(e){ return null; }
@@ -58,21 +144,30 @@ function torinvest_journal_readonly_ob_filter(string $html): string
     return u.pathname + u.search + u.hash;
   }
   function toEditUrl(href){
-    var u = qs(href || location.href); if (!u) return href;
-    var view = u.searchParams.get("view") || u.searchParams.get("edit");
-    if (!view) return href;
+    var u = qs(href || location.href); if (!u) return href || location.href;
+    var view = u.searchParams.get("view") || u.searchParams.get("edit") || TRADE_ID;
+    if (!view) return href || location.href;
     u.searchParams.delete("view");
-    u.searchParams.set("edit", view);
+    u.searchParams.set("edit", String(view));
+    if (!u.searchParams.get("page")) u.searchParams.set("page", "history");
+    return u.pathname + u.search + u.hash;
+  }
+  function backUrl(){
+    var u = qs(location.href); if (!u) return location.pathname + "?page=history";
+    u.searchParams.delete("view");
+    u.searchParams.delete("edit");
     if (!u.searchParams.get("page")) u.searchParams.set("page", "history");
     return u.pathname + u.search + u.hash;
   }
 
-  /** Réécrit les liens / handlers vers view= au lieu de edit= */
   function rewriteListLinks(root){
     var scope = root || document;
+    if (!scope.querySelectorAll) return;
     var links = scope.querySelectorAll("a[href*='edit=']");
     for (var i = 0; i < links.length; i++){
       var a = links[i];
+      if (a.id === "tj-ro-edit-btn" || (a.classList && a.classList.contains("tj-ro-edit"))) continue;
+      if (/modifier/i.test(a.textContent || "")) continue;
       var href = a.getAttribute("href") || "";
       if (/[?&]edit=\\d+/i.test(href) && !/[?&]view=\\d+/i.test(href)) {
         a.setAttribute("href", toViewUrl(href));
@@ -81,99 +176,110 @@ function torinvest_journal_readonly_ob_filter(string $html): string
   }
 
   function wrapOpenTrade(){
-    if (typeof window.openTrade !== "function" || window.openTrade.__tjReadWrap) return;
+    function goView(id){
+      var n = String(id == null ? "" : id).replace(/[^0-9]/g, "");
+      if (!n) return;
+      var dest = location.pathname + "?page=history&view=" + encodeURIComponent(n);
+      try { location.assign(dest); } catch(e){ location.href = dest; }
+    }
+    if (typeof window.openTrade === "function" && window.openTrade.__tjReadWrap) {
+      return;
+    }
     var orig = window.openTrade;
     window.openTrade = function(id){
       var n = String(id == null ? "" : id).replace(/[^0-9]/g, "");
-      if (!n) return orig.apply(this, arguments);
-      var dest = location.pathname + "?page=history&view=" + encodeURIComponent(n);
-      location.assign(dest);
+      if (!n) {
+        if (typeof orig === "function") return orig.apply(this, arguments);
+        return;
+      }
+      goView(n);
     };
     window.openTrade.__tjReadWrap = 1;
+    if (typeof orig === "function") window.openTrade.__tjPrev = orig;
+    window.viewTrade = goView;
   }
 
-  function fieldLabel(el){
-    var id = el.getAttribute("id") || el.getAttribute("name") || "";
-    var lab = id ? document.querySelector("label[for='"+id.replace(/'/g,"\\'")+"']") : null;
-    if (lab && lab.textContent) return lab.textContent.trim();
-    var prev = el.previousElementSibling;
-    if (prev && /^LABEL$/i.test(prev.tagName)) return prev.textContent.trim();
-    var p = el.closest("label");
-    if (p) return (p.textContent || "").trim();
-    return (el.getAttribute("placeholder") || el.getAttribute("name") || "Champ").trim();
-  }
-
-  function valueOf(el){
-    if (!el) return "";
-    if (el.tagName === "SELECT") {
-      var opt = el.options[el.selectedIndex];
-      return opt ? (opt.textContent || opt.value || "") : el.value;
-    }
-    return el.value || el.textContent || "";
-  }
-
-  /** Transforme le formulaire « modifier le trade » en fiche lecture seule */
   function enableReadOnlyDetail(){
-    var h = document.querySelector("h1,h2,.page-title");
+    document.body.classList.add("tj-readonly");
+    var h = document.querySelector("h1,h2,.page-title,.content-header h1,.card-title");
     var form = document.querySelector("form");
-    if (!form) {
-      // fallback: page entière
-      form = document.querySelector("main, .content, .card, body");
-    }
+    if (!form) form = document.querySelector("main, .content, .card, body");
     if (!form) return;
 
-    if (h && /modifier/i.test(h.textContent || "")) {
-      h.textContent = (h.textContent || "").replace(/modifier\\s+le\\s+trade/i, "Détail du trade") + " — lecture seule";
-    } else if (h && !/lecture/i.test(h.textContent || "")) {
+    var id = TRADE_ID;
+    if (!id) {
       var m = location.search.match(/[?&](?:view|edit)=(\\d+)/i);
-      h.textContent = "Détail du trade" + (m ? " #" + m[1] : "") + " — lecture seule";
+      id = m ? m[1] : "";
     }
 
-    var fields = form.querySelectorAll("input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=file]), select, textarea");
+    if (h) {
+      var t = (h.textContent || "").trim();
+      if (/modifier\\s+le\\s+trade/i.test(t) || /edit\\s+trade/i.test(t)) {
+        h.textContent = "Détail du trade" + (id ? " #" + id : "") + " — lecture seule";
+      } else if (!/lecture/i.test(t)) {
+        h.textContent = "Détail du trade" + (id ? " #" + id : "") + " — lecture seule";
+      }
+    }
+    if (document.title && /modifier/i.test(document.title)) {
+      document.title = "Détail du trade" + (id ? " #" + id : "");
+    }
+
+    var fields = form.querySelectorAll(
+      "input:not([type=hidden]):not([type=submit]):not([type=button]):not([type=file]), select, textarea"
+    );
     for (var i = 0; i < fields.length; i++){
       var el = fields[i];
       el.setAttribute("readonly", "readonly");
       el.setAttribute("disabled", "disabled");
-      el.style.pointerEvents = "none";
-      el.style.opacity = "0.95";
+      el.setAttribute("aria-readonly", "true");
+      el.setAttribute("tabindex", "-1");
     }
 
-    // Cache boutons sauvegarde
-    var buttons = form.querySelectorAll("button, input[type=submit], input[type=button]");
+    var forms = document.querySelectorAll("form");
+    for (var f = 0; f < forms.length; f++){
+      forms[f].addEventListener("submit", function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        return false;
+      }, true);
+    }
+
+    var buttons = form.querySelectorAll("button, input[type=submit], input[type=button], a");
     for (var j = 0; j < buttons.length; j++){
       var b = buttons[j];
-      var t = (b.textContent || b.value || "").toLowerCase();
-      if (/sauvegard|save|enregistrer|submit|supprim|delete/i.test(t)) {
+      if (b.id === "tj-ro-edit-btn" || (b.classList && b.classList.contains("tj-ro-edit"))) continue;
+      if (b.classList && b.classList.contains("tj-ro-back")) continue;
+      var label = ((b.textContent || b.value || "") + "").toLowerCase();
+      if (/sauvegard|\\bsave\\b|enregistrer|submit|supprim|delete|mettre à jour|\\bupdate\\b/i.test(label)) {
         b.style.display = "none";
       }
     }
 
-    // Barre d’actions lecture
-    if (!document.getElementById("tj-readonly-actions")) {
-      var bar = document.createElement("div");
-      bar.id = "tj-readonly-actions";
-      bar.style.cssText = "display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 8px;";
-      var edit = document.createElement("a");
-      edit.className = "btn";
-      edit.href = toEditUrl(location.href);
-      edit.textContent = "Modifier";
-      edit.style.cssText = "display:inline-flex;align-items:center;padding:10px 16px;border-radius:8px;background:#6366f1;color:#fff;font-weight:700;text-decoration:none;";
-      var back = document.createElement("a");
-      back.href = location.pathname + "?page=history";
-      back.textContent = "Retour à l’historique";
-      back.style.cssText = "display:inline-flex;align-items:center;padding:10px 16px;border-radius:8px;border:1px solid #e2e8f0;color:#1a202c;font-weight:600;text-decoration:none;background:#fff;";
-      bar.appendChild(edit);
-      bar.appendChild(back);
-      form.appendChild(bar);
-    }
-
-    // Bannière
     if (!document.getElementById("tj-readonly-banner")) {
       var ban = document.createElement("div");
       ban.id = "tj-readonly-banner";
       ban.textContent = "Mode lecture — tu consultes le détail du trade (sans modification).";
-      ban.style.cssText = "margin:0 0 14px;padding:10px 12px;border-radius:8px;background:#eef2ff;color:#3730a3;font-size:13px;font-weight:600;";
-      form.insertBefore(ban, form.firstChild);
+      if (form.firstChild) form.insertBefore(ban, form.firstChild);
+      else form.appendChild(ban);
+    }
+
+    if (!document.getElementById("tj-readonly-actions")) {
+      var bar = document.createElement("div");
+      bar.id = "tj-readonly-actions";
+      bar.setAttribute("role", "region");
+      bar.setAttribute("aria-label", "Actions détail trade");
+      var edit = document.createElement("a");
+      edit.id = "tj-ro-edit-btn";
+      edit.className = "btn tj-ro-edit";
+      edit.href = toEditUrl(location.href);
+      edit.textContent = "Modifier";
+      var back = document.createElement("a");
+      back.className = "tj-ro-back";
+      back.href = backUrl();
+      back.textContent = "Retour";
+      bar.appendChild(edit);
+      bar.appendChild(back);
+      form.appendChild(bar);
     }
   }
 
@@ -191,11 +297,10 @@ function torinvest_journal_readonly_ob_filter(string $html): string
       mo.observe(document.documentElement, { childList: true, subtree: true });
     } catch(e){}
 
-    // Capture: si un clic part encore vers edit=, bascule vers view= (sauf bouton Modifier)
     document.addEventListener("click", function(e){
       var t = e.target;
       if (!t || !t.closest) return;
-      if (t.closest("#tj-readonly-actions a[href*='edit=']")) return;
+      if (t.closest("#tj-readonly-actions a.tj-ro-edit, #tj-ro-edit-btn")) return;
       var a = t.closest("a[href*='edit=']");
       if (!a) return;
       if (/modifier/i.test(a.textContent || "")) return;
