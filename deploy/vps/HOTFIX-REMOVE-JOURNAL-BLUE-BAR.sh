@@ -9,7 +9,8 @@
 set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/main"
+# Branche de ce hotfix (contient journal.html sans barre bleue, v=14)
+RAW="https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-remove-blue-bar-691a"
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 
 PM2_CWD="$(pm2 jlist 2>/dev/null | python3 -c '
@@ -40,7 +41,7 @@ if grep -qE 'journal-screens-bar|Déposer des screens|jts-dropzone|showJournalWi
   exit 1
 fi
 grep -q 'journal-frame' "$TMP/journal.html"
-grep -q 'forge-journal.js?v=14' "$TMP/journal.html" || grep -q 'forge-journal.js?v=12' "$TMP/journal.html"
+grep -q 'forge-journal.js?v=14' "$TMP/journal.html"
 grep -q 'journal-embed\|JOURNAL_APP' "$TMP/forge-journal.js"
 
 # Écraser partout
