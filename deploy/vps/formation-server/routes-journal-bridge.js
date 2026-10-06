@@ -319,14 +319,15 @@ function absolutizeRadarAssets(html) {
 function injectProxyShim(html) {
   // HARD DELETE: never emit <script src=...forge-journal-trade-screens...>
   // v13: top/parent.location keep-in-frame + nuclear trade-row click fallback
-  const screens = "<!-- forge-jts:injectHardOff navFix v15 -->";
+  const screens = "<!-- forge-jts:injectHardOff navFix v16 ssoDirect -->";
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   window.__tjForgeHrefClickFix = 1;
   window.__tjForgeClickEverywhere = 1;
   window.__tjForgeCspStrip = 1;
-  window.__tjForgeNavFix = 15;
-  window.__tjForgeBridgeVersion = 15;
+  window.__tjForgeNavFix = 16;
+  window.__tjSsoDirect = true;
+  window.__tjForgeBridgeVersion = 16;
   var P = "/journal-embed/";
   var _lastGo = 0;
   function fix(u){
@@ -881,8 +882,9 @@ module.exports = function createJournalBridgeRouter() {
       relativeAssets: true,
       deepLinkFallback: true,
       navFix: true,
+      ssoDirect: true,
       scriptSrcAttr: "none-stripped",
-      version: 15,
+      version: 16,
     });
   });
 
@@ -917,7 +919,7 @@ module.exports = function createJournalBridgeRouter() {
       ok: true,
       url: u.toString(),
       embed: EMBED_PATH,
-      note: "open in new tab — radar native TJ (no forge CSP)",
+      note: "default open = radar SSO direct (native TJ); embed optional",
     });
   });
 

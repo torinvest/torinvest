@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Guards: nuclear clickEverywhere v15 navFix — CSP strip + MutationObserver + deep-link.
+ * Guards: nuclear clickEverywhere v16 navFix — CSP strip + MutationObserver + deep-link.
  */
 const fs = require("fs");
 const path = require("path");
@@ -15,7 +15,7 @@ const screens = fs.readFileSync(
   "utf8"
 );
 const hotfix = fs.readFileSync(
-  path.join(__dirname, "../HOTFIX-JOURNAL-CLICK-EVERYWHERE.sh"),
+  path.join(__dirname, "../HOTFIX-JOURNAL-SSO-DIRECT.sh"),
   "utf8"
 );
 const forgeJournal = fs.readFileSync(
@@ -26,7 +26,7 @@ const forgeJournal = fs.readFileSync(
 assert.ok(bridge.includes("clickEverywhere"), "clickEverywhere flag");
 assert.ok(bridge.includes("keepInFrame"), "top/parent keepInFrame");
 assert.ok(bridge.includes("absolutizeRadarAssets"), "radar asset absolutize");
-assert.ok(bridge.includes("version: 15"), "version 15");
+assert.ok(bridge.includes("version: 16"), "version 16");
 assert.ok(bridge.includes("navFix: true"), "navFix");
 assert.ok(bridge.includes("__tjCspStripped"), "CSP strip nuclear");
 assert.ok(bridge.includes("MutationObserver"), "trade row MutationObserver");
@@ -47,8 +47,8 @@ assert.ok(
   "strips meta CSP"
 );
 assert.ok(
-  bridge.includes("forge-jts:injectHardOff navFix v15"),
-  "inject marker v15"
+  bridge.includes("forge-jts:injectHardOff navFix v16"),
+  "inject marker v16"
 );
 {
   const shimMatch = bridge.match(/const shim = `([\s\S]*?)`;/);
@@ -67,22 +67,23 @@ assert.ok(
 assert.ok(screens.includes("clickEverywhere"), "screens ping clickEverywhere");
 assert.ok(screens.includes("cspStrip"), "screens ping cspStrip");
 assert.ok(screens.includes("tradeRowObserver"), "screens ping tradeRowObserver");
-assert.ok(screens.includes("version: 15"), "screens version 15");
+assert.ok(screens.includes("version: 16"), "screens version 16");
 assert.ok(screens.includes("navFix: true"), "screens navFix");
 
-assert.ok(hotfix.includes("MutationObserver"), "hotfix checks MutationObserver");
 assert.ok(hotfix.includes("PM2_SCRIPT"), "hotfix pm2 script walk");
 assert.ok(hotfix.includes("node --check"), "hotfix node --check");
-assert.ok(hotfix.includes("cspStrip"), "hotfix requires cspStrip ping");
-assert.ok(hotfix.includes("tradeRowObserver"), "hotfix requires tradeRowObserver");
-assert.ok(hotfix.includes("navFix"), "hotfix requires navFix");
-assert.ok(hotfix.includes("version: 15") || hotfix.includes("version:15"), "hotfix v15");
+assert.ok(hotfix.includes("ssoDirect"), "hotfix requires ssoDirect");
+assert.ok(hotfix.includes("version: 16") || hotfix.includes("version:16"), "hotfix v16");
 assert.ok(
-  hotfix.includes("Content-Security-Policy"),
-  "hotfix verifies CSP absence"
+  hotfix.includes("cursor/journal-sso-direct-691a"),
+  "hotfix pulls SSO direct branch"
 );
 
 assert.ok(forgeJournal.includes("radar-url"), "shell deep-link");
-assert.ok(forgeJournal.includes("journal-open-radar"), "shell rescue button");
+assert.ok(
+  forgeJournal.includes("openRadarDirect") || forgeJournal.includes("window.top.location"),
+  "shell SSO direct default"
+);
+assert.ok(forgeJournal.includes("journal-open-embed"), "optional embed mode");
 
-console.log("OK — clickEverywhere v15 navFix nuclear + deep-link guards");
+console.log("OK — clickEverywhere + SSO direct v16 guards");

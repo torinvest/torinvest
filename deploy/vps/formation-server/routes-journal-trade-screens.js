@@ -326,7 +326,7 @@ module.exports = function createJournalTradeScreensRouter() {
     res.json({
       ok: true,
       ready: true,
-      version: 15,
+      version: 16,
       jpgPng: true,
       mimeLoose: true,
       sniff: true,
@@ -345,11 +345,12 @@ module.exports = function createJournalTradeScreensRouter() {
       relativeAssets: true,
       deepLinkFallback: true,
       navFix: true,
+      ssoDirect: true,
       injectHardOff: true,
       injectDisabled: true,
       inject: "off",
       note:
-        "v15: menu ?query stay in embed (no radar/www breakout) + CSP strip + observer",
+        "v16: DEFAULT open = radar SSO direct (native TJ menus/clicks); iframe optional",
     });
   });
 

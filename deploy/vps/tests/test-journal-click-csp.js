@@ -47,14 +47,14 @@ assert.ok(
 );
 assert.ok(bridge.includes("cspClickFix: true"), "bridge ping cspClickFix");
 assert.ok(bridge.includes("cspStrip: true"), "bridge ping cspStrip");
-assert.ok(bridge.includes("version: 15"), "bridge ping version 15");
+assert.ok(bridge.includes("version: 16"), "bridge ping version 16");
 assert.ok(bridge.includes("navFix: true"), "bridge ping navFix");
 assert.ok(
   bridge.includes("return false;"),
   "tradeScreensInjectEnabled must hard-return false"
 );
 
-assert.ok(routes.includes("version: 15"), "routes ping version 15");
+assert.ok(routes.includes("version: 16"), "routes ping version 16");
 assert.ok(routes.includes("navFix: true"), "routes ping navFix");
 assert.ok(routes.includes("cspClickFix: true"), "routes ping cspClickFix");
 assert.ok(routes.includes("cspStrip: true"), "routes ping cspStrip");
@@ -78,4 +78,4 @@ const sample =
   '<tr data-trade-id="1" onclick="openTrade(1)"><td>EURUSD</td></tr>';
 assert.ok(/onclick="openTrade\(1\)"/.test(sample), "TJ onclick contract");
 
-console.log("OK — journal click CSP strip (v15 navFix) guards passed");
+console.log("OK — journal click CSP strip (v16 navFix) guards passed");
