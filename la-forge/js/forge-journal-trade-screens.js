@@ -151,7 +151,16 @@
       );
       var groupLab = "";
       if (group) {
-        var gl = group.querySelector(":scope > label, :scope > .form-label, :scope > .label, legend");
+        var gl = null;
+        var kids = group.children || [];
+        for (var ci = 0; ci < kids.length; ci++) {
+          var tag = String(kids[ci].tagName || "").toLowerCase();
+          var cls = String(kids[ci].className || "");
+          if (tag === "label" || tag === "legend" || /\bform-label\b|\blabel\b/.test(cls)) {
+            gl = kids[ci];
+            break;
+          }
+        }
         if (!gl) gl = group.querySelector("label, .form-label, .label, legend");
         if (gl && String(gl.textContent || "").trim().length < 60) {
           groupLab = String(gl.textContent || "");
