@@ -323,18 +323,10 @@ module.exports = function createJournalTradeScreensRouter() {
   }
 
   router.get("/api/journal-trade-screens/ping", (_req, res) => {
-    const screensEnv = String(process.env.JOURNAL_TRADE_SCREENS || "")
-      .trim()
-      .toLowerCase();
-    const screensOn =
-      screensEnv === "1" ||
-      screensEnv === "true" ||
-      screensEnv === "on" ||
-      screensEnv === "yes";
     res.json({
       ok: true,
       ready: true,
-      version: 10,
+      version: 11,
       jpgPng: true,
       mimeLoose: true,
       sniff: true,
@@ -345,11 +337,12 @@ module.exports = function createJournalTradeScreensRouter() {
       tradeClickNuke: true,
       safeMode: true,
       clickRestore: true,
-      injectDisabled: !screensOn,
-      inject: screensOn ? "v12" : "off",
-      note: screensOn
-        ? "JOURNAL_TRADE_SCREENS=1 — screens inject ON"
-        : "screens inject OFF (default) — trade clicks stock TJ",
+      cspClickFix: true,
+      injectHardOff: true,
+      injectDisabled: true,
+      inject: "off",
+      note:
+        "screens inject HARD OFF + CSP script-src-attr unsafe-inline for TJ onclick",
     });
   });
 

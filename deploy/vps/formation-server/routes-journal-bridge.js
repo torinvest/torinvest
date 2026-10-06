@@ -214,21 +214,50 @@ function mapRedirectToEmbed(location) {
 }
 
 /**
- * Screens inject OFF by default — reading trades must never break.
- * Re-enable only with JOURNAL_TRADE_SCREENS=1 (or true/on/yes).
+ * Screens script HARD OFF — never inject forge-journal-trade-screens.js into TJ HTML.
+ * (Env JOURNAL_TRADE_SCREENS kept for ping/API only; inject path deleted.)
  */
 function tradeScreensInjectEnabled() {
-  const v = String(process.env.JOURNAL_TRADE_SCREENS || "")
-    .trim()
-    .toLowerCase();
-  return v === "1" || v === "true" || v === "on" || v === "yes";
+  // Inject permanently disabled — click→detail must use native TJ onclick handlers.
+  return false;
+}
+
+/**
+ * Helmet CSP on app.* includes script-src-attr 'none', which blocks TJ Pro's
+ * inline handlers (onclick="openTrade(...)"). Radar itself has no CSP.
+ * Override CSP on every /journal-embed response (same pattern as atlas-embed).
+ */
+function applyJournalEmbedCsp(res) {
+  try {
+    res.removeHeader("Content-Security-Policy");
+    res.removeHeader("Content-Security-Policy-Report-Only");
+  } catch (_) {
+    /* ignore */
+  }
+  res.setHeader(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' blob:",
+      // CRITICAL: TJ trade rows use onclick= / on* attributes
+      "script-src-attr 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: blob: https:",
+      "connect-src 'self' https: https://radar.torinvest-trading.com",
+      "worker-src 'self' blob:",
+      "child-src 'self' blob:",
+      "font-src 'self' data: https:",
+      "frame-ancestors 'self'",
+      "base-uri 'self'",
+      "object-src 'none'",
+      "form-action 'self' https://radar.torinvest-trading.com",
+    ].join("; ")
+  );
 }
 
 function injectProxyShim(html) {
-  // Screens JPG/PNG OFF by default (click restore v10). Opt-in via JOURNAL_TRADE_SCREENS=1.
-  const screens = tradeScreensInjectEnabled()
-    ? '<script src="/js/forge-journal-trade-screens.js?v=12" defer></script>'
-    : "<!-- forge-jts:injectDisabled clickRestore v10 -->";
+  // HARD DELETE: never emit <script src=...forge-journal-trade-screens...>
+  const screens = "<!-- forge-jts:injectHardOff cspClickFix v11 -->";
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   var P = "/journal-embed/";
@@ -359,10 +388,13 @@ function readRawBody(req) {
 
 function createPhpProxy() {
   return async function phpProxy(req, res) {
+    applyJournalEmbedCsp(res);
+
     const user = await requirePremium(req);
     if (!user?.email) {
       res.status(403);
       res.setHeader("Content-Type", "text/html; charset=utf-8");
+      applyJournalEmbedCsp(res);
       return res.send(
         "<!doctype html><html lang=fr><body style='font-family:system-ui;padding:2rem'>" +
           "<p>Session La Forge Premium requise.</p>" +
@@ -428,6 +460,7 @@ function createPhpProxy() {
         const loc = result.upstream.headers.get("location") || "";
         const mapped = mapRedirectToEmbed(loc);
         if (mapped) {
+          applyJournalEmbedCsp(res);
           res.redirect(302, mapped.replace(/([^:]\/)\/+/g, "$1"));
           return;
         }
@@ -457,6 +490,7 @@ function createPhpProxy() {
       res.status(result.upstream.status);
       res.setHeader("Content-Type", result.ctype);
       res.setHeader("Cache-Control", "private, no-store");
+      applyJournalEmbedCsp(res);
 
       // JSON APIs éventuelles — ne pas réécrire
       if (html != null) return res.send(rewriteJournalHtml(html));
@@ -489,7 +523,6 @@ module.exports = function createJournalBridgeRouter() {
   });
 
   router.get("/api/journal-bridge/ping", (req, res) => {
-    const screensOn = tradeScreensInjectEnabled();
     res.json({
       ok: true,
       mounted: true,
@@ -497,10 +530,13 @@ module.exports = function createJournalBridgeRouter() {
       upstream: radarBaseUrl() + journalPhpPath(),
       sso: !!bridgeSecret(),
       autoLoginEnv: !!(process.env.FORGE_JOURNAL_PASSWORD || process.env.TJ_PASSWORD),
-      tradeScreensInject: screensOn,
-      injectDisabled: !screensOn,
+      tradeScreensInject: false,
+      injectDisabled: true,
+      injectHardOff: true,
       clickRestore: true,
-      version: 10,
+      cspClickFix: true,
+      scriptSrcAttr: "unsafe-inline",
+      version: 11,
     });
   });
 
