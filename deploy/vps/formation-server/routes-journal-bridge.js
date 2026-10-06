@@ -225,7 +225,7 @@ function tradeScreensInjectEnabled() {
 /**
  * Helmet CSP on app.* includes script-src-attr 'none', which blocks TJ Pro's
  * inline handlers (onclick="openTrade(...)"). Radar itself has no CSP.
- * Override CSP on every /journal-embed response (same pattern as atlas-embed).
+ * Override CSP on every /journal-embed response — allow radar assets + attrs.
  */
 function applyJournalEmbedCsp(res) {
   try {
@@ -234,52 +234,110 @@ function applyJournalEmbedCsp(res) {
   } catch (_) {
     /* ignore */
   }
+  const radar = radarBaseUrl();
   res.setHeader(
     "Content-Security-Policy",
     [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' blob:",
+      "default-src 'self' " + radar,
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: " + radar,
       // CRITICAL: TJ trade rows use onclick= / on* attributes
       "script-src-attr 'unsafe-inline'",
-      "style-src 'self' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline' " + radar + " https://fonts.googleapis.com",
       "img-src 'self' data: blob: https:",
-      "connect-src 'self' https: https://radar.torinvest-trading.com",
+      "connect-src 'self' https: " + radar,
       "worker-src 'self' blob:",
       "child-src 'self' blob:",
-      "font-src 'self' data: https:",
+      "font-src 'self' data: https: " + radar,
       "frame-ancestors 'self'",
-      "base-uri 'self'",
+      "base-uri 'self' " + radar,
       "object-src 'none'",
-      "form-action 'self' https://radar.torinvest-trading.com",
+      "form-action 'self' " + radar,
     ].join("; ")
   );
 }
 
+function absolutizeRadarAssets(html) {
+  const base = radarBaseUrl().replace(/\/$/, "");
+  let out = String(html || "");
+  // Root-relative assets would hit app.* (404) — point them at radar.
+  out = out.replace(
+    /\b(src|href)=(["'])\/(?!\/|journal-embed\/)([^"']*)\2/gi,
+    (m, attr, q, path) => {
+      if (/^trading_journal\.php/i.test(path)) return m;
+      return attr + "=" + q + base + "/" + path + q;
+    }
+  );
+  return out;
+}
+
 function injectProxyShim(html) {
   // HARD DELETE: never emit <script src=...forge-journal-trade-screens...>
-  // v12: also rewrite location.href — openTrade often sets href to trading_journal.php
-  // which 404s on app.* (only /journal-embed/ is proxied).
-  const screens = "<!-- forge-jts:injectHardOff hrefClickFix v12 -->";
+  // v13: also rewrite top/parent.location — openTrade may break out of iframe → 404
+  const screens = "<!-- forge-jts:injectHardOff clickEverywhere v13 -->";
   const shim = `<script>(function(){
   if (window.__tjForgeProxyShim) return; window.__tjForgeProxyShim = 1;
   window.__tjForgeHrefClickFix = 1;
+  window.__tjForgeClickEverywhere = 1;
   var P = "/journal-embed/";
   function fix(u){
-    if (!u || typeof u !== "string") return u;
+    if (u == null) return u;
+    if (typeof u !== "string") {
+      try { u = String(u); } catch(e){ return u; }
+    }
     var s = u.trim();
+    if (!s) return u;
     if (/^https?:\\/\\/radar\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
       var q = s.indexOf("?"); return P + (q>=0 ? s.slice(q) : "");
     }
     if (/^\\/?trading_journal\\.php/i.test(s)) {
       var q2 = s.indexOf("?"); return P + (q2>=0 ? s.slice(q2) : "");
     }
-    // Absolute app path mistakenly hitting PHP file on Forge host
     try {
       if (/^https?:\\/\\/app\\.torinvest-trading\\.com\\/trading_journal\\.php/i.test(s)) {
         var q3 = s.indexOf("?"); return P + (q3>=0 ? s.slice(q3) : "");
       }
     } catch(e){}
     return u;
+  }
+  function patchLoc(loc, keepInFrame){
+    if (!loc) return;
+    try {
+      var oAssign = loc.assign.bind(loc);
+      loc.assign = function(u){
+        var fixed = fix(String(u));
+        if (keepInFrame && /\\/journal-embed\\/?|trading_journal\\.php/i.test(fixed)) {
+          return window.location.assign(fixed);
+        }
+        return oAssign(fixed);
+      };
+      var oReplace = loc.replace.bind(loc);
+      loc.replace = function(u){
+        var fixed = fix(String(u));
+        if (keepInFrame && /\\/journal-embed\\/?|trading_journal\\.php/i.test(fixed)) {
+          return window.location.replace(fixed);
+        }
+        return oReplace(fixed);
+      };
+    } catch(e){}
+    try {
+      var hrefDesc = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(loc), "href")
+        || Object.getOwnPropertyDescriptor(Location.prototype, "href");
+      if (hrefDesc && hrefDesc.set && hrefDesc.get) {
+        Object.defineProperty(loc, "href", {
+          configurable: true,
+          enumerable: true,
+          get: function(){ return hrefDesc.get.call(loc); },
+          set: function(u){
+            var fixed = fix(String(u));
+            if (keepInFrame && /\\/journal-embed\\/?|trading_journal\\.php/i.test(fixed)) {
+              window.location.href = fixed;
+              return;
+            }
+            hrefDesc.set.call(loc, fixed);
+          }
+        });
+      }
+    } catch(e){}
   }
   document.addEventListener("submit", function(e){
     var f = e.target; if (!f || !f.action) return;
@@ -301,7 +359,6 @@ function injectProxyShim(html) {
     arguments[1] = fix(url);
     return oOpen.apply(this, arguments);
   };
-  // TJ openTrade() uses location.assign/replace AND location.href (=)
   try {
     var oAssign = Location.prototype.assign;
     Location.prototype.assign = function(u){ return oAssign.call(this, fix(String(u))); };
@@ -319,6 +376,10 @@ function injectProxyShim(html) {
       });
     }
   } catch(e){}
+  // openTrade may use top/parent.location → 404 on app /trading_journal.php
+  try { patchLoc(window.location, false); } catch(e){}
+  try { if (window.top && window.top !== window) patchLoc(window.top.location, true); } catch(e){}
+  try { if (window.parent && window.parent !== window) patchLoc(window.parent.location, true); } catch(e){}
   try {
     var oWinOpen = window.open;
     if (oWinOpen) {
@@ -330,7 +391,10 @@ function injectProxyShim(html) {
     if (!a) return;
     var href = a.getAttribute("href");
     var fixed = fix(href);
-    if (fixed && fixed !== href) a.setAttribute("href", fixed);
+    if (fixed && fixed !== href) {
+      a.setAttribute("href", fixed);
+      if (a.target === "_top" || a.target === "_parent") a.target = "_self";
+    }
   }, true);
 })();</script>`;
   const inject = shim + screens;
@@ -340,7 +404,7 @@ function injectProxyShim(html) {
 }
 
 function rewriteJournalHtml(html) {
-  let out = String(html);
+  let out = absolutizeRadarAssets(String(html));
   const radar = radarBaseUrl().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
   out = out.replace(
@@ -577,8 +641,9 @@ module.exports = function createJournalBridgeRouter() {
       clickRestore: true,
       cspClickFix: true,
       hrefClickFix: true,
+      clickEverywhere: true,
       scriptSrcAttr: "unsafe-inline",
-      version: 12,
+      version: 13,
     });
   });
 
