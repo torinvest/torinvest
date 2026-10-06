@@ -326,7 +326,7 @@ module.exports = function createJournalTradeScreensRouter() {
     res.json({
       ok: true,
       ready: true,
-      version: 12,
+      version: 13,
       jpgPng: true,
       mimeLoose: true,
       sniff: true,
@@ -339,11 +339,12 @@ module.exports = function createJournalTradeScreensRouter() {
       clickRestore: true,
       cspClickFix: true,
       hrefClickFix: true,
+      clickEverywhere: true,
       injectHardOff: true,
       injectDisabled: true,
       inject: "off",
       note:
-        "screens off + CSP onclick OK + location.href → /journal-embed/ (no 404 trading_journal.php)",
+        "v13: top/parent.location rewrite + radar assets CSP — list+calendar trade click",
     });
   });
 
