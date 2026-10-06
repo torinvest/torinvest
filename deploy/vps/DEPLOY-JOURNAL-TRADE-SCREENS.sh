@@ -3,16 +3,17 @@
 #
 # Sur le VPS (UNE seule commande) :
 #   unset REF SHA BRANCH JOURNAL_SCREENS_REF
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-remove-blue-bar-691a/deploy/vps/HOTFIX-REMOVE-JOURNAL-BLUE-BAR.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-upload-jpg-fix-691a/deploy/vps/HOTFIX-JOURNAL-UPLOAD-JPG.sh" | bash
 #
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-# Ignore REF/SHA/BRANCH ambiants — tire TOUJOURS les artefacts depuis main
+# Ignore REF/SHA/BRANCH ambiants — tire TOUJOURS les artefacts depuis SCRIPT_REF
 unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
-SCRIPT_REF="cursor/journal-remove-blue-bar-691a"
+SCRIPT_REF="${SCRIPT_REF:-cursor/journal-upload-jpg-fix-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 EXPECTED_JS_VER="v=14"
+EXPECTED_INJECT="forge-journal-trade-screens.js?v=3"
 
 echo "======== DEPLOY JOURNAL TJ-ONLY + SCREENS INJECT ($SCRIPT_REF) ========"
 echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
@@ -69,6 +70,9 @@ grep -q 'journal-trade-screens/ping' "$TMP/routes-journal-trade-screens.js"
 grep -q 'pruneEmptyTrades\|imageCount' "$TMP/routes-journal-trade-screens.js"
 grep -q 'createJournalTradeScreensRouter' "$TMP/routes-formation-auth.js"
 grep -q 'forge-journal-trade-screens.js' "$TMP/routes-journal-bridge.js"
+grep -q "$EXPECTED_INJECT" "$TMP/routes-journal-bridge.js"
+grep -q 'normalizeDataUrl\|canvasToCleanDataUrl' "$TMP/forge-journal-trade-screens.js"
+grep -q 'parseImageDataUrl\|mimeLoose' "$TMP/routes-journal-trade-screens.js"
 grep -q 'Screens trades\|forge-jts-nav\|forge-jts-panel' "$TMP/forge-journal-trade-screens.js"
 if grep -q 'journal-screens-bar\|Déposer des screens\|showJournalWithScreens\|jts-dropzone' "$TMP/journal.html"; then
   echo "ÉCHEC: artefact GitHub encore en UI shell screens (barre bleue) — mauvais SCRIPT_REF=$SCRIPT_REF ?"
@@ -137,7 +141,7 @@ done < <(find "$APP_DIR" -name 'routes-journal-trade-screens.js' -print0 2>/dev/
 echo "Copies mises à jour: $UPDATED"
 
 # Stamp version pour debug
-echo "ref=${SCRIPT_REF} js=${EXPECTED_JS_VER} mode=tj-only-inject at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$APP_DIR/public/journal-screens.deploy.txt"
+echo "ref=${SCRIPT_REF} js=${EXPECTED_JS_VER} inject=${EXPECTED_INJECT} mode=tj-only-inject at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$APP_DIR/public/journal-screens.deploy.txt"
 
 BAD=0
 while IFS= read -r -d '' f; do
@@ -242,7 +246,9 @@ grep -q 'journal-frame' "$APP_DIR/public/journal.html"
 grep -q "forge-journal.js?${EXPECTED_JS_VER}" "$APP_DIR/public/journal.html"
 grep -q 'showFrame\|journal-embed' "$APP_DIR/public/js/forge-journal.js"
 grep -q 'Screens trades\|forge-jts-nav' "$APP_DIR/public/js/forge-journal-trade-screens.js"
-grep -q 'forge-journal-trade-screens.js' "$APP_DIR/server-patches/routes-journal-bridge.js"
+grep -q "$EXPECTED_INJECT" "$APP_DIR/server-patches/routes-journal-bridge.js"
+grep -q 'normalizeDataUrl' "$APP_DIR/public/js/forge-journal-trade-screens.js"
+grep -q 'parseImageDataUrl\|mimeLoose' "$APP_DIR/server-patches/routes-journal-trade-screens.js"
 if grep -q 'journal-screens-bar\|Déposer des screens\|showJournalWithScreens' "$APP_DIR/public/journal.html" \
   || grep -q 'journal-screens-bar\|showJournalWithScreens' "$APP_DIR/public/js/forge-journal.js"; then
   echo "ÉCHEC: barre bleue / shell screens encore présente"
@@ -279,5 +285,7 @@ echo "  https://app.torinvest-trading.com/journal.html"
 echo "→ Attendu :"
 echo "  • UNIQUEMENT le journal blanc TJ Pro (iframe) — PAS de barre bleue au-dessus"
 echo "  • forge-journal.js?${EXPECTED_JS_VER}"
+echo "  • inject ${EXPECTED_INJECT}"
 echo "  • Dans TJ : sidebar « Screens trades » + upload JPG/PNG sur Ajouter un trade"
+echo "  • Clé trade = draft-… ou date_pair_direction (pas add_trade_*)"
 echo "======== DONE ========"

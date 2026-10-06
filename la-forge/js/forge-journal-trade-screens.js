@@ -100,44 +100,111 @@
   }
 
   function readFormMeta() {
-    function val(sel) {
-      try {
-        var el = document.querySelector(sel);
-        return el ? String(el.value || "").trim() : "";
-      } catch (_) {
-        return "";
+    function isFieldEl(el) {
+      if (!el) return false;
+      var tag = String(el.tagName || "").toLowerCase();
+      if (tag !== "input" && tag !== "select" && tag !== "textarea") return false;
+      var type = String(el.type || "text").toLowerCase();
+      if (
+        type === "hidden" ||
+        type === "submit" ||
+        type === "button" ||
+        type === "reset" ||
+        type === "file" ||
+        type === "checkbox" ||
+        type === "radio" ||
+        type === "image"
+      ) {
+        return false;
       }
+      if (el.disabled || el.readOnly) return false;
+      return true;
     }
-    var inputs = Array.prototype.slice.call(document.querySelectorAll("input, select, textarea"));
-    function byLabel(re) {
-      for (var i = 0; i < inputs.length; i++) {
-        var el = inputs[i];
-        var id = el.id;
-        var lab = id
-          ? document.querySelector('label[for="' + String(id).replace(/"/g, '\\"') + '"]')
-          : null;
-        var wrap = el.closest("label, .form-group, .field, .mb-3, .row, div");
-        var txt = (
-          (lab && lab.textContent) ||
-          (wrap && wrap.textContent) ||
-          el.name ||
-          el.placeholder ||
-          ""
-        ).toLowerCase();
-        if (re.test(txt)) return String(el.value || "").trim();
+
+    function fieldHint(el) {
+      var id = el.id ? String(el.id) : "";
+      var lab = "";
+      if (id) {
+        try {
+          var labEl = document.querySelector(
+            'label[for="' + id.replace(/\\/g, "\\\\").replace(/"/g, '\\"') + '"]'
+          );
+          if (labEl) lab = String(labEl.textContent || "");
+        } catch (_) {}
+      }
+      var parentLab = el.closest("label");
+      var group = el.closest(".form-group, .field, .mb-3, .form-floating, .input-group");
+      var groupLab = "";
+      if (group) {
+        var gl = group.querySelector("label, .form-label, .label, legend, small, span");
+        if (gl && String(gl.textContent || "").length < 80) {
+          groupLab = String(gl.textContent || "");
+        }
+      }
+      return (
+        lab ||
+        (parentLab ? String(parentLab.textContent || "").slice(0, 80) : "") ||
+        groupLab ||
+        el.getAttribute("aria-label") ||
+        el.name ||
+        el.placeholder ||
+        id ||
+        ""
+      )
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function byName(res) {
+      var nodes = document.querySelectorAll("input, select, textarea");
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (!isFieldEl(el)) continue;
+        var name = String(el.name || el.id || "").toLowerCase();
+        for (var j = 0; j < res.length; j++) {
+          if (res[j].test(name)) return String(el.value || "").trim();
+        }
       }
       return "";
     }
+
+    function byLabel(re) {
+      var nodes = document.querySelectorAll("input, select, textarea");
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (!isFieldEl(el)) continue;
+        var hint = fieldHint(el);
+        // Ignore huge wraps that would match every field on the page
+        if (!hint || hint.length > 120) continue;
+        if (re.test(hint)) return String(el.value || "").trim();
+      }
+      return "";
+    }
+
+    function byType(types) {
+      for (var t = 0; t < types.length; t++) {
+        var el = document.querySelector('input[type="' + types[t] + '"]');
+        if (el && isFieldEl(el)) return String(el.value || "").trim();
+      }
+      return "";
+    }
+
     var pair =
-      byLabel(/actif|paire|symbol|instrument/) ||
-      val('[name*="pair" i], [name*="symbol" i], [name*="asset" i]');
+      byName([/pair|symbol|asset|instrument|ticker|actif|paire/]) ||
+      byLabel(/^(?!.*entr).*(\bactif\b|\bpaire\b|\bsymbol|\binstrument)/);
     var direction =
-      byLabel(/direction|sens|side/) || val('[name*="direction" i], [name*="side" i]');
-    var entry = byLabel(/entr|entry/) || val('[name*="entry" i], [name*="open" i]');
+      byName([/direction|side|sens|buy.?sell|long.?short/]) ||
+      byLabel(/\bdirection\b|\bsens\b|\bside\b|\blong\b|\bshort\b/);
+    var entry =
+      byName([/entr[eyi]|open.?price|prix.?entr/]) ||
+      byLabel(/prix\s*d['’]?entr|entry\s*price|\bentr[ée]e\b/);
     var date =
-      byLabel(/date|heure/) ||
-      val('input[type="datetime-local"], input[type="date"], [name*="date" i]');
-    var setup = byLabel(/setup|strat/) || val('[name*="setup" i], [name*="strategy" i]');
+      byName([/date|time|heure|datetime|opened/]) ||
+      byType(["datetime-local", "date", "time"]) ||
+      byLabel(/\bdate\b|\bheure\b|date\s*\/\s*heure/);
+    var setup =
+      byName([/setup|strat|strategy/]) || byLabel(/\bsetup\b|\bstrat/);
     return { pair: pair, direction: direction, entry: entry, date: date, setup: setup };
   }
 
@@ -147,30 +214,47 @@
     if (/^add[_-\s]?trade$/i.test(v)) return "";
     if (/ajouter\s*un\s*trade/i.test(v)) return "";
     if (/^screens?/i.test(v) && v.length < 12) return "";
+    if (/^(na|n\/a|null|undefined|none|—|-)$/i.test(v)) return "";
     return v;
   }
 
   function tradeKeyFromMeta(meta) {
-    var pair = cleanField(meta.pair) || "trade";
-    var direction = cleanField(meta.direction) || "na";
-    var parts = [
-      (meta.date || "").slice(0, 16).replace(/\s+/g, "T"),
-      pair.toLowerCase(),
-      direction.toLowerCase(),
-      meta.entry || "0",
-    ];
-    var key = parts
-      .join("_")
-      .replace(/[^a-z0-9._+-]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 80);
-    if (!key || key === "trade_na_0" || /^_*trade_na_0/.test(key)) {
+    var pair = cleanField(meta.pair);
+    var direction = cleanField(meta.direction);
+    var date = cleanField(meta.date).slice(0, 16).replace(/\s+/g, "T");
+    var entry = cleanField(meta.entry);
+    // Need at least pair or date from the real TJ form — otherwise draft key
+    if (!pair && !date) {
       var draft = sessionStorage.getItem("forge_jts_draft");
       if (!draft) {
         draft = "draft-" + Date.now().toString(36);
         sessionStorage.setItem("forge_jts_draft", draft);
       }
       return draft;
+    }
+    var parts = [
+      date || "nodate",
+      (pair || "trade").toLowerCase(),
+      (direction || "na").toLowerCase(),
+      entry || "0",
+    ];
+    var key = parts
+      .join("_")
+      .replace(/[^a-z0-9._+-]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 80);
+    if (
+      !key ||
+      /add[_-]?trade/i.test(key) ||
+      key === "nodate_trade_na_0" ||
+      key === "trade_na_0"
+    ) {
+      var d2 = sessionStorage.getItem("forge_jts_draft");
+      if (!d2) {
+        d2 = "draft-" + Date.now().toString(36);
+        sessionStorage.setItem("forge_jts_draft", d2);
+      }
+      return d2;
     }
     return key;
   }
@@ -190,7 +274,14 @@
 
   function guessImageMime(file) {
     var type = String((file && file.type) || "").toLowerCase().trim();
-    if (type === "image/jpg" || type === "image/pjpeg") return "image/jpeg";
+    if (
+      type === "image/jpg" ||
+      type === "image/pjpeg" ||
+      type === "image/x-jpeg" ||
+      type === "image/jfif"
+    ) {
+      return "image/jpeg";
+    }
     if (type === "image/x-png") return "image/png";
     if (
       type === "image/jpeg" ||
@@ -201,11 +292,10 @@
       return type;
     }
     var name = String((file && file.name) || "").toLowerCase();
-    if (/\.jpe?g$/i.test(name)) return "image/jpeg";
+    if (/\.jpe?g$/i.test(name) || /\.jfif$/i.test(name)) return "image/jpeg";
     if (/\.png$/i.test(name)) return "image/png";
     if (/\.webp$/i.test(name)) return "image/webp";
     if (/\.gif$/i.test(name)) return "image/gif";
-    if (type.indexOf("image/") === 0) return type;
     return "";
   }
 
@@ -215,33 +305,72 @@
       return true;
     }
     var name = String((file && file.name) || "").toLowerCase();
-    if (/\.(jpe?g|png|webp|gif)$/i.test(name)) return true;
-    if (!name && file && file.type && String(file.type).indexOf("image/") === 0) return true;
+    if (/\.(jpe?g|png|webp|gif|jfif)$/i.test(name)) return true;
+    // Empty MIME (common on Windows / some Android) but image/* picker
+    if (file && !file.type && name && /\.(jpe?g|png)$/i.test(name)) return true;
+    if (file && file.type && String(file.type).indexOf("image/") === 0 && !/heic|heif|avif|svg|tiff/i.test(file.type)) {
+      return true;
+    }
     return false;
+  }
+
+  /** Force a clean data:image/jpeg|png;base64,… payload for the API. */
+  function normalizeDataUrl(dataUrl, preferMime) {
+    var raw = String(dataUrl || "").replace(/\s+/g, "");
+    var m = raw.match(/^data:([^;,]+)?(?:;[^,]*)*;base64,(.+)$/i);
+    if (!m || !m[2]) return "";
+    var mime = String(m[1] || preferMime || "image/jpeg")
+      .toLowerCase()
+      .trim();
+    if (mime === "image/jpg" || mime === "image/pjpeg" || mime === "image/x-jpeg" || mime === "image/jfif") {
+      mime = "image/jpeg";
+    }
+    if (mime === "image/x-png") mime = "image/png";
+    if (mime === "application/octet-stream" || mime === "binary/octet-stream" || !mime) {
+      mime = preferMime === "image/png" ? "image/png" : "image/jpeg";
+    }
+    if (mime !== "image/jpeg" && mime !== "image/png" && mime !== "image/webp" && mime !== "image/gif") {
+      mime = preferMime === "image/png" ? "image/png" : "image/jpeg";
+    }
+    var b64 = m[2].replace(/[^A-Za-z0-9+/=]/g, "");
+    if (b64.length < 16) return "";
+    return "data:" + mime + ";base64," + b64;
   }
 
   function readFileAsDataUrl(file, mime) {
     return new Promise(function (resolve, reject) {
       var reader = new FileReader();
       reader.onload = function () {
-        var result = String(reader.result || "");
-        if (
-          !/^data:image\//i.test(result) &&
-          !/^data:application\/octet-stream;base64,/i.test(result)
-        ) {
+        var normalized = normalizeDataUrl(reader.result, mime || "image/jpeg");
+        if (!normalized) {
           reject(new Error("Lecture image impossible"));
           return;
         }
-        if (mime) {
-          result = result.replace(/^data:[^;]+;base64,/i, "data:" + mime + ";base64,");
-        }
-        resolve(result);
+        resolve(normalized);
       };
       reader.onerror = function () {
         reject(new Error("Lecture fichier impossible"));
       };
       reader.readAsDataURL(file);
     });
+  }
+
+  function canvasToCleanDataUrl(canvas, keepPng) {
+    var dataUrl = keepPng
+      ? canvas.toDataURL("image/png")
+      : canvas.toDataURL("image/jpeg", 0.82);
+    if (!dataUrl || dataUrl.length < 32 || dataUrl.indexOf("base64,") < 0) {
+      throw new Error("Conversion canvas échouée");
+    }
+    if (dataUrl.length > 700000) {
+      dataUrl = canvas.toDataURL("image/jpeg", 0.62);
+    }
+    if (dataUrl.length > 900000) {
+      dataUrl = canvas.toDataURL("image/jpeg", 0.48);
+    }
+    var out = normalizeDataUrl(dataUrl, keepPng ? "image/png" : "image/jpeg");
+    if (!out) throw new Error("Normalisation dataUrl échouée");
+    return out;
   }
 
   function compressImageFile(file) {
@@ -251,10 +380,8 @@
         reject(new Error("Fichier JPG ou PNG requis (.jpg / .jpeg / .png)"));
         return;
       }
-      if (file.size && file.size <= 2.8 * 1024 * 1024) {
-        readFileAsDataUrl(file, mime).then(resolve).catch(reject);
-        return;
-      }
+      // Always re-encode via canvas → guaranteed data:image/jpeg|png;base64,…
+      // (FileReader alone can emit charset= / empty type / octet-stream that the API rejects.)
       var url = URL.createObjectURL(file);
       var img = new Image();
       img.onload = function () {
@@ -262,6 +389,7 @@
           var maxSide = 1600;
           var w = img.naturalWidth || img.width;
           var h = img.naturalHeight || img.height;
+          if (!w || !h) throw new Error("Image illisible");
           var scale = Math.min(1, maxSide / Math.max(w, h));
           w = Math.max(1, Math.round(w * scale));
           h = Math.max(1, Math.round(h * scale));
@@ -275,26 +403,30 @@
             ctx.fillRect(0, 0, w, h);
           }
           ctx.drawImage(img, 0, 0, w, h);
-          var dataUrl = keepPng
-            ? canvas.toDataURL("image/png")
-            : canvas.toDataURL("image/jpeg", 0.82);
-          if (dataUrl.length > 700000) {
-            dataUrl = keepPng
-              ? canvas.toDataURL("image/jpeg", 0.7)
-              : canvas.toDataURL("image/jpeg", 0.62);
-          }
+          var dataUrl = canvasToCleanDataUrl(canvas, keepPng);
           URL.revokeObjectURL(url);
           resolve(dataUrl);
         } catch (e) {
           URL.revokeObjectURL(url);
-          reject(e);
+          // Fallback: raw FileReader + normalize
+          readFileAsDataUrl(file, mime === "image/png" ? "image/png" : "image/jpeg")
+            .then(resolve)
+            .catch(function () {
+              reject(e && e.message ? e : new Error("Conversion image impossible"));
+            });
         }
       };
       img.onerror = function () {
         URL.revokeObjectURL(url);
-        readFileAsDataUrl(file, mime).then(resolve).catch(function () {
-          reject(new Error("Lecture image impossible (JPG/PNG)"));
-        });
+        readFileAsDataUrl(file, mime === "image/png" ? "image/png" : "image/jpeg")
+          .then(resolve)
+          .catch(function () {
+            reject(
+              new Error(
+                "Lecture image impossible (HEIC/Web non supporté — exporte en JPG ou PNG)"
+              )
+            );
+          });
       };
       img.src = url;
     });
@@ -354,6 +486,10 @@
 
   async function refreshPanel(panel) {
     var meta = readFormMeta();
+    meta.pair = cleanField(meta.pair);
+    meta.direction = cleanField(meta.direction);
+    meta.date = cleanField(meta.date);
+    meta.entry = cleanField(meta.entry);
     var tradeKey = tradeKeyFromMeta(meta);
     panel.dataset.tradeKey = tradeKey;
     var status = panel.querySelector(".jts-status");
@@ -367,7 +503,8 @@
           "Clé trade : " +
           tradeKey +
           (meta.pair ? " · " + meta.pair : "") +
-          (meta.direction ? " · " + meta.direction : "");
+          (meta.direction ? " · " + meta.direction : "") +
+          (meta.date ? " · " + meta.date.slice(0, 16) : "");
       }
     } catch (err) {
       if (status) {
@@ -386,6 +523,8 @@
     var meta = readFormMeta();
     meta.pair = cleanField(meta.pair);
     meta.direction = cleanField(meta.direction);
+    meta.date = cleanField(meta.date);
+    meta.entry = cleanField(meta.entry);
     var tradeKey = tradeKeyFromMeta(meta);
     panel.dataset.tradeKey = tradeKey;
     for (var i = 0; i < list.length; i++) {
@@ -394,6 +533,9 @@
         status.textContent = "Envoi screen " + (i + 1) + "/" + list.length + "…";
       }
       var dataUrl = await compressImageFile(list[i]);
+      if (!dataUrl || !/^data:image\/(jpeg|png|webp|gif);base64,/i.test(dataUrl)) {
+        throw new Error("Image invalide après conversion (JPG/PNG requis)");
+      }
       await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey) + "/images", {
         method: "POST",
         body: JSON.stringify({
