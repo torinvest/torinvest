@@ -12,7 +12,7 @@ unset REF SHA BRANCH JOURNAL_SCREENS_REF 2>/dev/null || true
 SCRIPT_REF="cursor/journal-jpg-upload-fix-691a"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-jpg-upload-fix-691a"
 EXPECTED_JS_VER="v=14"
-EXPECTED_INJECT="forge-journal-trade-screens.js?v=4"
+EXPECTED_INJECT="forge-journal-trade-screens.js?v=5"
 
 echo "======== DEPLOY JOURNAL TJ-ONLY + SCREENS INJECT ($SCRIPT_REF) ========"
 echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"

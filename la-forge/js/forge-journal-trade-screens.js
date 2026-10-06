@@ -643,12 +643,22 @@
         throw new Error("Image invalide après conversion (JPG/PNG requis)");
       }
       var parts = dataUrlParts(dataUrl);
+      var mimeOut = (parts && parts.mime) || (prefer === "image/png" ? "image/png" : "image/jpeg");
+      var b64Out = parts ? parts.base64 : "";
+      if (!b64Out) {
+        var cut = dataUrl.indexOf("base64,");
+        if (cut >= 0) b64Out = dataUrl.slice(cut + 7);
+      }
+      if (!b64Out || b64Out.length < 32) {
+        throw new Error("Image invalide après conversion (JPG/PNG requis)");
+      }
+      // Envoi mime+base64 EN PRIORITÉ (évite dataUrl tronqué / proxy)
       await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey) + "/images", {
         method: "POST",
         body: JSON.stringify({
-          dataUrl: dataUrl,
-          mime: parts ? parts.mime : "image/jpeg",
-          base64: parts ? parts.base64 : "",
+          mime: mimeOut,
+          base64: b64Out,
+          dataUrl: "data:" + mimeOut + ";base64," + b64Out,
           caption: "",
           pair: meta.pair,
           direction: meta.direction,
