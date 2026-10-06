@@ -100,11 +100,22 @@
     return { pair: pair, direction: direction, entry: entry, date: date, setup: setup };
   }
 
+  function cleanField(s) {
+    var v = String(s || "").trim();
+    if (!v) return "";
+    if (/^add[_-\s]?trade$/i.test(v)) return "";
+    if (/ajouter\s*un\s*trade/i.test(v)) return "";
+    if (/^screens?/i.test(v) && v.length < 12) return "";
+    return v;
+  }
+
   function tradeKeyFromMeta(meta) {
+    var pair = cleanField(meta.pair) || "trade";
+    var direction = cleanField(meta.direction) || "na";
     var parts = [
       (meta.date || "").slice(0, 16).replace(/\s+/g, "T"),
-      (meta.pair || "trade").toLowerCase(),
-      (meta.direction || "na").toLowerCase(),
+      pair.toLowerCase(),
+      direction.toLowerCase(),
       meta.entry || "0",
     ];
     var key = parts
@@ -112,7 +123,7 @@
       .replace(/[^a-z0-9._+-]+/g, "-")
       .replace(/^-+|-+$/g, "")
       .slice(0, 80);
-    if (!key || key === "trade_na_0") {
+    if (!key || key === "trade_na_0" || /^_*trade_na_0/.test(key)) {
       // brouillon stable pour la session page
       var draft = sessionStorage.getItem("forge_jts_draft");
       if (!draft) {
@@ -346,19 +357,12 @@
       if (!files.length) return;
       var status = panel.querySelector(".jts-status");
       var meta = readFormMeta();
+      meta.pair = cleanField(meta.pair);
+      meta.direction = cleanField(meta.direction);
       var tradeKey = tradeKeyFromMeta(meta);
       panel.dataset.tradeKey = tradeKey;
       try {
-        await api("/api/journal-trade-screens/" + encodeURIComponent(tradeKey), {
-          method: "PUT",
-          body: JSON.stringify({
-            label: (meta.pair || "Trade") + (meta.direction ? " " + meta.direction : ""),
-            pair: meta.pair,
-            direction: meta.direction,
-            tradeDate: meta.date,
-            notes: meta.setup,
-          }),
-        });
+        // Ne crée pas d’entrée « add_trade · 0 screen(s) » : meta d’abord via 1er POST image
         for (var i = 0; i < files.length; i++) {
           if (status) status.textContent = "Envoi screen " + (i + 1) + "/" + files.length + "…";
           var dataUrl = await compressImageFile(files[i]);
@@ -370,7 +374,8 @@
               pair: meta.pair,
               direction: meta.direction,
               tradeDate: meta.date,
-              label: (meta.pair || "Trade") + (meta.direction ? " " + meta.direction : ""),
+              label:
+                (meta.pair || "Trade") + (meta.direction ? " " + meta.direction : ""),
             }),
           });
         }
@@ -435,7 +440,9 @@
     var list = drawer.querySelector("#forge-jts-drawer-list");
     try {
       var data = await api("/api/journal-trade-screens");
-      var trades = data.trades || [];
+      var trades = (data.trades || []).filter(function (t) {
+        return (t.imageCount || (t.images && t.images.length) || 0) > 0;
+      });
       if (!trades.length) {
         list.innerHTML =
           '<p class="jts-hint">Aucun screen encore. Va dans <strong>Ajouter un trade</strong> et utilise la zone Screenshots.</p>';
