@@ -992,8 +992,10 @@
     }
     setActive(startIdx, !!initial);
 
+    var obsReady = false;
     var observer = new IntersectionObserver(
       function (entries) {
+        if (!obsReady) return;
         entries.forEach(function (en) {
           if (!en.isIntersecting) return;
           var id = (en.target.id || "").replace(/^sec-/, "");
@@ -1011,6 +1013,10 @@
       var el = document.getElementById("sec-" + sec.id);
       if (el) observer.observe(el);
     });
+    // Évite que l’observer écrase un deep-link (#…/checklist) au premier paint
+    setTimeout(function () {
+      obsReady = true;
+    }, 500);
 
     mountChecklist();
   }
