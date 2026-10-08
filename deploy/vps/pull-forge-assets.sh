@@ -47,6 +47,7 @@ JS_FILES=(
   forge-styles-atlas.js
   forge-psycho-atlas.js
   forge-indicateurs-atlas.js
+  forge-strategies.js
   forge-swing-analyses.js
   forge-chart-exercises-admin.js
   books-data.js
@@ -68,6 +69,7 @@ CSS_FILES=(
   forge-styles-atlas.css
   forge-psycho-atlas.css
   forge-indicateurs-atlas.css
+  forge-strategies.css
   forge-swing-analyses.css
   forge-coaching-fiches.css
   forge-module-tabs.css
@@ -100,6 +102,7 @@ IMG_FILES=(
   styles-atlas-icon.svg
   psycho-atlas-icon.svg
   indicateurs-atlas-icon.svg
+  strategies-icon.svg
   dash-journal.svg
   dash-books.svg
   dash-atlas.svg
