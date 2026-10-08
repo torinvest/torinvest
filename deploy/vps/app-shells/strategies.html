@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stratégies — Espace La Forge</title>
+  <meta name="description" content="Rubrique Stratégies TORINVEST / La Forge — modèles opérationnels : LP Reversal et prochaines stratégies." />
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <link rel="stylesheet" href="/css/forge-strategies.css?v=1" />
+  <style>
+    .str-shell-hero { margin: 0 0 1rem; }
+    .str-shell-hero h1 { margin: 0.2rem 0; color: var(--gold); font-size: 1.35rem; }
+    .str-shell-hero p { color: var(--muted); font-size: 0.92rem; margin: 0.4rem 0 0; line-height: 1.55; max-width: 48rem; }
+    .str-shell-note {
+      margin: 0 0 1rem;
+      padding: 0.75rem 0.9rem;
+      border-left: 3px solid rgba(255, 215, 0, 0.45);
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    #strategies-root {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #0e1118;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="strategies"></header>
+
+  <div class="container" style="max-width:1100px">
+    <div class="str-shell-hero">
+      <span class="forge-hero-tag">Espace membre · stratégies</span>
+      <h1>Stratégies</h1>
+      <p>
+        Modèles opérationnels TORINVEST : séquences structurelles, règles d’entrée,
+        invalidations et checklists. Architecture extensible — une stratégie à la fois,
+        toujours analysée comme une <strong>séquence complète</strong>.
+      </p>
+    </div>
+
+    <p class="str-shell-note">
+      Les stratégies complètent la formation et l’Atlas ICT.
+      Consulter une fiche <strong>ne valide pas</strong> un module de formation.
+      Process, risque et contexte HTF restent prioritaires.
+    </p>
+
+    <div id="strategies-root" hidden>
+      <a class="skip" href="#str-main">Aller au contenu</a>
+      <header class="topbar">
+        <a class="brand" href="#hub" aria-label="Stratégies La Forge">
+          <span class="brandmark" aria-hidden="true">◈</span>
+          STRATÉGIES<span class="brand-light"> LA FORGE</span>
+        </a>
+        <span class="top-caption">TORINVEST · MODÈLES OPÉRATIONNELS</span>
+        <a href="#hub" class="source-link" id="str-back-hub" hidden>← Toutes les stratégies</a>
+      </header>
+      <div id="str-view"></div>
+    </div>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=8"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-strategies.js?v=1"></script>
+  <script>
+    initForgeGate({ requirePremium: true }).then(function (me) {
+      if (!me) return;
+      var root = document.getElementById("strategies-root");
+      if (!root) return;
+      root.hidden = false;
+      if (typeof bootForgeStrategies === "function") bootForgeStrategies();
+    });
+  </script>
+  <script src="/js/forge-legal.js"></script>
+</body>
+</html>
