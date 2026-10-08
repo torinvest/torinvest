@@ -46,11 +46,11 @@ grep -n torinvest-journal-forge-sso /var/www/torinvest/trading_journal.php
 
 ## Vue détail lecture seule (view=)
 
-Par défaut, un clic trade ouvre `?page=history&edit=N` (formulaire).  
-Pour ouvrir une **fiche lecture seule** :
+Clic trade → `?page=history&view=N` (lecture seule).  
+Bouton **Modifier** → `edit=N`. Redeploy radar :
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-trade-readonly-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
 ```
 
-Attendu : clic → `view=ID` + « lecture seule » ; bouton **Modifier** → `edit=ID`.
+Attendu : URL `&view=N` + bannière « Mode lecture » ; **Modifier** → formulaire.

@@ -6,11 +6,13 @@
 #           bouton « Modifier » → edit=N ; « Retour » → historique
 #
 # UNE commande VPS (radar) :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-trade-readonly-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-readonly-harden-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
+# Après merge dans main :
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
 set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF SCRIPT_REF 2>/dev/null || true
-BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/journal-trade-readonly-691a}"
+BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/journal-readonly-harden-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}"
 
 echo ""
