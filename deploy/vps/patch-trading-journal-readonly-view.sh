@@ -6,12 +6,12 @@
 # - Bouton « Retour » → historique
 #
 # Sur le VPS **radar** (où se trouve trading_journal.php) :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-trade-readonly-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
 #
 # Toutes les écritures sur /var/www/torinvest/* passent par sudo.
 set -euo pipefail
 
-REF="${1:-cursor/journal-trade-readonly-691a}"
+REF="${1:-cursor/journal-readonly-harden-691a}"
 ROOT="${TORINVEST_WWW:-/var/www/torinvest}"
 JOURNAL="$ROOT/trading_journal.php"
 API_DIR="$ROOT/api"

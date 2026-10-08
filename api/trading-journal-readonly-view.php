@@ -76,7 +76,7 @@ function torinvest_journal_readonly_ob_filter(string $html): string
     if (stripos($html, '<html') === false && stripos($html, '</body>') === false) {
         return $html;
     }
-    if (strpos($html, 'torinvest-tj-readonly-v1') !== false) {
+    if (strpos($html, 'torinvest-tj-readonly-v1') !== false || strpos($html, 'torinvest-tj-readonly-v2') !== false) {
         return $html;
     }
 
@@ -90,6 +90,40 @@ function torinvest_journal_readonly_ob_filter(string $html): string
     $idJson = json_encode($id !== '' ? $id : null, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     if ($idJson === false) {
         $idJson = 'null';
+    }
+
+    // Renfort serveur : uniquement sur une vraie fiche trade (pas la page login).
+    $looksLikeTradeDetail =
+        $readonly
+        && (
+            preg_match('/modifier\s+le\s+trade/iu', $html)
+            || preg_match('/name=["\'](?:symbol|paire|entry|sl|tp|pnl|rr)/i', $html)
+            || preg_match('/id=["\']edit[_-]?trade/i', $html)
+        )
+        && !preg_match('/name=["\']login_action["\']/i', $html)
+        && stripos($html, 'Trading Journal Pro — Connexion') === false;
+
+    if ($looksLikeTradeDetail) {
+        $labelId = $id !== '' ? (' #' . $id) : '';
+        $html = (string) preg_replace(
+            '/(<title[^>]*>)(.*?)(<\/title>)/is',
+            '$1Détail du trade' . $labelId . ' — lecture seule$3',
+            $html,
+            1
+        );
+        $html = (string) preg_replace(
+            '/(<(?:h1|h2)[^>]*>)\s*Modifier\s+le\s+trade[^<]*(<\/(?:h1|h2)>)/iu',
+            '$1Détail du trade' . $labelId . ' — lecture seule$2',
+            $html,
+            1
+        );
+        if (stripos($html, 'id="tj-readonly-banner"') === false) {
+            $banner =
+                '<div id="tj-readonly-banner">Mode lecture — tu consultes le détail du trade (sans modification).</div>';
+            if (preg_match('/<body[^>]*>/i', $html)) {
+                $html = (string) preg_replace('/(<body[^>]*>)/i', '$1' . $banner, $html, 1);
+            }
+        }
     }
 
     $script = <<<HTML
@@ -125,8 +159,10 @@ body.tj-readonly textarea{
 }
 body.tj-readonly input[type=checkbox],
 body.tj-readonly input[type=radio]{pointer-events:none!important}
+body.tj-readonly button[type=submit],
+body.tj-readonly input[type=submit]{display:none!important}
 </style>
-<script id="torinvest-tj-readonly-v1">(function(){
+<script id="torinvest-tj-readonly-v2">(function(){
   if (window.__tjReadonlyView) return; window.__tjReadonlyView = 1;
   var READONLY = {$flag};
   var TRADE_ID = {$idJson};
@@ -175,28 +211,82 @@ body.tj-readonly input[type=radio]{pointer-events:none!important}
     }
   }
 
+  function goView(id){
+    var n = String(id == null ? "" : id).replace(/[^0-9]/g, "");
+    if (!n) return;
+    var dest = location.pathname + "?page=history&view=" + encodeURIComponent(n);
+    try { location.assign(dest); } catch(e){ location.href = dest; }
+  }
+
   function wrapOpenTrade(){
-    function goView(id){
-      var n = String(id == null ? "" : id).replace(/[^0-9]/g, "");
-      if (!n) return;
-      var dest = location.pathname + "?page=history&view=" + encodeURIComponent(n);
-      try { location.assign(dest); } catch(e){ location.href = dest; }
-    }
-    if (typeof window.openTrade === "function" && window.openTrade.__tjReadWrap) {
-      return;
-    }
-    var orig = window.openTrade;
-    window.openTrade = function(id){
+    function wrapped(id){
       var n = String(id == null ? "" : id).replace(/[^0-9]/g, "");
       if (!n) {
-        if (typeof orig === "function") return orig.apply(this, arguments);
+        var prev = window.openTrade && window.openTrade.__tjPrev;
+        if (typeof prev === "function") return prev.apply(this, arguments);
         return;
       }
       goView(n);
-    };
-    window.openTrade.__tjReadWrap = 1;
-    if (typeof orig === "function") window.openTrade.__tjPrev = orig;
+    }
+    wrapped.__tjReadWrap = 1;
+    if (typeof window.openTrade === "function" && !window.openTrade.__tjReadWrap) {
+      wrapped.__tjPrev = window.openTrade;
+    } else if (window.openTrade && window.openTrade.__tjPrev) {
+      wrapped.__tjPrev = window.openTrade.__tjPrev;
+    }
+    try {
+      Object.defineProperty(window, "openTrade", {
+        configurable: true,
+        enumerable: true,
+        get: function(){ return wrapped; },
+        set: function(fn){
+          if (typeof fn === "function" && !fn.__tjReadWrap) wrapped.__tjPrev = fn;
+        }
+      });
+    } catch(e){
+      window.openTrade = wrapped;
+    }
     window.viewTrade = goView;
+  }
+
+  function guardEditNavigation(){
+    function rewriteIfEdit(url){
+      try {
+        var u = new URL(String(url || ""), location.href);
+        var edit = u.searchParams.get("edit");
+        if (!edit || u.searchParams.get("view")) return null;
+        // Ne pas bloquer le bouton Modifier explicite
+        if (document.activeElement && document.activeElement.id === "tj-ro-edit-btn") return null;
+        u.searchParams.delete("edit");
+        u.searchParams.set("view", edit);
+        if (!u.searchParams.get("page")) u.searchParams.set("page", "history");
+        return u.pathname + u.search + u.hash;
+      } catch(e){ return null; }
+    }
+    try {
+      var desc = Object.getOwnPropertyDescriptor(Location.prototype, "href") ||
+        Object.getOwnPropertyDescriptor(window.location, "href");
+      if (desc && desc.set) {
+        Object.defineProperty(window.location, "href", {
+          configurable: true,
+          get: function(){ return desc.get ? desc.get.call(window.location) : String(window.location); },
+          set: function(v){
+            var next = rewriteIfEdit(v);
+            desc.set.call(window.location, next || v);
+          }
+        });
+      }
+    } catch(e){}
+    var _assign = location.assign.bind(location);
+    location.assign = function(v){
+      var next = rewriteIfEdit(v);
+      return _assign(next || v);
+    };
+    var _replace = location.replace.bind(location);
+    location.replace = function(v){
+      var next = rewriteIfEdit(v);
+      return _replace(next || v);
+    };
   }
 
   function enableReadOnlyDetail(){
@@ -285,6 +375,7 @@ body.tj-readonly input[type=radio]{pointer-events:none!important}
 
   function boot(){
     wrapOpenTrade();
+    guardEditNavigation();
     rewriteListLinks(document);
     if (READONLY || /[?&]view=\\d+/i.test(location.search)) {
       enableReadOnlyDetail();
@@ -296,18 +387,35 @@ body.tj-readonly input[type=radio]{pointer-events:none!important}
       });
       mo.observe(document.documentElement, { childList: true, subtree: true });
     } catch(e){}
+    setInterval(function(){
+      wrapOpenTrade();
+      rewriteListLinks(document);
+    }, 1200);
 
     document.addEventListener("click", function(e){
       var t = e.target;
       if (!t || !t.closest) return;
       if (t.closest("#tj-readonly-actions a.tj-ro-edit, #tj-ro-edit-btn")) return;
       var a = t.closest("a[href*='edit=']");
-      if (!a) return;
-      if (/modifier/i.test(a.textContent || "")) return;
-      var href = a.getAttribute("href") || "";
-      if (!/[?&]edit=\\d+/i.test(href)) return;
+      if (a) {
+        if (/modifier/i.test(a.textContent || "")) return;
+        var href = a.getAttribute("href") || "";
+        if (!/[?&]edit=\\d+/i.test(href)) return;
+        e.preventDefault();
+        e.stopPropagation();
+        location.assign(toViewUrl(href));
+        return;
+      }
+      // Lignes avec openTrade(...) — force view= même si le onclick natif vise edit=
+      var row = t.closest("[onclick*='openTrade']");
+      if (!row) return;
+      if (t.closest("button, input, select, textarea, a[href]")) return;
+      var oc = row.getAttribute("onclick") || "";
+      var m = oc.match(/openTrade\\s*\\(\\s*['\"]?(\\d+)/i);
+      if (!m) return;
       e.preventDefault();
-      location.assign(toViewUrl(href));
+      e.stopPropagation();
+      goView(m[1]);
     }, true);
   }
 

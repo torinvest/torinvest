@@ -44,7 +44,13 @@ function main() {
 
   const hotfix = fs.readFileSync(HOTFIX, "utf8");
   assert(hotfix.includes("patch-trading-journal-readonly-view.sh"), "hotfix calls view patch");
-  assert(hotfix.includes("cursor/journal-trade-readonly-691a"), "branch ref");
+  assert(
+    /JOURNAL_HOTFIX_BRANCH:-cursor\/journal-readonly-harden-691a|JOURNAL_HOTFIX_BRANCH:-main/.test(hotfix),
+    "hotfix branch pin"
+  );
+  assert(php.includes("torinvest-tj-readonly-v2") || php.includes("guardEditNavigation"), "hardened v2 inject");
+  assert(php.includes("Mode lecture"), "server/client lecture banner");
+  assert(php.includes("looksLikeTradeDetail") || php.includes("login_action"), "no disable on login page");
 
   if (hasPhp()) {
     execSync("php -l " + PHP, { stdio: "inherit" });
