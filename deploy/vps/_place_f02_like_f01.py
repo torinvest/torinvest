@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Place la video F2 exactement comme F1 :
-- retire tout player colle sous le h1
-- remplit / cree un slot data-video-id dans la grille lesson-layout
-- reprend les classes du wrapper F1 si possible
+Place la video F2 comme F1 :
+- retire le player colle en haut (sous h1 / debut de page)
+- recree une section Video + slot (classes F1 si dispo)
+- l insert avant Exercice / Evaluation / Cas (milieu de lecon)
 """
 from __future__ import annotations
 
@@ -30,6 +30,7 @@ def main() -> int:
 
     ms, me = "<!-- FORGE_F02_VIDEO_START -->", "<!-- FORGE_F02_VIDEO_END -->"
 
+    # Markup F1 : figure seule, PAS de h2 dans la figure
     player = f"""{ms}
 <figure class="forge-lesson-video forge-lesson-video--protected" id="f02-video">
   <video
@@ -47,7 +48,6 @@ def main() -> int:
 </figure>
 {me}"""
 
-    # --- Learn wrapper classes from F1 ---
     wrap_open = '<div class="forge-lesson-video-slot" data-video-id="f02-anatomie">'
     wrap_close = "</div>"
     f01_slot = re.search(
@@ -58,7 +58,6 @@ def main() -> int:
     if f01_slot:
         tag = f01_slot.group(1)
         attrs = f01_slot.group(2)
-        # Reuse F1 classes, swap video-id
         attrs2 = re.sub(
             r'data-video-id=["\'][^"\']+["\']',
             'data-video-id="f02-anatomie"',
@@ -66,25 +65,14 @@ def main() -> int:
             count=1,
             flags=re.I,
         )
-        if 'id="' in attrs2.lower() or "id='" in attrs2.lower():
-            attrs2 = re.sub(r'\sId=["\'][^"\']*["\']', "", attrs2, flags=re.I)
+        attrs2 = re.sub(r'\sId=["\'][^"\']*["\']', "", attrs2, flags=re.I)
         wrap_open = f"<{tag}{attrs2}>"
         wrap_close = f"</{tag}>"
-        print("F1 wrapper classes reutilisees:", wrap_open[:120])
+        print("F1 wrapper:", wrap_open[:140])
     else:
-        print("F1 slot introuvable — wrapper par defaut forge-lesson-video-slot")
+        print("F1 slot absent — wrapper par defaut")
 
-    # Relative position hint from F1: index of h2 before video among h2s
-    f01_h2s = list(re.finditer(r"<h2\b[^>]*>.*?</h2>", f01, flags=re.I | re.S))
-    f01_vid = re.search(r'id=["\']f01-video["\']|f01-marches\.mp4|FORGE_F01_VIDEO', f01, flags=re.I)
-    f01_h2_index = None
-    if f01_vid and f01_h2s:
-        for i, h in enumerate(f01_h2s):
-            if h.start() < f01_vid.start():
-                f01_h2_index = i
-        print(f"F1: video apres h2 index={f01_h2_index} (0-based), total h2={len(f01_h2s)}")
-
-    # --- Strip ALL existing F2 video placements ---
+    # --- Purge ALL previous F2 video blocks (including current misplaced top slot) ---
     f02 = re.sub(re.escape(ms) + r".*?" + re.escape(me), "", f02, flags=re.S)
     f02 = re.sub(
         r'<figure[^>]*id=["\']f02-video["\'][^>]*>.*?</figure>',
@@ -93,14 +81,13 @@ def main() -> int:
         flags=re.I | re.S,
     )
     f02 = re.sub(
-        r'<section[^>]*(?:id=["\']f02-video-slot["\']|data-video-id=["\']f02-[^"\']*["\'])[^>]*>[\s\S]*?</section>',
+        r'<section[^>]*(?:id=["\']f02-video-slot["\']|id=["\']f02-video-section["\']|data-video-id=["\']f02-[^"\']*["\']|class=["\'][^"\']*forge-lesson-video-slot[^"\']*["\'])[^>]*>[\s\S]*?</section>',
         "",
         f02,
         flags=re.I,
     )
-    # Empty leftover wrappers that only contained the player
     f02 = re.sub(
-        r'<(div|section|aside|article)(\s[^>]*data-video-id=["\']f02-[^"\']*["\'][^>]*)>\s*</\1\s*>',
+        r'<(div|aside|article)(\s[^>]*data-video-id=["\']f02-[^"\']*["\'][^>]*)>[\s\S]*?</\1\s*>',
         "",
         f02,
         flags=re.I,
@@ -111,135 +98,94 @@ def main() -> int:
         f02,
         flags=re.I,
     )
-    # Remove orphan caption/title we may have injected under h1
-    f02 = re.sub(
-        r'(</h1\s*>)\s*(?:<!-- FORGE_F02[\s\S]*?-->\s*)?(?:<section[^>]*>\s*)?(?:<h2[^>]*>Video[^<]*</h2>\s*)?',
-        r"\1\n",
-        f02,
-        count=1,
-        flags=re.I,
+    f02 = re.sub(r"\n{3,}", "\n\n", f02)
+
+    section = (
+        '\n<section class="forge-lesson-video-section" id="f02-video-section">\n'
+        '<h2 class="forge-lesson-video-heading">Video — Anatomie de l or en conditions reelles</h2>\n'
+        '<p class="forge-lesson-video-lead">Sessions, volatilite et correlations sur XAUUSD.</p>\n'
+        f"{wrap_open}\n{player}\n{wrap_close}\n"
+        "</section>\n"
     )
 
-    block = f"{wrap_open}\n{player}\n{wrap_close}"
     action = None
 
-    # A) Existing f02 / any Integration-video data-video-id slot
-    for pat, label in (
-        (
-            r'<(div|section|aside|figure|article)(\s[^>]*data-video-id=["\'][^"\']*f02[^"\']*["\'][^>]*)>(.*?)</\1\s*>',
-            "rempli slot data-video-id f02",
-        ),
-        (
-            r'<(div|section|aside|figure|article)(\s[^>]*data-video-id=["\'][^"\']+["\'][^>]*)>([^<]{0,600}?Int[ée]gration\s+vid[ée]o[\s\S]{0,400}?)</\1\s*>',
-            "rempli placeholder Integration video",
-        ),
-    ):
-        m = re.search(pat, f02, flags=re.I | re.S)
-        if m:
-            tag, attrs = m.group(1), m.group(2)
-            f02 = f02[: m.start()] + f"<{tag}{attrs}>\n{player}\n</{tag}>" + f02[m.end() :]
-            action = label
-            break
+    # Prefer existing empty Integration / data-video slot if any remain
+    m = re.search(
+        r'<(div|section|aside|figure|article)(\s[^>]*data-video-id=["\'][^"\']+["\'][^>]*)>([^<]{0,600}?Int[ée]gration\s+vid[ée]o[\s\S]{0,400}?)</\1\s*>',
+        f02,
+        flags=re.I,
+    )
+    if m:
+        tag, attrs = m.group(1), m.group(2)
+        f02 = f02[: m.start()] + f"<{tag}{attrs}>\n{player}\n</{tag}>" + f02[m.end() :]
+        action = "rempli placeholder Integration video"
+    else:
+        # Insert BEFORE mid/late lesson anchors (F2 real headings from live HTML)
+        anchors = [
+            r'(<h[2-4][^>]*>\s*Exercice[^<]*</h[2-4]>)',
+            r'(<h[2-4][^>]*>\s*Exercices\s+pratiques[^<]*</h[2-4]>)',
+            r'(<h[2-4][^>]*>\s*[ÉE]valuation[^<]*</h[2-4]>)',
+            r'(<h[2-4][^>]*>\s*Cas\s+XAUUSD[^<]*</h[2-4]>)',
+            r'(<h[2-4][^>]*>\s*Quiz[^<]*</h[2-4]>)',
+            r'(<h[2-4][^>]*>\s*Pratique[^<]*</h[2-4]>)',
+        ]
+        for pat in anchors:
+            m = re.search(pat, f02, flags=re.I)
+            if m:
+                f02 = f02[: m.start()] + section + f02[m.start() :]
+                action = f"avant {m.group(1)[:60]}"
+                break
 
-    # B) Under an existing "Video — …" heading
     if action is None:
-        mtit = re.search(
-            r"(<h[2-4][^>]*>\s*(?:Video|Vidéo)\s*[—\-:].*?</h[2-4]>)",
-            f02,
-            flags=re.I | re.S,
-        )
-        if mtit:
-            after = mtit.end()
-            p = re.match(r"\s*<p\b[^>]*>.*?</p>", f02[after:], flags=re.I | re.S)
-            if p:
-                after += p.end()
-            f02 = f02[:after] + "\n" + block + "\n" + f02[after:]
-            action = "sous titre Video existant"
-
-    # C) Mirror F1 h2 index: insert after the same ordinal h2, with a Video heading
-    if action is None and f01_h2_index is not None:
-        f02_h2s = list(re.finditer(r"<h2\b[^>]*>.*?</h2>", f02, flags=re.I | re.S))
-        if f02_h2s:
-            idx = min(f01_h2_index, len(f02_h2s) - 1)
-            # Prefer not the very first h2 if many exist (avoid top); use F1 index
-            anchor = f02_h2s[idx]
-            # Insert AFTER the section that starts at this h2: find end of following content block
-            # Simple: after the h2 + optional lead paragraph, still within same parent
-            after = anchor.end()
-            p = re.match(r"\s*<p\b[^>]*>.*?</p>", f02[after:], flags=re.I | re.S)
-            if p:
-                after += p.end()
-            section = (
-                '\n<section class="forge-lesson-video-section" id="f02-video-section">\n'
-                '<h2 class="forge-lesson-video-heading">Video — Anatomie de l or en conditions reelles</h2>\n'
-                '<p class="forge-lesson-video-lead">Sessions, volatilite et correlations sur XAUUSD.</p>\n'
-                f"{block}\n"
-                "</section>\n"
-            )
-            f02 = f02[:after] + section + f02[after:]
-            action = f"miroir F1 apres h2[{idx}] + section Video"
-
-    # D) Before quiz / pratique / validation
-    if action is None:
+        # After "Objectifs du module" if present
         m = re.search(
-            r'(<h[2-4][^>]*>\s*(?:Quiz|Pratique|Validation|Exercice|Synthese|Synthèse)[^<]*</h[2-4]>)',
+            r'(<h[2-4][^>]*>\s*Objectifs[^<]*</h[2-4]>)([\s\S]{0,2500}?)(?=<h[2-4]\b)',
             f02,
             flags=re.I,
         )
         if m:
-            section = (
-                '\n<section class="forge-lesson-video-section" id="f02-video-section">\n'
-                '<h2 class="forge-lesson-video-heading">Video — Anatomie de l or en conditions reelles</h2>\n'
-                '<p class="forge-lesson-video-lead">Sessions, volatilite et correlations sur XAUUSD.</p>\n'
-                f"{block}\n"
-                "</section>\n"
-            )
-            f02 = f02[: m.start()] + section + f02[m.start() :]
-            action = "avant Quiz/Pratique"
-
-    # E) After 2nd h2 (mid-module), never after h1 alone
-    if action is None:
-        f02_h2s = list(re.finditer(r"<h2\b[^>]*>.*?</h2>", f02, flags=re.I | re.S))
-        if len(f02_h2s) >= 2:
-            after = f02_h2s[1].end()
-            p = re.match(r"\s*<p\b[^>]*>.*?</p>", f02[after:], flags=re.I | re.S)
-            if p:
-                after += p.end()
-            section = (
-                '\n<section class="forge-lesson-video-section" id="f02-video-section">\n'
-                '<h2 class="forge-lesson-video-heading">Video — Anatomie de l or en conditions reelles</h2>\n'
-                f"{block}\n"
-                "</section>\n"
-            )
-            f02 = f02[:after] + section + f02[after:]
-            action = "apres 2e h2 (milieu module)"
-        elif f02_h2s:
-            after = f02_h2s[0].end()
-            section = (
-                '\n<section class="forge-lesson-video-section" id="f02-video-section">\n'
-                '<h2 class="forge-lesson-video-heading">Video — Anatomie de l or en conditions reelles</h2>\n'
-                f"{block}\n"
-                "</section>\n"
-            )
-            f02 = f02[:after] + section + f02[after:]
-            action = "apres 1er h2"
+            f02 = f02[: m.end()] + section + f02[m.end() :]
+            action = "apres Objectifs du module"
         else:
-            print("ERREUR: aucune structure de lecon exploitable", file=sys.stderr)
-            for i, line in enumerate(f02.splitlines(), 1):
-                if re.search(r"<h[1-3]|data-video|lesson", line, flags=re.I):
-                    print(f"  L{i}: {line[:160]}", file=sys.stderr)
-            return 2
+            # Mirror F1 h2 index
+            f01_h2s = list(re.finditer(r"<h2\b[^>]*>.*?</h2>", f01, flags=re.I | re.S))
+            f01_vid = re.search(
+                r'id=["\']f01-video["\']|f01-marches\.mp4|FORGE_F01_VIDEO', f01, flags=re.I
+            )
+            f01_h2_index = None
+            if f01_vid and f01_h2s:
+                for i, h in enumerate(f01_h2s):
+                    if h.start() < f01_vid.start():
+                        f01_h2_index = i
+            f02_h2s = list(re.finditer(r"<h2\b[^>]*>.*?</h2>", f02, flags=re.I | re.S))
+            if f02_h2s:
+                idx = 1 if len(f02_h2s) > 1 else 0
+                if f01_h2_index is not None:
+                    idx = min(f01_h2_index, len(f02_h2s) - 1)
+                after = f02_h2s[idx].end()
+                p = re.match(r"\s*<p\b[^>]*>.*?</p>", f02[after:], flags=re.I | re.S)
+                if p:
+                    after += p.end()
+                f02 = f02[:after] + section + f02[after:]
+                action = f"apres h2[{idx}]"
+            else:
+                print("ERREUR: structure F2 inexploitable", file=sys.stderr)
+                for i, line in enumerate(f02.splitlines(), 1):
+                    if re.search(r"<h[1-3]|Objectifs|Exercice|Evaluation|Cas XAU", line, flags=re.I):
+                        print(f"  L{i}: {line[:160]}", file=sys.stderr)
+                return 2
 
     if "forge-lesson-video.css" not in f02 and "</head>" in f02:
         f02 = f02.replace(
             "</head>",
-            '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f02b" />\n</head>',
+            '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f02c" />\n</head>',
             1,
         )
     else:
         f02 = re.sub(
             r'forge-lesson-video\.css(\?v=[^"]*)?',
-            "forge-lesson-video.css?v=f02b",
+            "forge-lesson-video.css?v=f02c",
             f02,
             count=1,
         )
@@ -248,15 +194,25 @@ def main() -> int:
     f02_path.write_text(f02, encoding="utf-8")
     print("Action :", action)
 
-    # Guard: not glued to h1
-    m = re.search(r"</h1\s*>", f02, flags=re.I)
-    if m and ("f02-xauusd.mp4" in f02[m.end() : m.end() + 500]):
-        print("WARN: encore proche du h1 — structure F2 atypique", file=sys.stderr)
-    if "f02-xauusd.mp4" not in f02:
-        print("ERREUR: mp4 absent", file=sys.stderr)
-        return 3
+    # Guards
+    if f02.count("f02-xauusd.mp4") != 1:
+        print("WARN: occurrences mp4 =", f02.count("f02-xauusd.mp4"), file=sys.stderr)
     if f02.count('id="f02-video"') != 1:
         print("WARN: nb #f02-video =", f02.count('id="f02-video"'), file=sys.stderr)
+
+    m = re.search(r"</h1\s*>", f02, flags=re.I)
+    if m and "f02-xauusd.mp4" in f02[m.end() : m.end() + 600]:
+        print("ERREUR: video encore trop proche du h1", file=sys.stderr)
+        return 3
+
+    # Must appear before Exercice/Evaluation if those exist
+    for label in ("Exercice", "Évaluation", "Evaluation", "Quiz"):
+        pos = re.search(rf"<h[2-4][^>]*>\s*{label}", f02, flags=re.I)
+        vid = f02.find("f02-xauusd.mp4")
+        if pos and vid != -1 and vid > pos.start():
+            print(f"WARN: video apres {label} (attendu avant)", file=sys.stderr)
+
+    print("OK placement F2")
     return 0
 
 

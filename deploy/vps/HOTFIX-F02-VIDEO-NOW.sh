@@ -6,7 +6,7 @@
 #   scp "...\F2 XAUUSD — anatomie de l'or.mp4" ubuntu@164.132.46.191:~/f02-xauusd.mp4
 #
 # VPS :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/module-f2-xauusd-video-691a/deploy/vps/HOTFIX-F02-VIDEO-NOW.sh" -o /tmp/hf02.sh
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/module-f2-video-slot-f01-691a/deploy/vps/HOTFIX-F02-VIDEO-NOW.sh" -o /tmp/hf02.sh
 #   bash /tmp/hf02.sh
 #
 set -euo pipefail
@@ -79,7 +79,8 @@ echo "OK MP4 : $(ls -lh "$PUBLIC_VID" | awk '{print $5}')"
 
 curl -fsSL "$RAW/la-forge/css/forge-lesson-video.css" -o "$APP_DIR/public/css/forge-lesson-video.css" || true
 curl -fsSL "$RAW/deploy/vps/_place_f02_like_f01.py" -o "$WORK/place-f02.py"
-chmod +x "$WORK/inject-f02.py"
+[[ -f "$WORK/place-f02.py" ]] || { echo "ERREUR: telechargement place-f02.py echoue ($RAW)"; exit 1; }
+chmod +x "$WORK/place-f02.py"
 
 HTML=""
 for candidate in \
