@@ -3,7 +3,7 @@
 #   1) MP4 deja en place (pas de re-transcode)
 #   2) Python INLINE (aucun curl de .py → plus de chmod inject-f02.py)
 #   3) Purge le player colle sous h1
-#   4) Reinjecte dans un wrapper data-video-id AVANT Exercice / Evaluation
+#   4) Reinjecte AVANT le bloc REPLAY ÉLITE (comme coaching F1)
 #
 # VPS :
 #   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/module-f2-video-slot-f01-691a/deploy/vps/HOTFIX-F02-VIDEO-NOW.sh" -o /tmp/hf02.sh
@@ -175,49 +175,50 @@ section = (
 
 action = None
 
-# --- 2) Insert AVANT les ancres milieu/fin de lecon (structure F2 live) ---
-anchors = [
-    r"(<h[2-4][^>]*>\s*Exercice\s+sur\s+chart[^<]*</h[2-4]>)",
-    r"(<h[2-4][^>]*>\s*Exercices\s+pratiques[^<]*</h[2-4]>)",
-    r"(<h[2-4][^>]*>\s*Exercice[^<]*</h[2-4]>)",
-    r"(<h[2-4][^>]*>\s*[ÉE]valuation[^<]*</h[2-4]>)",
-    r"(<h[2-4][^>]*>\s*Cas\s+XAUUSD[^<]*</h[2-4]>)",
-    r"(<h[2-4][^>]*>\s*Quiz[^<]*</h[2-4]>)",
+# --- 2) Insert AVANT REPLAY ÉLITE (meme ancre que coaching F1) ---
+elite_patterns = [
+    # Conteneur qui ouvre juste avant le texte REPLAY ÉLITE
+    r'(<(?:section|div|article)[^>]*>[\s\S]{0,200}?REPLAY\s*[ÉE]LITE)',
+    # Classe elite-replay / chart-replay-section
+    r'(<(?:section|div|article)[^>]*class=["\'][^"\']*(?:elite-replay|chart-replay-section)[^"\']*["\'][^>]*>)',
+    # Titre h2/h3 « Replay ÉLITE » / « REPLAY ELITE »
+    r'(<h[2-4][^>]*>\s*REPLAY\s*[ÉE]LITE[^<]*</h[2-4]>)',
+    r'(<h[2-4][^>]*>\s*Replay\s*[ÉE]lite[^<]*</h[2-4]>)',
+    # Ancre id
+    r'(<(?:section|div|article)[^>]*id=["\'][^"\']*elite-replay[^"\']*["\'][^>]*>)',
 ]
-for pat in anchors:
+for pat in elite_patterns:
     m = re.search(pat, text, flags=re.I)
     if m:
         text = text[: m.start()] + section + text[m.start() :]
-        action = f"avant {re.sub(r'<[^>]+>', '', m.group(1)).strip()[:50]}"
+        action = "avant REPLAY ELITE"
         break
 
 if action is None:
-    # apres Objectifs du module (+ contenu jusqu'au prochain h2)
-    m = re.search(
-        r"(<h[2-4][^>]*>\s*Objectifs[^<]*</h[2-4]>)([\s\S]{0,3000}?)(?=<h[2-4]\b)",
-        text,
-        flags=re.I,
-    )
-    if m:
-        text = text[: m.end()] + section + text[m.end() :]
-        action = "apres Objectifs du module"
-    else:
-        print("ERREUR: aucun point d insertion (Exercice / Evaluation / Objectifs)", file=sys.stderr)
-        for i, line in enumerate(text.splitlines(), 1):
-            if re.search(r"<h[1-3]|Objectifs|Exercice|Evaluation|Cas XAU", line, flags=re.I):
-                print(f"  L{i}: {line[:140]}", file=sys.stderr)
-        sys.exit(2)
+    print("ERREUR: bloc REPLAY ELITE introuvable dans F2", file=sys.stderr)
+    for needle in (
+        "REPLAY ÉLITE",
+        "REPLAY ELITE",
+        "Replay Élite",
+        "elite-replay",
+        "chart-replay-section",
+    ):
+        print(f"  {needle!r}: {needle.lower() in text.lower()}", file=sys.stderr)
+    for i, line in enumerate(text.splitlines(), 1):
+        if re.search(r"replay|elite|ÉLITE|ELITE|<h[1-3]", line, flags=re.I):
+            print(f"  L{i}: {line[:160]}", file=sys.stderr)
+    sys.exit(2)
 
 if "forge-lesson-video.css" not in text and "</head>" in text:
     text = text.replace(
         "</head>",
-        '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f02d" />\n</head>',
+        '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f02e" />\n</head>',
         1,
     )
 else:
     text = re.sub(
         r'forge-lesson-video\.css(\?v=[^"]*)?',
-        "forge-lesson-video.css?v=f02d",
+        "forge-lesson-video.css?v=f02e",
         text,
         count=1,
     )
@@ -239,11 +240,11 @@ if m and "f02-xauusd.mp4" in text[m.end() : m.end() + 500]:
     sys.exit(3)
 
 vid = text.find("f02-xauusd.mp4")
-ex = re.search(r"<h[2-4][^>]*>\s*Exercice", text, flags=re.I)
-if ex and vid > ex.start():
-    print("WARN: video apres Exercice", file=sys.stderr)
-else:
-    print("OK: video avant Exercice / milieu de lecon")
+elite = re.search(r"REPLAY\s*[ÉE]LITE|elite-replay|chart-replay-section", text, flags=re.I)
+if elite and vid > elite.start():
+    print("ERREUR: video apres REPLAY ELITE", file=sys.stderr)
+    sys.exit(3)
+print("OK: video juste au-dessus de REPLAY ELITE")
 print("OK placement F2")
 PY
 
@@ -255,8 +256,8 @@ fi
 
 echo ""
 echo "=== VERIF ==="
-grep -nE 'f02-xauusd.mp4|FORGE_F02_VIDEO|f02-video|data-video-id="f02|Exercice|Objectifs' "$HTML" | head -40
+grep -nEi 'f02-xauusd.mp4|FORGE_F02_VIDEO|f02-video|data-video-id="f02|REPLAY|elite-replay|Exercice' "$HTML" | head -40
 echo ""
-echo "OK — video F2 dans le slot (inline, comme F1)."
+echo "OK — video F2 AU-DESSUS de REPLAY ELITE."
 echo "-> Ctrl+Shift+R : https://app.torinvest-trading.com/course/f02-xauusd.html"
 echo "======== DONE ========"
