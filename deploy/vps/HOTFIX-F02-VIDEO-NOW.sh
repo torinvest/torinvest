@@ -12,7 +12,7 @@
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/module-f2-xauusd-video-691a}"
+REF="${REF:-cursor/module-f2-video-slot-f01-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 VIDEO_NAME="f02-xauusd.mp4"
 PUBLIC_VID="$APP_DIR/public/course/videos/$VIDEO_NAME"
