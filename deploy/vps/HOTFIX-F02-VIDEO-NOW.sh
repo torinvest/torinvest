@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# HOTFIX F2 — place la video AU MEME ENDROIT que Module 0 / F1
+# HOTFIX F2 — copie le placement F1 (slot grille), retire le player sous h1
 # (slot data-video-id / section "Video — …"), PAS sous le h1 du module.
 #
 # PC (si pas encore uploade) :
 #   scp "...\F2 XAUUSD — anatomie de l'or.mp4" ubuntu@164.132.46.191:~/f02-xauusd.mp4
 #
 # VPS :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/module-f2-xauusd-video-691a/deploy/vps/HOTFIX-F02-VIDEO-NOW.sh" -o /tmp/hf02.sh
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/module-f2-video-slot-f01-691a/deploy/vps/HOTFIX-F02-VIDEO-NOW.sh" -o /tmp/hf02.sh
 #   bash /tmp/hf02.sh
 #
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/module-f2-xauusd-video-691a}"
+REF="${REF:-cursor/module-f2-video-slot-f01-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 VIDEO_NAME="f02-xauusd.mp4"
 PUBLIC_VID="$APP_DIR/public/course/videos/$VIDEO_NAME"
@@ -78,8 +78,9 @@ chmod 644 "$PRIVATE_VID"
 echo "OK MP4 : $(ls -lh "$PUBLIC_VID" | awk '{print $5}')"
 
 curl -fsSL "$RAW/la-forge/css/forge-lesson-video.css" -o "$APP_DIR/public/css/forge-lesson-video.css" || true
-curl -fsSL "$RAW/deploy/vps/_inject_f02_video.py" -o "$WORK/inject-f02.py"
-chmod +x "$WORK/inject-f02.py"
+curl -fsSL "$RAW/deploy/vps/_place_f02_like_f01.py" -o "$WORK/place-f02.py"
+[[ -f "$WORK/place-f02.py" ]] || { echo "ERREUR: telechargement place-f02.py echoue ($RAW)"; exit 1; }
+chmod +x "$WORK/place-f02.py"
 
 HTML=""
 for candidate in \
@@ -101,7 +102,15 @@ echo "-----------------------"
 STAMP=$(date +%Y%m%d-%H%M%S)
 cp -a "$HTML" "$HTML.bak-f02slot-$STAMP"
 
-python3 "$WORK/inject-f02.py" "$HTML" "$VIDEO_URL" "$CAPTION"
+F01=""
+for c in \
+  "$APP_DIR/private/course/f01-marches.html" \
+  "$APP_DIR/public/course/f01-marches.html"
+do
+  [[ -f "$c" ]] && F01="$c" && break
+done
+echo "F01 reference : ${F01:-ABSENT}"
+python3 "$WORK/place-f02.py" "$HTML" "${F01:-/dev/null}" "$VIDEO_URL" "$CAPTION"
 
 if [[ "$HTML" == "$APP_DIR/private/course/f02-xauusd.html" ]]; then
   cp -a "$HTML" "$APP_DIR/public/course/f02-xauusd.html"

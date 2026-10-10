@@ -137,8 +137,15 @@ STAMP=$(date +%Y%m%d-%H%M%S)
 cp -a "$HTML" "$HTML.bak-f02vid-$STAMP"
 
 # Injection — meme emplacement que Module 0 / F1 (slot data-video-id)
-curl -fsSL "$RAW/deploy/vps/_inject_f02_video.py" -o "$WORK/inject-f02.py"
-python3 "$WORK/inject-f02.py" "$HTML" "$VIDEO_URL" "$CAPTION"
+curl -fsSL "$RAW/deploy/vps/_place_f02_like_f01.py" -o "$WORK/place-f02.py"
+F01=""
+for c in \
+  "$APP_DIR/private/course/f01-marches.html" \
+  "$APP_DIR/public/course/f01-marches.html"
+do
+  [[ -f "$c" ]] && F01="$c" && break
+done
+python3 "$WORK/place-f02.py" "$HTML" "${F01:-/dev/null}" "$VIDEO_URL" "$CAPTION"
 
 
 # sync public html
