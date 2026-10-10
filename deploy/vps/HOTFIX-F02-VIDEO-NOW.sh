@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-# HOTFIX F2 — meme pattern que HOTFIX-F01-VIDEO-LAYOUT.sh :
-#   1) MP4 deja en place (pas de re-transcode)
-#   2) Python INLINE (aucun curl de .py → plus de chmod inject-f02.py)
-#   3) Purge le player colle sous h1
-#   4) Reinjecte AVANT le bloc REPLAY ÉLITE (comme coaching F1)
+# HOTFIX F2 — place la video JUSTE AU-DESSUS de REPLAY ELITE
+# (classe .elite-replay / texte REPLAY ÉLITE), comme F1 coaching.
+#
+# Patche PUBLIC (servi) + PRIVATE. Python 100% inline. Zero .py distant.
 #
 # VPS :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/module-f2-video-slot-f01-691a/deploy/vps/HOTFIX-F02-VIDEO-NOW.sh" -o /tmp/hf02.sh
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/module-f2-video-above-elite-691a/deploy/vps/HOTFIX-F02-VIDEO-NOW.sh" -o /tmp/hf02.sh
 #   bash /tmp/hf02.sh
 #
 set -euo pipefail
@@ -17,10 +16,17 @@ VIDEO_URL="/course/videos/$VIDEO_NAME"
 CAPTION="${CAPTION:-TORINVEST La Forge - F2 XAUUSD - anatomie de lor}"
 PUBLIC_VID="$APP_DIR/public/course/videos/$VIDEO_NAME"
 PRIVATE_VID="$APP_DIR/private/course/videos/$VIDEO_NAME"
+PUBLIC_HTML="$APP_DIR/public/course/f02-xauusd.html"
+PRIVATE_HTML="$APP_DIR/private/course/f02-xauusd.html"
+F01_HTML=""
+for c in "$APP_DIR/public/course/f01-marches.html" "$APP_DIR/private/course/f01-marches.html"; do
+  [[ -f "$c" ]] && F01_HTML="$c" && break
+done
 
-echo "======== HOTFIX F02 VIDEO SLOT (inline, comme F1) ========"
+echo "======== HOTFIX F02 — AU-DESSUS DE REPLAY ELITE ========"
 
 # ——— MP4 ———
+mkdir -p "$(dirname "$PUBLIC_VID")" "$(dirname "$PRIVATE_VID")"
 if [[ ! -f "$PUBLIC_VID" ]] || [[ $(stat -c%s "$PUBLIC_VID" 2>/dev/null || echo 0) -lt 500000 ]]; then
   SRC=""
   for c in "$HOME/f02-xauusd.mp4" "$PRIVATE_VID" "/tmp/f02-xauusd.mp4" "$HOME"/F2*.mp4; do
@@ -29,51 +35,43 @@ if [[ ! -f "$PUBLIC_VID" ]] || [[ $(stat -c%s "$PUBLIC_VID" 2>/dev/null || echo 
     SRC="$c"; break
   done
   [[ -n "$SRC" ]] || { echo "ERREUR: ~/f02-xauusd.mp4 introuvable"; exit 1; }
-  mkdir -p "$(dirname "$PUBLIC_VID")" "$(dirname "$PRIVATE_VID")"
   cp -a "$SRC" "$PUBLIC_VID"
   echo "MP4 copie depuis $SRC"
 fi
-mkdir -p "$(dirname "$PUBLIC_VID")" "$(dirname "$PRIVATE_VID")"
 chmod 644 "$PUBLIC_VID"
 cp -a "$PUBLIC_VID" "$PRIVATE_VID"
 chmod 644 "$PRIVATE_VID"
 echo "OK MP4 : $(ls -lh "$PUBLIC_VID" | awk '{print $5}')"
 
-# ——— HTML ———
+# Source HTML = public d'abord (c'est ce que le serveur sert)
 HTML=""
-for candidate in \
-  "$APP_DIR/private/course/f02-xauusd.html" \
-  "$APP_DIR/public/course/f02-xauusd.html"
-do
+for candidate in "$PUBLIC_HTML" "$PRIVATE_HTML"; do
   [[ -f "$candidate" ]] && HTML="$candidate" && break
 done
 [[ -z "$HTML" ]] && HTML=$(find "$APP_DIR" -type f -iname 'f02-xauusd.html' 2>/dev/null | head -1 || true)
 [[ -n "$HTML" && -f "$HTML" ]] || { echo "ERREUR: f02-xauusd.html introuvable"; exit 1; }
 
-F01=""
-for c in \
-  "$APP_DIR/private/course/f01-marches.html" \
-  "$APP_DIR/public/course/f01-marches.html"
-do
-  [[ -f "$c" ]] && F01="$c" && break
-done
-
-echo "HTML : $HTML"
-echo "F01  : ${F01:-ABSENT}"
+echo "HTML source : $HTML"
+echo "F01         : ${F01_HTML:-ABSENT}"
 STAMP=$(date +%Y%m%d-%H%M%S)
-cp -a "$HTML" "$HTML.bak-f02slot-$STAMP"
+cp -a "$HTML" "$HTML.bak-f02elite-$STAMP"
 
-# CSS (best-effort)
 mkdir -p "$APP_DIR/public/css"
 if [[ ! -f "$APP_DIR/public/css/forge-lesson-video.css" ]]; then
   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/la-forge/css/forge-lesson-video.css" \
     -o "$APP_DIR/public/css/forge-lesson-video.css" || true
 fi
 
-# ——— Patch INLINE (copie du pattern F1 LAYOUT) ———
-python3 - "$HTML" "${F01:-/dev/null}" "$VIDEO_URL" "$CAPTION" <<'PY'
+echo ""
+echo "=== DIAG avant (h2/h3 + elite/replay/video) ==="
+grep -nEi 'elite-replay|chart-replay|REPLAY|ÉLITE|ELITE|f02-video|f02-xauusd\.mp4|FORGE_F02|<h[1-3][^>]*>' "$HTML" | head -80 || true
+echo "=== fin diag ==="
+echo ""
+
+python3 - "$HTML" "${F01_HTML:-/dev/null}" "$VIDEO_URL" "$CAPTION" <<'PY'
 import re
 import sys
+import unicodedata
 from pathlib import Path
 
 html_path = Path(sys.argv[1])
@@ -84,9 +82,14 @@ caption = sys.argv[4]
 text = html_path.read_text(encoding="utf-8", errors="replace")
 f01 = f01_path.read_text(encoding="utf-8", errors="replace") if f01_path.is_file() else ""
 
+def fold(s: str) -> str:
+    # ÉLITE / ELITE / ÉLITE → ELITE
+    s = unicodedata.normalize("NFKD", s)
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return s.upper()
+
 ms, me = "<!-- FORGE_F02_VIDEO_START -->", "<!-- FORGE_F02_VIDEO_END -->"
 
-# Meme markup interieur que F1 LAYOUT (figure seule)
 inner = f"""{ms}
 <figure class="forge-lesson-video forge-lesson-video--protected" id="f02-video">
   <video
@@ -104,7 +107,6 @@ inner = f"""{ms}
 </figure>
 {me}"""
 
-# Wrapper = classes F1 si dispo, sinon media-box dashed (ce que F1 utilise en live)
 wrap_open = '<div class="media-box dashed" data-video-id="f02-anatomie">'
 wrap_close = "</div>"
 m_f01 = re.search(
@@ -125,44 +127,6 @@ if m_f01:
     wrap_open = f"<{tag}{attrs}>"
     wrap_close = f"</{tag}>"
     print("F1 wrapper:", wrap_open[:160])
-else:
-    print("F1 absent — wrapper media-box dashed par defaut")
-
-# --- 1) PURGE total de tout player F2 (y compris sous h1) ---
-text = re.sub(re.escape(ms) + r".*?" + re.escape(me), "", text, flags=re.S)
-text = re.sub(
-    r'<figure[^>]*id=["\']f02-video["\'][^>]*>.*?</figure>',
-    "",
-    text,
-    flags=re.I | re.S,
-)
-# section / div slots F2 (id, data-video-id, class)
-text = re.sub(
-    r'<section[^>]*(?:id=["\']f02-video[^"\']*["\']|data-video-id=["\']f02-[^"\']*["\']|class=["\'][^"\']*forge-lesson-video-slot[^"\']*["\'])[^>]*>[\s\S]*?</section\s*>',
-    "",
-    text,
-    flags=re.I,
-)
-text = re.sub(
-    r'<(div|aside|article)(\s[^>]*(?:data-video-id=["\']f02-[^"\']*["\']|id=["\']f02-video[^"\']*["\'])[^>]*)>[\s\S]*?</\1\s*>',
-    "",
-    text,
-    flags=re.I,
-)
-# titres Video F2 orphelins
-text = re.sub(
-    r'<h2[^>]*>\s*(?:Video|Vidéo)\s*[—\-]\s*(?:XAUUSD|Anatomie)[^<]*</h2>\s*',
-    "",
-    text,
-    flags=re.I,
-)
-text = re.sub(
-    r'<section[^>]*id=["\']f02-video-section["\'][^>]*>[\s\S]*?</section\s*>',
-    "",
-    text,
-    flags=re.I,
-)
-text = re.sub(r"\n{3,}", "\n\n", text)
 
 section = (
     "\n"
@@ -173,91 +137,218 @@ section = (
     "</section>\n"
 )
 
-action = None
+# --- 1) PURGE tout ancien player F2 ---
+text = re.sub(re.escape(ms) + r".*?" + re.escape(me), "", text, flags=re.S)
+text = re.sub(
+    r'<figure[^>]*id=["\']f02-video["\'][^>]*>.*?</figure>',
+    "",
+    text,
+    flags=re.I | re.S,
+)
+text = re.sub(
+    r'<section[^>]*(?:id=["\']f02-video[^"\']*["\']|data-video-id=["\']f02-[^"\']*["\']|class=["\'][^"\']*forge-lesson-video(?:-slot|-section)?[^"\']*["\'])[^>]*>[\s\S]*?</section\s*>',
+    "",
+    text,
+    flags=re.I,
+)
+text = re.sub(
+    r'<(div|aside|article)(\s[^>]*(?:data-video-id=["\']f02-[^"\']*["\']|id=["\']f02-video[^"\']*["\'])[^>]*)>[\s\S]*?</\1\s*>',
+    "",
+    text,
+    flags=re.I,
+)
+text = re.sub(
+    r'<h2[^>]*>\s*(?:Video|Vidéo)\s*[—\-]\s*(?:XAUUSD|Anatomie)[^<]*</h2>\s*',
+    "",
+    text,
+    flags=re.I,
+)
+text = re.sub(r"\n{3,}", "\n\n", text)
 
-# --- 2) Insert AVANT REPLAY ÉLITE (meme ancre que coaching F1) ---
-elite_patterns = [
-    # Conteneur qui ouvre juste avant le texte REPLAY ÉLITE
-    r'(<(?:section|div|article)[^>]*>[\s\S]{0,200}?REPLAY\s*[ÉE]LITE)',
-    # Classe elite-replay / chart-replay-section
-    r'(<(?:section|div|article)[^>]*class=["\'][^"\']*(?:elite-replay|chart-replay-section)[^"\']*["\'][^>]*>)',
-    # Titre h2/h3 « Replay ÉLITE » / « REPLAY ELITE »
-    r'(<h[2-4][^>]*>\s*REPLAY\s*[ÉE]LITE[^<]*</h[2-4]>)',
-    r'(<h[2-4][^>]*>\s*Replay\s*[ÉE]lite[^<]*</h[2-4]>)',
-    # Ancre id
-    r'(<(?:section|div|article)[^>]*id=["\'][^"\']*elite-replay[^"\']*["\'][^>]*>)',
-]
-for pat in elite_patterns:
-    m = re.search(pat, text, flags=re.I)
+# --- 2) Trouver le point d'insertion = DEBUT du bloc REPLAY ELITE ---
+insert_at = None
+how = None
+
+def find_container_before(pos, max_back=800):
+    window_start = max(0, pos - max_back)
+    chunk = text[window_start:pos]
+    opens = list(re.finditer(r"<(section|div|article)\b[^>]*>", chunk, flags=re.I))
+    if not opens:
+        return None
+    return window_start + opens[-1].start()
+
+# A) classe .elite-replay d'abord (le plus fiable)
+m = re.search(
+    r"<(section|div|article)\b[^>]*class=[\"'][^\"']*\belite-replay\b[^\"']*[\"'][^>]*>",
+    text,
+    flags=re.I,
+)
+if m:
+    insert_at = m.start()
+    how = "classe .elite-replay"
+
+# B) classe .chart-replay-section
+if insert_at is None:
+    m = re.search(
+        r"<(section|div|article)\b[^>]*class=[\"'][^\"']*\bchart-replay-section\b[^\"']*[\"'][^>]*>",
+        text,
+        flags=re.I,
+    )
     if m:
-        text = text[: m.start()] + section + text[m.start() :]
-        action = "avant REPLAY ELITE"
-        break
+        insert_at = m.start()
+        how = "classe .chart-replay-section"
 
-if action is None:
-    print("ERREUR: bloc REPLAY ELITE introuvable dans F2", file=sys.stderr)
-    for needle in (
-        "REPLAY ÉLITE",
-        "REPLAY ELITE",
-        "Replay Élite",
-        "elite-replay",
-        "chart-replay-section",
-    ):
-        print(f"  {needle!r}: {needle.lower() in text.lower()}", file=sys.stderr)
+# C) texte REPLAY ÉLITE / REPLAY ELITE (accents ignores)
+if insert_at is None:
+    m = re.search(r"REPLAY\s*[ÉE]LITE", text, flags=re.I)
+    if not m:
+        # NFKD fold
+        folded = fold(text)
+        fm = re.search(r"REPLAY\s*ELITE", folded)
+        if fm:
+            # retrouver dans l'original (E + combining acute possible)
+            m = re.search(r"REPLAY\s*E\u0301?LITE", text, flags=re.I)
+            if not m:
+                m = re.search(r"REPLAY\s*.LITE", text, flags=re.I)
+    if m:
+        cont = find_container_before(m.start())
+        insert_at = cont if cont is not None else m.start()
+        how = "texte REPLAY ELITE"
+
+# D) id elite/replay
+if insert_at is None:
+    m = re.search(
+        r"<(section|div|article)\b[^>]*id=[\"'][^\"']*(?:elite-replay|replay-elite|chart-replay)[^\"']*[\"'][^>]*>",
+        text,
+        flags=re.I,
+    )
+    if m:
+        insert_at = m.start()
+        how = "id elite/replay"
+
+# E) titre h2/h3 avec REPLAY + ELITE
+if insert_at is None:
+    for hm in re.finditer(r"<h[2-4]\b[^>]*>[\s\S]{0,160}?</h[2-4]>", text, flags=re.I):
+        ft = fold(hm.group(0))
+        if "ELITE" in ft and "REPLAY" in ft:
+            cont = find_container_before(hm.start())
+            insert_at = cont if cont is not None else hm.start()
+            how = "titre h* REPLAY+ELITE"
+            break
+
+if insert_at is None:
+    print("ERREUR: impossible de trouver REPLAY ELITE / .elite-replay", file=sys.stderr)
+    print("--- dump titres / classes utiles ---", file=sys.stderr)
     for i, line in enumerate(text.splitlines(), 1):
-        if re.search(r"replay|elite|ÉLITE|ELITE|<h[1-3]", line, flags=re.I):
-            print(f"  L{i}: {line[:160]}", file=sys.stderr)
+        if re.search(
+            r"<h[1-3]|elite|replay|chart-replay|Exercice|Objectifs|Cas |Évaluation|Evaluation",
+            line,
+            flags=re.I,
+        ):
+            print(f"  L{i}: {line.strip()[:180]}", file=sys.stderr)
+    dump = Path("/tmp/f02-diag-headings.txt")
+    lines = []
+    for i, line in enumerate(text.splitlines(), 1):
+        if re.search(r"<h[1-4]|class=|id=.*replay|elite", line, flags=re.I):
+            lines.append(f"L{i}: {line.rstrip()[:240]}")
+    dump.write_text("\n".join(lines), encoding="utf-8")
+    print(f"Dump: {dump}  →  colle ce fichier si ca rate encore", file=sys.stderr)
     sys.exit(2)
+
+text = text[:insert_at] + section + text[insert_at:]
+print(f"Action : insert avant REPLAY ELITE ({how}) @ char {insert_at}")
 
 if "forge-lesson-video.css" not in text and "</head>" in text:
     text = text.replace(
         "</head>",
-        '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f02e" />\n</head>',
+        '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f02elite" />\n</head>',
         1,
     )
 else:
     text = re.sub(
         r'forge-lesson-video\.css(\?v=[^"]*)?',
-        "forge-lesson-video.css?v=f02e",
+        "forge-lesson-video.css?v=f02elite",
         text,
         count=1,
     )
 
 text = re.sub(r"\n{4,}", "\n\n\n", text)
 html_path.write_text(text, encoding="utf-8")
-print("Action :", action)
-
-# Guards
-if "f02-xauusd.mp4" not in text:
-    print("ERREUR: mp4 absent apres patch", file=sys.stderr)
-    sys.exit(3)
-if text.count('id="f02-video"') != 1:
-    print("WARN: nb #f02-video =", text.count('id="f02-video"'), file=sys.stderr)
-
-m = re.search(r"</h1\s*>", text, flags=re.I)
-if m and "f02-xauusd.mp4" in text[m.end() : m.end() + 500]:
-    print("ERREUR: video encore trop proche du h1", file=sys.stderr)
-    sys.exit(3)
 
 vid = text.find("f02-xauusd.mp4")
-elite = re.search(r"REPLAY\s*[ÉE]LITE|elite-replay|chart-replay-section", text, flags=re.I)
-if elite and vid > elite.start():
-    print("ERREUR: video apres REPLAY ELITE", file=sys.stderr)
+if vid < 0:
+    print("ERREUR: mp4 absent", file=sys.stderr)
     sys.exit(3)
-print("OK: video juste au-dessus de REPLAY ELITE")
-print("OK placement F2")
+
+# Verif: video AVANT le marqueur elite restant
+elite_after = re.search(
+    r"elite-replay|REPLAY\s*[ÉE]LITE|chart-replay-section",
+    text[vid:],
+    flags=re.I,
+)
+if not elite_after:
+    print("WARN: apres video, plus de marqueur elite visible", file=sys.stderr)
+else:
+    print(f"OK: video @ {vid}, elite {elite_after.start()} chars plus loin")
+
+# Mauvais seulement si aucun h2 entre h1 et la video (colle sous le titre)
+h1 = re.search(r"</h1\s*>", text, flags=re.I)
+if h1:
+    between = text[h1.end() : vid]
+    if not re.search(r"<h2\b", between, flags=re.I):
+        print("ERREUR: video colle sous h1 (aucun h2 avant)", file=sys.stderr)
+        sys.exit(3)
+
+print("OK placement F2 au-dessus de REPLAY ELITE")
 PY
 
-if [[ "$HTML" == "$APP_DIR/private/course/f02-xauusd.html" ]]; then
-  mkdir -p "$APP_DIR/public/course"
-  cp -a "$HTML" "$APP_DIR/public/course/f02-xauusd.html"
-  echo "Sync public HTML"
+# Sync PUBLIC + PRIVATE (le serveur sert public/)
+mkdir -p "$APP_DIR/public/course" "$APP_DIR/private/course"
+if [[ "$HTML" != "$PUBLIC_HTML" ]]; then
+  cp -a "$HTML" "$PUBLIC_HTML"
+  echo "Sync -> public/course/f02-xauusd.html"
+else
+  echo "HTML deja = public/course/f02-xauusd.html"
+fi
+if [[ "$HTML" != "$PRIVATE_HTML" ]]; then
+  cp -a "$HTML" "$PRIVATE_HTML"
+  echo "Sync -> private/course/f02-xauusd.html"
+else
+  echo "HTML deja = private/course/f02-xauusd.html"
 fi
 
 echo ""
-echo "=== VERIF ==="
-grep -nEi 'f02-xauusd.mp4|FORGE_F02_VIDEO|f02-video|data-video-id="f02|REPLAY|elite-replay|Exercice' "$HTML" | head -40
+echo "=== VERIF apres ==="
+grep -nEi 'f02-xauusd\.mp4|FORGE_F02|f02-video-section|elite-replay|REPLAY|Exercice sur chart' "$PUBLIC_HTML" | head -50
 echo ""
-echo "OK — video F2 AU-DESSUS de REPLAY ELITE."
+
+# Rapport ordre
+python3 - "$PUBLIC_HTML" <<'CHK'
+import re, sys
+from pathlib import Path
+t = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
+items = []
+for label, pat in [
+    ("VIDEO", r'f02-xauusd\.mp4'),
+    ("ELITE", r'elite-replay|REPLAY\s*[ÉE]LITE|chart-replay-section'),
+    ("EXERCICE", r'<h[2-4][^>]*>\s*Exercice\s+sur\s+chart'),
+    ("H1", r'<h1\b'),
+]:
+    m = re.search(pat, t, flags=re.I)
+    if m:
+        items.append((m.start(), label))
+items.sort()
+print("ORDRE:", " -> ".join(f"{lab}@{pos}" for pos, lab in items))
+vids = [i for i in items if i[1] == "VIDEO"]
+elites = [i for i in items if i[1] == "ELITE"]
+if vids and elites and vids[0][0] < elites[0][0]:
+    print("OK ORDRE: VIDEO avant ELITE")
+else:
+    print("ECHEC ORDRE: VIDEO pas avant ELITE")
+    sys.exit(3)
+CHK
+
+echo ""
+echo "OK — video F2 juste AU-DESSUS de REPLAY ELITE."
 echo "-> Ctrl+Shift+R : https://app.torinvest-trading.com/course/f02-xauusd.html"
 echo "======== DONE ========"
