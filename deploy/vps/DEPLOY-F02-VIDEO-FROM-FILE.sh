@@ -136,26 +136,13 @@ echo "HTML : $HTML"
 STAMP=$(date +%Y%m%d-%H%M%S)
 cp -a "$HTML" "$HTML.bak-f02vid-$STAMP"
 
-# Injection — meme emplacement que Module 0 / F1 (slot data-video-id)
-curl -fsSL "$RAW/deploy/vps/_place_f02_like_f01.py" -o "$WORK/place-f02.py"
-F01=""
-for c in \
-  "$APP_DIR/private/course/f01-marches.html" \
-  "$APP_DIR/public/course/f01-marches.html"
-do
-  [[ -f "$c" ]] && F01="$c" && break
-done
-python3 "$WORK/place-f02.py" "$HTML" "${F01:-/dev/null}" "$VIDEO_URL" "$CAPTION"
-
-
-# sync public html
-if [[ "$HTML" == "$APP_DIR/private/course/f02-xauusd.html" ]]; then
-  mkdir -p "$APP_DIR/public/course"
-  cp -a "$HTML" "$APP_DIR/public/course/f02-xauusd.html"
-  echo "Sync public HTML"
-fi
-
+# Placement HTML = HOTFIX inline (meme pattern F1, aucun .py distant)
 rm -rf "$WORK"
+export APP_DIR VIDEO_NAME CAPTION
+HOTFIX_URL="https://raw.githubusercontent.com/torinvest/torinvest/cursor/module-f2-video-slot-f01-691a/deploy/vps/HOTFIX-F02-VIDEO-NOW.sh"
+curl -fsSL "$HOTFIX_URL" -o /tmp/hf02-from-deploy.sh
+bash /tmp/hf02-from-deploy.sh
+exit $?
 
 echo ""
 echo "Vérif :"
