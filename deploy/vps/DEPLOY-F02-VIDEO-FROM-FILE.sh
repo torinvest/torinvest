@@ -136,95 +136,10 @@ echo "HTML : $HTML"
 STAMP=$(date +%Y%m%d-%H%M%S)
 cp -a "$HTML" "$HTML.bak-f02vid-$STAMP"
 
-# Injection flexible : slot data-video-id f02* → placeholder → après h1
-python3 - "$HTML" "$VIDEO_URL" "$CAPTION" "$TITLE" <<'PY'
-import re, sys
-from pathlib import Path
+# Injection — meme emplacement que Module 0 / F1 (slot data-video-id)
+curl -fsSL "$RAW/deploy/vps/_inject_f02_video.py" -o "$WORK/inject-f02.py"
+python3 "$WORK/inject-f02.py" "$HTML" "$VIDEO_URL" "$CAPTION"
 
-html_path = Path(sys.argv[1])
-video_url = sys.argv[2]
-caption = sys.argv[3]
-title = sys.argv[4]
-text = html_path.read_text(encoding="utf-8")
-
-marker_start = "<!-- FORGE_F02_VIDEO_START -->"
-marker_end = "<!-- FORGE_F02_VIDEO_END -->"
-inner = f"""{marker_start}
-<figure class="forge-lesson-video forge-lesson-video--protected" id="f02-video">
-  <h2 style="color:var(--gold,#ffd700);font-size:1.05rem;margin:0 0 0.65rem;text-align:center;">
-    {title}
-  </h2>
-  <video controls playsinline preload="metadata" controlslist="nodownload noplaybackrate" disablepictureinpicture oncontextmenu="return false" style="width:100%;max-width:960px;border-radius:12px;background:#000;display:block;margin:0 auto;">
-    <source src="{video_url}" type="video/mp4" />
-    Votre navigateur ne lit pas la vidéo HTML5.
-  </video>
-  <figcaption style="text-align:center;color:#9aa3b2;font-size:0.9rem;margin-top:0.5rem;margin-bottom:0.75rem;">{caption}</figcaption>
-</figure>
-{marker_end}"""
-
-# purge ancien bloc / youtube éventuel
-text = re.sub(re.escape(marker_start) + r".*?" + re.escape(marker_end), "", text, flags=re.S)
-text = re.sub(r'<figure[^>]*id=["\']f02-video["\'][^>]*>.*?</figure>', "", text, flags=re.I | re.S)
-text = re.sub(
-    r'<iframe[^>]+youtube\.com/embed/[^>]+>.*?</iframe>',
-    "",
-    text,
-    count=1,
-    flags=re.I | re.S,
-)
-
-action = None
-
-# 1) Wrapper data-video-id contenant f02
-m = re.search(
-    r'<(div|section|aside|figure|article)(\s[^>]*data-video-id=["\'][^"\']*f02[^"\']*["\'][^>]*)>(.*?)</\1\s*>',
-    text,
-    flags=re.I | re.S,
-)
-if m:
-    tag, attrs = m.group(1), m.group(2)
-    replacement = f"<{tag}{attrs}>\n{inner}\n</{tag}>"
-    text = text[: m.start()] + replacement + text[m.end() :]
-    action = f"contenu intérieur <{tag} data-video-id=f02…>"
-
-# 2) Placeholder « Intégration vidéo »
-if not action:
-    m2 = re.search(
-        r'<(div|section|aside|figure|article)([^>]*)>([^<]{0,200}?Int[ée]gration\s+vid[ée]o[^<]{0,200}?)</\1\s*>',
-        text,
-        flags=re.I | re.S,
-    )
-    if m2:
-        tag, attrs = m2.group(1), m2.group(2)
-        replacement = f"<{tag}{attrs}>\n{inner}\n</{tag}>"
-        text = text[: m2.start()] + replacement + text[m2.end() :]
-        action = "remplacé placeholder Intégration vidéo"
-
-# 3) Après premier <h1> du module
-if not action:
-    m3 = re.search(r"(</h1\s*>)", text, flags=re.I)
-    if m3:
-        text = text[: m3.end()] + "\n\n" + inner + "\n" + text[m3.end() :]
-        action = "inséré après h1"
-    else:
-        m4 = re.search(r"(<main[^>]*>)", text, flags=re.I)
-        if m4:
-            text = text[: m4.end()] + "\n\n" + inner + "\n" + text[m4.end() :]
-            action = "inséré dans main"
-        else:
-            print("ERREUR: aucun point d'insertion F2 trouvé", file=sys.stderr)
-            sys.exit(2)
-
-if "forge-lesson-video.css" not in text and "</head>" in text:
-    text = text.replace(
-        "</head>",
-        '  <link rel="stylesheet" href="/css/forge-lesson-video.css?v=f02" />\n</head>',
-        1,
-    )
-text = re.sub(r"\n{4,}", "\n\n\n", text)
-html_path.write_text(text, encoding="utf-8")
-print("Action :", action)
-PY
 
 # sync public html
 if [[ "$HTML" == "$APP_DIR/private/course/f02-xauusd.html" ]]; then
