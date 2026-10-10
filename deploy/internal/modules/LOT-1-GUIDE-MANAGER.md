@@ -157,6 +157,24 @@ Retail voit "breakout" → souvent fin de mouvement court terme
 
 # MODULE F2 — XAUUSD — anatomie de l’or
 
+## Vidéo module (fichier local)
+
+| Élément | Valeur |
+|---------|--------|
+| Fichier source | `F2 XAUUSD — anatomie de l'or.mp4` (disque live torinvest) |
+| Cible VPS | `/course/videos/f02-xauusd.mp4` (protégé session Premium) |
+| Page | `f02-xauusd.html` |
+| Deploy | `deploy/vps/DEPLOY-F02-VIDEO-FROM-FILE.sh` |
+
+```bash
+# PC → VPS
+scp "E:\TORINVEST\live torinvest\F2 XAUUSD — anatomie de l'or.mp4" ubuntu@164.132.46.191:~/f02-xauusd.mp4
+# VPS
+export VIDEO_SRC=~/f02-xauusd.mp4
+export REF=cursor/module-f2-xauusd-video-691a
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-F02-VIDEO-FROM-FILE.sh" -o /tmp/d-f02.sh && bash /tmp/d-f02.sh
+```
+
 ## Pitch manager
 
 > L’or n’est pas « juste un graphique » : **sessions**, **volatilité**, **corrélations** (DXY, taux), **drivers** macro.  

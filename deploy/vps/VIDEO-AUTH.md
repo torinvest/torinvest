@@ -27,6 +27,7 @@ curl -sI https://app.torinvest-trading.com/course/videos/module-0-socle.mp4 | he
 curl -sI https://app.torinvest-trading.com/course/videos/module-0-metier.mp4 | head -5
 curl -sI https://app.torinvest-trading.com/course/videos/f01-marches.mp4 | head -5
 curl -sI https://app.torinvest-trading.com/course/videos/f01-coaching.mp4 | head -5
+curl -sI https://app.torinvest-trading.com/course/videos/f02-xauusd.mp4 | head -5
 curl -sI https://app.torinvest-trading.com/course/videos/module-0-coaching.mp4 | head -5
 
 # Ne doit PAS exister en public
