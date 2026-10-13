@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # HOTFIX UNLOCK LOT 2 — one-shot VPS (index autonome + scripts injectés)
 #
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/hotfix-unlock-lot2-deploy-691a/deploy/vps/HOTFIX-UNLOCK-LOT2-NOW.sh" -o /tmp/hul.sh
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-UNLOCK-LOT2-NOW.sh" -o /tmp/hul.sh
 #   bash /tmp/hul.sh
 #
 set -euo pipefail
 
 APP_DIR="${1:-${APP_DIR:-$HOME/torinvest-formation}}"
-REF="${REF:-cursor/hotfix-unlock-lot2-deploy-691a}"
+REF="${REF:-main}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 STAMP=$(date +%s)
 

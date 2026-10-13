@@ -202,7 +202,13 @@
       list.appendChild(lock);
     }
 
-    if (subscribed && new URLSearchParams(location.search).get("locked_module") === "1") {
+    var lockedParam = false;
+    try {
+      lockedParam =
+        typeof URLSearchParams !== "undefined" &&
+        new URLSearchParams((location && location.search) || "").get("locked_module") === "1";
+    } catch (e) {}
+    if (subscribed && lockedParam) {
       var lock2 = document.createElement("li");
       lock2.style.cssText = "display:block;border:none;background:transparent;padding:0";
       lock2.innerHTML =
