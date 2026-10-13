@@ -8,14 +8,35 @@ function renderCourseIndex(me) {
   const overall = typeof getOverallProgress === "function" ? getOverallProgress(ids) : { done: 0, total: ids.length, pct: 0 };
   const subscribed = me && me.subscribed;
   const hasUnlock = typeof isModuleUnlocked === "function";
+  const hasUnlockHint = typeof getNextUnlockHint === "function";
   const unlockFn = hasUnlock
     ? isModuleUnlocked
     : function (moduleId) {
         const idx = ids.indexOf(moduleId);
         return idx >= 0 && idx < 3;
       };
-  if (subscribed && !hasUnlock) {
-    console.warn("[La Forge] forge-unlock.js absent — lot 1 seul (3 modules). Déployez pull-forge-assets.");
+  if (subscribed && (!hasUnlock || !hasUnlockHint)) {
+    console.error(
+      "[La Forge] forge-unlock.js incomplet ou absent (isModuleUnlocked=" +
+        hasUnlock +
+        ", getNextUnlockHint=" +
+        hasUnlockHint +
+        ") — lot 1 seul. Relancez apply-unlock-now.sh sur le VPS."
+    );
+  }
+  if (subscribed && hasUnlock && typeof getUnlockedModuleIds === "function") {
+    const lot1 = ids.slice(0, 3);
+    const lot1Done = lot1.length === 3 && lot1.every(function (id) {
+      return !!(modFn(id) && modFn(id).completed);
+    });
+    const openCount = getUnlockedModuleIds().length;
+    if (lot1Done && openCount < 6) {
+      console.error(
+        "[La Forge] BUG unlock: lot 1 validé mais seulement " +
+          openCount +
+          " module(s) ouverts (attendu ≥ 6)."
+      );
+    }
   }
 
   const titleEl = document.getElementById("forge-title");
@@ -147,10 +168,30 @@ function renderCourseIndex(me) {
         teaser.style.cssText = "display:block;border:none;background:transparent;padding:1rem 0 0";
         list.appendChild(teaser);
       }
-      const hint =
-        typeof getNextUnlockHint === "function"
-          ? getNextUnlockHint()
-          : "Validez le lot actuel pour ouvrir les 3 modules suivants.";
+      let hint;
+      if (typeof getNextUnlockHint === "function") {
+        hint = getNextUnlockHint();
+      } else if (!hasUnlock) {
+        hint =
+          "Module unlock non chargé (forge-unlock.js). Contacte le support / redéploie apply-unlock-now.";
+      } else {
+        hint = "Validez le lot actuel pour ouvrir les 3 modules suivants.";
+      }
+      const lot1 = ids.slice(0, 3);
+      const lot1Done =
+        lot1.length === 3 &&
+        lot1.every(function (id) {
+          return !!(modFn(id) && modFn(id).completed);
+        });
+      if (lot1Done && hasUnlock && typeof getUnlockedModuleIds === "function") {
+        const openCount = getUnlockedModuleIds().length;
+        if (openCount < 6) {
+          hint =
+            "Lot 1 validé mais lot 2 pas ouvert (bug unlock — " +
+            openCount +
+            " modules visibles). Ctrl+Shift+R ou relancer apply-unlock-now.";
+        }
+      }
       teaser.innerHTML =
         '<div class="alert" style="font-size:0.88rem;border-color:rgba(255,180,0,.25)">' +
         "<strong>" +

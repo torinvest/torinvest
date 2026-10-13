@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Déploiement unlock — URLs fixes sur main (pas de variable SHA).
+# Voir aussi : deploy/vps/AUDIT-UNLOCK-LOTS.md
 #
 # Sur le VPS Ubuntu (user ubuntu), copier-coller TOUT le bloc :
 #
 #   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/apply-unlock-now.sh" | bash -s -- ~/torinvest-formation
 #   pm2 restart la-forge
+#   # puis Ctrl+Shift+R sur /course/index.html
+#   # console : typeof getNextUnlockHint  →  "function"
 #
 # Attention : -fsSL en minuscules (pas -fSSL). Avec pipe | bash, passer le chemin via bash -s --
 
