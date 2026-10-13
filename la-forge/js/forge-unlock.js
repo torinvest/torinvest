@@ -16,11 +16,20 @@
   }
 
   function moduleCompleted(moduleId) {
-    if (typeof getModuleProgress === "function") {
-      var p = getModuleProgress(moduleId);
-      return !!(p && p.completed);
-    }
-    return false;
+    if (typeof getModuleProgress !== "function") return false;
+    var p = getModuleProgress(moduleId) || {};
+    if (p.completed) return true;
+    // Recalcule si le flag completed est absent / faux mais le module est fini
+    var totalSteps = Number(p.totalSteps) || 12;
+    var stepsDone = Number(p.stepsDone) || 0;
+    if (stepsDone < totalSteps) return false;
+    var quizTotal = Number(p.quizTotal) || 0;
+    var quizScore = Number(p.quizScore) || 0;
+    if (quizTotal > 0 && quizScore < quizTotal * 0.7) return false;
+    var practiceTotal = Number(p.practiceTotal) || 0;
+    var practiceScore = Number(p.practiceScore) || 0;
+    if (practiceTotal > 0 && practiceScore < practiceTotal * 0.7) return false;
+    return true;
   }
 
   /**
