@@ -4,7 +4,8 @@
  */
 (function (global) {
   "use strict";
-  if (typeof global.isModuleUnlocked === "function") return;
+  // Toujours (re)binder l'API complète — un stub partiel (isModuleUnlocked seul)
+  // ne doit jamais bloquer getNextUnlockHint / getUnlockedModuleIds.
 
   var FORGE_UNLOCK_BATCH_SIZE = 3;
 
