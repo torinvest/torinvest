@@ -1,107 +1,132 @@
 #!/usr/bin/env bash
-# HOTFIX — force le déblocage lot 2 sur le VPS (index + forge-unlock à jour)
+# HOTFIX UNLOCK LOT 2 — one-shot VPS (index autonome + scripts injectés)
 #
-# Symptôme : 0/F1/F2 Validé mais F3+ masqués, teaser « Validez le lot actuel… »
-# Cause : public/course/index.html et/ou public/js/forge-unlock.js pas à jour sur le VPS
-#         (main a le fix depuis PR #204, mais le live servait encore l'ancien JS).
-#
-# VPS :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-UNLOCK-LOT2-NOW.sh" -o /tmp/hul.sh
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/hotfix-unlock-lot2-deploy-691a/deploy/vps/HOTFIX-UNLOCK-LOT2-NOW.sh" -o /tmp/hul.sh
 #   bash /tmp/hul.sh
-#   pm2 restart la-forge
 #
 set -euo pipefail
 
 APP_DIR="${1:-${APP_DIR:-$HOME/torinvest-formation}}"
-REF="${REF:-main}"
+REF="${REF:-cursor/hotfix-unlock-lot2-deploy-691a}"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
+STAMP=$(date +%s)
 
-echo "======== HOTFIX UNLOCK LOT 2 ========"
-echo "APP=$APP_DIR  REF=$REF"
+echo "======== HOTFIX UNLOCK LOT 2 (inline index) ========"
+echo "APP=$APP_DIR REF=$REF"
 
-if [[ ! -d "$APP_DIR/public/js" ]]; then
-  echo "ERREUR: $APP_DIR/public/js introuvable — lance sur le VPS (ubuntu@…)."
-  exit 1
-fi
+[[ -d "$APP_DIR/public/js" ]] || { echo "ERREUR: $APP_DIR/public/js introuvable"; exit 1; }
 
-# 1) Appliquer le pack unlock officiel
-curl -fsSL "$BASE/deploy/vps/apply-unlock-now.sh" -o /tmp/apply-unlock-now.sh
-bash /tmp/apply-unlock-now.sh "$APP_DIR"
-
-# 2) Re-forcer les 3 fichiers critiques (au cas où apply a un cache CDN)
 mkdir -p "$APP_DIR/public/js" "$APP_DIR/public/course"
+
 curl -fsSL "$BASE/la-forge/js/forge-unlock.js" -o "$APP_DIR/public/js/forge-unlock.js"
 curl -fsSL "$BASE/la-forge/js/course-index.js" -o "$APP_DIR/public/js/course-index.js"
-curl -fsSL "$BASE/deploy/vps/app-shells/course/index.html" -o "$APP_DIR/public/course/index.html"
+curl -fsSL "$BASE/la-forge/js/progress.js" -o "$APP_DIR/public/js/progress.js"
+curl -fsSL "$BASE/la-forge/js/course-data.js" -o "$APP_DIR/public/js/course-data.js"
 
-STAMP=$(date +%s)
-# Cache-bust fort sur l'index
-sed -i "s|forge-unlock\\.js[^\"']*|forge-unlock.js?v=lot2-${STAMP}|g" "$APP_DIR/public/course/index.html"
-sed -i "s|course-index\\.js[^\"']*|course-index.js?v=lot2-${STAMP}|g" "$APP_DIR/public/course/index.html"
-sed -i "s|progress\\.js[^\"']*|progress.js?v=lot2-${STAMP}|g" "$APP_DIR/public/course/index.html"
+INDEX="$APP_DIR/public/course/index.html"
+# Prefer shell officiel ; sinon garde l'existant et injecte
+if curl -fsSL "$BASE/deploy/vps/app-shells/course/index.html" -o "$INDEX.tmp"; then
+  mv "$INDEX.tmp" "$INDEX"
+else
+  echo "WARN: shell index distant KO — patch in-place"
+  [[ -f "$INDEX" ]] || { echo "ERREUR: $INDEX introuvable"; exit 1; }
+fi
+
+# Injecter scripts manquants avant </body>
+python3 - "$INDEX" "$STAMP" <<'PY'
+import re, sys
+from pathlib import Path
+p = Path(sys.argv[1])
+stamp = sys.argv[2]
+t = p.read_text(encoding="utf-8", errors="replace")
+
+def ensure(script_src_base, tag):
+    global t
+    if script_src_base.split("?")[0] in t and "course-index" not in script_src_base:
+        # rewrite cache bust for existing
+        t = re.sub(
+            re.escape(script_src_base.split("?")[0]) + r"[^\"']*",
+            script_src_base,
+            t,
+            count=1,
+        )
+        return
+    if script_src_base.split("?")[0] in t:
+        t = re.sub(
+            re.escape(script_src_base.split("?")[0]) + r"[^\"']*",
+            script_src_base,
+            t,
+            count=1,
+        )
+        return
+    # insert before </body>
+    t = t.replace("</body>", tag + "\n</body>", 1)
+
+needed = [
+    ("/js/progress.js", f'<script src="/js/progress.js?v=lot2i-{stamp}"></script>'),
+    ("/js/course-data.js", f'<script src="/js/course-data.js?v=lot2i-{stamp}"></script>'),
+    ("/js/forge-unlock.js", f'<script src="/js/forge-unlock.js?v=lot2i-{stamp}"></script>'),
+    ("/js/course-index.js", f'<script src="/js/course-index.js?v=lot2i-{stamp}"></script>'),
+]
+for base, tag in needed:
+    if base not in t:
+        print("inject", base)
+        t = t.replace("</body>", "  " + tag + "\n</body>", 1)
+    else:
+        t = re.sub(re.escape(base) + r"[^\"']*", f"{base}?v=lot2i-{stamp}", t, count=1)
+        print("cachebust", base)
+
+# unlock-banner si absent
+if 'id="unlock-banner"' not in t and 'id="overall-text"' in t:
+    t = t.replace(
+        'id="overall-text"',
+        'id="overall-text"',
+        1,
+    )
+    # after overall-text paragraph, inject banner sibling if possible
+    t = re.sub(
+        r'(<p[^>]*id="overall-text"[^>]*>.*?</p>)',
+        r'\1\n      <p id="unlock-banner" class="alert" style="margin-top:0.75rem;font-size:0.88rem;border-color:rgba(255,180,0,.35)"></p>',
+        t,
+        count=1,
+        flags=re.S,
+    )
+    print("inject unlock-banner")
+
+if 'id="module-list"' not in t:
+    print("ERREUR: module-list absent de index.html — page pas un index formation")
+    sys.exit(3)
+
+p.write_text(t, encoding="utf-8")
+print("OK index patched")
+PY
 
 echo ""
-echo "=== VERIF fichiers ==="
+echo "=== VERIF ==="
 FAIL=0
+grep -q 'computeMaxUnlockedIndex\|AUTO-CONTENUE' "$APP_DIR/public/js/course-index.js" && echo "OK course-index inline unlock" || { echo "FAIL course-index"; FAIL=1; }
+grep -q 'forge-unlock.js' "$INDEX" && echo "OK index → forge-unlock.js" || { echo "FAIL index sans forge-unlock"; FAIL=1; }
+grep -q 'course-index.js' "$INDEX" && echo "OK index → course-index.js" || { echo "FAIL index sans course-index"; FAIL=1; }
+grep -q 'module-list' "$INDEX" && echo "OK module-list" || { echo "FAIL module-list"; FAIL=1; }
+wc -c "$APP_DIR/public/js/course-index.js" "$APP_DIR/public/js/forge-unlock.js" "$INDEX"
+grep -nE 'script src=.*course-index|script src=.*forge-unlock|module-list|unlock-banner' "$INDEX" | head -20
 
-if grep -q 'if (typeof global.isModuleUnlocked === "function") return;' "$APP_DIR/public/js/forge-unlock.js"; then
-  echo "FAIL forge-unlock.js — early-return encore present (ancien fichier)"
-  FAIL=1
-else
-  echo "OK forge-unlock.js — API toujours exportée"
-fi
+[[ "$FAIL" -eq 0 ]] || exit 3
 
-if grep -q 'getNextUnlockHint' "$APP_DIR/public/js/forge-unlock.js"; then
-  echo "OK getNextUnlockHint exporté"
-else
-  echo "FAIL getNextUnlockHint manquant"
-  FAIL=1
-fi
-
-if grep -q 'forge-unlock.js' "$APP_DIR/public/course/index.html"; then
-  echo "OK course/index.html charge forge-unlock.js"
-else
-  echo "FAIL course/index.html SANS forge-unlock.js"
-  FAIL=1
-fi
-
-if grep -q 'hasUnlockHint\|BUG unlock' "$APP_DIR/public/js/course-index.js"; then
-  echo "OK course-index.js (diag lot2)"
-else
-  echo "FAIL course-index.js ancien"
-  FAIL=1
-fi
-
-wc -c "$APP_DIR/public/js/forge-unlock.js" \
-  "$APP_DIR/public/js/course-index.js" \
-  "$APP_DIR/public/course/index.html"
-
-if [[ "$FAIL" -ne 0 ]]; then
-  echo ""
-  echo "ECHEC verif — fichiers pas a jour"
-  exit 3
-fi
-
-# Restart si pm2 dispo
 if command -v pm2 >/dev/null 2>&1; then
   if pm2 describe la-forge >/dev/null 2>&1; then
-    pm2 restart la-forge
-    echo "OK pm2 restart la-forge"
+    pm2 restart la-forge && echo "OK pm2 restart la-forge"
   elif pm2 describe torinvest-formation >/dev/null 2>&1; then
-    pm2 restart torinvest-formation
-    echo "OK pm2 restart torinvest-formation"
-  else
-    echo "WARN: process pm2 la-forge introuvable — restart manuel"
+    pm2 restart torinvest-formation && echo "OK pm2 restart torinvest-formation"
   fi
 fi
 
 echo ""
 echo "======== DONE ========"
-echo "1) Ctrl+Shift+R sur https://app.torinvest-trading.com/course/index.html"
-echo "2) Console F12 :"
-echo "     typeof getNextUnlockHint     → doit etre \"function\""
-echo "     getUnlockedModuleIds().length → ≥ 6 si lot 1 Validé"
-echo "3) Tu dois voir F3 / F4 / F5"
+echo "1) Ouvre (fenêtre privée) :"
+echo "   https://app.torinvest-trading.com/course/index.html?unlock_debug=1"
+echo "2) Ctrl+Shift+R"
+echo "3) Tu dois voir la bannière : « N / 37 modules ouverts » avec N≥6 si lot 1 Validé"
+echo "4) F3 / F4 / F5 sous Partie I"
 echo ""
-echo "Si toujours 3 modules : colle le resultat de :"
-echo "  typeof isModuleUnlocked; typeof getNextUnlockHint; getUnlockedModuleIds && getUnlockedModuleIds();"
+echo "Console : ligne [La Forge unlock] open=…"
