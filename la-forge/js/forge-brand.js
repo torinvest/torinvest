@@ -215,6 +215,7 @@ function pickForgeWallpaper(path) {
     [/journal/, "bear-grind"],
     [/fondamental/, "bear-pour"],
     [/swing-analyses/, "bear-grind"],
+    [/macro-edge/, "bear-grind"],
     [/indicateurs-atlas/, "bull-quench"],
     [/psycho-atlas/, "bear"],
     [/styles-atlas/, "bear-pour"],
@@ -242,7 +243,7 @@ function initForgeAmbient() {
 
   // Plus présent sur dashboard + hubs membres principaux
   if (
-    /dashboard|start\.html|course\/index|course\/?$|atlas\.html|ict-atlas|styles-atlas|psycho-atlas|indicateurs-atlas|strategies|swing-analyses|journal|fondamental|calendar\.html|books|resources|coaching-fiche/.test(
+    /dashboard|start\.html|course\/index|course\/?$|atlas\.html|ict-atlas|styles-atlas|psycho-atlas|indicateurs-atlas|strategies|swing-analyses|macro-edge|journal|fondamental|calendar\.html|books|resources|coaching-fiche/.test(
       path
     )
   ) {
@@ -404,6 +405,7 @@ function initMemberHeader(active) {
     '<a href="https://app.torinvest-trading.com/indicateurs-atlas.html"' + (active === "indicateurs-atlas" ? ' class="active"' : "") + ">Indicateurs</a>" +
     '<a href="https://app.torinvest-trading.com/strategies.html"' + (active === "strategies" ? ' class="active"' : "") + ">Stratégies</a>" +
     '<a href="https://app.torinvest-trading.com/swing-analyses.html"' + (active === "swing-analyses" ? ' class="active"' : "") + ">Analyses</a>" +
+    '<a href="https://app.torinvest-trading.com/macro-edge.html"' + (active === "macro-edge" ? ' class="active"' : "") + ">Macro Edge</a>" +
     '<a href="https://app.torinvest-trading.com/books.html"' + (active === "books" ? ' class="active"' : "") + ">Livres</a>" +
     '<a href="https://app.torinvest-trading.com/resources.html"' + (active === "resources" ? ' class="active"' : "") + ">Ressources</a>" +
     '<a href="https://app.torinvest-trading.com/calendar.html"' + (active === "calendar" ? ' class="active"' : "") + ">Calendrier</a>" +
