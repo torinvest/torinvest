@@ -143,7 +143,8 @@ function createMacroEdgeRouter(options) {
     async (req, res) => {
       try {
         const cfg = store.loadConfig();
-        const { series } = await market.fetchAllSeries(cfg);
+        // dataDir requis pour Worker metals (historique OHLC sur disque)
+        const { series } = await market.fetchAllSeries(cfg, dataDir);
         const want = String(req.query.symbols || "")
           .split(",")
           .map((s) => s.trim().toUpperCase())
