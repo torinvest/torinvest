@@ -6,6 +6,7 @@
  *
  * Env :
  *   FRED_API_KEY (optionnel) — séries FRED (DXY, yields, breakeven)
+ *   FORGE_WORKER_URL / WORKER_URL — prix live XAU/XAG (TradingView → /market/blocks)
  *   FORGE_ADMIN_EMAILS — panneau config admin
  */
 "use strict";
@@ -88,11 +89,13 @@ function createMacroEdgeRouter(options) {
     requirePremium,
     (req, res) => {
       const cfg = store.loadConfig();
+      const { workerBase } = require("./macro-edge/workerAdapter");
       res.json({
         ok: true,
         module: "macro-edge",
-        version: "1.0.0-mvp-gold-desk",
+        version: "1.0.1-mvp-gold-desk",
         fredConfigured: !!String(process.env.FRED_API_KEY || "").trim(),
+        workerUrl: workerBase(),
         assets: Object.keys(cfg.assets || {}),
       });
     }

@@ -30,7 +30,7 @@ pull "$RAW/la-forge/js/forge-brand.js" "$APP_DIR/public/js/forge-brand.js"
 pull "$RAW/deploy/vps/formation-server/routes-macro-edge.js" "$APP_DIR/server-patches/routes-macro-edge.js"
 pull "$RAW/deploy/vps/wire-formation-server-patches.js" "$APP_DIR/wire-formation-server-patches.js"
 
-for f in config.js cache.js fredAdapter.js stooqAdapter.js demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js engine.js; do
+for f in config.js cache.js fredAdapter.js stooqAdapter.js yahooAdapter.js workerAdapter.js demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js engine.js; do
   pull "$RAW/deploy/vps/formation-server/macro-edge/${f}" "$APP_DIR/server-patches/macro-edge/${f}"
 done
 

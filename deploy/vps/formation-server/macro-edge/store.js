@@ -81,6 +81,7 @@ function createStore(dataDir) {
 
   return {
     root,
+    dataDir,
     loadConfig,
     saveConfig,
     appendHistory,
