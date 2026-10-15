@@ -33,7 +33,7 @@ pull_shell() {
 }
 
 echo "==> Shells HTML (public/)"
-for page in dashboard.html start.html calendar.html calendar-day.html login.html forgot-password.html account-password.html fondamental.html journal.html atlas.html ict-atlas.html styles-atlas.html psycho-atlas.html indicateurs-atlas.html strategies.html swing-analyses.html chart-exercises-admin.html books.html resources.html coaching-fiches.html coaching-fiche.html; do
+for page in dashboard.html start.html calendar.html calendar-day.html login.html forgot-password.html account-password.html fondamental.html journal.html atlas.html ict-atlas.html styles-atlas.html psycho-atlas.html indicateurs-atlas.html strategies.html swing-analyses.html macro-edge.html chart-exercises-admin.html books.html resources.html coaching-fiches.html coaching-fiche.html; do
   pull_shell "deploy/vps/app-shells/${page}" "public/${page}"
 done
 pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
@@ -41,9 +41,16 @@ pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
 echo "==> Patches serveur (server-patches/)"
 PATCHES_DIR="$APP_DIR/server-patches"
 mkdir -p "$PATCHES_DIR"
-for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js routes-coaching-lives.js routes-coaching-fiches.js forge-unlock-server.js forge-progress-rules.js routes-formation-auth.js routes-fondamental-bridge.js routes-journal-bridge.js routes-journal-trade-screens.js routes-atlas-bridge.js routes-books.js routes-live-resources.js fondamental-bridge-lib.js formation-users-lib.js accompagnement-worker-lib.js; do
+for f in routes-progress.js middleware-require-subscribed.js routes-calendar.js routes-coaching-lives.js routes-coaching-fiches.js forge-unlock-server.js forge-progress-rules.js routes-formation-auth.js routes-fondamental-bridge.js routes-journal-bridge.js routes-journal-trade-screens.js routes-atlas-bridge.js routes-books.js routes-live-resources.js routes-macro-edge.js fondamental-bridge-lib.js formation-users-lib.js accompagnement-worker-lib.js; do
   echo "  server-patches/$f"
   curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/${f}" -o "$PATCHES_DIR/${f}"
+done
+echo "==> Macro Edge lib (server-patches/macro-edge/)"
+ME_DIR="$PATCHES_DIR/macro-edge"
+mkdir -p "$ME_DIR"
+for f in config.js cache.js fredAdapter.js stooqAdapter.js demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js engine.js; do
+  echo "  server-patches/macro-edge/$f"
+  curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/macro-edge/${f}" -o "$ME_DIR/${f}"
 done
 echo "  server-patches/course-module-order.json"
 curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/course-module-order.json" \

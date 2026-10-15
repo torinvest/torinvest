@@ -67,6 +67,9 @@ function hasSwingAnalyses() {
 function hasChartExercises() {
   return /createChartExercisesRouter|routes-chart-exercises/.test(content);
 }
+function hasMacroEdge() {
+  return /createMacroEdgeRouter|routes-macro-edge/.test(content);
+}
 
 function extractDataDirFromProgressBlock(block) {
   if (!block) return "path.join(__dirname, \"data\")";
@@ -92,6 +95,7 @@ function managedBlock(dataDirExpr) {
     "const createModuleQaRouter = require(\"./server-patches/routes-module-qa\");",
     "const createSwingAnalysesRouter = require(\"./server-patches/routes-swing-analyses\");",
     "const createChartExercisesRouter = require(\"./server-patches/routes-chart-exercises\");",
+    "const createMacroEdgeRouter = require(\"./server-patches/routes-macro-edge\");",
     "const requireSubscribedForCourse = require(\"./server-patches/middleware-require-subscribed\");",
     "",
     "// Paywall Premium — avant express.static(\"public\")",
@@ -135,6 +139,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createChartExercisesRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createMacroEdgeRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -298,6 +308,55 @@ ensureCoachingFichesMounted();
 ensureModuleQaMounted();
 ensureSwingAnalysesMounted();
 ensureChartExercisesMounted();
+ensureMacroEdgeMounted();
+
+function ensureMacroEdgeMounted() {
+  if (
+    !/createChartExercisesRouter|createSwingAnalysesRouter|createModuleQaRouter|createCalendarRouter/.test(
+      content
+    )
+  ) {
+    return;
+  }
+  if (hasMacroEdge()) {
+    console.log("OK — macro-edge déjà monté.");
+    return;
+  }
+  if (!/createMacroEdgeRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createChartExercisesRouter = require\(["']\.\/server-patches\/routes-chart-exercises["']\);)/,
+      '$1\nconst createMacroEdgeRouter = require("./server-patches/routes-macro-edge");'
+    );
+    if (replaced !== content) {
+      content = replaced;
+    } else {
+      content = content.replace(
+        /(const createSwingAnalysesRouter = require\([^)]+\);)/,
+        '$1\nconst createMacroEdgeRouter = require("./server-patches/routes-macro-edge");'
+      );
+    }
+  }
+  const cexUseRe = /app\.use\(\s*createChartExercisesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const swaUseRe = /app\.use\(\s*createSwingAnalysesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const anchorMatch = content.match(cexUseRe) || content.match(swaUseRe);
+  if (!anchorMatch) {
+    console.warn("WARN — point d'insertion macro-edge introuvable.");
+    return;
+  }
+  const dataDirExpr =
+    (anchorMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const use = [
+    "app.use(",
+    "  createMacroEdgeRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + use);
+  console.log("Macro Edge router ajouté.");
+}
 
 function ensureChartExercisesMounted() {
   if (!/createSwingAnalysesRouter|createModuleQaRouter|createCalendarRouter/.test(content)) {

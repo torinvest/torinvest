@@ -49,6 +49,7 @@ JS_FILES=(
   forge-indicateurs-atlas.js
   forge-strategies.js
   forge-swing-analyses.js
+  forge-macro-edge.js
   forge-chart-exercises-admin.js
   books-data.js
   forge-books.js
@@ -71,6 +72,7 @@ CSS_FILES=(
   forge-indicateurs-atlas.css
   forge-strategies.css
   forge-swing-analyses.css
+  forge-macro-edge.css
   forge-coaching-fiches.css
   forge-module-tabs.css
   forge-lesson-video.css
