@@ -23,9 +23,10 @@ REF=cursor/macro-edge-smt-mvp-691a curl -fsSL \
 | Variable | Rôle |
 |----------|------|
 | `FRED_API_KEY` | Séries FRED gratuites (DXY proxy, US02Y, US10Y, REAL10Y, BE10Y). Sans clé → fallback DEMO pour ces séries. |
+| `FORGE_WORKER_URL` | Worker TORINVEST (défaut `https://morning-hall-d8f6.onzerimes.workers.dev`) — prix live XAU/XAG via `/market/blocks` (TradingView). |
 | `FORGE_ADMIN_EMAILS` | Accès `PUT /api/macro-edge/config` et historique |
 
-XAUUSD / XAGUSD : Stooq daily (gratuit, sans clé). Si Stooq échoue → DEMO clairement labellisé.
+**XAUUSD / XAGUSD** : Worker TORINVEST (live) + historique daily accumulé sur disque. Seed initial via Yahoo/FRED/Stooq si l’historique est vide. Pas besoin de clé supplémentaire si le worker reçoit déjà les webhooks TradingView.
 
 ## API
 

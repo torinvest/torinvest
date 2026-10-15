@@ -19,7 +19,10 @@ async function buildGoldDeskSnapshot(store) {
   const ttl = (config.cacheTtlMs && config.cacheTtlMs.snapshot) || 3 * 60 * 1000;
 
   return cache.getOrSet("snapshot:gold_desk", ttl, async () => {
-    const { series, errors, updatedAt } = await market.fetchAllSeries(config);
+    const { series, errors, updatedAt } = await market.fetchAllSeries(
+      config,
+      store.dataDir
+    );
     const symbols = config.goldDeskSymbols || Object.keys(series);
     const lookback = (config.correlation && config.correlation.defaultLookback) || 50;
     const matrix = correlationMatrix(series, symbols, lookback);

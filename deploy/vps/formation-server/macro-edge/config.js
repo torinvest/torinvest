@@ -8,8 +8,19 @@ const DEFAULT_CONFIG = {
   version: 1,
   mode: "gold_desk",
   assets: {
-    XAUUSD: { label: "Gold", kind: "metal", source: "stooq", stooq: "xauusd" },
-    XAGUSD: { label: "Silver", kind: "metal", source: "stooq", stooq: "xagusd" },
+    XAUUSD: {
+      label: "Gold",
+      kind: "metal",
+      source: "worker",
+      stooq: "xauusd",
+      fredSeed: "GOLDAMGBD228NLBM",
+    },
+    XAGUSD: {
+      label: "Silver",
+      kind: "metal",
+      source: "worker",
+      stooq: "xagusd",
+    },
     DXY: { label: "US Dollar Index", kind: "macro", source: "fred", fred: "DTWEXBGS" },
     US02Y: { label: "US 2Y Yield", kind: "yield", source: "fred", fred: "DGS2" },
     US10Y: { label: "US 10Y Yield", kind: "yield", source: "fred", fred: "DGS10" },
