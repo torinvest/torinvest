@@ -1,0 +1,306 @@
+#!/usr/bin/env bash
+# HOTFIX F3 — place la vidéo JUSTE AU-DESSUS de REPLAY ÉLITE (même pattern F2).
+#
+# Prérequis : MP4 déjà en place :
+#   $APP_DIR/public/course/videos/f03-timeframes.mp4
+#   $APP_DIR/private/course/videos/f03-timeframes.mp4
+#
+#   REF=cursor/module-f03-video-691a bash /tmp/hf03.sh
+set -euo pipefail
+
+APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
+VIDEO_NAME="${VIDEO_NAME:-f03-timeframes.mp4}"
+VIDEO_URL="/course/videos/$VIDEO_NAME"
+CAPTION="${CAPTION:-TORINVEST La Forge - F3 Multi-timeframe & narrative}"
+PUBLIC_VID="$APP_DIR/public/course/videos/$VIDEO_NAME"
+PRIVATE_VID="$APP_DIR/private/course/videos/$VIDEO_NAME"
+
+echo "======== HOTFIX F03 VIDEO ========"
+echo "APP=$APP_DIR"
+
+if [[ ! -f "$PUBLIC_VID" ]]; then
+  echo "ERREUR : $PUBLIC_VID introuvable — lance d'abord DEPLOY-F03-VIDEO-FROM-FILE.sh"
+  exit 1
+fi
+if [[ ! -f "$PRIVATE_VID" ]]; then
+  mkdir -p "$(dirname "$PRIVATE_VID")"
+  cp -a "$PUBLIC_VID" "$PRIVATE_VID"
+fi
+
+HTML=""
+for candidate in \
+  "$APP_DIR/private/course/f03-timeframes.html" \
+  "$APP_DIR/public/course/f03-timeframes.html"
+do
+  [[ -f "$candidate" ]] && HTML="$candidate" && break
+done
+[[ -z "$HTML" ]] && HTML=$(find "$APP_DIR" -type f -iname 'f03-timeframes.html' 2>/dev/null | head -1 || true)
+if [[ -z "$HTML" || ! -f "$HTML" ]]; then
+  echo "ERREUR: f03-timeframes.html introuvable"
+  exit 1
+fi
+
+F01_HTML=""
+for candidate in \
+  "$APP_DIR/private/course/f01-marches.html" \
+  "$APP_DIR/public/course/f01-marches.html"
+do
+  [[ -f "$candidate" ]] && F01_HTML="$candidate" && break
+done
+
+mkdir -p "$APP_DIR/public/css"
+if [[ ! -f "$APP_DIR/public/css/forge-lesson-video.css" ]]; then
+  curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/la-forge/css/forge-lesson-video.css" \
+    -o "$APP_DIR/public/css/forge-lesson-video.css" || true
+fi
+
+echo "HTML : $HTML"
+STAMP=$(date +%Y%m%d-%H%M%S)
+cp -a "$HTML" "$HTML.bak-f03vid-$STAMP"
+echo "Backup : $HTML.bak-f03vid-$STAMP"
+
+echo ""
+echo "=== DIAG avant ==="
+grep -nEi 'elite-replay|chart-replay|REPLAY|ÉLITE|ELITE|f03-video|f03-timeframes\.mp4|FORGE_F03|<h[1-3][^>]*>' "$HTML" | head -80 || true
+echo "=== fin diag ==="
+echo ""
+
+python3 - "$HTML" "${F01_HTML:-/dev/null}" "$VIDEO_URL" "$CAPTION" <<'PY'
+import re
+import sys
+import unicodedata
+from pathlib import Path
+
+html_path = Path(sys.argv[1])
+f01_path = Path(sys.argv[2])
+video_url = sys.argv[3]
+caption = sys.argv[4]
+
+text = html_path.read_text(encoding="utf-8", errors="replace")
+f01 = f01_path.read_text(encoding="utf-8", errors="replace") if f01_path.is_file() else ""
+
+def fold(s: str) -> str:
+    s = unicodedata.normalize("NFKD", s)
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return s.upper()
+
+ms, me = "<!-- FORGE_F03_VIDEO_START -->", "<!-- FORGE_F03_VIDEO_END -->"
+
+inner = f"""{ms}
+<figure class="forge-lesson-video forge-lesson-video--protected" id="f03-video">
+  <video
+    controls
+    playsinline
+    preload="metadata"
+    controlslist="nodownload noplaybackrate"
+    disablepictureinpicture
+    oncontextmenu="return false"
+  >
+    <source src="{video_url}" type="video/mp4" />
+    Votre navigateur ne lit pas la video HTML5.
+  </video>
+  <figcaption>{caption}</figcaption>
+</figure>
+{me}"""
+
+wrap_open = '<div class="media-box dashed" data-video-id="f03-timeframes">'
+wrap_close = "</div>"
+m_f01 = re.search(
+    r'<(div|section|aside|figure|article)(\s[^>]*data-video-id=["\']f01-microstructure["\'][^>]*)>',
+    f01,
+    flags=re.I,
+)
+if m_f01:
+    tag, attrs = m_f01.group(1), m_f01.group(2)
+    attrs = re.sub(
+        r'data-video-id=["\'][^"\']+["\']',
+        'data-video-id="f03-timeframes"',
+        attrs,
+        count=1,
+        flags=re.I,
+    )
+    attrs = re.sub(r'\sId=["\'][^"\']*["\']', "", attrs, flags=re.I)
+    wrap_open = f"<{tag}{attrs}>"
+    wrap_close = f"</{tag}>"
+    print("F1 wrapper:", wrap_open[:160])
+
+section = (
+    "\n"
+    '<section class="forge-lesson-video-section" id="f03-video-section">\n'
+    '<h2 class="forge-lesson-video-heading">Video — Multi-timeframe &amp; narrative</h2>\n'
+    '<p class="forge-lesson-video-lead">HTF → LTF, fractal et lecture narrative du prix.</p>\n'
+    f"{wrap_open}\n{inner}\n{wrap_close}\n"
+    "</section>\n"
+)
+
+# Purge anciens players F3
+text = re.sub(re.escape(ms) + r".*?" + re.escape(me), "", text, flags=re.S)
+text = re.sub(
+    r'<figure[^>]*id=["\']f03-video["\'][^>]*>.*?</figure>',
+    "",
+    text,
+    flags=re.I | re.S,
+)
+text = re.sub(
+    r'<section[^>]*(?:id=["\']f03-video[^"\']*["\']|data-video-id=["\']f03-[^"\']*["\']|class=["\'][^"\']*forge-lesson-video(?:-slot|-section)?[^"\']*["\'])[^>]*>[\s\S]*?</section\s*>',
+    "",
+    text,
+    flags=re.I,
+)
+text = re.sub(
+    r'<(div|aside|article)(\s[^>]*(?:data-video-id=["\']f03-[^"\']*["\']|id=["\']f03-video[^"\']*["\'])[^>]*)>[\s\S]*?</\1\s*>',
+    "",
+    text,
+    flags=re.I,
+)
+text = re.sub(
+    r'<h2[^>]*>\s*(?:Video|Vidéo)\s*[—\-]\s*(?:Multi-timeframe|MTF|Narrative)[^<]*</h2>\s*',
+    "",
+    text,
+    flags=re.I,
+)
+text = re.sub(r"\n{3,}", "\n\n", text)
+
+insert_at = None
+how = None
+
+def find_container_before(pos, max_back=800):
+    window_start = max(0, pos - max_back)
+    chunk = text[window_start:pos]
+    opens = list(re.finditer(r"<(section|div|article)\b[^>]*>", chunk, flags=re.I))
+    if not opens:
+        return None
+    return window_start + opens[-1].start()
+
+m = re.search(
+    r"<(section|div|article)\b[^>]*class=[\"'][^\"']*\belite-replay\b[^\"']*[\"'][^>]*>",
+    text,
+    flags=re.I,
+)
+if m:
+    insert_at = m.start()
+    how = "classe .elite-replay"
+
+if insert_at is None:
+    m = re.search(
+        r"<(section|div|article)\b[^>]*class=[\"'][^\"']*\bchart-replay-section\b[^\"']*[\"'][^>]*>",
+        text,
+        flags=re.I,
+    )
+    if m:
+        insert_at = m.start()
+        how = "classe .chart-replay-section"
+
+if insert_at is None:
+    m = re.search(r"REPLAY\s*[ÉE]LITE", text, flags=re.I)
+    if not m:
+        folded = fold(text)
+        fm = re.search(r"REPLAY\s*ELITE", folded)
+        if fm:
+            m = re.search(r"REPLAY\s*E\u0301?LITE", text, flags=re.I)
+            if not m:
+                m = re.search(r"REPLAY\s*.LITE", text, flags=re.I)
+    if m:
+        cont = find_container_before(m.start())
+        insert_at = cont if cont is not None else m.start()
+        how = "texte REPLAY ELITE"
+
+if insert_at is None:
+    m = re.search(
+        r"<(section|div|article)\b[^>]*id=[\"'][^\"']*(?:elite-replay|replay-elite|chart-replay)[^\"']*[\"'][^>]*>",
+        text,
+        flags=re.I,
+    )
+    if m:
+        insert_at = m.start()
+        how = "id elite/replay"
+
+if insert_at is None:
+    for hm in re.finditer(r"<h[2-4]\b[^>]*>[\s\S]{0,160}?</h[2-4]>", text, flags=re.I):
+        ft = fold(hm.group(0))
+        if "ELITE" in ft and "REPLAY" in ft:
+            cont = find_container_before(hm.start())
+            insert_at = cont if cont is not None else hm.start()
+            how = "titre h* REPLAY+ELITE"
+            break
+
+# Fallback : avant Exercice / Evaluation
+if insert_at is None:
+    for pat, label in (
+        (r"<h[2-4]\b[^>]*>[\s\S]{0,80}?Exercice", "titre Exercice"),
+        (r"<h[2-4]\b[^>]*>[\s\S]{0,80}?valuat", "titre Evaluation"),
+        (r"<h[2-4]\b[^>]*>[\s\S]{0,80}?Cas\s", "titre Cas"),
+    ):
+        m = re.search(pat, text, flags=re.I)
+        if m:
+            cont = find_container_before(m.start())
+            insert_at = cont if cont is not None else m.start()
+            how = label
+            break
+
+if insert_at is None:
+    print("ERREUR: point d'insertion introuvable", file=sys.stderr)
+    for i, line in enumerate(text.splitlines(), 1):
+        if re.search(
+            r"<h[1-3]|elite|replay|chart-replay|Exercice|Objectifs|Cas |Évaluation|Evaluation",
+            line,
+            flags=re.I,
+        ):
+            print(f"  L{i}: {line.strip()[:180]}", file=sys.stderr)
+    sys.exit(2)
+
+text = text[:insert_at] + section + text[insert_at:]
+print(f"Action : insert ({how}) @ char {insert_at}")
+
+# CSS link
+if "forge-lesson-video.css" not in text:
+    if re.search(r"</head>", text, flags=re.I):
+        text = re.sub(
+            r"</head>",
+            '  <link rel="stylesheet" href="/css/forge-lesson-video.css" />\n</head>',
+            text,
+            count=1,
+            flags=re.I,
+        )
+        print("CSS forge-lesson-video.css injecté")
+
+html_path.write_text(text, encoding="utf-8")
+print("OK écrit:", html_path)
+
+# Sync private ↔ public shell si les deux existent
+pub = Path(str(html_path).replace("/private/course/", "/public/course/"))
+priv = Path(str(html_path).replace("/public/course/", "/private/course/"))
+if html_path.resolve() != pub.resolve() and pub.parent.is_dir():
+    pub.write_text(text, encoding="utf-8")
+    print("Sync →", pub)
+if html_path.resolve() != priv.resolve() and priv.parent.is_dir():
+    priv.write_text(text, encoding="utf-8")
+    print("Sync →", priv)
+
+if text.count('id="f03-video"') != 1:
+    print("WARN: nb #f03-video =", text.count('id="f03-video"'), file=sys.stderr)
+if "f03-timeframes.mp4" not in text and video_url.split("/")[-1] not in text:
+    print("ERREUR: URL vidéo absente du HTML", file=sys.stderr)
+    sys.exit(3)
+print("OK — F3 video wired")
+PY
+
+PUBLIC_HTML="$APP_DIR/public/course/f03-timeframes.html"
+PRIVATE_HTML="$APP_DIR/private/course/f03-timeframes.html"
+[[ -f "$PRIVATE_HTML" ]] && HTML="$PRIVATE_HTML"
+[[ -f "$PUBLIC_HTML" ]] || true
+
+echo ""
+echo "Vérif :"
+grep -nEi 'f03-timeframes\.mp4|FORGE_F03|f03-video-section|elite-replay|REPLAY' "$HTML" | head -40 || true
+ls -lh "$PUBLIC_VID" "$PRIVATE_VID"
+
+if ! grep -q "f03-timeframes.mp4\|$VIDEO_NAME" "$HTML"; then
+  echo "ERREUR : vidéo absente du HTML"
+  exit 3
+fi
+
+echo ""
+echo "OK — player F3 protégé branché."
+echo "→ Hard refresh : https://app.torinvest-trading.com/course/f03-timeframes.html"
+echo "======== DONE ========"
