@@ -16,10 +16,16 @@
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/macro-edge-fx-desk-691a}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
-
-echo "======== HOTFIX MACRO EDGE 502 ($REF) ========"
+# Pin commit (évite 404 raw / branche stale). Override: PIN=... ou REF=...
+PIN="${PIN:-3f19969e636f503c0c0a657f4d8049242e07119e}"
+REF="${REF:-}"
+if [[ -n "$REF" ]]; then
+  RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
+  echo "======== HOTFIX MACRO EDGE 502 (REF=$REF) ========"
+else
+  RAW="https://raw.githubusercontent.com/torinvest/torinvest/${PIN}"
+  echo "======== HOTFIX MACRO EDGE 502 (PIN=$PIN) ========"
+fi
 echo "APP_DIR=$APP_DIR"
 
 mkdir -p \
@@ -71,24 +77,30 @@ cp "$APP_DIR/server.js" "$BAK"
 echo ""
 echo "==> Backup → $BAK"
 
-# 3) Pull patches complets (dont CB / policy)
+# 3) CRITIQUES d'abord (débloque le crash PM2), puis le reste
+ME="$APP_DIR/server-patches/macro-edge"
 echo ""
-echo "==> Pull Macro Edge + wire helpers"
+echo "==> Pull fichiers critiques (centralBanks / policy / engine / routes)"
+pull "$RAW/deploy/vps/formation-server/macro-edge/centralBanks.js" "$ME/centralBanks.js"
+pull "$RAW/deploy/vps/formation-server/macro-edge/policyDifferentials.js" "$ME/policyDifferentials.js"
+pull "$RAW/deploy/vps/formation-server/macro-edge/engine.js" "$ME/engine.js"
 pull "$RAW/deploy/vps/formation-server/routes-macro-edge.js" \
   "$APP_DIR/server-patches/routes-macro-edge.js"
+
+echo ""
+echo "==> Pull reste Macro Edge + wire helpers"
 pull "$RAW/deploy/vps/wire-formation-server-patches.js" \
-  "$APP_DIR/wire-formation-server-patches.js"
+  "$APP_DIR/wire-formation-server-patches.js" || echo "WARN wire script"
 pull "$RAW/deploy/vps/repair-server-broken-wire.js" \
-  "$APP_DIR/deploy/vps/repair-server-broken-wire.js"
-pull "$RAW/deploy/vps/app-shells/macro-edge.html" "$APP_DIR/public/macro-edge.html"
-pull "$RAW/la-forge/js/forge-macro-edge.js" "$APP_DIR/public/js/forge-macro-edge.js"
-pull "$RAW/la-forge/css/forge-macro-edge.css" "$APP_DIR/public/css/forge-macro-edge.css"
+  "$APP_DIR/deploy/vps/repair-server-broken-wire.js" || echo "WARN repair script"
+pull "$RAW/deploy/vps/app-shells/macro-edge.html" "$APP_DIR/public/macro-edge.html" || true
+pull "$RAW/la-forge/js/forge-macro-edge.js" "$APP_DIR/public/js/forge-macro-edge.js" || true
+pull "$RAW/la-forge/css/forge-macro-edge.css" "$APP_DIR/public/css/forge-macro-edge.css" || true
 
 for f in config.js cache.js fredAdapter.js stooqAdapter.js yahooAdapter.js workerAdapter.js \
-  demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js \
-  store.js engine.js centralBanks.js policyDifferentials.js; do
-  pull "$RAW/deploy/vps/formation-server/macro-edge/${f}" \
-    "$APP_DIR/server-patches/macro-edge/${f}"
+  demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js; do
+  curl -fsSL "$RAW/deploy/vps/formation-server/macro-edge/${f}" -o "$ME/${f}" \
+    && echo "← $f" || echo "WARN skip $f"
 done
 
 # 4) Réparer wire cassé connu
