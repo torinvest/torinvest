@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Déploie TORINVEST Macro Edge — SMT Monitor (Gold Desk + FX Desk).
 #
-#   REF=cursor/macro-edge-fx-desk-691a curl -fsSL \
-#     https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-MACRO-EDGE.sh \
-#     -o /tmp/d-me.sh && REF=cursor/macro-edge-fx-desk-691a bash /tmp/d-me.sh
+#   curl -fsSL \
+#     https://raw.githubusercontent.com/torinvest/torinvest/cursor/hotfix-macro-edge-502-691a/deploy/vps/DEPLOY-MACRO-EDGE.sh \
+#     -o /tmp/d-me.sh && bash /tmp/d-me.sh
+#
+#   (éviter REF=... curl "...${REF}..." → bash vide ${REF} → 404)
 #
 # Env optionnelle sur le VPS (PM2) :
 #   FRED_API_KEY=...   # gratuit sur https://fred.stlouisfed.org/docs/api/api_key.html

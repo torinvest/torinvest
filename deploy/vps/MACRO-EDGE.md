@@ -14,9 +14,9 @@ Dashboard pédagogique Premium : régime macro or / dollar / taux / FX, banques 
 ## Déploiement VPS
 
 ```bash
-REF=cursor/macro-edge-fx-desk-691a curl -fsSL \
-  "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-MACRO-EDGE.sh" \
-  -o /tmp/d-me.sh && REF=cursor/macro-edge-fx-desk-691a bash /tmp/d-me.sh
+curl -fsSL \
+  "https://raw.githubusercontent.com/torinvest/torinvest/cursor/hotfix-macro-edge-502-691a/deploy/vps/DEPLOY-MACRO-EDGE.sh" \
+  -o /tmp/d-me.sh && bash /tmp/d-me.sh
 ```
 
 ### Si nginx renvoie **502 Bad Gateway** (site entier down)
