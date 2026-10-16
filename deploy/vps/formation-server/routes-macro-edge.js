@@ -13,10 +13,27 @@
 
 const express = require("express");
 const path = require("path");
-const { createStore } = require("./macro-edge/store");
-const { buildSnapshot } = require("./macro-edge/engine");
-const cache = require("./macro-edge/cache");
-const market = require("./macro-edge/marketDataProvider");
+
+/**
+ * Chargement défensif — un MODULE_NOT_FOUND ne doit PAS crasher tout la-forge (nginx 502).
+ */
+let createStore;
+let buildSnapshot;
+let cache;
+let market;
+let macroEdgeLoadError = null;
+try {
+  createStore = require("./macro-edge/store").createStore;
+  buildSnapshot = require("./macro-edge/engine").buildSnapshot;
+  cache = require("./macro-edge/cache");
+  market = require("./macro-edge/marketDataProvider");
+} catch (e) {
+  macroEdgeLoadError = e;
+  console.error(
+    "[macro-edge] load failed — router dégradé (site reste up):",
+    e && e.message ? e.message : e
+  );
+}
 
 function normalizeEmail(email) {
   return String(email || "")
@@ -66,12 +83,38 @@ function parseDesk(q) {
 function createMacroEdgeRouter(options) {
   const opts = options || {};
   const requireAuth = opts.requireAuth;
-  if (typeof requireAuth !== "function") {
-    throw new Error("createMacroEdgeRouter: requireAuth middleware required");
+  const router = express.Router();
+
+  // Ne jamais throw ici : un throw au boot = PM2 crash loop = 502 nginx.
+  if (macroEdgeLoadError) {
+    console.error(
+      "[macro-edge] monté en mode dégradé:",
+      macroEdgeLoadError.message || macroEdgeLoadError
+    );
+    router.use("/api/macro-edge", (req, res) => {
+      res.status(503).json({
+        error: "macro_edge_unavailable",
+        message: String(macroEdgeLoadError.message || macroEdgeLoadError),
+      });
+    });
+    return router;
   }
+
+  if (typeof requireAuth !== "function") {
+    console.error(
+      "[macro-edge] requireAuth manquant — router dégradé (pas de crash boot)"
+    );
+    router.use("/api/macro-edge", (req, res) => {
+      res.status(503).json({
+        error: "macro_edge_misconfigured",
+        message: "requireAuth middleware required",
+      });
+    });
+    return router;
+  }
+
   const dataDir = opts.dataDir || path.join(__dirname, "..", "data");
   const store = createStore(dataDir);
-  const router = express.Router();
 
   function requirePremium(req, res, next) {
     if (!isSubscribed(req)) {

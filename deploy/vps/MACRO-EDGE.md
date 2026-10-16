@@ -22,10 +22,12 @@ REF=cursor/macro-edge-fx-desk-691a curl -fsSL \
 ### Si nginx renvoie **502 Bad Gateway** (site entier down)
 
 ```bash
-REF=cursor/macro-edge-fx-desk-691a curl -fsSL \
-  "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/HOTFIX-MACRO-EDGE-502.sh" \
-  -o /tmp/hotfix-me-502.sh && REF=cursor/macro-edge-fx-desk-691a bash /tmp/hotfix-me-502.sh
+curl -fsSL \
+  "https://raw.githubusercontent.com/torinvest/torinvest/cursor/hotfix-macro-edge-502-691a/deploy/vps/HOTFIX-MACRO-EDGE-502.sh" \
+  -o /tmp/hotfix-me-502.sh && bash /tmp/hotfix-me-502.sh
 ```
+
+> ⚠️ Ne pas écrire `REF=... curl "...${REF}..."` : bash développe `${REF}` **avant** l’assignment → URL vide → **404**.
 
 Cause fréquente : `engine.js` charge `centralBanks.js` / `policyDifferentials.js` absents, ou `server.js` corrompu par le wire → PM2 crash loop.
 

@@ -6,10 +6,12 @@
 #   - wire a corrompu server.js (syntaxe)
 #   - PM2 en crash loop
 #
-# Sur le VPS :
-#   REF=cursor/macro-edge-fx-desk-691a curl -fsSL \
-#     "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/HOTFIX-MACRO-EDGE-502.sh" \
-#     -o /tmp/hotfix-me-502.sh && REF=cursor/macro-edge-fx-desk-691a bash /tmp/hotfix-me-502.sh
+# Sur le VPS (URL en dur — NE PAS écrire REF=... curl "...${REF}..." :
+#   bash développe ${REF} AVANT l'export → URL vide → 404) :
+#
+#   curl -fsSL \
+#     "https://raw.githubusercontent.com/torinvest/torinvest/cursor/hotfix-macro-edge-502-691a/deploy/vps/HOTFIX-MACRO-EDGE-502.sh" \
+#     -o /tmp/hotfix-me-502.sh && bash /tmp/hotfix-me-502.sh
 #
 set -euo pipefail
 
@@ -34,9 +36,13 @@ pull() {
 
 # 1) Diagnostics
 echo ""
-echo "==> Diagnostic PM2 / syntaxe"
+echo "==> Diagnostic PM2 / syntaxe / dernières erreurs"
 source ~/.profile 2>/dev/null || true
 pm2 list 2>/dev/null | head -30 || true
+echo "--- pm2 error log (la-forge) ---"
+pm2 logs la-forge --err --lines 40 --nostream 2>/dev/null || \
+  pm2 logs torinvest-formation --err --lines 40 --nostream 2>/dev/null || true
+echo "---"
 if [[ -f "$APP_DIR/server.js" ]]; then
   if node --check "$APP_DIR/server.js" 2>/tmp/me-server-check.err; then
     echo "OK — server.js syntaxe"
