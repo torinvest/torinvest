@@ -11,16 +11,23 @@ const {
   computeGoldDriver,
   computeUsdDriver,
   computeRateDecomposition,
-  computeFxDrivers,
 } = require("./drivers");
-const {
-  buildAlerts,
-  explainMarket,
-  buildFxAlerts,
-  explainFxMarket,
-} = require("./alerts");
-const { buildCentralBankWatch } = require("./centralBanks");
-const { buildPolicyDifferentials } = require("./policyDifferentials");
+const { buildAlerts, explainMarket } = require("./alerts");
+
+/** FX-only libs — lazy pour ne pas crasher Gold Desk / tout le serveur si fichiers absents. */
+function loadFxLibs() {
+  const { buildFxAlerts, explainFxMarket } = require("./alerts");
+  const { buildCentralBankWatch } = require("./centralBanks");
+  const { buildPolicyDifferentials } = require("./policyDifferentials");
+  const { computeFxDrivers } = require("./drivers");
+  return {
+    buildFxAlerts,
+    explainFxMarket,
+    buildCentralBankWatch,
+    buildPolicyDifferentials,
+    computeFxDrivers,
+  };
+}
 
 function seriesMeta(series) {
   return Object.fromEntries(
@@ -158,6 +165,17 @@ async function buildGoldDeskSnapshot(store) {
 async function buildFxDeskSnapshot(store) {
   const config = store.loadConfig();
   const ttl = (config.cacheTtlMs && config.cacheTtlMs.snapshot) || 3 * 60 * 1000;
+  let fx;
+  try {
+    fx = loadFxLibs();
+  } catch (e) {
+    const err = new Error(
+      "FX Desk modules missing (centralBanks/policyDifferentials) — " +
+        String(e.message || e)
+    );
+    err.code = "fx_modules_missing";
+    throw err;
+  }
 
   return cache.getOrSet("snapshot:fx_desk", ttl, async () => {
     const fxCorr = config.fxCorrelation || {};
@@ -188,13 +206,13 @@ async function buildFxDeskSnapshot(store) {
       )
     );
 
-    const centralBankWatch = buildCentralBankWatch(config);
-    const policyDifferentials = buildPolicyDifferentials(
+    const centralBankWatch = fx.buildCentralBankWatch(config);
+    const policyDifferentials = fx.buildPolicyDifferentials(
       centralBankWatch,
       config.policyDiffPairs
     );
-    const fxDrivers = computeFxDrivers(series, centralBankWatch);
-    const alerts = buildFxAlerts(series, config, smt, policyDifferentials);
+    const fxDrivers = fx.computeFxDrivers(series, centralBankWatch);
+    const alerts = fx.buildFxAlerts(series, config, smt, policyDifferentials);
 
     // Niveaux affichés : paires FX + DXY + yields (ordre pédagogique)
     const levelOrder = config.fxDeskSymbols || Object.keys(series);
@@ -237,7 +255,7 @@ async function buildFxDeskSnapshot(store) {
         "FX Desk utilise le DXY Worker (pas le proxy FRED Gold Desk).",
     };
 
-    snapshot.explain = explainFxMarket(snapshot);
+    snapshot.explain = fx.explainFxMarket(snapshot);
 
     try {
       store.appendHistory("snapshots", {
