@@ -44,6 +44,8 @@ for f in \
   server-patches/routes-macro-edge.js \
   server-patches/macro-edge/engine.js \
   server-patches/macro-edge/workerAdapter.js \
+  server-patches/macro-edge/centralBanks.js \
+  server-patches/macro-edge/policyDifferentials.js \
   public/macro-edge.html \
   public/js/forge-macro-edge.js \
   public/css/forge-macro-edge.css
