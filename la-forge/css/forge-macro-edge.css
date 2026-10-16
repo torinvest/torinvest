@@ -1,4 +1,4 @@
-/* TORINVEST Macro Edge — Gold Desk MVP */
+/* TORINVEST Macro Edge — Gold Desk + FX Desk */
 
 .me-wrap {
   max-width: 1180px;
@@ -415,6 +415,94 @@
   border-radius: 10px;
 }
 
+/* Central Bank Watch */
+.me-cb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.65rem;
+}
+.me-cb-card {
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  background: rgba(0, 0, 0, 0.22);
+}
+.me-cb-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.me-cb-head strong {
+  color: var(--gold, #ffd700);
+  letter-spacing: 0.04em;
+  font-size: 0.9rem;
+}
+.me-cb-ccy {
+  font-size: 0.72rem;
+  color: var(--muted, #9aa3b2);
+}
+.me-cb-name {
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  color: var(--muted, #9aa3b2);
+}
+.me-cb-bias {
+  margin-top: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.me-cb-bias.hawk { color: #e07a6a; }
+.me-cb-bias.dove { color: #5eead4; }
+.me-cb-bias.neu { color: #9aa3b2; }
+.me-cb-meta {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--muted, #9aa3b2);
+}
+.me-cb-note {
+  margin-top: 0.4rem;
+  font-size: 0.68rem;
+  color: var(--muted, #9aa3b2);
+  line-height: 1.4;
+  font-style: italic;
+}
+
+/* Policy differentials */
+.me-diff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.me-diff-row {
+  display: grid;
+  grid-template-columns: 6.5rem 9rem minmax(10rem, 1fr);
+  gap: 0.35rem 0.75rem;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.82rem;
+  color: var(--muted, #9aa3b2);
+}
+.me-diff-row .pair {
+  color: var(--text, #e8eaed);
+  font-weight: 700;
+}
+.me-diff-row .adv {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  font-size: 0.78rem;
+}
+.me-diff-row .adv.pos { color: #3dcf8e; }
+.me-diff-row .adv.neg { color: #e07a6a; }
+.me-diff-row .adv.neu { color: #9aa3b2; }
+.me-diff-row .reading {
+  grid-column: 1 / -1;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
 @media (max-width: 960px) {
   .me-grid-drivers {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -431,5 +519,8 @@
   .me-meta {
     margin-left: 0;
     width: 100%;
+  }
+  .me-diff-row {
+    grid-template-columns: 1fr;
   }
 }

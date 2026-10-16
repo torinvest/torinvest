@@ -31,6 +31,15 @@ const BASES = {
   US10Y: 4.3,
   REAL10Y: 1.8,
   BE10Y: 2.3,
+  EURUSD: 1.08,
+  GBPUSD: 1.27,
+  USDJPY: 150,
+  USDCAD: 1.36,
+  AUDUSD: 0.66,
+  NZDUSD: 0.6,
+  EURJPY: 162,
+  EURGBP: 0.85,
+  USDCHF: 0.88,
 };
 
 const VOL = {
@@ -41,6 +50,15 @@ const VOL = {
   US10Y: 0.006,
   REAL10Y: 0.01,
   BE10Y: 0.005,
+  EURUSD: 0.004,
+  GBPUSD: 0.0045,
+  USDJPY: 0.005,
+  USDCAD: 0.0035,
+  AUDUSD: 0.0055,
+  NZDUSD: 0.006,
+  EURJPY: 0.0055,
+  EURGBP: 0.003,
+  USDCHF: 0.004,
 };
 
 function buildDemoSeries(symbol, options) {
