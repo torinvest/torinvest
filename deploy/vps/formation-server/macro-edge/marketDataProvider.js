@@ -39,7 +39,8 @@ async function trySeedBars(symbol, meta) {
 async function fetchOne(symbol, meta, config, dataDir) {
   const ttlFred = (config.cacheTtlMs && config.cacheTtlMs.fred) || 6 * 3600 * 1000;
   const ttlMkt = (config.cacheTtlMs && config.cacheTtlMs.marketDaily) || 5 * 60 * 1000;
-  const cacheKey = "series:" + symbol;
+  // Inclure la source dans la clé (ex. DXY FRED vs DXY Worker)
+  const cacheKey = "series:" + symbol + ":" + (meta.source || "demo");
   const hit = cache.get(cacheKey);
   if (hit) return hit;
 
@@ -110,9 +111,11 @@ async function fetchOne(symbol, meta, config, dataDir) {
   return demo;
 }
 
-async function fetchAllSeries(config, dataDir) {
-  const assets = config.assets || {};
-  const symbols = config.goldDeskSymbols || Object.keys(assets);
+async function fetchAllSeries(config, dataDir, options) {
+  const opts = options || {};
+  const assets = Object.assign({}, config.assets || {}, opts.assetOverrides || {});
+  const symbols =
+    opts.symbols || config.goldDeskSymbols || Object.keys(assets);
   const out = {};
   const errors = {};
 

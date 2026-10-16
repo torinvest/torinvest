@@ -1,12 +1,12 @@
 /**
- * TORINVEST Macro Edge — SMT Monitor (MVP V1 Gold Desk).
+ * TORINVEST Macro Edge — SMT Monitor (Gold Desk + FX Desk).
  *
  *   const createMacroEdgeRouter = require("./server-patches/routes-macro-edge");
  *   app.use(createMacroEdgeRouter({ dataDir, requireAuth }));
  *
  * Env :
- *   FRED_API_KEY (optionnel) — séries FRED (DXY, yields, breakeven)
- *   FORGE_WORKER_URL / WORKER_URL — prix live XAU/XAG (TradingView → /market/blocks)
+ *   FRED_API_KEY (optionnel) — séries FRED (yields, Gold Desk DXY proxy)
+ *   FORGE_WORKER_URL / WORKER_URL — prix live métaux + FX (TradingView → /market/blocks)
  *   FORGE_ADMIN_EMAILS — panneau config admin
  */
 "use strict";
@@ -14,7 +14,7 @@
 const express = require("express");
 const path = require("path");
 const { createStore } = require("./macro-edge/store");
-const { buildGoldDeskSnapshot } = require("./macro-edge/engine");
+const { buildSnapshot } = require("./macro-edge/engine");
 const cache = require("./macro-edge/cache");
 const market = require("./macro-edge/marketDataProvider");
 
@@ -55,6 +55,14 @@ function isSubscribed(req) {
   return plan === "premium" || plan === "subscribed";
 }
 
+function parseDesk(q) {
+  const d = String((q && q.desk) || "gold")
+    .trim()
+    .toLowerCase();
+  if (d === "fx" || d === "forex" || d === "fx_desk") return "fx";
+  return "gold";
+}
+
 function createMacroEdgeRouter(options) {
   const opts = options || {};
   const requireAuth = opts.requireAuth;
@@ -93,10 +101,12 @@ function createMacroEdgeRouter(options) {
       res.json({
         ok: true,
         module: "macro-edge",
-        version: "1.0.1-mvp-gold-desk",
+        version: "2.0.0-mvp-fx-desk",
+        desks: ["gold", "fx"],
         fredConfigured: !!String(process.env.FRED_API_KEY || "").trim(),
         workerUrl: workerBase(),
         assets: Object.keys(cfg.assets || {}),
+        fxDeskSymbols: cfg.fxDeskSymbols || [],
       });
     }
   );
@@ -107,7 +117,8 @@ function createMacroEdgeRouter(options) {
     requirePremium,
     async (req, res) => {
       try {
-        const snapshot = await buildGoldDeskSnapshot(store);
+        const desk = parseDesk(req.query);
+        const snapshot = await buildSnapshot(store, desk);
         res.json(snapshot);
       } catch (e) {
         res.status(500).json({
@@ -125,7 +136,8 @@ function createMacroEdgeRouter(options) {
     requirePremium,
     async (req, res) => {
       try {
-        const snapshot = await buildGoldDeskSnapshot(store);
+        const desk = parseDesk(req.query);
+        const snapshot = await buildSnapshot(store, desk);
         res.json(snapshot.explain || { status: "Data unavailable" });
       } catch (e) {
         res.status(500).json({
@@ -143,13 +155,24 @@ function createMacroEdgeRouter(options) {
     async (req, res) => {
       try {
         const cfg = store.loadConfig();
-        // dataDir requis pour Worker metals (historique OHLC sur disque)
-        const { series } = await market.fetchAllSeries(cfg, dataDir);
+        const desk = parseDesk(req.query);
+        const fetchOpts =
+          desk === "fx"
+            ? {
+                symbols: cfg.fxDeskSymbols,
+                assetOverrides: cfg.fxAssetOverrides || {},
+              }
+            : {};
+        const { series } = await market.fetchAllSeries(cfg, dataDir, fetchOpts);
         const want = String(req.query.symbols || "")
           .split(",")
           .map((s) => s.trim().toUpperCase())
           .filter(Boolean);
-        const keys = want.length ? want : cfg.goldDeskSymbols;
+        const keys = want.length
+          ? want
+          : desk === "fx"
+            ? cfg.fxDeskSymbols
+            : cfg.goldDeskSymbols;
         const out = {};
         for (const k of keys) {
           if (!series[k]) {
@@ -171,7 +194,11 @@ function createMacroEdgeRouter(options) {
             status: series[k].status || "ok",
           };
         }
-        res.json({ series: out, updatedAt: new Date().toISOString() });
+        res.json({
+          desk,
+          series: out,
+          updatedAt: new Date().toISOString(),
+        });
       } catch (e) {
         res.status(500).json({
           error: "series_failed",
@@ -193,7 +220,9 @@ function createMacroEdgeRouter(options) {
       if (!admin) {
         return res.json({
           mode: cfg.mode,
+          version: cfg.version,
           goldDeskSymbols: cfg.goldDeskSymbols,
+          fxDeskSymbols: cfg.fxDeskSymbols,
           pedagogy: cfg.pedagogy,
           disclaimer: cfg.disclaimer,
           correlation: {
@@ -223,14 +252,22 @@ function createMacroEdgeRouter(options) {
           "smtWeights",
           "alerts",
           "correlation",
+          "fxCorrelation",
           "swing",
           "smtPairs",
+          "fxSmtPairs",
+          "policyDiffPairs",
+          "centralBanks",
+          "centralBanksUpdatedAt",
           "pedagogy",
           "cacheTtlMs",
         ];
         const patch = {};
         for (const k of allowed) {
           if (body[k] !== undefined) patch[k] = body[k];
+        }
+        if (patch.centralBanks && !patch.centralBanksUpdatedAt) {
+          patch.centralBanksUpdatedAt = new Date().toISOString();
         }
         const next = store.saveConfig(patch);
         cache.clear("snapshot:");

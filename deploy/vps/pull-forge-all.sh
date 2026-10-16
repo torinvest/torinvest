@@ -48,7 +48,7 @@ done
 echo "==> Macro Edge lib (server-patches/macro-edge/)"
 ME_DIR="$PATCHES_DIR/macro-edge"
 mkdir -p "$ME_DIR"
-for f in config.js cache.js fredAdapter.js stooqAdapter.js yahooAdapter.js workerAdapter.js demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js engine.js; do
+for f in config.js cache.js fredAdapter.js stooqAdapter.js yahooAdapter.js workerAdapter.js demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js engine.js centralBanks.js policyDifferentials.js; do
   echo "  server-patches/macro-edge/$f"
   curl -fsSL "${RAW_ROOT}/deploy/vps/formation-server/macro-edge/${f}" -o "$ME_DIR/${f}"
 done

@@ -9,6 +9,16 @@ const https = require("https");
 const YAHOO_MAP = {
   XAUUSD: "GC=F",
   XAGUSD: "SI=F",
+  EURUSD: "EURUSD=X",
+  GBPUSD: "GBPUSD=X",
+  USDJPY: "JPY=X",
+  USDCAD: "CAD=X",
+  AUDUSD: "AUDUSD=X",
+  NZDUSD: "NZDUSD=X",
+  EURJPY: "EURJPY=X",
+  EURGBP: "EURGBP=X",
+  USDCHF: "CHF=X",
+  DXY: "DX-Y.NYB",
 };
 
 function httpGetJson(url, timeoutMs) {

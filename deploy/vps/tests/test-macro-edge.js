@@ -21,11 +21,22 @@ const {
   computeGoldDriver,
   computeUsdDriver,
   computeRateDecomposition,
+  computeFxDrivers,
 } = require(path.join(root, "drivers"));
 const { buildDemoSeries } = require(path.join(root, "demoSeries"));
 const { createStore } = require(path.join(root, "store"));
-const { buildAlerts, explainMarket } = require(path.join(root, "alerts"));
+const {
+  buildAlerts,
+  explainMarket,
+  buildFxAlerts,
+  explainFxMarket,
+} = require(path.join(root, "alerts"));
 const { mergeConfig } = require(path.join(root, "config"));
+const { buildCentralBankWatch } = require(path.join(root, "centralBanks"));
+const { buildPolicyDifferentials } = require(path.join(
+  root,
+  "policyDifferentials"
+));
 
 let passed = 0;
 function ok(name) {
@@ -90,6 +101,14 @@ const series = {
   US10Y: buildDemoSeries("US10Y"),
   REAL10Y: buildDemoSeries("REAL10Y"),
   BE10Y: buildDemoSeries("BE10Y"),
+  EURUSD: buildDemoSeries("EURUSD"),
+  GBPUSD: buildDemoSeries("GBPUSD"),
+  USDJPY: buildDemoSeries("USDJPY"),
+  USDCAD: buildDemoSeries("USDCAD"),
+  AUDUSD: buildDemoSeries("AUDUSD"),
+  NZDUSD: buildDemoSeries("NZDUSD"),
+  EURJPY: buildDemoSeries("EURJPY"),
+  EURGBP: buildDemoSeries("EURGBP"),
 };
 
 {
@@ -153,17 +172,84 @@ const series = {
 }
 
 {
+  const cfg = mergeConfig({});
+  assert.ok(Array.isArray(cfg.fxDeskSymbols) && cfg.fxDeskSymbols.length >= 8);
+  assert.ok(cfg.fxAssetOverrides && cfg.fxAssetOverrides.DXY);
+  assert.equal(cfg.fxAssetOverrides.DXY.source, "worker");
+  ok("config fx desk symbols + DXY override");
+
+  const watch = buildCentralBankWatch(cfg);
+  assert.equal(watch.banks.length, 7);
+  assert.ok(watch.banks.every((b) => b.biasScore >= -3 && b.biasScore <= 3));
+  ok("centralBankWatch");
+
+  const diffs = buildPolicyDifferentials(watch, cfg.policyDiffPairs);
+  assert.ok(diffs.items.length >= 6);
+  const eur = diffs.items.find((i) => i.pair === "EURUSD");
+  assert.ok(eur && typeof eur.advantage === "string");
+  assert.ok(!/va baisser|acheter|vendre/i.test(eur.reading || ""));
+  ok("policyDifferentials cautious language");
+
+  const fxDrivers = computeFxDrivers(series, watch);
+  assert.ok(
+    fxDrivers.usdDriver.score == null ||
+      (fxDrivers.usdDriver.score >= -100 && fxDrivers.usdDriver.score <= 100)
+  );
+  assert.ok(
+    fxDrivers.eurDriver.score == null ||
+      (fxDrivers.eurDriver.score >= -100 && fxDrivers.eurDriver.score <= 100)
+  );
+  ok("computeFxDrivers");
+
+  const fxSmt = detectSmtPair(
+    series.EURUSD,
+    series.GBPUSD,
+    { id: "eur_gbp", a: "EURUSD", b: "GBPUSD", expected: "positive" },
+    { pivotLength: 3, lookbackBars: 120, atrFilterMult: 0 },
+    cfg.smtWeights
+  );
+  assert.ok(Array.isArray(fxSmt.signals));
+  ok("detectSmtPair FX");
+
+  const fxAlerts = buildFxAlerts(series, cfg, [fxSmt], diffs);
+  assert.ok(Array.isArray(fxAlerts.items));
+  ok("buildFxAlerts");
+
+  const fxSnap = {
+    usdDriver: fxDrivers.usdDriver,
+    eurDriver: fxDrivers.eurDriver,
+    riskDriver: fxDrivers.riskDriver,
+    policyDriver: fxDrivers.policyDriver,
+    centralBankWatch: watch,
+    policyDifferentials: diffs,
+    smt: [fxSmt],
+  };
+  const fxExplained = explainFxMarket(fxSnap);
+  assert.ok(fxExplained.lines.length >= 8);
+  const fxUpper = fxExplained.text.toUpperCase();
+  assert.ok(!/\bACHETER\b/.test(fxUpper) && !/\bVENDRE\b/.test(fxUpper));
+  ok("explainFxMarket no trade advice");
+}
+
+{
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "macro-edge-"));
   const store = createStore(tmp);
   const cfg = store.loadConfig();
   assert.equal(cfg.mode, "gold_desk");
-  store.saveConfig({ alerts: { realYieldShockPct: 0.05 } });
+  assert.equal(cfg.version, 2);
+  store.saveConfig({
+    alerts: { realYieldShockPct: 0.05 },
+    centralBanks: { FED: { biasScore: 2 } },
+  });
   const cfg2 = store.loadConfig();
   assert.equal(cfg2.alerts.realYieldShockPct, 0.05);
+  const watch2 = buildCentralBankWatch(cfg2);
+  const fed = watch2.banks.find((b) => b.id === "FED");
+  assert.equal(fed.biasScore, 2);
   store.appendHistory("smt", { pair: "XAUUSD / XAGUSD", side: "bullish" });
   const hist = store.readHistory("smt", 10);
   assert.equal(hist.length, 1);
-  ok("store config + history");
+  ok("store config + history + CB override");
 }
 
 console.log("\n" + passed + " tests passed.");

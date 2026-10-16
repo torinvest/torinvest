@@ -1,6 +1,6 @@
-# TORINVEST Macro Edge — SMT Monitor (MVP V1 Gold Desk)
+# TORINVEST Macro Edge — SMT Monitor (Gold Desk + FX Desk)
 
-Dashboard pédagogique Premium : régime macro or / dollar / taux, corrélations, SMT, alertes.
+Dashboard pédagogique Premium : régime macro or / dollar / taux / FX, banques centrales, corrélations, SMT, alertes.
 
 > « Le fondamental explique pourquoi ; la technique décide quand. »
 
@@ -8,53 +8,58 @@ Dashboard pédagogique Premium : régime macro or / dollar / taux, corrélations
 
 - URL : `https://app.torinvest-trading.com/macro-edge.html`
 - Auth : session formation + `subscribed` (même gate que les autres modules Premium)
+- Onglets : **GOLD DESK** · **FX DESK**
 - Pas d’ordres automatiques ; disclaimer pédagogique en bas de page
 
 ## Déploiement VPS
 
 ```bash
-REF=cursor/macro-edge-smt-mvp-691a curl -fsSL \
+REF=cursor/macro-edge-fx-desk-691a curl -fsSL \
   "https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-MACRO-EDGE.sh" \
-  -o /tmp/d-me.sh && REF=cursor/macro-edge-smt-mvp-691a bash /tmp/d-me.sh
+  -o /tmp/d-me.sh && REF=cursor/macro-edge-fx-desk-691a bash /tmp/d-me.sh
 ```
 
-### Variable d’environnement (optionnelle)
+### Variables d’environnement
 
 | Variable | Rôle |
 |----------|------|
-| `FRED_API_KEY` | Séries FRED gratuites (DXY proxy, US02Y, US10Y, REAL10Y, BE10Y). Sans clé → fallback DEMO pour ces séries. |
-| `FORGE_WORKER_URL` | Worker TORINVEST (défaut `https://morning-hall-d8f6.onzerimes.workers.dev`) — prix live XAU/XAG via `/market/blocks` (TradingView). |
-| `FORGE_ADMIN_EMAILS` | Accès `PUT /api/macro-edge/config` et historique |
+| `FRED_API_KEY` | Séries FRED (yields, Gold Desk DXY proxy DTWEXBGS). Sans clé → fallback DEMO pour ces séries. |
+| `FORGE_WORKER_URL` | Worker TORINVEST (défaut `https://morning-hall-d8f6.onzerimes.workers.dev`) — métaux + FX + DXY via `/market/blocks`. |
+| `FORGE_ADMIN_EMAILS` | Accès `PUT /api/macro-edge/config` (dont scores banques centrales) |
 
-**XAUUSD / XAGUSD** : Worker TORINVEST (live) + historique daily accumulé sur disque. Seed initial via Yahoo/FRED/Stooq si l’historique est vide. Pas besoin de clé supplémentaire si le worker reçoit déjà les webhooks TradingView.
+**Gold Desk** : XAU/XAG Worker · DXY FRED TWI · yields/breakeven FRED.
+
+**FX Desk** : paires FX Worker · **DXY Worker** (≠ FRED Gold Desk) · yields FRED · Central Bank Watch + différentiels.
 
 ## API
 
 | Endpoint | Description |
 |----------|-------------|
-| `GET /api/macro-edge/snapshot` | Snapshot Gold Desk complet |
-| `GET /api/macro-edge/explain` | Synthèse FR « Explique-moi le marché » |
-| `GET /api/macro-edge/series` | OHLC / closes |
-| `GET /api/macro-edge/config` | Config (admin = complète) |
-| `PUT /api/macro-edge/config` | Pondérations / seuils (admin) |
+| `GET /api/macro-edge/snapshot?desk=gold\|fx` | Snapshot Gold ou FX |
+| `GET /api/macro-edge/explain?desk=gold\|fx` | Synthèse FR « Explique-moi le marché » |
+| `GET /api/macro-edge/series?desk=gold\|fx` | OHLC / closes |
+| `GET /api/macro-edge/config` | Config (admin = complète, dont `centralBanks`) |
+| `PUT /api/macro-edge/config` | Pondérations / seuils / biais BC (admin) |
 | `POST /api/macro-edge/refresh` | Invalide cache (admin) |
 
-## MVP V1 inclus
+## Inclus
 
-1. Récupération données (FRED / Stooq / demo)
-2. Matrice de corrélation (Pearson sur returns)
-3. SMT XAU/XAG + divergences XAU/DXY + XAU/Real Yield
-4. Macro SMT Gold
-5. Gold Driver + USD Driver
-6. US Rate Decomposition
-7. Alertes de régime
-8. Interface Gold Desk + Explique-moi le marché
+### Gold Desk
+1. Drivers USD / Gold / Inflation + US Rate Decomposition
+2. Corrélations, SMT XAU/XAG–DXY–Real, Macro SMT Gold
+3. Alertes de régime or
+
+### FX Desk (V2)
+1. Drivers USD / EUR / Risk (AUD-NZD) / Policy Spread
+2. Central Bank Watch (scores −3…+3 configurables admin — pas de news auto)
+3. Différentiels monétaires (« avantage relatif », jamais un call de trade)
+4. Corrélations FX + SMT EUR/GBP, AUD/NZD, EURJPY/USDJPY
+5. Alertes dollar / breakdown corr / déconnexion policy-prix / SMT
 
 ## Roadmap
 
-- **V2** : FX + Central Bank Watch + différentiels
-- **V3** : News + NLP (sources obligatoires)
-- **V4** : Backtest SMT (architecture history JSONL déjà en place)
+- **V3** : News + NLP (sources obligatoires URL + date)
+- **V4** : Backtest SMT (history JSONL déjà en place)
 
 ## Tests
 

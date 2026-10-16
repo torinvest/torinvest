@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# Déploie TORINVEST Macro Edge — SMT Monitor (MVP Gold Desk).
+# Déploie TORINVEST Macro Edge — SMT Monitor (Gold Desk + FX Desk).
 #
-#   REF=cursor/macro-edge-smt-mvp-691a curl -fsSL \
+#   REF=cursor/macro-edge-fx-desk-691a curl -fsSL \
 #     https://raw.githubusercontent.com/torinvest/torinvest/${REF}/deploy/vps/DEPLOY-MACRO-EDGE.sh \
-#     -o /tmp/d-me.sh && REF=cursor/macro-edge-smt-mvp-691a bash /tmp/d-me.sh
+#     -o /tmp/d-me.sh && REF=cursor/macro-edge-fx-desk-691a bash /tmp/d-me.sh
 #
 # Env optionnelle sur le VPS (PM2) :
 #   FRED_API_KEY=...   # gratuit sur https://fred.stlouisfed.org/docs/api/api_key.html
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/macro-edge-smt-mvp-691a}"
+REF="${REF:-cursor/macro-edge-fx-desk-691a}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 
 echo "======== DEPLOY MACRO EDGE ($REF) ========"
@@ -30,7 +30,7 @@ pull "$RAW/la-forge/js/forge-brand.js" "$APP_DIR/public/js/forge-brand.js"
 pull "$RAW/deploy/vps/formation-server/routes-macro-edge.js" "$APP_DIR/server-patches/routes-macro-edge.js"
 pull "$RAW/deploy/vps/wire-formation-server-patches.js" "$APP_DIR/wire-formation-server-patches.js"
 
-for f in config.js cache.js fredAdapter.js stooqAdapter.js yahooAdapter.js workerAdapter.js demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js engine.js; do
+for f in config.js cache.js fredAdapter.js stooqAdapter.js yahooAdapter.js workerAdapter.js demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js engine.js centralBanks.js policyDifferentials.js; do
   pull "$RAW/deploy/vps/formation-server/macro-edge/${f}" "$APP_DIR/server-patches/macro-edge/${f}"
 done
 

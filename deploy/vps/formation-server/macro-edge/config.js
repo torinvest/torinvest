@@ -5,7 +5,7 @@
 "use strict";
 
 const DEFAULT_CONFIG = {
-  version: 1,
+  version: 2,
   mode: "gold_desk",
   assets: {
     XAUUSD: {
@@ -21,13 +21,39 @@ const DEFAULT_CONFIG = {
       source: "worker",
       stooq: "xagusd",
     },
-    DXY: { label: "US Dollar Index", kind: "macro", source: "fred", fred: "DTWEXBGS" },
+    DXY: { label: "US Dollar Index (FRED TWI)", kind: "macro", source: "fred", fred: "DTWEXBGS" },
     US02Y: { label: "US 2Y Yield", kind: "yield", source: "fred", fred: "DGS2" },
     US10Y: { label: "US 10Y Yield", kind: "yield", source: "fred", fred: "DGS10" },
     REAL10Y: { label: "US 10Y Real Yield", kind: "yield", source: "fred", fred: "DFII10" },
     BE10Y: { label: "US 10Y Breakeven", kind: "inflation", source: "fred", fred: "T10YIE" },
+    EURUSD: { label: "EURUSD", kind: "fx", source: "worker", stooq: "eurusd" },
+    GBPUSD: { label: "GBPUSD", kind: "fx", source: "worker", stooq: "gbpusd" },
+    USDJPY: { label: "USDJPY", kind: "fx", source: "worker", stooq: "usdjpy" },
+    USDCAD: { label: "USDCAD", kind: "fx", source: "worker", stooq: "usdcad" },
+    AUDUSD: { label: "AUDUSD", kind: "fx", source: "worker", stooq: "audusd" },
+    NZDUSD: { label: "NZDUSD", kind: "fx", source: "worker", stooq: "nzdusd" },
+    EURJPY: { label: "EURJPY", kind: "fx", source: "worker", stooq: "eurjpy" },
+    EURGBP: { label: "EURGBP", kind: "fx", source: "worker", stooq: "eurgbp" },
+    USDCHF: { label: "USDCHF", kind: "fx", source: "worker", stooq: "usdchf" },
+  },
+  /** Sur FX Desk, DXY vient du Worker (ICE-like) plutôt que FRED TWI */
+  fxAssetOverrides: {
+    DXY: { label: "DXY", kind: "macro", source: "worker" },
   },
   goldDeskSymbols: ["XAUUSD", "XAGUSD", "DXY", "US02Y", "US10Y", "REAL10Y", "BE10Y"],
+  fxDeskSymbols: [
+    "EURUSD",
+    "GBPUSD",
+    "USDJPY",
+    "USDCAD",
+    "AUDUSD",
+    "NZDUSD",
+    "EURJPY",
+    "EURGBP",
+    "DXY",
+    "US02Y",
+    "US10Y",
+  ],
   correlation: {
     defaultLookback: 50,
     lookbacks: [20, 50, 100],
@@ -42,6 +68,32 @@ const DEFAULT_CONFIG = {
       ["XAUUSD", "US02Y"],
     ],
   },
+  fxCorrelation: {
+    defaultLookback: 50,
+    breakdownThreshold: 0.35,
+    reference: "EURUSD",
+    pairs: [
+      ["EURUSD", "GBPUSD"],
+      ["EURUSD", "DXY"],
+      ["GBPUSD", "DXY"],
+      ["AUDUSD", "NZDUSD"],
+      ["EURJPY", "USDJPY"],
+      ["EURUSD", "EURGBP"],
+      ["USDCAD", "DXY"],
+      ["AUDUSD", "DXY"],
+    ],
+    matrixSymbols: [
+      "EURUSD",
+      "GBPUSD",
+      "USDJPY",
+      "USDCAD",
+      "AUDUSD",
+      "NZDUSD",
+      "EURJPY",
+      "EURGBP",
+      "DXY",
+    ],
+  },
   swing: {
     pivotLength: 3,
     lookbackBars: 120,
@@ -54,6 +106,23 @@ const DEFAULT_CONFIG = {
     { id: "xau_dxy", a: "XAUUSD", b: "DXY", expected: "inverse" },
     { id: "xau_real", a: "XAUUSD", b: "REAL10Y", expected: "inverse" },
   ],
+  fxSmtPairs: [
+    { id: "eur_gbp", a: "EURUSD", b: "GBPUSD", expected: "positive" },
+    { id: "aud_nzd", a: "AUDUSD", b: "NZDUSD", expected: "positive" },
+    { id: "eur_gbp_jpy", a: "EURJPY", b: "USDJPY", expected: "positive" },
+  ],
+  policyDiffPairs: [
+    "EURUSD",
+    "GBPUSD",
+    "USDJPY",
+    "USDCAD",
+    "AUDUSD",
+    "NZDUSD",
+    "EURGBP",
+    "EURJPY",
+  ],
+  centralBanks: {},
+  centralBanksUpdatedAt: null,
   smtWeights: {
     swingDivergence: 0.3,
     histCorrelation: 0.2,
@@ -100,7 +169,7 @@ const DEFAULT_CONFIG = {
     smt:
       "Une SMT (Smart Money Technique / divergence inter-actifs) apparaît quand deux actifs normalement liés ne confirment pas mutuellement un nouveau swing high ou swing low.",
     dxy:
-      "Le DXY (ici proxy Trade Weighted USD FRED DTWEXBGS) mesure la force relative du dollar face à un panier de devises. Une hausse du dollar pèse souvent sur l'or coté en USD.",
+      "Gold Desk utilise un proxy FRED (DTWEXBGS, trade-weighted). FX Desk utilise le DXY du Worker (flux TradingView). Ce ne sont pas exactement la même série.",
     monetaryDiff:
       "Le différentiel monétaire compare le biais relatif des banques centrales. Un avantage relatif USD n'est pas une prédiction de baisse d'EURUSD.",
   },
