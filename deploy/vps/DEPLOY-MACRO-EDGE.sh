@@ -1,57 +1,73 @@
 #!/usr/bin/env bash
-# Déploie TORINVEST Macro Edge — SMT Monitor (Gold Desk + FX Desk).
+# Déploie TORINVEST Macro Edge — Gold Desk + FX Desk.
 #
+#   unset REF
 #   curl -fsSL \
-#     https://raw.githubusercontent.com/torinvest/torinvest/cursor/hotfix-macro-edge-502-691a/deploy/vps/DEPLOY-MACRO-EDGE.sh \
+#     "https://raw.githubusercontent.com/torinvest/torinvest/cursor/hotfix-macro-edge-502-691a/deploy/vps/DEPLOY-MACRO-EDGE.sh" \
 #     -o /tmp/d-me.sh && bash /tmp/d-me.sh
 #
-#   (éviter REF=... curl "...${REF}..." → bash vide ${REF} → 404)
+# Important : un ancien `export REF=cursor/module-f03-...` dans le shell
+# pointait vers une branche SANS policyDifferentials → 404 mid-deploy.
+# Ce script ignore REF sauf si MACRO_EDGE_REF est défini explicitement.
 #
-# Env optionnelle sur le VPS (PM2) :
-#   FRED_API_KEY=...   # gratuit sur https://fred.stlouisfed.org/docs/api/api_key.html
-#
-# En cas de 502 après deploy :
-#   bash …/HOTFIX-MACRO-EDGE-502.sh
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
-REF="${REF:-cursor/macro-edge-fx-desk-691a}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
+# Pin = commit avec FX Desk + fichiers CB/policy (main merge #211 + hotfix lazy ok via branch)
+PIN="${MACRO_EDGE_PIN:-3f19969e636f503c0c0a657f4d8049242e07119e}"
+if [[ -n "${MACRO_EDGE_REF:-}" ]]; then
+  RAW="https://raw.githubusercontent.com/torinvest/torinvest/${MACRO_EDGE_REF}"
+  LABEL="REF=$MACRO_EDGE_REF"
+else
+  RAW="https://raw.githubusercontent.com/torinvest/torinvest/${PIN}"
+  LABEL="PIN=$PIN"
+fi
 
-echo "======== DEPLOY MACRO EDGE ($REF) ========"
+# Garde-fou : si quelqu'un a encore export REF=... (f03 etc.), on l'ignore et on le dit
+if [[ -n "${REF:-}" && -z "${MACRO_EDGE_REF:-}" ]]; then
+  echo "WARN — REF=$REF est défini dans le shell mais IGNORÉ."
+  echo "       (souvent un reste de deploy vidéo f03). Utilise PIN=$PIN"
+  echo "       Pour forcer une branche : MACRO_EDGE_REF=ma-branche bash …"
+fi
+
+echo "======== DEPLOY MACRO EDGE ($LABEL) ========"
 mkdir -p \
   "$APP_DIR/public/js" \
   "$APP_DIR/public/css" \
   "$APP_DIR/server-patches/macro-edge" \
   "$APP_DIR/data/macro-edge"
 
+ME="$APP_DIR/server-patches/macro-edge"
+
 pull() { echo "← $(basename "$2")"; curl -fsSL "$1" -o "$2"; }
 
-# Backup avant wire (rollback si syntaxe cassée)
 if [[ -f "$APP_DIR/server.js" ]]; then
   BAK="$APP_DIR/server.js.bak.me.$(date +%s)"
   cp "$APP_DIR/server.js" "$BAK"
   echo "Backup server.js → $BAK"
 fi
 
+# Critiques FX d'abord
+pull "$RAW/deploy/vps/formation-server/macro-edge/centralBanks.js" "$ME/centralBanks.js"
+pull "$RAW/deploy/vps/formation-server/macro-edge/policyDifferentials.js" "$ME/policyDifferentials.js"
+pull "$RAW/deploy/vps/formation-server/macro-edge/engine.js" "$ME/engine.js"
+pull "$RAW/deploy/vps/formation-server/routes-macro-edge.js" \
+  "$APP_DIR/server-patches/routes-macro-edge.js"
+
 pull "$RAW/deploy/vps/app-shells/macro-edge.html" "$APP_DIR/public/macro-edge.html"
 pull "$RAW/deploy/vps/app-shells/dashboard.html" "$APP_DIR/public/dashboard.html"
 pull "$RAW/la-forge/js/forge-macro-edge.js" "$APP_DIR/public/js/forge-macro-edge.js"
 pull "$RAW/la-forge/css/forge-macro-edge.css" "$APP_DIR/public/css/forge-macro-edge.css"
 pull "$RAW/la-forge/js/forge-brand.js" "$APP_DIR/public/js/forge-brand.js"
-pull "$RAW/deploy/vps/formation-server/routes-macro-edge.js" "$APP_DIR/server-patches/routes-macro-edge.js"
 pull "$RAW/deploy/vps/wire-formation-server-patches.js" "$APP_DIR/wire-formation-server-patches.js"
 
 for f in config.js cache.js fredAdapter.js stooqAdapter.js yahooAdapter.js workerAdapter.js \
-  demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js \
-  store.js engine.js centralBanks.js policyDifferentials.js; do
-  pull "$RAW/deploy/vps/formation-server/macro-edge/${f}" \
-    "$APP_DIR/server-patches/macro-edge/${f}"
+  demoSeries.js marketDataProvider.js correlation.js swingSmt.js drivers.js alerts.js store.js; do
+  pull "$RAW/deploy/vps/formation-server/macro-edge/${f}" "$ME/${f}"
 done
 
-# Fichiers critiques FX Desk (évite MODULE_NOT_FOUND → crash PM2 → 502)
 for f in centralBanks.js policyDifferentials.js engine.js; do
-  if [[ ! -s "$APP_DIR/server-patches/macro-edge/$f" ]]; then
+  if [[ ! -s "$ME/$f" ]]; then
     echo "ERREUR — fichier manquant ou vide : macro-edge/$f"
     exit 1
   fi
@@ -59,10 +75,9 @@ done
 
 node "$APP_DIR/wire-formation-server-patches.js" "$APP_DIR"
 
-# Syntaxe rapide — patches + server.js (obligatoire avant pm2)
 node --check "$APP_DIR/server-patches/routes-macro-edge.js"
 node --check "$APP_DIR/public/js/forge-macro-edge.js"
-for f in "$APP_DIR/server-patches/macro-edge"/*.js; do
+for f in "$ME"/*.js; do
   node --check "$f"
 done
 if ! node --check "$APP_DIR/server.js"; then
@@ -76,7 +91,7 @@ fi
 
 node -e "
 const p=require('path');
-const d=p.join('$APP_DIR','server-patches','macro-edge');
+const d='$ME';
 require(p.join(d,'engine'));
 require(p.join(d,'centralBanks'));
 require(p.join(d,'policyDifferentials'));
@@ -97,15 +112,14 @@ fi
 sleep 3
 echo ""
 LOCAL="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 8 http://127.0.0.1:3001/macro-edge.html || echo 000)"
-echo "macro-edge.html local → $LOCAL"
+PUB="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 12 https://app.torinvest-trading.com/macro-edge.html || echo 000)"
+echo "macro-edge local → $LOCAL | public → $PUB"
 grep -n "createMacroEdgeRouter\|routes-macro-edge" "$APP_DIR/server.js" 2>/dev/null | head -5 || true
 
 if [[ "$LOCAL" == "502" || "$LOCAL" == "000" ]]; then
-  echo "WARN — app ne répond pas. Lancer HOTFIX-MACRO-EDGE-502.sh ou :"
-  echo "  pm2 logs la-forge --lines 40 --nostream"
+  echo "WARN — app ne répond pas. Voir pm2 logs la-forge --err --lines 40"
   exit 1
 fi
 
-echo "→ https://app.torinvest-trading.com/macro-edge.html"
-echo "Optionnel : export FRED_API_KEY=... puis pm2 restart"
+echo "→ https://app.torinvest-trading.com/macro-edge.html — onglet FX DESK"
 echo "======== DONE ========"
