@@ -87,22 +87,52 @@ if ! grep -q 'createMasterclassRouter' "$APP_DIR/server.js"; then
   echo "ERREUR — createMasterclassRouter absent de server.js après wire"
   exit 1
 fi
-echo "OK — createMasterclassRouter monté"
+echo "OK — createMasterclassRouter monté dans server.js"
 
-CH_COUNT=$(ls -1 "$APP_DIR/data/masterclass/chapters"/*.json 2>/dev/null | wc -l | tr -d ' ')
+# Ne PAS faire planter le script si 0 chapitre (set -e + ls glob)
+CH_COUNT=0
+if [[ -d "$APP_DIR/data/masterclass/chapters" ]]; then
+  CH_COUNT=$(find "$APP_DIR/data/masterclass/chapters" -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
+fi
 echo "Chapitres sur disque : $CH_COUNT"
 
-source ~/.profile 2>/dev/null || true
-if pm2 describe la-forge >/dev/null 2>&1; then
-  pm2 restart la-forge --update-env
-elif pm2 describe torinvest-formation >/dev/null 2>&1; then
-  pm2 restart torinvest-formation --update-env
-else
-  echo "WARN — pm2 process introuvable (la-forge / torinvest-formation)"
-fi
+# Preflight require (détecte module manquant avant restart)
+node -e "
+const path=require('path');
+const p=path.join(process.env.APP_DIR||'$APP_DIR','server-patches','routes-masterclass.js');
+require(p);
+console.log('OK — require routes-masterclass');
+" || { echo "ERREUR — require routes-masterclass a échoué"; exit 1; }
 
-sleep 3
-echo "local html → $(curl -sS -o /dev/null -w '%{http_code}' --max-time 8 http://127.0.0.1:3001/masterclass.html || echo 000)"
-echo "local catalog (sans cookie) → $(curl -sS -o /dev/null -w '%{http_code}' --max-time 8 http://127.0.0.1:3001/api/masterclass/catalog || echo 000) (attendu 401)"
+source ~/.profile 2>/dev/null || true
+RESTARTED=0
+if pm2 describe la-forge >/dev/null 2>&1; then
+  echo "==> pm2 restart la-forge"
+  pm2 restart la-forge --update-env
+  RESTARTED=1
+elif pm2 describe torinvest-formation >/dev/null 2>&1; then
+  echo "==> pm2 restart torinvest-formation"
+  pm2 restart torinvest-formation --update-env
+  RESTARTED=1
+else
+  echo "WARN — pm2 process introuvable — liste :"
+  pm2 ls || true
+fi
+[[ "$RESTARTED" = "1" ]] || echo "WARN — aucun restart PM2"
+
+sleep 4
+HTML_CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 8 http://127.0.0.1:3001/masterclass.html || echo 000)
+CAT_CODE=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 8 http://127.0.0.1:3001/api/masterclass/catalog || echo 000)
+echo "local html → $HTML_CODE"
+echo "local catalog → $CAT_CODE (attendu 401 sans cookie ; 404 = API toujours absente)"
+if [[ "$CAT_CODE" = "404" ]]; then
+  echo "DIAG — grep masterclass dans server.js :"
+  grep -n 'masterclass\|Masterclass' "$APP_DIR/server.js" | head -20 || true
+  echo "DIAG — ls server-patches :"
+  ls -la "$APP_DIR/server-patches/routes-masterclass.js" "$APP_DIR/server-patches/masterclass/" 2>&1 || true
+  echo "DIAG — pm2 logs (20 lignes) :"
+  pm2 logs --nostream --lines 20 2>&1 | tail -40 || true
+  exit 1
+fi
 echo "→ https://app.torinvest-trading.com/masterclass.html (Ctrl+Shift+R)"
 echo "======== DONE ========"
