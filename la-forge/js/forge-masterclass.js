@@ -176,14 +176,13 @@
 
       bindAdmin(access);
     } catch (err) {
-      root.innerHTML =
-        '<p class="mc-loading">' +
-        esc(
-          err.status === 403
-            ? "Accès refusé — Masterclass réservée à l’admin / accès payant."
-            : err.message || String(err)
-        ) +
-        "</p>";
+      var msg =
+        err.status === 403
+          ? "Accès refusé — Masterclass réservée à l’admin / accès payant."
+          : err.status === 404
+            ? "API Masterclass non montée sur le serveur (routes absentes). Relancer HOTFIX-MASTERCLASS-404.sh sur le VPS, puis Ctrl+Shift+R."
+            : err.message || String(err);
+      root.innerHTML = '<p class="mc-loading">' + esc(msg) + "</p>";
     }
   }
 

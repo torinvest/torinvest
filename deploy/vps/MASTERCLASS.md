@@ -15,17 +15,22 @@ Formation **optionnelle** TORINVEST — La Forge. Indépendante du parcours ÉLI
 - **Élèves** : refus API + UI (403) tant qu’il n’y a pas de grant ou vente ouverte
 - Contenu dans `data/masterclass/chapters/` sur le VPS — **pas** en fichiers statiques publics, **pas** dans le Git public (seed tarball séparé)
 
-## Déploiement
+## Déploiement (sur le VPS `ubuntu@164.132.46.191`)
+
+Si la page affiche **HTTP 404** alors que le HTML charge : l’API n’est pas montée.
+Utiliser le hotfix :
 
 ```bash
-# 1) Copier le seed (généré hors Git) sur le VPS
-scp masterclass-seed.tar.gz ubuntu@VPS:/tmp/
-
-# 2) Deploy code + seed
+# Option A — code seulement (corrige le 404 API ; sommaire vide sans seed)
 curl -fsSL \
-  "https://raw.githubusercontent.com/torinvest/torinvest/cursor/masterclass-macro-691a/deploy/vps/DEPLOY-MASTERCLASS.sh" \
-  -o /tmp/d-mc.sh
-MASTERCLASS_SEED_TGZ=/tmp/masterclass-seed.tar.gz bash /tmp/d-mc.sh
+  "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-MASTERCLASS-404.sh" \
+  -o /tmp/hotfix-mc.sh && bash /tmp/hotfix-mc.sh
+
+# Option B — avec seed chapitres (depuis ta machine)
+scp masterclass-seed.tar.gz ubuntu@164.132.46.191:/tmp/
+ssh ubuntu@164.132.46.191 'curl -fsSL \
+  "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-MASTERCLASS-404.sh" \
+  -o /tmp/hotfix-mc.sh && MASTERCLASS_SEED_TGZ=/tmp/masterclass-seed.tar.gz bash /tmp/hotfix-mc.sh'
 ```
 
 ## Accès
