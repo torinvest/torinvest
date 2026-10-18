@@ -77,7 +77,10 @@ node --check "$APP_DIR/server-patches/routes-masterclass.js"
 node --check "$APP_DIR/public/js/forge-masterclass.js"
 for f in "$APP_DIR/server-patches/masterclass"/*.js; do node --check "$f"; done
 
-CH_COUNT=$(ls -1 "$APP_DIR/data/masterclass/chapters"/*.json 2>/dev/null | wc -l | tr -d ' ')
+CH_COUNT=0
+if [[ -d "$APP_DIR/data/masterclass/chapters" ]]; then
+  CH_COUNT=$(find "$APP_DIR/data/masterclass/chapters" -maxdepth 1 -name '*.json' | wc -l | tr -d ' ')
+fi
 echo "Chapitres sur disque : $CH_COUNT"
 
 source ~/.profile 2>/dev/null || true
