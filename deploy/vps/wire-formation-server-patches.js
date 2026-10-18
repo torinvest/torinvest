@@ -70,6 +70,9 @@ function hasChartExercises() {
 function hasMacroEdge() {
   return /createMacroEdgeRouter|routes-macro-edge/.test(content);
 }
+function hasMasterclass() {
+  return /createMasterclassRouter|routes-masterclass/.test(content);
+}
 
 function extractDataDirFromProgressBlock(block) {
   if (!block) return "path.join(__dirname, \"data\")";
@@ -96,6 +99,7 @@ function managedBlock(dataDirExpr) {
     "const createSwingAnalysesRouter = require(\"./server-patches/routes-swing-analyses\");",
     "const createChartExercisesRouter = require(\"./server-patches/routes-chart-exercises\");",
     "const createMacroEdgeRouter = require(\"./server-patches/routes-macro-edge\");",
+    "const createMasterclassRouter = require(\"./server-patches/routes-masterclass\");",
     "const requireSubscribedForCourse = require(\"./server-patches/middleware-require-subscribed\");",
     "",
     "// Paywall Premium — avant express.static(\"public\")",
@@ -145,6 +149,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createMacroEdgeRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createMasterclassRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -309,6 +319,55 @@ ensureModuleQaMounted();
 ensureSwingAnalysesMounted();
 ensureChartExercisesMounted();
 ensureMacroEdgeMounted();
+ensureMasterclassMounted();
+
+function ensureMasterclassMounted() {
+  if (
+    !/createMacroEdgeRouter|createChartExercisesRouter|createCalendarRouter/.test(
+      content
+    )
+  ) {
+    return;
+  }
+  if (hasMasterclass()) {
+    console.log("OK — masterclass déjà monté.");
+    return;
+  }
+  if (!/createMasterclassRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createMacroEdgeRouter = require\(["']\.\/server-patches\/routes-macro-edge["']\);)/,
+      '$1\nconst createMasterclassRouter = require("./server-patches/routes-masterclass");'
+    );
+    if (replaced !== content) {
+      content = replaced;
+    } else {
+      content = content.replace(
+        /(const createChartExercisesRouter = require\([^)]+\);)/,
+        '$1\nconst createMasterclassRouter = require("./server-patches/routes-masterclass");'
+      );
+    }
+  }
+  const meUseRe = /app\.use\(\s*createMacroEdgeRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const cexUseRe = /app\.use\(\s*createChartExercisesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const anchorMatch = content.match(meUseRe) || content.match(cexUseRe);
+  if (!anchorMatch) {
+    console.warn("WARN — point d'insertion masterclass introuvable.");
+    return;
+  }
+  const dataDirExpr =
+    (anchorMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const use = [
+    "app.use(",
+    "  createMasterclassRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + use);
+  console.log("Masterclass router ajouté.");
+}
 
 function ensureMacroEdgeMounted() {
   if (

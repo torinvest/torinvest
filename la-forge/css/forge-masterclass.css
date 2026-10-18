@@ -1,0 +1,119 @@
+/* Masterclass Macro — La Forge */
+
+.mc-wrap { max-width: 920px; margin: 0 auto; padding: 0 0 3rem; }
+.mc-loading, .mc-locked {
+  color: var(--muted, #9aa3b2);
+  padding: 1.5rem 1rem;
+  border: 1px dashed rgba(255, 215, 0, 0.25);
+  border-radius: 10px;
+  line-height: 1.55;
+}
+.mc-hero { margin: 1rem 0 1.25rem; }
+.mc-hero h1 {
+  margin: 0.2rem 0;
+  color: var(--gold, #ffd700);
+  font-size: clamp(1.35rem, 2.4vw, 1.85rem);
+}
+.mc-sub { color: var(--muted, #9aa3b2); font-size: 0.95rem; margin: 0.35rem 0 0; }
+.mc-philosophy {
+  margin: 0.65rem 0 0;
+  color: var(--aqua, #5eead4);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+.mc-toc { display: flex; flex-direction: column; gap: 0.45rem; }
+.mc-toc-item {
+  display: grid;
+  grid-template-columns: 3rem 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(255, 215, 0, 0.18);
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.22);
+  color: var(--text, #e8eaed);
+  text-decoration: none;
+}
+.mc-toc-item:hover { border-color: rgba(255, 215, 0, 0.45); }
+.mc-toc-item .num { color: var(--gold, #ffd700); font-weight: 700; font-variant-numeric: tabular-nums; }
+.mc-toc-item .title { font-size: 0.92rem; line-height: 1.45; }
+.mc-toc-item.done { border-color: rgba(61, 207, 142, 0.35); }
+.mc-muted { color: var(--muted, #9aa3b2); font-size: 0.84rem; }
+
+.mc-admin {
+  margin-top: 1.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.25);
+}
+.mc-admin h2 { margin: 0 0 0.75rem; color: var(--gold, #ffd700); font-size: 1.05rem; }
+.mc-admin form { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+.mc-admin input[type="email"] {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text, #e8eaed);
+}
+
+.mc-chapter-nav {
+  margin: 1rem 0;
+  font-size: 0.88rem;
+  color: var(--muted, #9aa3b2);
+}
+.mc-chapter-nav a { color: var(--gold, #ffd700); }
+.mc-article-head { margin-bottom: 1.25rem; }
+.mc-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.72rem;
+  color: var(--muted, #9aa3b2);
+  margin: 0 0 0.35rem;
+}
+.mc-article h1 {
+  margin: 0;
+  color: var(--gold, #ffd700);
+  font-size: clamp(1.25rem, 2.2vw, 1.7rem);
+  line-height: 1.3;
+}
+.mc-section {
+  margin: 1.35rem 0;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.mc-section h2 {
+  color: var(--aqua, #5eead4);
+  font-size: 1.05rem;
+  margin: 0 0 0.75rem;
+}
+.mc-section p {
+  color: var(--text, #e8eaed);
+  line-height: 1.65;
+  margin: 0 0 0.75rem;
+  font-size: 0.95rem;
+}
+.mc-table-wrap { overflow-x: auto; margin: 0.85rem 0 1.1rem; }
+.mc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  min-width: 420px;
+}
+.mc-table th, .mc-table td {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.45rem 0.55rem;
+  text-align: left;
+  vertical-align: top;
+}
+.mc-table th {
+  background: rgba(255, 215, 0, 0.08);
+  color: var(--gold, #ffd700);
+}
+.mc-chapter-actions { margin: 1.5rem 0; }
+
+@media (max-width: 640px) {
+  .mc-toc-item { grid-template-columns: 2.4rem 1fr; }
+}
