@@ -2,7 +2,7 @@
 # Déploie la Masterclass Macro (nouvelle rubrique) — sans toucher au parcours ÉLITE.
 #
 #   curl -fsSL \
-#     "https://raw.githubusercontent.com/torinvest/torinvest/cursor/masterclass-macro-691a/deploy/vps/DEPLOY-MASTERCLASS.sh" \
+#     "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/DEPLOY-MASTERCLASS.sh" \
 #     -o /tmp/d-mc.sh && bash /tmp/d-mc.sh
 #
 # Contenu pédagogique : importer le seed (hors Git public) :
@@ -13,8 +13,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 PIN="${MACRO_EDGE_PIN:-}" # unused; prefer branch/SHA
-REF="${MACRO_EDGE_REF:-cursor/masterclass-macro-691a}"
-if [[ -n "${MASTERCLASS_REF:-}" ]]; then REF="$MASTERCLASS_REF"; fi
+REF="${MASTERCLASS_REF:-${MACRO_EDGE_REF:-main}}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 
 echo "======== DEPLOY MASTERCLASS ($REF) ========"
