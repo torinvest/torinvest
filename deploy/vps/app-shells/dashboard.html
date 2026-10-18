@@ -215,6 +215,19 @@
           <a class="btn btn-primary" href="/macro-edge.html" id="macro-edge-link">Ouvrir Macro Edge</a>
         </div>
       </div>
+      <div class="card dash-card" id="masterclass-access" hidden>
+        <div class="dash-card-visual dash-card-visual--anvil" aria-hidden="true">
+          <img src="/img/forge-anvil.png" alt="" width="160" height="112" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Masterclass Macro</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55">
+            Macroéconomie &amp; marchés financiers — formation optionnelle (brouillon).
+            Accès <strong>admin</strong> uniquement pour l’instant.
+          </p>
+          <a class="btn btn-primary" href="/masterclass.html" id="masterclass-link">Ouvrir la Masterclass</a>
+        </div>
+      </div>
       <div class="card dash-card" id="books-access">
         <div class="dash-card-visual dash-card-visual--icon" aria-hidden="true">
           <img class="dash-visual-icon" src="/img/dash-books.svg" alt="" width="160" height="96" loading="lazy" />
@@ -302,6 +315,8 @@
         document.querySelectorAll("[data-cf-admin-nav], [data-cex-admin-nav]").forEach(function (el) {
           el.hidden = false;
         });
+        var mcCard = document.getElementById("masterclass-access");
+        if (mcCard) mcCard.hidden = false;
         var nav = document.querySelector(".header-nav");
         if (nav && !nav.querySelector('[data-cf-nav="1"]')) {
           var a = document.createElement("a");
@@ -312,7 +327,26 @@
           if (logout) nav.insertBefore(a, logout);
           else nav.appendChild(a);
         }
+        if (nav && !nav.querySelector('[data-mc-nav="1"]')) {
+          var mc = document.createElement("a");
+          mc.href = "/masterclass.html";
+          mc.textContent = "Masterclass";
+          mc.setAttribute("data-mc-nav", "1");
+          var logout2 = nav.querySelector("#logout-btn");
+          if (logout2) nav.insertBefore(mc, logout2);
+          else nav.appendChild(mc);
+        }
       }
+      // Accès Masterclass aussi via grant serveur (carte visible si canRead)
+      fetch("/api/masterclass/catalog", { credentials: "same-origin", headers: { Accept: "application/json" } })
+        .then(function (r) { return r.json().catch(function () { return {}; }); })
+        .then(function (data) {
+          if (data && data.access && (data.access.canRead || data.access.isAdmin)) {
+            var card = document.getElementById("masterclass-access");
+            if (card) card.hidden = false;
+          }
+        })
+        .catch(function () {});
       const lockedParam = new URLSearchParams(location.search).get("locked") === "1";
       if (typeof initForgeProgress === "function") {
         await initForgeProgress(me.email);

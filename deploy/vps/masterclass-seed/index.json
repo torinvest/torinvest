@@ -1,0 +1,237 @@
+{
+  "module": "masterclass-macro",
+  "title": "Masterclass Macroéconomie & Marchés Financiers",
+  "chapterCount": 23,
+  "chapters": [
+    {
+      "id": "ch01",
+      "number": 1,
+      "title": "Chapitre 1",
+      "slug": "chapitre-1",
+      "status": "published",
+      "sectionsCount": 24,
+      "tablesCount": 1,
+      "wordCount": 1976
+    },
+    {
+      "id": "ch02",
+      "number": 2,
+      "title": "Chapitre 2 — 23. Pourquoi « plus d’émissions = yields plus hauts » est parfois faux",
+      "slug": "chapitre-2",
+      "status": "published",
+      "sectionsCount": 29,
+      "tablesCount": 1,
+      "wordCount": 1880
+    },
+    {
+      "id": "ch03",
+      "number": 3,
+      "title": "Chapitre 3 — On continue avec la courbe des taux, parce que c’est là que le marché obligataire commence vraiment à parler comme un langage.",
+      "slug": "chapitre-3",
+      "status": "published",
+      "sectionsCount": 39,
+      "tablesCount": 0,
+      "wordCount": 2083
+    },
+    {
+      "id": "ch04",
+      "number": 4,
+      "title": "Chapitre 4 — 89. Le Treasury ne choisit pas seulement combien il emprunte",
+      "slug": "chapitre-4",
+      "status": "published",
+      "sectionsCount": 37,
+      "tablesCount": 1,
+      "wordCount": 1763
+    },
+    {
+      "id": "ch05",
+      "number": 5,
+      "title": "Chapitre 5 — 1. Le marché obligataire exprime plusieurs sentiments à la fois",
+      "slug": "chapitre-5",
+      "status": "published",
+      "sectionsCount": 21,
+      "tablesCount": 0,
+      "wordCount": 1288
+    },
+    {
+      "id": "ch06",
+      "number": 6,
+      "title": "Chapitre 6 — 22. Une seule classe d’actifs ne suffit jamais",
+      "slug": "chapitre-6",
+      "status": "published",
+      "sectionsCount": 31,
+      "tablesCount": 2,
+      "wordCount": 1532
+    },
+    {
+      "id": "ch07",
+      "number": 7,
+      "title": "CHAPITRE 4 — Les flux institutionnels, les véritables acheteurs, les contraintes de bilan et la formation des prix",
+      "slug": "chapitre-7",
+      "status": "published",
+      "sectionsCount": 23,
+      "tablesCount": 5,
+      "wordCount": 2060
+    },
+    {
+      "id": "ch08",
+      "number": 8,
+      "title": "CHAPITRE 5 — Stock, flux, duration, liquidité et pouvoir des investisseurs obligataires",
+      "slug": "chapitre-8",
+      "status": "published",
+      "sectionsCount": 23,
+      "tablesCount": 5,
+      "wordCount": 2679
+    },
+    {
+      "id": "ch09",
+      "number": 9,
+      "title": "CHAPITRE 6 — Retournements de régime, capitulation obligataire, absorption des flux et formation des biais macro",
+      "slug": "chapitre-9",
+      "status": "published",
+      "sectionsCount": 18,
+      "tablesCount": 3,
+      "wordCount": 2095
+    },
+    {
+      "id": "ch10",
+      "number": 10,
+      "title": "CHAPITRE 7 — Les mécanismes cachés de la courbe des taux, les fausses confirmations et les flux institutionnels",
+      "slug": "chapitre-10",
+      "status": "published",
+      "sectionsCount": 28,
+      "tablesCount": 4,
+      "wordCount": 2778
+    },
+    {
+      "id": "ch11",
+      "number": 11,
+      "title": "CHAPITRE 8 — L'élasticité de la demande, les seuils institutionnels, la convexité et les retournements des flux",
+      "slug": "chapitre-11",
+      "status": "published",
+      "sectionsCount": 23,
+      "tablesCount": 3,
+      "wordCount": 2763
+    },
+    {
+      "id": "ch12",
+      "number": 12,
+      "title": "CHAPITRE 9 — La boucle des conditions financières : comment les marchés ralentissent l'économie et finissent par modifier leur propre trajectoire",
+      "slug": "chapitre-12",
+      "status": "published",
+      "sectionsCount": 31,
+      "tablesCount": 7,
+      "wordCount": 3204
+    },
+    {
+      "id": "ch13",
+      "number": 13,
+      "title": "CHAPITRE 10 — Détecter le ralentissement économique avant les statistiques officielles et anticiper les changements de régime",
+      "slug": "chapitre-13",
+      "status": "published",
+      "sectionsCount": 34,
+      "tablesCount": 6,
+      "wordCount": 3532
+    },
+    {
+      "id": "ch14",
+      "number": 14,
+      "title": "CHAPITRE 11 / 20 — Les erreurs de pricing, les anticipations de la Fed et les surprises macroéconomiques",
+      "slug": "chapitre-14",
+      "status": "published",
+      "sectionsCount": 33,
+      "tablesCount": 3,
+      "wordCount": 3528
+    },
+    {
+      "id": "ch15",
+      "number": 15,
+      "title": "CHAPITRE 12 / 20 — La liquidité mondiale : Fed, QE, QT, TGA, Reverse Repo et réserves bancaires",
+      "slug": "chapitre-15",
+      "status": "published",
+      "sectionsCount": 39,
+      "tablesCount": 4,
+      "wordCount": 3937
+    },
+    {
+      "id": "ch16",
+      "number": 16,
+      "title": "CHAPITRE 13 / 20 — Le Trésor américain : stratégie d'émission, refinancement de la dette, adjudications avancées et gestion de la duration",
+      "slug": "chapitre-16",
+      "status": "published",
+      "sectionsCount": 43,
+      "tablesCount": 5,
+      "wordCount": 4502
+    },
+    {
+      "id": "ch17",
+      "number": 17,
+      "title": "CHAPITRE 14 / 20 — Flux internationaux, dollar, carry trade et transmission mondiale des rendements",
+      "slug": "chapitre-17",
+      "status": "published",
+      "sectionsCount": 45,
+      "tablesCount": 5,
+      "wordCount": 4756
+    },
+    {
+      "id": "ch18",
+      "number": 18,
+      "title": "CHAPITRE 15 / 20 — Cycles économiques, inflation structurelle, stagflation et changements de régime monétaire",
+      "slug": "chapitre-18",
+      "status": "published",
+      "sectionsCount": 35,
+      "tablesCount": 6,
+      "wordCount": 3724
+    },
+    {
+      "id": "ch19",
+      "number": 19,
+      "title": "CHAPITRE 16 / 20 — Analyse intermarket avancée : Gold, devises, indices, matières premières et construction des biais directionnels",
+      "slug": "chapitre-19",
+      "status": "published",
+      "sectionsCount": 37,
+      "tablesCount": 7,
+      "wordCount": 3477
+    },
+    {
+      "id": "ch20",
+      "number": 20,
+      "title": "CHAPITRE 17 / 20 — Positionnement institutionnel, CFTC, options, volatilité et mécaniques de liquidations",
+      "slug": "chapitre-20",
+      "status": "published",
+      "sectionsCount": 47,
+      "tablesCount": 6,
+      "wordCount": 4720
+    },
+    {
+      "id": "ch21",
+      "number": 21,
+      "title": "CHAPITRE 18 / 20 — Construction de scénarios macro probabilistes, révision des anticipations et biais directionnels professionnels",
+      "slug": "chapitre-21",
+      "status": "published",
+      "sectionsCount": 44,
+      "tablesCount": 4,
+      "wordCount": 4068
+    },
+    {
+      "id": "ch22",
+      "number": 22,
+      "title": "CHAPITRE 19 / 20 — Méthodologie professionnelle : tableau de bord macro, journal économique, construction des scénarios et gestion du risque",
+      "slug": "chapitre-22",
+      "status": "published",
+      "sectionsCount": 44,
+      "tablesCount": 5,
+      "wordCount": 4025
+    },
+    {
+      "id": "ch23",
+      "number": 23,
+      "title": "CHAPITRE 20 / 20 — Études de cas intégrales, simulations de marché, diagnostic professionnel et examen final",
+      "slug": "chapitre-23",
+      "status": "published",
+      "sectionsCount": 35,
+      "tablesCount": 5,
+      "wordCount": 3040
+    }
+  ]
+}

@@ -28,3 +28,7 @@ Thumbs.db
 
 # Cache Wrangler (CLI Cloudflare Workers — local uniquement)
 .wrangler/
+
+# Contenu Masterclass privé (hors Git public)
+private/
+deploy/vps/masterclass-seed/chapters/
