@@ -10,7 +10,7 @@
  *
  * Env :
  *   FORGE_ADMIN_EMAILS=toi@exemple.com
- *   FORGE_COACHING_SLOTS_JSON=[...]  (optionnel : 2 dimanches + 1 samedi par défaut)
+ *   FORGE_COACHING_SLOTS_JSON=[...]  (optionnel : tous les jours + horaires par défaut)
  */
 "use strict";
 
@@ -19,29 +19,50 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-const DEFAULT_TEMPLATES = [
-  {
-    id: "sun-am",
-    weekday: 0,
-    start: "10:00",
-    end: "11:00",
-    label: "Live coaching — dimanche matin",
-  },
-  {
-    id: "sun-pm",
-    weekday: 0,
-    start: "18:00",
-    end: "19:00",
-    label: "Live coaching — dimanche soir",
-  },
-  {
-    id: "sat-pm",
-    weekday: 6,
-    start: "18:00",
-    end: "19:00",
-    label: "Live coaching — samedi",
-  },
+const WEEKDAY_NAMES = [
+  "dimanche",
+  "lundi",
+  "mardi",
+  "mercredi",
+  "jeudi",
+  "vendredi",
+  "samedi",
 ];
+
+const WEEKDAY_KEYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+
+/** Horaires proposés chaque jour (1h). */
+const DEFAULT_HOURS = [
+  { key: "09", start: "09:00", end: "10:00", part: "matin" },
+  { key: "10", start: "10:00", end: "11:00", part: "matin" },
+  { key: "11", start: "11:00", end: "12:00", part: "matin" },
+  { key: "14", start: "14:00", end: "15:00", part: "après-midi" },
+  { key: "16", start: "16:00", end: "17:00", part: "après-midi" },
+  { key: "18", start: "18:00", end: "19:00", part: "soir" },
+  { key: "19", start: "19:00", end: "20:00", part: "soir" },
+  { key: "20", start: "20:00", end: "21:00", part: "soir" },
+];
+
+function buildDefaultTemplates() {
+  const out = [];
+  for (let weekday = 0; weekday <= 6; weekday++) {
+    const dayName = WEEKDAY_NAMES[weekday];
+    const dayKey = WEEKDAY_KEYS[weekday];
+    for (const h of DEFAULT_HOURS) {
+      out.push({
+        id: dayKey + "-" + h.key,
+        weekday,
+        start: h.start,
+        end: h.end,
+        label: "Live coaching — " + dayName + " " + h.part + " (" + h.start + ")",
+        proposeWeekDefault: h.start === "18:00",
+      });
+    }
+  }
+  return out;
+}
+
+const DEFAULT_TEMPLATES = buildDefaultTemplates();
 
 function normalizeEmail(email) {
   return String(email || "")
@@ -77,6 +98,10 @@ function loadTemplates() {
         start: String(t.start || "18:00"),
         end: String(t.end || "19:00"),
         label: String(t.label || "Live coaching"),
+        proposeWeekDefault:
+          t.proposeWeekDefault != null
+            ? !!t.proposeWeekDefault
+            : String(t.start || "18:00") === "18:00",
       }))
       .filter((t) => Number.isFinite(t.weekday) && t.weekday >= 0 && t.weekday <= 6);
   } catch (_) {
@@ -315,12 +340,17 @@ function createCoachingLivesRouter(options) {
       return res.status(403).json({ error: "Réservé à l'admin coaching" });
     }
 
-    const templates = loadTemplates();
+    // « Proposer la semaine » = 1 créneau soir (18h) par jour, pas tous les horaires.
+    const weekTemplates = loadTemplates().filter(
+      (t) =>
+        t.proposeWeekDefault === true ||
+        (t.proposeWeekDefault == null && t.start === "18:00")
+    );
     const from = new Date();
     const store = readStore();
     const created = [];
 
-    for (const tpl of templates) {
+    for (const tpl of weekTemplates) {
       const date = nextDateForWeekday(from, tpl.weekday);
       const exists = store.sessions.some(
         (s) =>

@@ -148,6 +148,41 @@
       .join("");
   }
 
+  function nextDateKeyForWeekday(weekday) {
+    const d = new Date();
+    d.setHours(12, 0, 0, 0);
+    const delta = (weekday - d.getDay() + 7) % 7;
+    d.setDate(d.getDate() + (delta === 0 ? 7 : delta));
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + day;
+  }
+
+  function fillTemplateSelect(select, preferredWeekday, keepValue) {
+    if (!select || !_templates.length) return;
+    const prev = keepValue ? select.value : "";
+    const matching =
+      preferredWeekday == null
+        ? _templates
+        : _templates.filter((t) => t.weekday === preferredWeekday);
+    const source = matching.length ? matching : _templates;
+    select.innerHTML = source
+      .map((t) => {
+        return (
+          '<option value="' +
+          esc(t.id) +
+          '">' +
+          esc(weekdayName(t.weekday) + " " + t.start + "–" + t.end + " — " + t.label) +
+          "</option>"
+        );
+      })
+      .join("");
+    if (prev && Array.from(select.options).some((o) => o.value === prev)) {
+      select.value = prev;
+    }
+  }
+
   function renderAdminForm() {
     const panel = document.getElementById("coach-admin-panel");
     if (!panel) return;
@@ -155,19 +190,13 @@
     if (!_isAdmin) return;
 
     const select = document.getElementById("coach-template");
-    if (select && _templates.length) {
-      select.innerHTML = _templates
-        .map((t) => {
-          return (
-            '<option value="' +
-            esc(t.id) +
-            '">' +
-            esc(weekdayName(t.weekday) + " " + t.start + "–" + t.end + " — " + t.label) +
-            "</option>"
-          );
-        })
-        .join("");
+    const dateInput = document.getElementById("coach-date");
+    let wd = null;
+    if (dateInput && dateInput.value) {
+      const [y, m, d] = dateInput.value.split("-").map(Number);
+      if (y && m && d) wd = new Date(y, m - 1, d).getDay();
     }
+    fillTemplateSelect(select, wd, true);
   }
 
   async function reload() {
@@ -216,13 +245,43 @@
     });
 
     document.getElementById("coach-propose-week")?.addEventListener("click", async () => {
-      if (!window.confirm("Proposer les créneaux types pour la semaine prochaine (sam + 2 dim) ?")) return;
+      if (
+        !window.confirm(
+          "Proposer un créneau soir (18h–19h) pour chaque jour de la semaine prochaine ?"
+        )
+      ) {
+        return;
+      }
       try {
         const data = await api("/api/coaching-lives/propose-week", { method: "POST", body: "{}" });
         alert((data.count || 0) + " créneau(x) proposé(s).");
         await reload();
       } catch (err) {
         alert(err.message || String(err));
+      }
+    });
+
+    const dateInput = document.getElementById("coach-date");
+    const templateSelect = document.getElementById("coach-template");
+    dateInput?.addEventListener("change", () => {
+      if (!dateInput.value) {
+        fillTemplateSelect(templateSelect, null, true);
+        return;
+      }
+      const [y, m, d] = dateInput.value.split("-").map(Number);
+      const wd = new Date(y, m - 1, d).getDay();
+      fillTemplateSelect(templateSelect, wd, false);
+    });
+    templateSelect?.addEventListener("change", () => {
+      const tpl = _templates.find((t) => t.id === templateSelect.value);
+      if (!tpl || !dateInput) return;
+      if (!dateInput.value) {
+        dateInput.value = nextDateKeyForWeekday(tpl.weekday);
+        return;
+      }
+      const [y, m, d] = dateInput.value.split("-").map(Number);
+      if (new Date(y, m - 1, d).getDay() !== tpl.weekday) {
+        dateInput.value = nextDateKeyForWeekday(tpl.weekday);
       }
     });
 
@@ -246,6 +305,7 @@
           body: JSON.stringify(payload),
         });
         form.reset();
+        fillTemplateSelect(templateSelect, null, false);
         await reload();
       } catch (err) {
         alert(err.message || String(err));
