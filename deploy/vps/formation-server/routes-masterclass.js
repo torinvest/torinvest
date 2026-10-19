@@ -133,6 +133,71 @@ function createMasterclassRouter(options) {
     }
   );
 
+  function publicAssessment(block) {
+    if (!block || typeof block !== "object") return block;
+    const questions = Array.isArray(block.questions)
+      ? block.questions.map(function (q) {
+          return {
+            id: q.id,
+            type: q.type || "mcq",
+            prompt: q.prompt,
+            choices: q.choices || [],
+            // pas de answer / explain avant soumission
+          };
+        })
+      : [];
+    return {
+      title: block.title || null,
+      kind: block.kind || null,
+      passScore: block.passScore,
+      passLabel: block.passLabel || null,
+      questionCount: questions.length,
+      questions: questions,
+    };
+  }
+
+  function publicChapter(chapter) {
+    if (!chapter) return chapter;
+    const out = Object.assign({}, chapter);
+    if (out.quiz) out.quiz = publicAssessment(out.quiz);
+    if (out.exam) out.exam = publicAssessment(out.exam);
+    return out;
+  }
+
+  function gradeAssessment(block, answers) {
+    const questions = (block && block.questions) || [];
+    const ans = answers && typeof answers === "object" ? answers : {};
+    let score = 0;
+    const results = questions.map(function (q) {
+      const selected = ans[q.id];
+      const selectedNum =
+        selected === undefined || selected === null || selected === ""
+          ? null
+          : Number(selected);
+      const correct = selectedNum === Number(q.answer);
+      if (correct) score += 1;
+      return {
+        id: q.id,
+        correct: correct,
+        selected: selectedNum,
+        answer: Number(q.answer),
+        explain: q.explain || null,
+      };
+    });
+    const total = questions.length;
+    const percent = total ? score / total : 0;
+    const passScore =
+      block && typeof block.passScore === "number" ? block.passScore : 0.7;
+    return {
+      score: score,
+      total: total,
+      percent: percent,
+      passed: total > 0 && percent + 1e-9 >= passScore,
+      passScore: passScore,
+      results: results,
+    };
+  }
+
   router.get(
     "/api/masterclass/chapters/:num",
     requireAuth,
@@ -157,7 +222,69 @@ function createMasterclassRouter(options) {
       ) {
         return res.status(403).json({ error: "chapter_not_published" });
       }
-      res.json({ ok: true, chapter });
+      res.json({ ok: true, chapter: publicChapter(chapter) });
+    }
+  );
+
+  router.post(
+    "/api/masterclass/chapters/:num/assessment",
+    requireAuth,
+    requireContentAccess,
+    express.json({ limit: "100kb" }),
+    (req, res) => {
+      const num = Number(req.params.num);
+      if (!Number.isFinite(num) || num < 1 || num > 99) {
+        return res.status(400).json({ error: "bad_chapter" });
+      }
+      const kind = String((req.body && req.body.kind) || "").toLowerCase();
+      if (kind !== "quiz" && kind !== "exam") {
+        return res.status(400).json({ error: "bad_kind" });
+      }
+      const chapter = store.loadChapter(num);
+      if (!chapter) {
+        return res.status(404).json({ error: "chapter_not_found" });
+      }
+      if (
+        req.masterclassAccess.role !== "admin" &&
+        chapter.status &&
+        chapter.status !== "published"
+      ) {
+        return res.status(403).json({ error: "chapter_not_published" });
+      }
+      const block = chapter[kind];
+      if (!block || !Array.isArray(block.questions) || !block.questions.length) {
+        return res.status(404).json({
+          error: "assessment_missing",
+          message: "Quiz / examen non configuré pour ce chapitre.",
+        });
+      }
+      const graded = gradeAssessment(block, req.body && req.body.answers);
+      const email = req.masterclassAccess.email;
+      const prev = store.loadProgress(email);
+      const chapters = Object.assign({}, prev.chapters || {});
+      const key = String(num);
+      const cur = Object.assign({}, chapters[key] || {});
+      cur[kind] = {
+        score: graded.score,
+        total: graded.total,
+        percent: graded.percent,
+        passed: graded.passed,
+        at: new Date().toISOString(),
+      };
+      if (kind === "exam" && graded.passed) {
+        cur.validated = true;
+        cur.completed = true;
+      }
+      cur.lastAt = new Date().toISOString();
+      chapters[key] = cur;
+      const progress = store.saveProgress(email, { chapters });
+      res.json({
+        ok: true,
+        kind: kind,
+        title: block.title || null,
+        ...graded,
+        progress: progress.chapters && progress.chapters[key],
+      });
     }
   );
 
@@ -186,14 +313,15 @@ function createMasterclassRouter(options) {
       }
       const key = String(num);
       const cur = chapters[key] || {};
-      chapters[key] = {
+      chapters[key] = Object.assign({}, cur, {
         sectionsDone: Math.max(
           Number(cur.sectionsDone) || 0,
           Number(body.sectionsDone) || 0
         ),
         completed: !!(cur.completed || body.completed),
+        validated: !!(cur.validated || body.validated),
         lastAt: new Date().toISOString(),
-      };
+      });
       const next = store.saveProgress(email, { chapters });
       res.json({ ok: true, progress: next });
     }

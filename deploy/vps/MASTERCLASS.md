@@ -37,7 +37,19 @@ ssh ubuntu@164.132.46.191 'curl -fsSL \
 
 - Hub : `/masterclass.html`
 - Chapitre : `/masterclass-chapter.html?n=1`
+- Chaque chapitre : **quiz d’entraînement** (3–5 Q, seuil 60 %) + **examen de validation** (5 Q, seuil 80 %)
+- Notation serveur : `POST /api/masterclass/chapters/:n/assessment` `{ kind: "quiz"|"exam", answers: { qId: index } }`
 - Admin grants : panneau sur le hub + `POST /api/masterclass/admin/grants`
+
+## Seed chapitres (contenu hors Git)
+
+```bash
+# Depuis ton PC (PowerShell) — archive 7z d’origine ou seed .tar.gz
+scp masterclass-seed.tar.gz ubuntu@164.132.46.191:/tmp/
+ssh ubuntu@164.132.46.191 "curl -fsSL https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/INSTALL-MASTERCLASS-SEED.sh -o /tmp/ins-mc.sh && MASTERCLASS_SEED_TGZ=/tmp/masterclass-seed.tar.gz bash /tmp/ins-mc.sh"
+```
+
+Régénérer quiz localement : `python3 scripts/generate-masterclass-quizzes.py`
 
 ## Commercialisation (plus tard)
 

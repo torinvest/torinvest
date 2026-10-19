@@ -11,7 +11,9 @@
       "status": "published",
       "sectionsCount": 24,
       "tablesCount": 1,
-      "wordCount": 1976
+      "wordCount": 1976,
+      "quizCount": 4,
+      "examCount": 5
     },
     {
       "id": "ch02",
@@ -21,7 +23,9 @@
       "status": "published",
       "sectionsCount": 29,
       "tablesCount": 1,
-      "wordCount": 1880
+      "wordCount": 1880,
+      "quizCount": 4,
+      "examCount": 5
     },
     {
       "id": "ch03",
@@ -31,7 +35,9 @@
       "status": "published",
       "sectionsCount": 39,
       "tablesCount": 0,
-      "wordCount": 2083
+      "wordCount": 2083,
+      "quizCount": 4,
+      "examCount": 5
     },
     {
       "id": "ch04",
@@ -41,7 +47,9 @@
       "status": "published",
       "sectionsCount": 37,
       "tablesCount": 1,
-      "wordCount": 1763
+      "wordCount": 1763,
+      "quizCount": 4,
+      "examCount": 5
     },
     {
       "id": "ch05",
@@ -51,7 +59,9 @@
       "status": "published",
       "sectionsCount": 21,
       "tablesCount": 0,
-      "wordCount": 1288
+      "wordCount": 1288,
+      "quizCount": 4,
+      "examCount": 5
     },
     {
       "id": "ch06",
@@ -61,7 +71,9 @@
       "status": "published",
       "sectionsCount": 31,
       "tablesCount": 2,
-      "wordCount": 1532
+      "wordCount": 1532,
+      "quizCount": 4,
+      "examCount": 5
     },
     {
       "id": "ch07",
@@ -71,7 +83,9 @@
       "status": "published",
       "sectionsCount": 23,
       "tablesCount": 5,
-      "wordCount": 2060
+      "wordCount": 2060,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch08",
@@ -81,7 +95,9 @@
       "status": "published",
       "sectionsCount": 23,
       "tablesCount": 5,
-      "wordCount": 2679
+      "wordCount": 2679,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch09",
@@ -91,7 +107,9 @@
       "status": "published",
       "sectionsCount": 18,
       "tablesCount": 3,
-      "wordCount": 2095
+      "wordCount": 2095,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch10",
@@ -101,7 +119,9 @@
       "status": "published",
       "sectionsCount": 28,
       "tablesCount": 4,
-      "wordCount": 2778
+      "wordCount": 2778,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch11",
@@ -111,7 +131,9 @@
       "status": "published",
       "sectionsCount": 23,
       "tablesCount": 3,
-      "wordCount": 2763
+      "wordCount": 2763,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch12",
@@ -121,7 +143,9 @@
       "status": "published",
       "sectionsCount": 31,
       "tablesCount": 7,
-      "wordCount": 3204
+      "wordCount": 3204,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch13",
@@ -131,7 +155,9 @@
       "status": "published",
       "sectionsCount": 34,
       "tablesCount": 6,
-      "wordCount": 3532
+      "wordCount": 3532,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch14",
@@ -141,7 +167,9 @@
       "status": "published",
       "sectionsCount": 33,
       "tablesCount": 3,
-      "wordCount": 3528
+      "wordCount": 3528,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch15",
@@ -151,7 +179,9 @@
       "status": "published",
       "sectionsCount": 39,
       "tablesCount": 4,
-      "wordCount": 3937
+      "wordCount": 3937,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch16",
@@ -161,7 +191,9 @@
       "status": "published",
       "sectionsCount": 43,
       "tablesCount": 5,
-      "wordCount": 4502
+      "wordCount": 4502,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch17",
@@ -171,7 +203,9 @@
       "status": "published",
       "sectionsCount": 45,
       "tablesCount": 5,
-      "wordCount": 4756
+      "wordCount": 4756,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch18",
@@ -181,7 +215,9 @@
       "status": "published",
       "sectionsCount": 35,
       "tablesCount": 6,
-      "wordCount": 3724
+      "wordCount": 3724,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch19",
@@ -191,7 +227,9 @@
       "status": "published",
       "sectionsCount": 37,
       "tablesCount": 7,
-      "wordCount": 3477
+      "wordCount": 3477,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch20",
@@ -201,7 +239,9 @@
       "status": "published",
       "sectionsCount": 47,
       "tablesCount": 6,
-      "wordCount": 4720
+      "wordCount": 4720,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch21",
@@ -211,7 +251,9 @@
       "status": "published",
       "sectionsCount": 44,
       "tablesCount": 4,
-      "wordCount": 4068
+      "wordCount": 4068,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch22",
@@ -221,7 +263,9 @@
       "status": "published",
       "sectionsCount": 44,
       "tablesCount": 5,
-      "wordCount": 4025
+      "wordCount": 4025,
+      "quizCount": 5,
+      "examCount": 5
     },
     {
       "id": "ch23",
@@ -231,7 +275,9 @@
       "status": "published",
       "sectionsCount": 35,
       "tablesCount": 5,
-      "wordCount": 3040
+      "wordCount": 3040,
+      "quizCount": 5,
+      "examCount": 5
     }
   ]
 }

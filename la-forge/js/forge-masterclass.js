@@ -148,15 +148,21 @@
       let list = '<div class="mc-toc">';
       chapters.forEach(function (ch) {
         const p = progress[String(ch.number)] || {};
+        const badge = p.validated
+          ? '<span class="mc-badge mc-badge-ok">Examen validé</span>'
+          : p.quiz && p.quiz.passed
+            ? '<span class="mc-badge">Quiz OK</span>'
+            : "";
         list +=
           '<a class="mc-toc-item' +
-          (p.completed ? " done" : "") +
+          (p.validated ? " validated" : p.completed ? " done" : "") +
           '" href="/masterclass-chapter.html?n=' +
           esc(String(ch.number)) +
           '"><span class="num">' +
           esc(String(ch.number).padStart(2, "0")) +
           '</span><span class="title">' +
           esc(ch.title) +
+          badge +
           "</span></a>";
       });
       list += "</div>";
@@ -168,9 +174,9 @@
         "</h1>" +
         '<p class="mc-sub">' +
         chapters.length +
-        " chapitres · accès " +
+        " chapitres · quiz + examen par chapitre · accès " +
         esc((data.access && data.access.role) || "autorisé") +
-        " · ventes désactivées</p>" +
+        "</p>" +
         '<p class="mc-philosophy">« Le fondamental explique pourquoi ; la technique décide quand. »</p></div>' +
         list;
 
@@ -184,6 +190,152 @@
             : err.message || String(err);
       root.innerHTML = '<p class="mc-loading">' + esc(msg) + "</p>";
     }
+  }
+
+  function renderAssessment(block, kind, chapterNum) {
+    if (!block || !block.questions || !block.questions.length) {
+      return (
+        '<section class="mc-assess mc-assess-' +
+        esc(kind) +
+        '"><h2>' +
+        (kind === "exam" ? "Examen de validation" : "Quiz") +
+        '</h2><p class="mc-muted">Pas encore configuré pour ce chapitre.</p></section>'
+      );
+    }
+    const passPct = Math.round((Number(block.passScore) || 0) * 100);
+    let html =
+      '<section class="mc-assess mc-assess-' +
+      esc(kind) +
+      '" id="mc-' +
+      esc(kind) +
+      '"><h2>' +
+      esc(block.title || (kind === "exam" ? "Examen de validation" : "Quiz d’entraînement")) +
+      '</h2><p class="mc-assess-meta">' +
+      esc(String(block.questions.length)) +
+      " questions · seuil " +
+      esc(String(passPct)) +
+      " %" +
+      (kind === "exam"
+        ? " · valide les acquis du chapitre"
+        : " · entraînement (réessayable)") +
+      '</p><form class="mc-assess-form" data-kind="' +
+      esc(kind) +
+      '" data-chapter="' +
+      esc(String(chapterNum)) +
+      '">';
+
+    block.questions.forEach(function (q, qi) {
+      html +=
+        '<fieldset class="mc-q" data-qid="' +
+        esc(q.id) +
+        '"><legend>Q' +
+        (qi + 1) +
+        " — " +
+        esc(q.prompt) +
+        "</legend>";
+      (q.choices || []).forEach(function (c, ci) {
+        const id = esc(kind) + "-" + esc(q.id) + "-" + ci;
+        html +=
+          '<label class="mc-choice" for="' +
+          id +
+          '"><input type="radio" name="' +
+          esc(q.id) +
+          '" id="' +
+          id +
+          '" value="' +
+          ci +
+          '" required /> <span>' +
+          esc(c) +
+          "</span></label>";
+      });
+      html += '<div class="mc-q-feedback" hidden></div></fieldset>';
+    });
+
+    html +=
+      '<button type="submit" class="btn btn-primary mc-assess-submit">' +
+      (kind === "exam" ? "Valider l’examen" : "Corriger le quiz") +
+      '</button><div class="mc-assess-result" hidden></div></form></section>';
+    return html;
+  }
+
+  function bindAssessmentForms(root) {
+    root.querySelectorAll("form.mc-assess-form").forEach(function (form) {
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const kind = form.getAttribute("data-kind");
+        const chapter = Number(form.getAttribute("data-chapter"));
+        const fd = new FormData(form);
+        const answers = {};
+        fd.forEach(function (val, key) {
+          answers[key] = Number(val);
+        });
+        const submitBtn = form.querySelector(".mc-assess-submit");
+        const resultEl = form.querySelector(".mc-assess-result");
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Correction…";
+        }
+        try {
+          const data = await api(
+            "/api/masterclass/chapters/" + chapter + "/assessment",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ kind: kind, answers: answers }),
+            }
+          );
+          (data.results || []).forEach(function (r) {
+            const fs = form.querySelector('.mc-q[data-qid="' + r.id + '"]');
+            if (!fs) return;
+            fs.classList.toggle("is-correct", !!r.correct);
+            fs.classList.toggle("is-wrong", !r.correct);
+            const fb = fs.querySelector(".mc-q-feedback");
+            if (fb) {
+              fb.hidden = false;
+              fb.textContent =
+                (r.correct ? "Correct. " : "Incorrect. ") + (r.explain || "");
+            }
+          });
+          if (resultEl) {
+            resultEl.hidden = false;
+            resultEl.className =
+              "mc-assess-result " + (data.passed ? "pass" : "fail");
+            resultEl.innerHTML =
+              "<strong>" +
+              esc(String(data.score)) +
+              " / " +
+              esc(String(data.total)) +
+              "</strong> (" +
+              esc(String(Math.round((data.percent || 0) * 100))) +
+              " %) — " +
+              (data.passed
+                ? kind === "exam"
+                  ? "Acquis validés ✓"
+                  : "Quiz réussi"
+                : "Seuil non atteint — révise le chapitre et réessaie.");
+          }
+          if (submitBtn) {
+            submitBtn.textContent = data.passed
+              ? kind === "exam"
+                ? "Examen validé ✓"
+                : "Quiz réussi ✓"
+              : "Réessayer";
+            submitBtn.disabled = !!data.passed && kind === "exam";
+          }
+        } catch (err) {
+          if (resultEl) {
+            resultEl.hidden = false;
+            resultEl.className = "mc-assess-result fail";
+            resultEl.textContent = err.message || String(err);
+          }
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent =
+              kind === "exam" ? "Valider l’examen" : "Corriger le quiz";
+          }
+        }
+      });
+    });
   }
 
   async function initMasterclassChapter() {
@@ -211,7 +363,8 @@
         next +
         '">Chapitre ' +
         next +
-        " →</a></nav>" +
+        " →</a>" +
+        ' · <a href="#mc-quiz">Quiz</a> · <a href="#mc-exam">Examen</a></nav>' +
         '<article class="mc-article"><header class="mc-article-head"><p class="mc-kicker">Chapitre ' +
         esc(String(ch.number)) +
         "</p><h1>" +
@@ -219,7 +372,11 @@
         "</h1></header>" +
         renderChapterBody(ch) +
         "</article>" +
-        '<div class="mc-chapter-actions"><button type="button" class="btn btn-primary" id="mc-mark-done">Marquer comme lu</button></div>';
+        renderAssessment(ch.quiz, "quiz", n) +
+        renderAssessment(ch.exam, "exam", n) +
+        '<div class="mc-chapter-actions"><button type="button" class="btn btn-secondary" id="mc-mark-done">Marquer comme lu</button></div>';
+
+      bindAssessmentForms(root);
 
       const btn = document.getElementById("mc-mark-done");
       if (btn) {
