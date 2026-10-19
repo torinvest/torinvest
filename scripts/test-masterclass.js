@@ -38,6 +38,7 @@ test("fichiers socle présents", function () {
     "deploy/vps/MASTERCLASS.md",
     "deploy/vps/masterclass-seed/index.json",
     "scripts/import-masterclass-docx.py",
+    "scripts/generate-masterclass-quizzes.py",
   ].forEach(function (rel) {
     assert.ok(fs.existsSync(path.join(root, rel)), "missing " + rel);
   });
@@ -123,6 +124,37 @@ test("index seed = 23 chapitres", function () {
   assert.strictEqual(idx.chapters.length, 23);
   assert.strictEqual(idx.chapters[0].number, 1);
   assert.strictEqual(idx.chapters[22].number, 23);
+});
+
+test("routes assessment + strip answers", function () {
+  var src = fs.readFileSync(
+    path.join(root, "deploy/vps/formation-server/routes-masterclass.js"),
+    "utf8"
+  );
+  assert.ok(src.indexOf("/api/masterclass/chapters/:num/assessment") !== -1);
+  assert.ok(src.indexOf("publicChapter") !== -1);
+  assert.ok(src.indexOf("gradeAssessment") !== -1);
+  assert.ok(src.indexOf("validated") !== -1);
+});
+
+test("UI quiz + examen", function () {
+  var js = fs.readFileSync(path.join(root, "la-forge/js/forge-masterclass.js"), "utf8");
+  assert.ok(js.indexOf("renderAssessment") !== -1);
+  assert.ok(js.indexOf('data-kind') !== -1 || js.indexOf("data-kind") !== -1);
+  assert.ok(js.indexOf("mc-exam") !== -1);
+  assert.ok(js.indexOf("mc-quiz") !== -1);
+  var css = fs.readFileSync(path.join(root, "la-forge/css/forge-masterclass.css"), "utf8");
+  assert.ok(css.indexOf(".mc-assess") !== -1);
+});
+
+test("index métadonnées quiz/exam", function () {
+  var idx = JSON.parse(
+    fs.readFileSync(path.join(root, "deploy/vps/masterclass-seed/index.json"), "utf8")
+  );
+  idx.chapters.forEach(function (ch) {
+    assert.ok(ch.quizCount >= 3 && ch.quizCount <= 5, "quiz " + ch.number);
+    assert.strictEqual(ch.examCount, 5, "exam " + ch.number);
+  });
 });
 
 test("wire monte createMasterclassRouter", function () {

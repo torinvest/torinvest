@@ -114,6 +114,101 @@
 }
 .mc-chapter-actions { margin: 1.5rem 0; }
 
+.mc-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.72rem;
+  color: var(--muted, #9aa3b2);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+.mc-badge-ok {
+  color: #3dcf8e;
+  border-color: rgba(61, 207, 142, 0.4);
+}
+.mc-toc-item.validated {
+  border-color: rgba(61, 207, 142, 0.45);
+}
+
+.mc-assess {
+  margin: 2rem 0 1.25rem;
+  padding: 1.1rem 1.15rem 1.25rem;
+  border: 1px solid rgba(255, 215, 0, 0.22);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+}
+.mc-assess-exam {
+  border-color: rgba(94, 234, 212, 0.35);
+}
+.mc-assess h2 {
+  margin: 0 0 0.35rem;
+  color: var(--gold, #ffd700);
+  font-size: 1.1rem;
+}
+.mc-assess-exam h2 { color: var(--aqua, #5eead4); }
+.mc-assess-meta {
+  margin: 0 0 1rem;
+  color: var(--muted, #9aa3b2);
+  font-size: 0.84rem;
+}
+.mc-q {
+  border: 0;
+  margin: 0 0 1.1rem;
+  padding: 0;
+}
+.mc-q legend {
+  color: var(--text, #e8eaed);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  margin-bottom: 0.5rem;
+  padding: 0;
+}
+.mc-choice {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  margin: 0.35rem 0;
+  padding: 0.45rem 0.55rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--text, #e8eaed);
+}
+.mc-choice:hover { border-color: rgba(255, 215, 0, 0.35); }
+.mc-choice input { margin-top: 0.2rem; flex-shrink: 0; }
+.mc-q.is-correct .mc-choice { border-color: rgba(61, 207, 142, 0.25); }
+.mc-q.is-wrong .mc-choice { border-color: rgba(239, 68, 68, 0.2); }
+.mc-q-feedback {
+  margin-top: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--muted, #9aa3b2);
+  line-height: 1.45;
+}
+.mc-q.is-correct .mc-q-feedback { color: #3dcf8e; }
+.mc-q.is-wrong .mc-q-feedback { color: #f87171; }
+.mc-assess-submit { margin-top: 0.35rem; }
+.mc-assess-result {
+  margin-top: 0.85rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.mc-assess-result.pass {
+  background: rgba(61, 207, 142, 0.12);
+  border: 1px solid rgba(61, 207, 142, 0.35);
+  color: #3dcf8e;
+}
+.mc-assess-result.fail {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
 @media (max-width: 640px) {
   .mc-toc-item { grid-template-columns: 2.4rem 1fr; }
 }
