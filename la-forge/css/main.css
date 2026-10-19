@@ -14,6 +14,24 @@
   --bull: #22c55e;
   --bear: #ef4444;
   --fvg: rgba(94, 234, 212, 0.25);
+  --nav-gold: #ffd700;
+  --nav-amber: #fbbf24;
+  --nav-ember: #f97316;
+  --nav-aqua: #5eead4;
+  --nav-mint: #34d399;
+  --nav-steel: #94a3b8;
+  --nav-cyan: #22d3ee;
+  --nav-rose: #fb7185;
+  --nav-violet: #a78bfa;
+  --nav-lime: #a3e635;
+  --nav-orange: #fb923c;
+  --nav-sky: #38bdf8;
+  --nav-bull: #22c55e;
+  --nav-sand: #e7c08a;
+  --nav-teal: #2dd4bf;
+  --nav-blue: #60a5fa;
+  --nav-bear: #f87171;
+  --nav-muted: #9aa3b2;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -115,6 +133,204 @@ img[src*="torinvest-logo-full"] {
   min-width: 0;
 }
 .header-nav a { margin-left: 0; font-size: 0.88rem; white-space: nowrap; }
+
+/* Accents couleurs menu / onglets La Forge */
+.header-nav--forge {
+  gap: 0.28rem 0.35rem;
+}
+.header-nav--forge a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  color: var(--muted);
+  border: 1px solid transparent;
+  background: transparent;
+  text-decoration: none !important;
+  transition:
+    color 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+.header-nav--forge a::after {
+  content: "";
+  position: absolute;
+  left: 0.55rem;
+  right: 0.55rem;
+  bottom: 0.12rem;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.22s ease;
+  opacity: 0.85;
+}
+.header-nav--forge a:hover,
+.header-nav--forge a:focus-visible {
+  color: var(--nav-accent, var(--gold));
+  background: color-mix(in srgb, var(--nav-accent, var(--gold)) 14%, transparent);
+  border-color: color-mix(in srgb, var(--nav-accent, var(--gold)) 40%, transparent);
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--nav-accent, var(--gold)) 18%, transparent);
+}
+.header-nav--forge a:hover::after,
+.header-nav--forge a:focus-visible::after,
+.header-nav--forge a.active::after {
+  transform: scaleX(1);
+}
+.header-nav--forge a.active {
+  color: var(--nav-accent, var(--gold));
+  background: color-mix(in srgb, var(--nav-accent, var(--gold)) 18%, transparent);
+  border-color: color-mix(in srgb, var(--nav-accent, var(--gold)) 45%, transparent);
+  font-weight: 650;
+}
+.header-nav--forge a[data-accent="gold"] { --nav-accent: var(--nav-gold); }
+.header-nav--forge a[data-accent="amber"] { --nav-accent: var(--nav-amber); }
+.header-nav--forge a[data-accent="ember"] { --nav-accent: var(--nav-ember); }
+.header-nav--forge a[data-accent="aqua"] { --nav-accent: var(--nav-aqua); }
+.header-nav--forge a[data-accent="mint"] { --nav-accent: var(--nav-mint); }
+.header-nav--forge a[data-accent="steel"] { --nav-accent: var(--nav-steel); }
+.header-nav--forge a[data-accent="cyan"] { --nav-accent: var(--nav-cyan); }
+.header-nav--forge a[data-accent="rose"] { --nav-accent: var(--nav-rose); }
+.header-nav--forge a[data-accent="violet"] { --nav-accent: var(--nav-violet); }
+.header-nav--forge a[data-accent="lime"] { --nav-accent: var(--nav-lime); }
+.header-nav--forge a[data-accent="orange"] { --nav-accent: var(--nav-orange); }
+.header-nav--forge a[data-accent="sky"] { --nav-accent: var(--nav-sky); }
+.header-nav--forge a[data-accent="bull"] { --nav-accent: var(--nav-bull); }
+.header-nav--forge a[data-accent="sand"] { --nav-accent: var(--nav-sand); }
+.header-nav--forge a[data-accent="teal"] { --nav-accent: var(--nav-teal); }
+.header-nav--forge a[data-accent="blue"] { --nav-accent: var(--nav-blue); }
+.header-nav--forge a[data-accent="bear"] { --nav-accent: var(--nav-bear); }
+.header-nav--forge a[data-accent="muted"] { --nav-accent: var(--nav-muted); }
+.header-nav--forge #logout-btn:hover {
+  color: var(--nav-bear);
+  border-color: color-mix(in srgb, var(--nav-bear) 45%, transparent);
+}
+
+/* Onglets dashboard colorés + animés */
+.dash-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1.15rem;
+}
+.dash-tab {
+  --tab-accent: var(--nav-gold);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.48rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--tab-accent) 28%, var(--border));
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--tab-accent) 12%, var(--panel2)), var(--panel2));
+  color: var(--text);
+  font-size: 0.86rem;
+  font-weight: 600;
+  text-decoration: none !important;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  animation: dashTabIn 0.45s ease forwards;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease;
+}
+.dash-tab:nth-child(1) { animation-delay: 0.02s; }
+.dash-tab:nth-child(2) { animation-delay: 0.04s; }
+.dash-tab:nth-child(3) { animation-delay: 0.06s; }
+.dash-tab:nth-child(4) { animation-delay: 0.08s; }
+.dash-tab:nth-child(5) { animation-delay: 0.1s; }
+.dash-tab:nth-child(6) { animation-delay: 0.12s; }
+.dash-tab:nth-child(7) { animation-delay: 0.14s; }
+.dash-tab:nth-child(8) { animation-delay: 0.16s; }
+.dash-tab:nth-child(9) { animation-delay: 0.18s; }
+.dash-tab:nth-child(10) { animation-delay: 0.2s; }
+.dash-tab:nth-child(11) { animation-delay: 0.22s; }
+.dash-tab:nth-child(12) { animation-delay: 0.24s; }
+.dash-tab:nth-child(13) { animation-delay: 0.26s; }
+.dash-tab:nth-child(14) { animation-delay: 0.28s; }
+.dash-tab:nth-child(15) { animation-delay: 0.3s; }
+.dash-tab:nth-child(16) { animation-delay: 0.32s; }
+.dash-tab:nth-child(17) { animation-delay: 0.34s; }
+.dash-tab:nth-child(18) { animation-delay: 0.36s; }
+.dash-tab:nth-child(19) { animation-delay: 0.38s; }
+.dash-tab::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 20%, color-mix(in srgb, var(--tab-accent) 28%, transparent) 50%, transparent 80%);
+  transform: translateX(-120%);
+  transition: transform 0.55s ease;
+  pointer-events: none;
+}
+.dash-tab:hover::before,
+.dash-tab:focus-visible::before {
+  transform: translateX(120%);
+}
+.dash-tab:hover,
+.dash-tab:focus-visible {
+  color: #fff;
+  border-color: color-mix(in srgb, var(--tab-accent) 65%, white);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--tab-accent) 25%, transparent),
+    0 8px 22px color-mix(in srgb, var(--tab-accent) 18%, transparent);
+  transform: translateY(-2px) scale(1.02);
+}
+.dash-tab.is-active {
+  color: #0a0a0f;
+  background: linear-gradient(135deg, var(--tab-accent), color-mix(in srgb, var(--tab-accent) 70%, white));
+  border-color: transparent;
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--tab-accent) 28%, transparent);
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+.dash-tab[data-accent="gold"] { --tab-accent: var(--nav-gold); }
+.dash-tab[data-accent="amber"] { --tab-accent: var(--nav-amber); }
+.dash-tab[data-accent="ember"] { --tab-accent: var(--nav-ember); }
+.dash-tab[data-accent="aqua"] { --tab-accent: var(--nav-aqua); }
+.dash-tab[data-accent="mint"] { --tab-accent: var(--nav-mint); }
+.dash-tab[data-accent="steel"] { --tab-accent: var(--nav-steel); }
+.dash-tab[data-accent="cyan"] { --tab-accent: var(--nav-cyan); }
+.dash-tab[data-accent="rose"] { --tab-accent: var(--nav-rose); }
+.dash-tab[data-accent="violet"] { --tab-accent: var(--nav-violet); }
+.dash-tab[data-accent="lime"] { --tab-accent: var(--nav-lime); }
+.dash-tab[data-accent="orange"] { --tab-accent: var(--nav-orange); }
+.dash-tab[data-accent="sky"] { --tab-accent: var(--nav-sky); }
+.dash-tab[data-accent="bull"] { --tab-accent: var(--nav-bull); }
+.dash-tab[data-accent="sand"] { --tab-accent: var(--nav-sand); }
+.dash-tab[data-accent="teal"] { --tab-accent: var(--nav-teal); }
+.dash-tab[data-accent="blue"] { --tab-accent: var(--nav-blue); }
+.dash-tab[data-accent="bear"] { --tab-accent: var(--nav-bear); }
+
+@keyframes dashTabIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-tab,
+  .header-nav--forge a {
+    animation: none !important;
+    transition: none !important;
+  }
+  .dash-tab {
+    opacity: 1;
+    transform: none;
+  }
+  .dash-tab::before,
+  .header-nav--forge a::after {
+    display: none;
+  }
+}
 
 /* Retour site principal TORINVEST (app + /la-forge) */
 .forge-back-home-nav {
