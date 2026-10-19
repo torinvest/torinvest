@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Espace membre — TORINVEST La Forge</title>
   <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
-  <link rel="stylesheet" href="/css/main.css?v=dashvis1" />
+  <link rel="stylesheet" href="/css/main.css?v=navtabs2" />
   <link rel="stylesheet" href="/css/legal.css" />
 </head>
 <body>
@@ -27,26 +27,27 @@
     <div data-forge-market-legend style="margin-bottom:0.85rem"></div>
     <p id="dash-meta" style="color:var(--muted);margin-bottom:1.25rem">~70 h · 37 modules + Fondamental · 11 parties</p>
 
-    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1rem">
-      <span class="btn btn-secondary" style="pointer-events:none;opacity:0.9">Dashboard</span>
-      <a class="btn btn-secondary" href="/start.html">Premiers pas</a>
-      <a class="btn btn-secondary" href="/course/index.html">Formation</a>
-      <a class="btn btn-secondary" href="/fondamental.html">Fondamental</a>
-      <a class="btn btn-secondary" href="/journal.html">Journal</a>
-      <a class="btn btn-secondary" href="/atlas.html">Atlas</a>
-      <a class="btn btn-secondary" href="/ict-atlas.html">Atlas ICT</a>
-      <a class="btn btn-secondary" href="/styles-atlas.html">Atlas Styles</a>
-      <a class="btn btn-secondary" href="/psycho-atlas.html">Atlas Psycho</a>
-      <a class="btn btn-secondary" href="/indicateurs-atlas.html">Atlas Indicateurs</a>
-      <a class="btn btn-secondary" href="/strategies.html">Stratégies</a>
-      <a class="btn btn-secondary" href="/swing-analyses.html">Analyses swing</a>
-      <a class="btn btn-secondary" href="/macro-edge.html">Macro Edge</a>
-      <a class="btn btn-secondary" href="/books.html">Livres</a>
-      <a class="btn btn-secondary" href="/resources.html">Ressources</a>
-      <a class="btn btn-secondary" href="/calendar.html">Calendrier</a>
-      <a class="btn btn-secondary" href="/coaching-fiches.html" data-cf-admin-nav hidden>Fiches coaching</a>
-      <a class="btn btn-secondary" href="/chart-exercises-admin.html" data-cex-admin-nav hidden>Exercices chart</a>
-    </div>
+    <nav class="dash-tabs" aria-label="Raccourcis La Forge">
+      <span class="dash-tab is-active" data-accent="gold" aria-current="page">Dashboard</span>
+      <a class="dash-tab" data-accent="amber" href="/start.html">Premiers pas</a>
+      <a class="dash-tab" data-accent="ember" href="/course/index.html">Formation</a>
+      <a class="dash-tab" data-accent="aqua" href="/fondamental.html">Fondamental</a>
+      <a class="dash-tab" data-accent="mint" href="/journal.html">Journal</a>
+      <a class="dash-tab" data-accent="steel" href="/atlas.html">Atlas</a>
+      <a class="dash-tab" data-accent="cyan" href="/ict-atlas.html">Atlas ICT</a>
+      <a class="dash-tab" data-accent="rose" href="/styles-atlas.html">Atlas Styles</a>
+      <a class="dash-tab" data-accent="violet" href="/psycho-atlas.html">Atlas Psycho</a>
+      <a class="dash-tab" data-accent="lime" href="/indicateurs-atlas.html">Atlas Indicateurs</a>
+      <a class="dash-tab" data-accent="orange" href="/strategies.html">Stratégies</a>
+      <a class="dash-tab" data-accent="sky" href="/swing-analyses.html">Analyses swing</a>
+      <a class="dash-tab" data-accent="bull" href="/macro-edge.html">Macro Edge</a>
+      <a class="dash-tab" data-accent="gold" href="/masterclass.html" id="dash-tab-masterclass" hidden>Masterclass</a>
+      <a class="dash-tab" data-accent="sand" href="/books.html">Livres</a>
+      <a class="dash-tab" data-accent="teal" href="/resources.html">Ressources</a>
+      <a class="dash-tab" data-accent="blue" href="/calendar.html">Calendrier</a>
+      <a class="dash-tab" data-accent="ember" href="/coaching-fiches.html" data-cf-admin-nav hidden>Fiches coaching</a>
+      <a class="dash-tab" data-accent="cyan" href="/chart-exercises-admin.html" data-cex-admin-nav hidden>Exercices chart</a>
+    </nav>
 
     <p style="color:var(--muted);font-size:0.92rem;margin-bottom:1rem;line-height:1.6;border-left:3px solid rgba(255,215,0,.45);padding-left:0.85rem">
       <strong style="color:var(--gold)">Chemin guidé</strong> — une prochaine étape, puis formation / Fondamental / Journal / lives.
@@ -273,7 +274,7 @@
 
   <footer data-forge-footer></footer>
 
-  <script src="/js/forge-brand.js"></script>
+  <script src="/js/forge-brand.js?v=navtabs2"></script>
   <script src="/js/auth.js?v=dashfix1"></script>
   <script src="/js/forge-gate.js"></script>
   <script src="/js/progress.js"></script>
@@ -323,27 +324,24 @@
           a.href = "/coaching-fiches.html";
           a.textContent = "Fiches coaching";
           a.setAttribute("data-cf-nav", "1");
+          a.setAttribute("data-nav", "coaching-fiches");
+          a.setAttribute("data-accent", "ember");
           var logout = nav.querySelector("#logout-btn");
           if (logout) nav.insertBefore(a, logout);
           else nav.appendChild(a);
         }
-        if (nav && !nav.querySelector('[data-mc-nav="1"]')) {
-          var mc = document.createElement("a");
-          mc.href = "/masterclass.html";
-          mc.textContent = "Masterclass";
-          mc.setAttribute("data-mc-nav", "1");
-          var logout2 = nav.querySelector("#logout-btn");
-          if (logout2) nav.insertBefore(mc, logout2);
-          else nav.appendChild(mc);
-        }
+        var mcTab = document.getElementById("dash-tab-masterclass");
+        if (mcTab) mcTab.hidden = false;
       }
-      // Accès Masterclass aussi via grant serveur (carte visible si canRead)
+      // Accès Masterclass aussi via grant serveur (carte + onglet)
       fetch("/api/masterclass/catalog", { credentials: "same-origin", headers: { Accept: "application/json" } })
         .then(function (r) { return r.json().catch(function () { return {}; }); })
         .then(function (data) {
           if (data && data.access && (data.access.canRead || data.access.isAdmin)) {
             var card = document.getElementById("masterclass-access");
             if (card) card.hidden = false;
+            var tab = document.getElementById("dash-tab-masterclass");
+            if (tab) tab.hidden = false;
           }
         })
         .catch(function () {});

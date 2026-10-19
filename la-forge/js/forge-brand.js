@@ -390,30 +390,53 @@ function initLiveSection() {
   if (el) el.innerHTML = renderLiveSection();
 }
 
+function memberNavLink(href, id, label, accent, active) {
+  return (
+    '<a href="' +
+    href +
+    '" data-nav="' +
+    id +
+    '" data-accent="' +
+    accent +
+    '"' +
+    (active === id ? ' class="active"' : "") +
+    ">" +
+    label +
+    "</a>"
+  );
+}
+
 function initMemberHeader(active) {
+  const base = "https://app.torinvest-trading.com";
   const nav =
     forgeBackHomeNavHtml() +
-    '<a href="https://app.torinvest-trading.com/dashboard.html"' + (active === "dashboard" ? ' class="active"' : "") + ">Dashboard</a>" +
-    '<a href="https://app.torinvest-trading.com/start.html"' + (active === "start" ? ' class="active"' : "") + ">Premiers pas</a>" +
-    '<a href="https://app.torinvest-trading.com/course/index.html"' + (active === "course" ? ' class="active"' : "") + ">Formation</a>" +
-    '<a href="https://app.torinvest-trading.com/fondamental.html"' + (active === "fondamental" ? ' class="active"' : "") + ">Fondamental</a>" +
-    '<a href="https://app.torinvest-trading.com/journal.html"' + (active === "journal" ? ' class="active"' : "") + ">Journal</a>" +
-    '<a href="https://app.torinvest-trading.com/atlas.html"' + (active === "atlas" ? ' class="active"' : "") + ">Atlas</a>" +
-    '<a href="https://app.torinvest-trading.com/ict-atlas.html"' + (active === "ict-atlas" ? ' class="active"' : "") + ">Atlas ICT</a>" +
-    '<a href="https://app.torinvest-trading.com/styles-atlas.html"' + (active === "styles-atlas" ? ' class="active"' : "") + ">Styles</a>" +
-    '<a href="https://app.torinvest-trading.com/psycho-atlas.html"' + (active === "psycho-atlas" ? ' class="active"' : "") + ">Psycho</a>" +
-    '<a href="https://app.torinvest-trading.com/indicateurs-atlas.html"' + (active === "indicateurs-atlas" ? ' class="active"' : "") + ">Indicateurs</a>" +
-    '<a href="https://app.torinvest-trading.com/strategies.html"' + (active === "strategies" ? ' class="active"' : "") + ">Stratégies</a>" +
-    '<a href="https://app.torinvest-trading.com/swing-analyses.html"' + (active === "swing-analyses" ? ' class="active"' : "") + ">Analyses</a>" +
-    '<a href="https://app.torinvest-trading.com/macro-edge.html"' + (active === "macro-edge" ? ' class="active"' : "") + ">Macro Edge</a>" +
-    '<a href="https://app.torinvest-trading.com/books.html"' + (active === "books" ? ' class="active"' : "") + ">Livres</a>" +
-    '<a href="https://app.torinvest-trading.com/resources.html"' + (active === "resources" ? ' class="active"' : "") + ">Ressources</a>" +
-    '<a href="https://app.torinvest-trading.com/calendar.html"' + (active === "calendar" ? ' class="active"' : "") + ">Calendrier</a>" +
-    '<a href="' + forgePublicUrl("/la-forge/#live") + '"' + (active === "live" ? ' class="active"' : "") + ">Live</a>" +
-    '<a href="#" id="logout-btn">Déconnexion</a>';
+    memberNavLink(base + "/dashboard.html", "dashboard", "Dashboard", "gold", active) +
+    memberNavLink(base + "/start.html", "start", "Premiers pas", "amber", active) +
+    memberNavLink(base + "/course/index.html", "course", "Formation", "ember", active) +
+    memberNavLink(base + "/fondamental.html", "fondamental", "Fondamental", "aqua", active) +
+    memberNavLink(base + "/journal.html", "journal", "Journal", "mint", active) +
+    memberNavLink(base + "/atlas.html", "atlas", "Atlas", "steel", active) +
+    memberNavLink(base + "/ict-atlas.html", "ict-atlas", "Atlas ICT", "cyan", active) +
+    memberNavLink(base + "/styles-atlas.html", "styles-atlas", "Styles", "rose", active) +
+    memberNavLink(base + "/psycho-atlas.html", "psycho-atlas", "Psycho", "violet", active) +
+    memberNavLink(base + "/indicateurs-atlas.html", "indicateurs-atlas", "Indicateurs", "lime", active) +
+    memberNavLink(base + "/strategies.html", "strategies", "Stratégies", "orange", active) +
+    memberNavLink(base + "/swing-analyses.html", "swing-analyses", "Analyses", "sky", active) +
+    memberNavLink(base + "/macro-edge.html", "macro-edge", "Macro Edge", "bull", active) +
+    memberNavLink(base + "/masterclass.html", "masterclass", "Masterclass", "gold", active) +
+    memberNavLink(base + "/books.html", "books", "Livres", "sand", active) +
+    memberNavLink(base + "/resources.html", "resources", "Ressources", "teal", active) +
+    memberNavLink(base + "/calendar.html", "calendar", "Calendrier", "blue", active) +
+    memberNavLink(forgePublicUrl("/la-forge/#live"), "live", "Live", "bear", active) +
+    '<a href="#" id="logout-btn" data-nav="logout" data-accent="muted">Déconnexion</a>';
   document.querySelectorAll("[data-forge-member-header]").forEach((el) => {
     el.className = "site-header";
-    el.innerHTML = '<div class="header-brand">' + forgeLogoHtml("header") + "</div><nav class=\"header-nav\">" + nav + "</nav>";
+    el.innerHTML =
+      '<div class="header-brand">' +
+      forgeLogoHtml("header") +
+      '</div><nav class="header-nav header-nav--forge">' +
+      nav +
+      "</nav>";
   });
 }
 
