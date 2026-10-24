@@ -503,8 +503,8 @@ function injectProxyShim(html) {
     if (typeof window.openTrade === "function") {
       try { window.openTrade(id); return; } catch(e){}
     }
-    // Contrat TJ v3 : lecture = page=history&read=ID (pas action=view ni view=)
-    var dest = P + "?page=history&read=" + encodeURIComponent(id);
+    // Contrat TJ v4 : lecture = page=history&edit=ID&readonly=1 (TJ charge via edit=)
+    var dest = P + "?page=history&edit=" + encodeURIComponent(id) + "&readonly=1";
     try { window.location.assign(dest); } catch(e2){ window.location.href = dest; }
   }
   function wrapOpenTrade(){
@@ -513,7 +513,7 @@ function injectProxyShim(html) {
     window.openTrade = function(id){
       try { return o.apply(this, arguments); }
       catch(e){
-        var dest = P + "?page=history&read=" + encodeURIComponent(String(id));
+        var dest = P + "?page=history&edit=" + encodeURIComponent(String(id)) + "&readonly=1";
         try { window.location.assign(dest); } catch(e2){ window.location.href = dest; }
       }
     };

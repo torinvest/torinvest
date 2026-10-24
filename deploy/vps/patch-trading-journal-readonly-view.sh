@@ -1,28 +1,28 @@
 #!/usr/bin/env bash
-# Patch radar — vue lecture seule des trades (Trading Journal Pro) v3
+# Patch radar — vue lecture seule des trades (Trading Journal Pro) v4.1
 #
-# - Clic Historique/Calendrier → ?page=history&read=ID (lecture)
-# - Bouton « Modifier » → ?page=history&edit=ID
-# - Bouton « Retour » → historique
-# - NE PAS utiliser view= (collision menus TJ : view=historique|calendrier)
+# - Clic → ?page=history&edit=ID&readonly=1
+# - Modifier → ?page=history&edit=ID
+# - Python n’écrit JAMAIS dans /tmp (stdout → sudo tee) — évite PermissionError
 #
-# Sur le VPS **radar** (où se trouve trading_journal.php) :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
-#
-# Toutes les écritures sur /var/www/torinvest/* passent par sudo.
+# Sur le VPS **radar** :
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh?$(date +%s)" | bash
 set -euo pipefail
 
-REF="${1:-cursor/journal-read-click-fix-691a}"
+REF="${1:-cursor/journal-readonly-flag-691a}"
 ROOT="${TORINVEST_WWW:-/var/www/torinvest}"
 JOURNAL="$ROOT/trading_journal.php"
 API_DIR="$ROOT/api"
 DST="$API_DIR/trading-journal-readonly-view.php"
 BASE="https://raw.githubusercontent.com/torinvest/torinvest/${REF}"
 MARKER="torinvest-journal-readonly-view"
-WORKDIR="$(mktemp -d)"
+# Workdir dans $HOME (pas /tmp sticky/root) — owned par l'utilisateur
+WORKDIR="${HOME}/.torinvest-patch-$$"
+mkdir -p "$WORKDIR"
 trap 'rm -rf "$WORKDIR"' EXIT
 
-echo "==> patch Trading Journal READ-ONLY view v3 ($REF)"
+echo "==> patch Trading Journal READ-ONLY view v4.1 ($REF)"
+echo "    PATCH_ENGINE=stdout+sudo-tee"
 
 if [[ ! -f "$JOURNAL" ]]; then
   echo "ERREUR: $JOURNAL introuvable — cherche…"
@@ -41,7 +41,7 @@ if [[ ! -f "$JOURNAL" ]]; then
 fi
 
 sudo mkdir -p "$API_DIR"
-curl -fsSL "$BASE/api/trading-journal-readonly-view.php" -o "$WORKDIR/ro.php"
+curl -fsSL "${BASE}/api/trading-journal-readonly-view.php?ts=$(date +%s)" -o "$WORKDIR/ro.php"
 grep -q 'torinvest_journal_readonly_boot' "$WORKDIR/ro.php" || {
   echo "ÉCHEC: artefact PHP invalide"
   exit 1
@@ -50,12 +50,12 @@ grep -q 'lecture seule' "$WORKDIR/ro.php" || {
   echo "ÉCHEC: labels FR manquants"
   exit 1
 }
-grep -q 'torinvest-tj-readonly-v3' "$WORKDIR/ro.php" || {
-  echo "ÉCHEC: marker v3 absent — mauvais artefact"
+grep -q 'torinvest-tj-readonly-v4' "$WORKDIR/ro.php" || {
+  echo "ÉCHEC: marker v4 absent — mauvais artefact"
   exit 1
 }
-grep -q 'page=history&read=' "$WORKDIR/ro.php" || {
-  echo "ÉCHEC: contrat read= manquant"
+grep -q 'readonly=1' "$WORKDIR/ro.php" || {
+  echo "ÉCHEC: contrat readonly=1 manquant"
   exit 1
 }
 php -l "$WORKDIR/ro.php"
@@ -67,15 +67,15 @@ BAK="${JOURNAL}.bak.readonly.$(date +%Y%m%d%H%M%S)"
 sudo cp -a "$JOURNAL" "$BAK"
 echo "Backup: $BAK"
 
-# Copie lisible pour Python (évite write direct sur fichier root)
-sudo cp -a "$JOURNAL" "$WORKDIR/journal.php"
-sudo chmod u+rw "$WORKDIR/journal.php" 2>/dev/null || chmod u+rw "$WORKDIR/journal.php"
+# Copie lisible (owned user) — jamais sudo cp -a
+sudo cat "$JOURNAL" > "$WORKDIR/journal.php"
+chmod u+rw "$WORKDIR/journal.php" || true
 
-# 1) Inject bootstrap si absent
+# 1) Inject bootstrap si absent — Python print → fichier user (pas d'écriture root)
 if grep -q "$MARKER" "$WORKDIR/journal.php"; then
   echo "OK — bootstrap readonly déjà présent"
 else
-  python3 - "$WORKDIR/journal.php" "$MARKER" <<'PY'
+  python3 - "$WORKDIR/journal.php" "$MARKER" > "$WORKDIR/journal.out" <<'PY'
 import pathlib, sys, re
 path = pathlib.Path(sys.argv[1])
 marker = sys.argv[2]
@@ -94,69 +94,89 @@ if re.search(r"torinvest_journal_forge_sso_boot\s*\(\s*\)\s*;", src):
         count=1,
     )
     if n:
-        path.write_text(src2, encoding="utf-8")
-        print("injected after SSO boot")
+        sys.stdout.write(src2)
+        print("injected after SSO boot", file=sys.stderr)
         raise SystemExit(0)
 if src.lstrip().startswith("<?php"):
     rest = re.sub(r"^\s*<\?php\s*", "", src, count=1)
-    path.write_text("<?php\n" + boot + rest, encoding="utf-8")
-    print("prefixed after <?php")
+    sys.stdout.write("<?php\n" + boot + rest)
+    print("prefixed after <?php", file=sys.stderr)
 else:
-    path.write_text("<?php\n" + boot + src, encoding="utf-8")
-    print("prefixed file")
+    sys.stdout.write("<?php\n" + boot + src)
+    print("prefixed file", file=sys.stderr)
 PY
+  mv -f "$WORKDIR/journal.out" "$WORKDIR/journal.php"
   echo "OK — bootstrap readonly préparé"
 fi
 
-# 2) Réécrire openTrade / liens edit= → read= (et view= numérique → read=)
-python3 - "$WORKDIR/journal.php" <<'PY'
+# 2) openTrade → edit=+readonly=1 — stdout only
+python3 - "$WORKDIR/journal.php" > "$WORKDIR/journal.out" <<'PY'
 import re, sys
 from pathlib import Path
 path = Path(sys.argv[1])
 src = path.read_text(encoding="utf-8", errors="replace")
 orig = src
 
-def rewrite_opentrade(m):
+def fix_opentrade(m):
     body = m.group(0)
-    body = re.sub(r"([?&'\"`=])edit=", r"\1read=", body, flags=re.I)
-    # legacy view= numérique dans openTrade → read=
+    body = re.sub(r"([?&'\"`=])read=", r"\1edit=", body, flags=re.I)
     body = re.sub(
-        r"([?&'\"`=])view=(?=['\"]?\d)",
-        r"\1read=",
+        r"([?&'\"`=])view=(?=['\"]?\s*\+?\s*id|\d)",
+        r"\1edit=",
         body,
         flags=re.I,
     )
-    return body
+    if "readonly=1" in body:
+        return body
+    body2 = re.sub(
+        r"(['\"`][^'\"`]*[?&]edit=)(['\"`]\s*\+\s*id)",
+        r"\1&readonly=1\2",
+        body,
+        flags=re.I,
+    )
+    if body2 != body:
+        return body2
+    body2 = re.sub(
+        r"(edit=['\"`]?\s*\+\s*id)",
+        r"\1 + '&readonly=1'",
+        body,
+        flags=re.I,
+    )
+    if body2 != body:
+        return body2
+    body2 = re.sub(
+        r"([?&]edit=\d+)(?![&]readonly=1)",
+        r"\1&readonly=1",
+        body,
+        flags=re.I,
+    )
+    return body2
 
 src = re.sub(
     r"function\s+openTrade\s*\([^)]*\)\s*\{.*?\}",
-    rewrite_opentrade,
+    fix_opentrade,
     src,
     flags=re.S | re.I,
 )
 src = re.sub(
-    r"(openTrade\s*=\s*function\s*\([^)]*\)\s*\{)(.*?)(\})",
-    lambda m: m.group(1)
-    + re.sub(r"([?&'\"`])edit=", r"\1read=", m.group(2), flags=re.I)
-    + m.group(3),
+    r"openTrade\s*=\s*function\s*\([^)]*\)\s*\{.*?\}",
+    fix_opentrade,
     src,
     flags=re.S | re.I,
 )
-src = re.sub(
-    r"(['\"])([^'\"]*page=(?:history|calendar|calendrier)[^'\"]*?)edit=",
-    r"\1\2read=",
-    src,
-    flags=re.I,
+sys.stdout.write(src)
+print(
+    "OK — openTrade → edit=+readonly=1" if src != orig else "INFO — pas de réécriture source (JS runtime OK)",
+    file=sys.stderr,
 )
-path.write_text(src, encoding="utf-8")
-print("OK — openTrade/liens edit→read" if src != orig else "INFO — pas de réécriture source (JS runtime OK)")
 PY
+mv -f "$WORKDIR/journal.out" "$WORKDIR/journal.php"
 
 php -l "$WORKDIR/journal.php"
 php -l "$DST"
 
-# Dépose finale avec sudo (évite PermissionError)
-sudo cp -f "$WORKDIR/journal.php" "$JOURNAL"
+# Dépose finale via sudo tee (jamais besoin d'écrire en root dans workdir)
+sudo tee "$JOURNAL" < "$WORKDIR/journal.php" >/dev/null
 sudo chown www-data:www-data "$JOURNAL" 2>/dev/null || true
 
 sudo grep -q "$MARKER" "$JOURNAL" || {
@@ -170,9 +190,8 @@ sudo grep -q "trading-journal-readonly-view.php" "$JOURNAL" || {
 
 echo ""
 echo "############################################################"
-echo "#  OK — vue lecture seule v3 (read=)                       #"
+echo "#  OK — vue lecture seule v4.1 (edit=+readonly=1)          #"
 echo "#  1) Ctrl+Shift+R sur le journal radar                    #"
-echo "#  2) Historique / Calendrier → clic trade                 #"
-echo "#  3) URL = &read=ID (PAS edit=) + « lecture seule »       #"
-echo "#  4) Bouton Modifier → edit=ID ; Retour → historique      #"
+echo "#  2) Clic trade → URL &edit=ID&readonly=1 + lecture seule #"
+echo "#  3) Bouton Modifier → edit=ID ; Retour → historique      #"
 echo "############################################################"

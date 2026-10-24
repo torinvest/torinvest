@@ -1,32 +1,37 @@
 #!/usr/bin/env bash
-# HOTFIX — Trading Journal Pro : détail trade LECTURE SEULE v3
+# HOTFIX — Trading Journal Pro : détail trade LECTURE SEULE v4.1
 #
-# Problème : clic trade → ?page=history&edit=N (« Modifier le trade #N »)
-#            OU view=N qui collisionne avec menus TJ (view=historique)
-# Fix     : clic trade → ?page=history&read=N (détail lecture seule)
-#           bouton « Modifier » → edit=N ; « Retour » → historique
+# Clic → edit=ID&readonly=1 ; Modifier → edit=ID
 #
-# UNE commande VPS (radar) :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-read-click-fix-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
-# Après merge dans main :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
+# VPS radar (anti-cache) :
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-readonly-flag-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh?$(date +%s)" | bash
 set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF SCRIPT_REF 2>/dev/null || true
-BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/journal-read-click-fix-691a}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}"
+BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/journal-readonly-flag-691a}"
+# Pin commit si dispo (évite CDN stale) — sinon branche
+PIN="${JOURNAL_HOTFIX_PIN:-}"
+if [[ -n "$PIN" ]]; then
+  RAW="https://raw.githubusercontent.com/torinvest/torinvest/${PIN}"
+  LABEL="pin:$PIN"
+else
+  RAW="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}"
+  LABEL="branch:$BRANCH"
+fi
+TS="$(date +%s)"
 
 echo ""
 echo "############################################################"
-echo "#  HOTFIX JOURNAL TRADE READ-ONLY DETAIL v3 (read=)       #"
-echo "#  branch: $BRANCH                                        #"
+echo "#  HOTFIX JOURNAL TRADE READ-ONLY DETAIL v4.1             #"
+echo "#  edit=ID&readonly=1   $LABEL                            #"
+echo "#  PATCH_ENGINE=stdout+sudo-tee                           #"
 echo "############################################################"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-curl -fsSL "$RAW/deploy/vps/patch-trading-journal-readonly-view.sh" -o "$TMP/patch.sh"
-curl -fsSL "$RAW/api/trading-journal-readonly-view.php" -o "$TMP/ro.php"
+curl -fsSL "${RAW}/deploy/vps/patch-trading-journal-readonly-view.sh?ts=${TS}" -o "$TMP/patch.sh"
+curl -fsSL "${RAW}/api/trading-journal-readonly-view.php?ts=${TS}" -o "$TMP/ro.php"
 
 grep -q 'torinvest_journal_readonly_boot' "$TMP/ro.php" || {
   echo "ÉCHEC: PHP readonly invalide"
@@ -36,28 +41,32 @@ grep -q 'lecture seule' "$TMP/ro.php" || {
   echo "ÉCHEC: labels FR manquants"
   exit 1
 }
-grep -q 'torinvest-tj-readonly-v3' "$TMP/ro.php" || {
-  echo "ÉCHEC: v3 manquant — refuse un vieux cache"
+grep -q 'torinvest-tj-readonly-v4' "$TMP/ro.php" || {
+  echo "ÉCHEC: v4 manquant — refuse un vieux cache"
   exit 1
 }
-grep -q 'page=history&read=' "$TMP/ro.php" || {
-  echo "ÉCHEC: contrat read= manquant"
+grep -q 'readonly=1' "$TMP/ro.php" || {
+  echo "ÉCHEC: contrat readonly=1 manquant"
   exit 1
 }
-grep -q 'patch Trading Journal READ-ONLY' "$TMP/patch.sh" || {
-  echo "ÉCHEC: patch script invalide"
+grep -q 'PATCH_ENGINE=stdout+sudo-tee\|stdout+sudo-tee' "$TMP/patch.sh" || {
+  echo "ÉCHEC: vieux patch (sans stdout+sudo-tee) — cache GitHub ?"
+  echo "  Relance avec : JOURNAL_HOTFIX_PIN=<sha> ou attends 1 min"
+  exit 1
+}
+grep -qE 'path\.write_text|\.write_text\(' "$TMP/patch.sh" && {
+  echo "ÉCHEC: patch contient encore path.write_text — mauvais artefact"
   exit 1
 }
 php -l "$TMP/ro.php"
 
 chmod +x "$TMP/patch.sh"
-bash "$TMP/patch.sh" "$BRANCH"
+bash "$TMP/patch.sh" "${PIN:-$BRANCH}"
 
 ROOT="${TORINVEST_WWW:-/var/www/torinvest}"
 JOURNAL="$ROOT/trading_journal.php"
 RO="$ROOT/api/trading-journal-readonly-view.php"
 
-# Resolve journal if default path missing
 if [[ ! -f "$JOURNAL" ]]; then
   FOUND="$(sudo find /var/www -name 'trading_journal.php' 2>/dev/null | head -1 || true)"
   if [[ -n "$FOUND" ]]; then
@@ -74,8 +83,8 @@ grep -q 'torinvest-journal-readonly-view' "$JOURNAL" 2>/dev/null \
   echo "ÉCHEC: marker absent de trading_journal.php"
   exit 1
 }
-sudo grep -q 'torinvest-tj-readonly-v3' "$RO" || {
-  echo "ÉCHEC: RO déployé n'est pas v3"
+sudo grep -q 'torinvest-tj-readonly-v4' "$RO" || {
+  echo "ÉCHEC: RO déployé n'est pas v4"
   exit 1
 }
 php -l "$RO"
@@ -89,10 +98,6 @@ sudo systemctl reload php8.3-fpm 2>/dev/null \
   || true
 
 echo ""
-echo "OK — détail lecture seule v3 déployé sur radar."
-echo "→ Vérif :"
-echo "  1. Ctrl+Shift+R sur https://radar.torinvest-trading.com/trading_journal.php"
-echo "  2. Cliquer un trade → URL avec read=ID (PAS edit=) + « lecture seule »"
-echo "  3. Bouton Modifier → edit=ID (formulaire)"
-echo "  4. Bouton Retour → historique"
+echo "OK — détail lecture seule v4.1 déployé sur radar."
+echo "→ Vérif : Ctrl+Shift+R → clic trade → URL edit=ID&readonly=1 + lecture seule"
 echo "======== DONE ========"
