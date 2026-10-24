@@ -1,0 +1,206 @@
+/* Journal de trading natif — La Forge */
+.tj-wrap { margin: 0.5rem 0 2rem; }
+.tj-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0.75rem 0 1rem;
+}
+.tj-toolbar h1 {
+  margin: 0;
+  color: var(--gold, #d4af37);
+  font-size: 1.35rem;
+}
+.tj-toolbar-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.tj-muted { color: var(--muted, #9aa3b2); font-size: 0.9rem; line-height: 1.5; }
+.tj-empty {
+  padding: 1.5rem 1rem;
+  border: 1px dashed rgba(212, 175, 55, 0.35);
+  border-radius: 10px;
+  color: var(--muted, #9aa3b2);
+  text-align: center;
+}
+.tj-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 10px;
+  background: var(--panel2, #12151c);
+}
+.tj-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.tj-table th,
+.tj-table td {
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  white-space: nowrap;
+}
+.tj-table th {
+  color: var(--muted, #9aa3b2);
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tj-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.tj-table tbody tr:hover { background: rgba(212, 175, 55, 0.08); }
+.tj-table tbody tr:focus-visible {
+  outline: 2px solid var(--gold, #d4af37);
+  outline-offset: -2px;
+}
+.tj-side-long { color: #3dd68c; font-weight: 600; }
+.tj-side-short { color: #f07178; font-weight: 600; }
+.tj-pnl-pos { color: #3dd68c; }
+.tj-pnl-neg { color: #f07178; }
+.tj-badge {
+  display: inline-block;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--muted, #9aa3b2);
+}
+.tj-badge-open { border-color: rgba(61, 214, 140, 0.4); color: #3dd68c; }
+.tj-badge-closed { border-color: rgba(154, 163, 178, 0.4); }
+.tj-badge-idea { border-color: rgba(212, 175, 55, 0.45); color: var(--gold, #d4af37); }
+
+.tj-detail,
+.tj-form-card {
+  border: 1px solid var(--border, rgba(255,255,255,0.08));
+  border-radius: 12px;
+  background: var(--panel2, #12151c);
+  padding: 1.1rem 1.15rem 1.25rem;
+}
+.tj-detail-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.tj-detail-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--gold, #d4af37);
+}
+.tj-banner {
+  margin: 0 0 1rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  background: rgba(212, 175, 55, 0.1);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  color: #e8e0c8;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.tj-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0.5rem 0 1rem;
+}
+.tj-field label,
+.tj-form label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted, #9aa3b2);
+  margin-bottom: 0.25rem;
+}
+.tj-field .val {
+  font-size: 0.95rem;
+  color: #e8ecf1;
+  word-break: break-word;
+}
+.tj-notes {
+  margin-top: 0.75rem;
+  white-space: pre-wrap;
+  line-height: 1.55;
+  color: #d5dae3;
+  font-size: 0.92rem;
+}
+.tj-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.15rem;
+}
+
+.tj-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.85rem;
+}
+.tj-form .tj-span-2 { grid-column: 1 / -1; }
+.tj-form input,
+.tj-form select,
+.tj-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: #0b0e14;
+  color: #e8ecf1;
+  font: inherit;
+}
+.tj-form textarea { min-height: 110px; resize: vertical; }
+.tj-form input:focus,
+.tj-form select:focus,
+.tj-form textarea:focus {
+  outline: none;
+  border-color: rgba(212, 175, 55, 0.55);
+}
+
+.tj-shots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.tj-shot {
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0a0c12;
+}
+.tj-shot img {
+  display: block;
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+}
+.tj-shot figcaption {
+  padding: 0.4rem 0.5rem;
+  font-size: 0.75rem;
+  color: var(--muted, #9aa3b2);
+}
+.tj-error {
+  color: #f07178;
+  font-size: 0.88rem;
+  margin: 0.5rem 0;
+}
+.tj-legacy {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  font-size: 0.82rem;
+  color: var(--muted, #9aa3b2);
+}
+.tj-legacy a { color: var(--gold, #d4af37); }
+
+@media (max-width: 640px) {
+  .tj-table th:nth-child(n+5),
+  .tj-table td:nth-child(n+5) { display: none; }
+}

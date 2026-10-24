@@ -41,6 +41,7 @@ JS_FILES=(
   forge-consent.js
   forge-fondamental.js
   forge-journal.js
+  forge-journal-native.js
   forge-journal-trade-screens.js
   forge-atlas.js
   forge-ict-atlas.js
@@ -73,6 +74,7 @@ CSS_FILES=(
   forge-indicateurs-atlas.css
   forge-strategies.css
   forge-swing-analyses.css
+  forge-journal-native.css
   forge-macro-edge.css
   forge-masterclass.css
   forge-coaching-fiches.css

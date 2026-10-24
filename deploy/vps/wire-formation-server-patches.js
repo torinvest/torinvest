@@ -67,6 +67,9 @@ function hasSwingAnalyses() {
 function hasChartExercises() {
   return /createChartExercisesRouter|routes-chart-exercises/.test(content);
 }
+function hasJournalTrades() {
+  return /createJournalTradesRouter|routes-journal-trades/.test(content);
+}
 function hasMacroEdge() {
   return /createMacroEdgeRouter|routes-macro-edge/.test(content);
 }
@@ -98,6 +101,7 @@ function managedBlock(dataDirExpr) {
     "const createModuleQaRouter = require(\"./server-patches/routes-module-qa\");",
     "const createSwingAnalysesRouter = require(\"./server-patches/routes-swing-analyses\");",
     "const createChartExercisesRouter = require(\"./server-patches/routes-chart-exercises\");",
+    "const createJournalTradesRouter = require(\"./server-patches/routes-journal-trades\");",
     "const createMacroEdgeRouter = require(\"./server-patches/routes-macro-edge\");",
     "const createMasterclassRouter = require(\"./server-patches/routes-masterclass\");",
     "const requireSubscribedForCourse = require(\"./server-patches/middleware-require-subscribed\");",
@@ -143,6 +147,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createChartExercisesRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createJournalTradesRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -318,6 +328,7 @@ ensureCoachingFichesMounted();
 ensureModuleQaMounted();
 ensureSwingAnalysesMounted();
 ensureChartExercisesMounted();
+ensureJournalTradesMounted();
 ensureMacroEdgeMounted();
 ensureMasterclassMounted();
 
@@ -415,6 +426,54 @@ function ensureMacroEdgeMounted() {
   ].join("\n");
   content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + use);
   console.log("Macro Edge router ajouté.");
+}
+
+function ensureJournalTradesMounted() {
+  if (
+    !/createChartExercisesRouter|createSwingAnalysesRouter|createModuleQaRouter|createCalendarRouter/.test(
+      content
+    )
+  ) {
+    return;
+  }
+  if (hasJournalTrades()) {
+    console.log("OK — journal-trades natif déjà monté.");
+    return;
+  }
+  if (!/createJournalTradesRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createChartExercisesRouter = require\(["']\.\/server-patches\/routes-chart-exercises["']\);)/,
+      '$1\nconst createJournalTradesRouter = require("./server-patches/routes-journal-trades");'
+    );
+    if (replaced !== content) {
+      content = replaced;
+    } else {
+      content = content.replace(
+        /(const createSwingAnalysesRouter = require\([^)]+\);)/,
+        '$1\nconst createJournalTradesRouter = require("./server-patches/routes-journal-trades");'
+      );
+    }
+  }
+  const cexUseRe = /app\.use\(\s*createChartExercisesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const swaUseRe = /app\.use\(\s*createSwingAnalysesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const anchorMatch = content.match(cexUseRe) || content.match(swaUseRe);
+  if (!anchorMatch) {
+    console.warn("WARN — point d'insertion journal-trades introuvable.");
+    return;
+  }
+  const dataDirExpr =
+    (anchorMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const use = [
+    "app.use(",
+    "  createJournalTradesRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + use);
+  console.log("Journal trades natif ajouté.");
 }
 
 function ensureChartExercisesMounted() {
