@@ -133,7 +133,24 @@ section = (
     "</section>\n"
 )
 
-# Purge anciens players F3
+# Préserver le replay coaching F3 (2ᵉ vidéo) si déjà injecté
+cms, cme = "<!-- FORGE_F03_COACHING_START -->", "<!-- FORGE_F03_COACHING_END -->"
+coach_saved = None
+mcoach = re.search(re.escape(cms) + r".*?" + re.escape(cme), text, flags=re.S)
+if mcoach:
+    coach_saved = mcoach.group(0)
+    text = text[: mcoach.start()] + text[mcoach.end() :]
+else:
+    mcoach2 = re.search(
+        r'<(?:section|div)[^>]*(?:id=["\']f03-coaching["\']|data-video-id=["\']f03-coaching["\'])[^>]*>.*?</(?:section|div)\s*>',
+        text,
+        flags=re.I | re.S,
+    )
+    if mcoach2:
+        coach_saved = mcoach2.group(0)
+        text = text[: mcoach2.start()] + text[mcoach2.end() :]
+
+# Purge anciens players F3 (vidéo principale uniquement — pas f03-coaching)
 text = re.sub(re.escape(ms) + r".*?" + re.escape(me), "", text, flags=re.S)
 text = re.sub(
     r'<figure[^>]*id=["\']f03-video["\'][^>]*>.*?</figure>',
@@ -142,13 +159,13 @@ text = re.sub(
     flags=re.I | re.S,
 )
 text = re.sub(
-    r'<section[^>]*(?:id=["\']f03-video[^"\']*["\']|data-video-id=["\']f03-[^"\']*["\']|class=["\'][^"\']*forge-lesson-video(?:-slot|-section)?[^"\']*["\'])[^>]*>[\s\S]*?</section\s*>',
+    r'<section[^>]*(?:id=["\']f03-video-section["\']|data-video-id=["\']f03-timeframes["\']|class=["\'][^"\']*forge-lesson-video-section[^"\']*["\'])[^>]*>[\s\S]*?</section\s*>',
     "",
     text,
     flags=re.I,
 )
 text = re.sub(
-    r'<(div|aside|article)(\s[^>]*(?:data-video-id=["\']f03-[^"\']*["\']|id=["\']f03-video[^"\']*["\'])[^>]*)>[\s\S]*?</\1\s*>',
+    r'<(div|aside|article)(\s[^>]*(?:data-video-id=["\']f03-timeframes["\']|id=["\']f03-video["\'])[^>]*)>[\s\S]*?</\1\s*>',
     "",
     text,
     flags=re.I,
@@ -251,6 +268,22 @@ if insert_at is None:
 
 text = text[:insert_at] + section + text[insert_at:]
 print(f"Action : insert ({how}) @ char {insert_at}")
+
+# Remettre le coaching sous la vidéo principale
+if coach_saved and "FORGE_F03_COACHING_START" not in text and 'id="f03-coaching"' not in text:
+    msec = re.search(
+        r'(<section[^>]*id=["\']f03-video-section["\'][^>]*>[\s\S]*?</section\s*>)',
+        text,
+        flags=re.I,
+    )
+    if msec:
+        text = text[: msec.end()] + "\n\n" + coach_saved + "\n" + text[msec.end() :]
+        print("Coaching F3 préservé sous #f03-video-section")
+    else:
+        # section déjà à insert_at — placer le coaching juste après
+        end = insert_at + len(section)
+        text = text[:end] + "\n" + coach_saved + "\n" + text[end:]
+        print("Coaching F3 préservé (fallback après section vidéo)")
 
 # CSS link
 if "forge-lesson-video.css" not in text:
