@@ -46,7 +46,7 @@ grep -n torinvest-journal-forge-sso /var/www/torinvest/trading_journal.php
 
 ## Vue détail lecture seule (view=)
 
-Clic trade → `?page=history&view=N` (lecture seule).  
+Clic trade → `?page=history&read=N` (lecture seule v3 ; pas `view=` — collision menus).  
 Bouton **Modifier** → `edit=N`. Redeploy radar :
 
 ```bash
