@@ -1,31 +1,37 @@
 #!/usr/bin/env bash
-# HOTFIX — Trading Journal Pro : détail trade LECTURE SEULE v4
+# HOTFIX — Trading Journal Pro : détail trade LECTURE SEULE v4.1
 #
-# Problème : clic trade → formulaire « Modifier » ; OU read= seul ne charge pas la fiche
-# Fix     : clic → ?page=history&edit=ID&readonly=1 (TJ charge via edit=, UI lecture)
-#           bouton « Modifier » → edit=ID sans readonly
+# Clic → edit=ID&readonly=1 ; Modifier → edit=ID
 #
-# UNE commande VPS (radar) :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-readonly-flag-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
-# Après merge :
-#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
+# VPS radar (anti-cache) :
+#   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/cursor/journal-readonly-flag-691a/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh?$(date +%s)" | bash
 set -euo pipefail
 
 unset REF SHA BRANCH JOURNAL_SCREENS_REF SCRIPT_REF 2>/dev/null || true
 BRANCH="${JOURNAL_HOTFIX_BRANCH:-cursor/journal-readonly-flag-691a}"
-RAW="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}"
+# Pin commit si dispo (évite CDN stale) — sinon branche
+PIN="${JOURNAL_HOTFIX_PIN:-}"
+if [[ -n "$PIN" ]]; then
+  RAW="https://raw.githubusercontent.com/torinvest/torinvest/${PIN}"
+  LABEL="pin:$PIN"
+else
+  RAW="https://raw.githubusercontent.com/torinvest/torinvest/${BRANCH}"
+  LABEL="branch:$BRANCH"
+fi
+TS="$(date +%s)"
 
 echo ""
 echo "############################################################"
-echo "#  HOTFIX JOURNAL TRADE READ-ONLY DETAIL v4               #"
-echo "#  edit=ID&readonly=1   branch: $BRANCH                   #"
+echo "#  HOTFIX JOURNAL TRADE READ-ONLY DETAIL v4.1             #"
+echo "#  edit=ID&readonly=1   $LABEL                            #"
+echo "#  PATCH_ENGINE=stdout+sudo-tee                           #"
 echo "############################################################"
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-curl -fsSL "$RAW/deploy/vps/patch-trading-journal-readonly-view.sh" -o "$TMP/patch.sh"
-curl -fsSL "$RAW/api/trading-journal-readonly-view.php" -o "$TMP/ro.php"
+curl -fsSL "${RAW}/deploy/vps/patch-trading-journal-readonly-view.sh?ts=${TS}" -o "$TMP/patch.sh"
+curl -fsSL "${RAW}/api/trading-journal-readonly-view.php?ts=${TS}" -o "$TMP/ro.php"
 
 grep -q 'torinvest_journal_readonly_boot' "$TMP/ro.php" || {
   echo "ÉCHEC: PHP readonly invalide"
@@ -43,14 +49,19 @@ grep -q 'readonly=1' "$TMP/ro.php" || {
   echo "ÉCHEC: contrat readonly=1 manquant"
   exit 1
 }
-grep -q 'patch Trading Journal READ-ONLY' "$TMP/patch.sh" || {
-  echo "ÉCHEC: patch script invalide"
+grep -q 'PATCH_ENGINE=stdout+sudo-tee\|stdout+sudo-tee' "$TMP/patch.sh" || {
+  echo "ÉCHEC: vieux patch (sans stdout+sudo-tee) — cache GitHub ?"
+  echo "  Relance avec : JOURNAL_HOTFIX_PIN=<sha> ou attends 1 min"
+  exit 1
+}
+grep -q 'write_text' "$TMP/patch.sh" && {
+  echo "ÉCHEC: patch contient encore write_text — mauvais artefact"
   exit 1
 }
 php -l "$TMP/ro.php"
 
 chmod +x "$TMP/patch.sh"
-bash "$TMP/patch.sh" "$BRANCH"
+bash "$TMP/patch.sh" "${PIN:-$BRANCH}"
 
 ROOT="${TORINVEST_WWW:-/var/www/torinvest}"
 JOURNAL="$ROOT/trading_journal.php"
@@ -87,10 +98,6 @@ sudo systemctl reload php8.3-fpm 2>/dev/null \
   || true
 
 echo ""
-echo "OK — détail lecture seule v4 déployé sur radar."
-echo "→ Vérif :"
-echo "  1. Ctrl+Shift+R sur https://radar.torinvest-trading.com/trading_journal.php"
-echo "  2. Cliquer un trade → URL edit=ID&readonly=1 + « lecture seule »"
-echo "  3. Bouton Modifier → edit=ID sans readonly"
-echo "  4. Bouton Retour → historique"
+echo "OK — détail lecture seule v4.1 déployé sur radar."
+echo "→ Vérif : Ctrl+Shift+R → clic trade → URL edit=ID&readonly=1 + lecture seule"
 echo "======== DONE ========"
