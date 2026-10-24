@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Patch radar — vue lecture seule des trades (Trading Journal Pro)
+# Patch radar — vue lecture seule des trades (Trading Journal Pro) v3
 #
-# - Clic Historique/Calendrier → ?page=history&view=ID (lecture)
+# - Clic Historique/Calendrier → ?page=history&read=ID (lecture)
 # - Bouton « Modifier » → ?page=history&edit=ID
 # - Bouton « Retour » → historique
+# - NE PAS utiliser view= (collision menus TJ : view=historique|calendrier)
 #
 # Sur le VPS **radar** (où se trouve trading_journal.php) :
 #   curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
@@ -11,7 +12,7 @@
 # Toutes les écritures sur /var/www/torinvest/* passent par sudo.
 set -euo pipefail
 
-REF="${1:-cursor/journal-readonly-harden-691a}"
+REF="${1:-cursor/journal-read-click-fix-691a}"
 ROOT="${TORINVEST_WWW:-/var/www/torinvest}"
 JOURNAL="$ROOT/trading_journal.php"
 API_DIR="$ROOT/api"
@@ -21,7 +22,7 @@ MARKER="torinvest-journal-readonly-view"
 WORKDIR="$(mktemp -d)"
 trap 'rm -rf "$WORKDIR"' EXIT
 
-echo "==> patch Trading Journal READ-ONLY view ($REF)"
+echo "==> patch Trading Journal READ-ONLY view v3 ($REF)"
 
 if [[ ! -f "$JOURNAL" ]]; then
   echo "ERREUR: $JOURNAL introuvable — cherche…"
@@ -47,6 +48,14 @@ grep -q 'torinvest_journal_readonly_boot' "$WORKDIR/ro.php" || {
 }
 grep -q 'lecture seule' "$WORKDIR/ro.php" || {
   echo "ÉCHEC: labels FR manquants"
+  exit 1
+}
+grep -q 'torinvest-tj-readonly-v3' "$WORKDIR/ro.php" || {
+  echo "ÉCHEC: marker v3 absent — mauvais artefact"
+  exit 1
+}
+grep -q 'page=history&read=' "$WORKDIR/ro.php" || {
+  echo "ÉCHEC: contrat read= manquant"
   exit 1
 }
 php -l "$WORKDIR/ro.php"
@@ -99,7 +108,7 @@ PY
   echo "OK — bootstrap readonly préparé"
 fi
 
-# 2) Réécrire openTrade / liens edit= → view= dans la copie
+# 2) Réécrire openTrade / liens edit= → read= (et view= numérique → read=)
 python3 - "$WORKDIR/journal.php" <<'PY'
 import re, sys
 from pathlib import Path
@@ -108,7 +117,16 @@ src = path.read_text(encoding="utf-8", errors="replace")
 orig = src
 
 def rewrite_opentrade(m):
-    return re.sub(r"([?&'\"`=])edit=", r"\1view=", m.group(0), flags=re.I)
+    body = m.group(0)
+    body = re.sub(r"([?&'\"`=])edit=", r"\1read=", body, flags=re.I)
+    # legacy view= numérique dans openTrade → read=
+    body = re.sub(
+        r"([?&'\"`=])view=(?=['\"]?\d)",
+        r"\1read=",
+        body,
+        flags=re.I,
+    )
+    return body
 
 src = re.sub(
     r"function\s+openTrade\s*\([^)]*\)\s*\{.*?\}",
@@ -119,19 +137,19 @@ src = re.sub(
 src = re.sub(
     r"(openTrade\s*=\s*function\s*\([^)]*\)\s*\{)(.*?)(\})",
     lambda m: m.group(1)
-    + re.sub(r"([?&'\"`])edit=", r"\1view=", m.group(2), flags=re.I)
+    + re.sub(r"([?&'\"`])edit=", r"\1read=", m.group(2), flags=re.I)
     + m.group(3),
     src,
     flags=re.S | re.I,
 )
 src = re.sub(
     r"(['\"])([^'\"]*page=(?:history|calendar|calendrier)[^'\"]*?)edit=",
-    r"\1\2view=",
+    r"\1\2read=",
     src,
     flags=re.I,
 )
 path.write_text(src, encoding="utf-8")
-print("OK — openTrade/liens edit→view" if src != orig else "INFO — pas de réécriture source (JS runtime OK)")
+print("OK — openTrade/liens edit→read" if src != orig else "INFO — pas de réécriture source (JS runtime OK)")
 PY
 
 php -l "$WORKDIR/journal.php"
@@ -152,9 +170,9 @@ sudo grep -q "trading-journal-readonly-view.php" "$JOURNAL" || {
 
 echo ""
 echo "############################################################"
-echo "#  OK — vue lecture seule                                  #"
+echo "#  OK — vue lecture seule v3 (read=)                       #"
 echo "#  1) Ctrl+Shift+R sur le journal radar                    #"
 echo "#  2) Historique / Calendrier → clic trade                 #"
-echo "#  3) URL = &view=ID (PAS edit=) + « lecture seule »       #"
+echo "#  3) URL = &read=ID (PAS edit=) + « lecture seule »       #"
 echo "#  4) Bouton Modifier → edit=ID ; Retour → historique      #"
 echo "############################################################"
