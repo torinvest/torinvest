@@ -65,8 +65,9 @@ BAK="${JOURNAL}.bak.readonly.$(date +%Y%m%d%H%M%S)"
 sudo cp -a "$JOURNAL" "$BAK"
 echo "Backup: $BAK"
 
-sudo cp -a "$JOURNAL" "$WORKDIR/journal.php"
-sudo chmod u+rw "$WORKDIR/journal.php" 2>/dev/null || chmod u+rw "$WORKDIR/journal.php"
+# Copie owned par l'utilisateur courant (PAS sudo cp -a → root → Python PermissionError)
+sudo cat "$JOURNAL" > "$WORKDIR/journal.php"
+chmod u+rw "$WORKDIR/journal.php"
 
 # 1) Inject bootstrap si absent
 if grep -q "$MARKER" "$WORKDIR/journal.php"; then
