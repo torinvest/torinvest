@@ -31,6 +31,11 @@ assert(routes.includes("createJournalTradesRouter"), "export router");
 assert(routes.includes("/api/journal-trades"), "api path");
 assert(routes.includes("Premium requis"), "premium gate");
 assert(routes.includes("journal-trades"), "store dir");
+assert(routes.includes("resolveOwner"), "owner isolation");
+assert(routes.includes("Accès refusé"), "student cannot open other");
+assert(routes.includes("/api/journal-trades-admin/students"), "admin students");
+assert(routes.includes("dataUrls"), "multi screens");
+assert(routes.includes("PATCH"), "caption patch");
 
 const js = fs.readFileSync(JS, "utf8");
 assert(js.includes("initJournalNative"), "init");
@@ -39,6 +44,9 @@ assert(js.includes("openTrade"), "openTrade view");
 assert(js.includes("tj-edit"), "edit button");
 assert(js.includes("Mode lecture"), "readonly banner");
 assert(js.includes("data-trade-id"), "row click");
+assert(js.includes("uploadShots"), "multi upload");
+assert(js.includes("tj-owner-select"), "admin picker");
+assert(js.includes("privés"), "privacy copy");
 
 const html = fs.readFileSync(HTML, "utf8");
 assert(html.includes("journal-native-root"), "root");

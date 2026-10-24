@@ -12,7 +12,8 @@ TS="$(date +%s)"
 
 echo ""
 echo "############################################################"
-echo "#  DEPLOY JOURNAL NATIF La Forge                          #"
+echo "#  DEPLOY JOURNAL NATIF La Forge v2                       #"
+echo "#  isolation élève + admin · multi-screens                #"
 echo "#  branch: $BRANCH                                        #"
 echo "############################################################"
 
