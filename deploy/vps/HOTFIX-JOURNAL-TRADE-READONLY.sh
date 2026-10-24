@@ -54,8 +54,8 @@ grep -q 'PATCH_ENGINE=stdout+sudo-tee\|stdout+sudo-tee' "$TMP/patch.sh" || {
   echo "  Relance avec : JOURNAL_HOTFIX_PIN=<sha> ou attends 1 min"
   exit 1
 }
-grep -q 'write_text' "$TMP/patch.sh" && {
-  echo "ÉCHEC: patch contient encore write_text — mauvais artefact"
+grep -qE 'path\.write_text|\.write_text\(' "$TMP/patch.sh" && {
+  echo "ÉCHEC: patch contient encore path.write_text — mauvais artefact"
   exit 1
 }
 php -l "$TMP/ro.php"

@@ -22,7 +22,7 @@ mkdir -p "$WORKDIR"
 trap 'rm -rf "$WORKDIR"' EXIT
 
 echo "==> patch Trading Journal READ-ONLY view v4.1 ($REF)"
-echo "    PATCH_ENGINE=stdout+sudo-tee (no python write_text)"
+echo "    PATCH_ENGINE=stdout+sudo-tee"
 
 if [[ ! -f "$JOURNAL" ]]; then
   echo "ERREUR: $JOURNAL introuvable — cherche…"
@@ -71,7 +71,7 @@ echo "Backup: $BAK"
 sudo cat "$JOURNAL" > "$WORKDIR/journal.php"
 chmod u+rw "$WORKDIR/journal.php" || true
 
-# 1) Inject bootstrap si absent — Python print → tee (pas write_text)
+# 1) Inject bootstrap si absent — Python print → fichier user (pas d'écriture root)
 if grep -q "$MARKER" "$WORKDIR/journal.php"; then
   echo "OK — bootstrap readonly déjà présent"
 else
