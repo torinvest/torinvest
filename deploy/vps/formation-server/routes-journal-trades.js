@@ -1,17 +1,24 @@
 /**
- * Journal de trading natif — La Forge (remplace le TJ Pro radar pour le flux élève).
+ * Journal de trading natif — La Forge
+ *
+ * Isolation :
+ *   - chaque élève Premium lit/écrit UNIQUEMENT son dossier
+ *     {dataDir}/journal-trades/{emailSlug}/
+ *   - un élève ne peut PAS voir les trades d’un autre
+ *   - admin (FORGE_ADMIN_EMAILS) peut lister tous les élèves
+ *     et ouvrir un journal via ?owner=email
  *
  *   GET    /api/journal-trades
  *   GET    /api/journal-trades/:id
  *   POST   /api/journal-trades
  *   PUT    /api/journal-trades/:id
  *   DELETE /api/journal-trades/:id
- *   POST   /api/journal-trades/:id/images
+ *   POST   /api/journal-trades/:id/images          (1 ou N screens)
+ *   PATCH  /api/journal-trades/:id/images/:imageId (caption)
  *   DELETE /api/journal-trades/:id/images/:imageId
  *   GET    /api/journal-trades/:id/media/:fileName
+ *   GET    /api/journal-trades-admin/students       (admin)
  *   GET    /api/journal-trades/ping
- *
- * Stockage : {dataDir}/journal-trades/{emailSlug}/trades.json + media/
  */
 "use strict";
 
@@ -22,6 +29,7 @@ const crypto = require("crypto");
 
 const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
 const MAX_TRADES = 500;
+const MAX_IMAGES_PER_TRADE = 24;
 const ALLOWED_MIME = {
   "image/jpeg": ".jpg",
   "image/png": ".png",
@@ -92,7 +100,7 @@ function sanitizeImages(arr) {
       createdAt: clip(img && img.createdAt, 40),
     }))
     .filter((img) => img.file)
-    .slice(0, 24);
+    .slice(0, MAX_IMAGES_PER_TRADE);
 }
 
 function sanitizeTrade(input, prev) {
@@ -173,12 +181,16 @@ module.exports = function createJournalTradesRouter({ dataDir, requireAuth }) {
   function readStore(email) {
     try {
       const p = storePath(email);
-      if (!fs.existsSync(p)) return { version: 1, trades: [] };
+      if (!fs.existsSync(p)) return { version: 1, owner: normalizeEmail(email), trades: [] };
       const raw = JSON.parse(fs.readFileSync(p, "utf8"));
       const trades = Array.isArray(raw.trades) ? raw.trades : [];
-      return { version: 1, trades: trades.slice(0, MAX_TRADES) };
+      return {
+        version: 1,
+        owner: normalizeEmail(raw.owner || email),
+        trades: trades.slice(0, MAX_TRADES),
+      };
     } catch (_) {
-      return { version: 1, trades: [] };
+      return { version: 1, owner: normalizeEmail(email), trades: [] };
     }
   }
 
@@ -187,6 +199,7 @@ module.exports = function createJournalTradesRouter({ dataDir, requireAuth }) {
     const tmp = p + ".tmp";
     const payload = {
       version: 1,
+      owner: normalizeEmail(email),
       updatedAt: new Date().toISOString(),
       trades: Array.isArray(store.trades) ? store.trades.slice(0, MAX_TRADES) : [],
     };
@@ -194,7 +207,7 @@ module.exports = function createJournalTradesRouter({ dataDir, requireAuth }) {
     fs.renameSync(tmp, p);
   }
 
-  function requirePremium(req, res) {
+  function requireMember(req, res) {
     const email = sessionEmail(req);
     if (!email) {
       res.status(401).json({ error: "Non authentifié" });
@@ -207,75 +220,172 @@ module.exports = function createJournalTradesRouter({ dataDir, requireAuth }) {
     return email;
   }
 
+  /**
+   * Isolation stricte :
+   * - élève → toujours son email
+   * - admin → peut passer ?owner=autre@email (sinon son propre journal)
+   * - tout autre owner demandé par un non-admin → 403
+   */
+  function resolveOwner(req, res) {
+    const self = requireMember(req, res);
+    if (!self) return null;
+    const requested = normalizeEmail(req.query.owner || req.body?.owner || "");
+    if (!requested || requested === self) {
+      return { self, owner: self, isAdmin: isAdminEmail(self), viewingOther: false };
+    }
+    if (!isAdminEmail(self)) {
+      res.status(403).json({
+        error: "Accès refusé — tu ne peux voir que ton propre journal",
+      });
+      return null;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(requested)) {
+      res.status(400).json({ error: "Email owner invalide" });
+      return null;
+    }
+    return { self, owner: requested, isAdmin: true, viewingOther: true };
+  }
+
+  function decodeDataUrl(dataUrl) {
+    const m = String(dataUrl || "").match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+    if (!m) return { error: "dataUrl image invalide" };
+    const mime = m[1].toLowerCase();
+    const ext = ALLOWED_MIME[mime];
+    if (!ext) return { error: "Type image non supporté" };
+    let buf;
+    try {
+      buf = Buffer.from(m[2], "base64");
+    } catch (_) {
+      return { error: "Base64 invalide" };
+    }
+    if (!buf.length || buf.length > MAX_IMAGE_BYTES) {
+      return { error: "Image trop lourde", status: 413 };
+    }
+    return { buf, ext, mime };
+  }
+
   const router = express.Router();
 
   router.get("/api/journal-trades/ping", (_req, res) => {
     res.json({
       ok: true,
       app: "forge-journal-native",
-      version: 1,
+      version: 2,
+      isolation: "per-email",
+      admin: "FORGE_ADMIN_EMAILS + ?owner=",
+      screens: "multi+edit-caption",
       contract: "list→view→edit",
     });
   });
 
+  // Admin : liste des élèves qui ont un journal (pas visible aux élèves)
+  router.get("/api/journal-trades-admin/students", requireAuth, (req, res) => {
+    const self = sessionEmail(req);
+    if (!isAdminEmail(self)) {
+      return res.status(403).json({ error: "Admin uniquement" });
+    }
+    const students = [];
+    try {
+      const dirs = fs.readdirSync(rootDir, { withFileTypes: true }).filter((d) => d.isDirectory());
+      for (const d of dirs) {
+        const slug = d.name;
+        const p = path.join(rootDir, slug, "trades.json");
+        let owner = slug.includes("@") ? normalizeEmail(slug) : "";
+        let count = 0;
+        let updatedAt = null;
+        if (fs.existsSync(p)) {
+          try {
+            const raw = JSON.parse(fs.readFileSync(p, "utf8"));
+            owner = normalizeEmail(raw.owner || owner);
+            count = Array.isArray(raw.trades) ? raw.trades.length : 0;
+            updatedAt = raw.updatedAt || null;
+          } catch (_) {}
+        }
+        if (!owner) continue;
+        students.push({
+          email: owner,
+          emailSlug: slug,
+          tradeCount: count,
+          updatedAt,
+        });
+      }
+    } catch (_) {}
+    students.sort((a, b) => String(a.email).localeCompare(String(b.email)));
+    res.json({ ok: true, students, count: students.length });
+  });
+
   router.get("/api/journal-trades", requireAuth, (req, res) => {
-    const email = requirePremium(req, res);
-    if (!email) return;
-    const store = readStore(email);
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
+    const store = readStore(ctx.owner);
     const trades = store.trades
       .slice()
-      .sort((a, b) => String(b.openedAt || b.updatedAt || "").localeCompare(String(a.openedAt || a.updatedAt || "")));
-    res.json({ ok: true, trades: trades.map(summaryOf), count: trades.length });
+      .sort((a, b) =>
+        String(b.openedAt || b.updatedAt || "").localeCompare(String(a.openedAt || a.updatedAt || ""))
+      );
+    res.json({
+      ok: true,
+      owner: ctx.owner,
+      viewingOther: ctx.viewingOther,
+      isAdmin: ctx.isAdmin,
+      trades: trades.map(summaryOf),
+      count: trades.length,
+    });
   });
 
   router.get("/api/journal-trades/:id", requireAuth, (req, res) => {
-    const email = requirePremium(req, res);
-    if (!email) return;
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
     const id = clip(req.params.id, 40);
-    const store = readStore(email);
+    const store = readStore(ctx.owner);
     const trade = store.trades.find((t) => t.id === id);
     if (!trade) return res.status(404).json({ error: "Trade introuvable" });
-    res.json({ ok: true, trade });
+    res.json({
+      ok: true,
+      owner: ctx.owner,
+      viewingOther: ctx.viewingOther,
+      isAdmin: ctx.isAdmin,
+      trade,
+    });
   });
 
   router.post("/api/journal-trades", requireAuth, (req, res) => {
-    const email = requirePremium(req, res);
-    if (!email) return;
-    const store = readStore(email);
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
+    const store = readStore(ctx.owner);
     if (store.trades.length >= MAX_TRADES) {
       return res.status(400).json({ error: "Limite de trades atteinte" });
     }
     const trade = sanitizeTrade(req.body || {}, null);
     store.trades.unshift(trade);
-    writeStore(email, store);
-    res.status(201).json({ ok: true, trade });
+    writeStore(ctx.owner, store);
+    res.status(201).json({ ok: true, owner: ctx.owner, trade });
   });
 
   router.put("/api/journal-trades/:id", requireAuth, (req, res) => {
-    const email = requirePremium(req, res);
-    if (!email) return;
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
     const id = clip(req.params.id, 40);
-    const store = readStore(email);
+    const store = readStore(ctx.owner);
     const idx = store.trades.findIndex((t) => t.id === id);
     if (idx < 0) return res.status(404).json({ error: "Trade introuvable" });
     const trade = sanitizeTrade({ ...(req.body || {}), id }, store.trades[idx]);
     store.trades[idx] = trade;
-    writeStore(email, store);
-    res.json({ ok: true, trade });
+    writeStore(ctx.owner, store);
+    res.json({ ok: true, owner: ctx.owner, trade });
   });
 
   router.delete("/api/journal-trades/:id", requireAuth, (req, res) => {
-    const email = requirePremium(req, res);
-    if (!email) return;
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
     const id = clip(req.params.id, 40);
-    const store = readStore(email);
+    const store = readStore(ctx.owner);
     const prev = store.trades.find((t) => t.id === id);
     if (!prev) return res.status(404).json({ error: "Trade introuvable" });
     store.trades = store.trades.filter((t) => t.id !== id);
-    writeStore(email, store);
-    // best-effort media cleanup
+    writeStore(ctx.owner, store);
     try {
-      const mediaDir = path.join(userDir(email), "media", id);
+      const mediaDir = path.join(userDir(ctx.owner), "media", id);
       if (fs.existsSync(mediaDir)) {
         for (const f of fs.readdirSync(mediaDir)) {
           fs.unlinkSync(path.join(mediaDir, f));
@@ -283,60 +393,88 @@ module.exports = function createJournalTradesRouter({ dataDir, requireAuth }) {
         fs.rmdirSync(mediaDir);
       }
     } catch (_) {}
-    res.json({ ok: true, deleted: id });
+    res.json({ ok: true, deleted: id, owner: ctx.owner });
   });
 
+  // 1 ou plusieurs screens (dataUrl ou dataUrls[])
   router.post("/api/journal-trades/:id/images", requireAuth, (req, res) => {
-    const email = requirePremium(req, res);
-    if (!email) return;
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
     const id = clip(req.params.id, 40);
-    const store = readStore(email);
+    const store = readStore(ctx.owner);
     const idx = store.trades.findIndex((t) => t.id === id);
     if (idx < 0) return res.status(404).json({ error: "Trade introuvable" });
 
-    const dataUrl = String(req.body?.dataUrl || "");
-    const m = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
-    if (!m) return res.status(400).json({ error: "dataUrl image invalide" });
-    const mime = m[1].toLowerCase();
-    const ext = ALLOWED_MIME[mime];
-    if (!ext) return res.status(400).json({ error: "Type image non supporté" });
-    let buf;
-    try {
-      buf = Buffer.from(m[2], "base64");
-    } catch (_) {
-      return res.status(400).json({ error: "Base64 invalide" });
+    const rawList = Array.isArray(req.body?.dataUrls)
+      ? req.body.dataUrls
+      : req.body?.dataUrl
+        ? [req.body.dataUrl]
+        : [];
+    if (!rawList.length) {
+      return res.status(400).json({ error: "Aucune image (dataUrl / dataUrls)" });
     }
-    if (!buf.length || buf.length > MAX_IMAGE_BYTES) {
-      return res.status(413).json({ error: "Image trop lourde" });
-    }
-
-    const imgId = newId("img_");
-    const fileName = imgId + ext;
-    const mediaDir = path.join(userDir(email), "media", id);
-    fs.mkdirSync(mediaDir, { recursive: true });
-    fs.writeFileSync(path.join(mediaDir, fileName), buf);
 
     const trade = store.trades[idx];
     const images = sanitizeImages(trade.images || []);
-    images.push({
-      id: imgId,
-      file: fileName,
-      caption: clip(req.body?.caption, 300),
-      createdAt: new Date().toISOString(),
-    });
-    trade.images = images.slice(0, 24);
+    const added = [];
+    const mediaDir = path.join(userDir(ctx.owner), "media", id);
+    fs.mkdirSync(mediaDir, { recursive: true });
+    const defaultCaption = clip(req.body?.caption, 300);
+    const captions = Array.isArray(req.body?.captions) ? req.body.captions : [];
+
+    for (let i = 0; i < rawList.length && images.length < MAX_IMAGES_PER_TRADE; i++) {
+      const decoded = decodeDataUrl(rawList[i]);
+      if (decoded.error) {
+        return res.status(decoded.status || 400).json({ error: decoded.error });
+      }
+      const imgId = newId("img_");
+      const fileName = imgId + decoded.ext;
+      fs.writeFileSync(path.join(mediaDir, fileName), decoded.buf);
+      const img = {
+        id: imgId,
+        file: fileName,
+        caption: clip(captions[i] != null ? captions[i] : defaultCaption, 300),
+        createdAt: new Date().toISOString(),
+      };
+      images.push(img);
+      added.push(img);
+    }
+
+    trade.images = images.slice(0, MAX_IMAGES_PER_TRADE);
     trade.updatedAt = new Date().toISOString();
     store.trades[idx] = trade;
-    writeStore(email, store);
-    res.status(201).json({ ok: true, trade, image: images[images.length - 1] });
+    writeStore(ctx.owner, store);
+    res.status(201).json({ ok: true, owner: ctx.owner, trade, added, count: added.length });
+  });
+
+  router.patch("/api/journal-trades/:id/images/:imageId", requireAuth, (req, res) => {
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
+    const id = clip(req.params.id, 40);
+    const imageId = clip(req.params.imageId, 40);
+    const store = readStore(ctx.owner);
+    const idx = store.trades.findIndex((t) => t.id === id);
+    if (idx < 0) return res.status(404).json({ error: "Trade introuvable" });
+    const trade = store.trades[idx];
+    const images = sanitizeImages(trade.images || []);
+    const img = images.find((x) => x.id === imageId);
+    if (!img) return res.status(404).json({ error: "Image introuvable" });
+    if (req.body && Object.prototype.hasOwnProperty.call(req.body, "caption")) {
+      img.caption = clip(req.body.caption, 300);
+    }
+    trade.images = images;
+    trade.updatedAt = new Date().toISOString();
+    store.trades[idx] = trade;
+    writeStore(ctx.owner, store);
+    res.json({ ok: true, owner: ctx.owner, trade, image: img });
   });
 
   router.delete("/api/journal-trades/:id/images/:imageId", requireAuth, (req, res) => {
-    const email = requirePremium(req, res);
-    if (!email) return;
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
     const id = clip(req.params.id, 40);
     const imageId = clip(req.params.imageId, 40);
-    const store = readStore(email);
+    const store = readStore(ctx.owner);
     const idx = store.trades.findIndex((t) => t.id === id);
     if (idx < 0) return res.status(404).json({ error: "Trade introuvable" });
     const trade = store.trades[idx];
@@ -345,29 +483,29 @@ module.exports = function createJournalTradesRouter({ dataDir, requireAuth }) {
     trade.images = images.filter((img) => img.id !== imageId);
     trade.updatedAt = new Date().toISOString();
     store.trades[idx] = trade;
-    writeStore(email, store);
+    writeStore(ctx.owner, store);
     if (victim && victim.file) {
       try {
-        fs.unlinkSync(path.join(userDir(email), "media", id, victim.file));
+        fs.unlinkSync(path.join(userDir(ctx.owner), "media", id, victim.file));
       } catch (_) {}
     }
-    res.json({ ok: true, trade });
+    res.json({ ok: true, owner: ctx.owner, trade });
   });
 
   router.get("/api/journal-trades/:id/media/:fileName", requireAuth, (req, res) => {
-    const email = requirePremium(req, res);
-    if (!email) return;
+    const ctx = resolveOwner(req, res);
+    if (!ctx) return;
     const id = clip(req.params.id, 40);
     const fileName = path.basename(String(req.params.fileName || ""));
     if (!fileName || fileName.includes("..")) {
       return res.status(400).json({ error: "Fichier invalide" });
     }
-    const store = readStore(email);
+    const store = readStore(ctx.owner);
     const trade = store.trades.find((t) => t.id === id);
     if (!trade) return res.status(404).json({ error: "Trade introuvable" });
     const ok = (trade.images || []).some((img) => img.file === fileName);
     if (!ok) return res.status(404).json({ error: "Image introuvable" });
-    const filePath = path.join(userDir(email), "media", id, fileName);
+    const filePath = path.join(userDir(ctx.owner), "media", id, fileName);
     if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Fichier manquant" });
     res.sendFile(filePath);
   });

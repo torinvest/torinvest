@@ -1,12 +1,17 @@
 /**
  * Journal de trading natif — liste → clic lecture → Modifier / Nouveau.
- * Remplace le flux TJ Pro radar pour l’élève Premium.
+ * Isolation : chaque élève ne voit que ses trades ; admin peut ouvrir un élève.
+ * Screens : multi-upload, suppression, édition de légende.
  */
 (function (global) {
   "use strict";
 
   var state = {
     me: null,
+    isAdmin: false,
+    owner: "",
+    viewingOther: false,
+    students: [],
     trades: [],
     current: null,
     mode: "list", // list | view | edit | new
@@ -19,6 +24,25 @@
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
+  }
+
+  function ownerQS() {
+    if (state.isAdmin && state.owner && state.me && state.owner !== normalizeEmail(state.me.email)) {
+      return "?owner=" + encodeURIComponent(state.owner);
+    }
+    return "";
+  }
+
+  function withOwner(url) {
+    var q = ownerQS();
+    if (!q) return url;
+    return url.indexOf("?") >= 0 ? url + "&owner=" + encodeURIComponent(state.owner) : url + q;
+  }
+
+  function normalizeEmail(email) {
+    return String(email || "")
+      .trim()
+      .toLowerCase();
   }
 
   function fmtNum(n) {
@@ -45,7 +69,7 @@
 
   async function api(url, opts) {
     opts = opts || {};
-    var res = await fetch(url, {
+    var res = await fetch(withOwner(url), {
       credentials: "include",
       headers: Object.assign(
         { Accept: "application/json" },
@@ -75,15 +99,73 @@
     render();
   }
 
+  async function loadStudents() {
+    if (!state.isAdmin) return;
+    try {
+      var data = await fetch("/api/journal-trades-admin/students", {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      }).then(function (r) {
+        return r.json();
+      });
+      if (data && data.ok) state.students = data.students || [];
+    } catch (_) {
+      state.students = [];
+    }
+  }
+
   async function loadList() {
     var data = await api("/api/journal-trades");
     state.trades = data.trades || [];
+    state.owner = data.owner || state.owner;
+    state.viewingOther = !!data.viewingOther;
+    state.isAdmin = !!data.isAdmin || state.isAdmin;
     setMode("list");
   }
 
   async function openTrade(id) {
     var data = await api("/api/journal-trades/" + encodeURIComponent(id));
     setMode("view", data.trade);
+  }
+
+  function adminBar() {
+    if (!state.isAdmin) return "";
+    var opts =
+      '<option value="">Mon journal (' +
+      esc(state.me && state.me.email ? state.me.email : "") +
+      ")</option>";
+    (state.students || []).forEach(function (s) {
+      var selected = state.owner === s.email ? " selected" : "";
+      opts +=
+        '<option value="' +
+        esc(s.email) +
+        '"' +
+        selected +
+        ">" +
+        esc(s.email) +
+        " (" +
+        esc(String(s.tradeCount || 0)) +
+        ")</option>";
+    });
+    return (
+      '<div class="tj-admin-bar">' +
+      "<strong>Admin</strong> — journal d’un élève (privé pour les autres) : " +
+      '<select id="tj-owner-select">' +
+      opts +
+      "</select>" +
+      (state.viewingOther
+        ? '<span class="tj-admin-pill">Vue élève : ' + esc(state.owner) + "</span>"
+        : "") +
+      "</div>"
+    );
+  }
+
+  function privacyNote() {
+    return (
+      '<p class="tj-privacy">Tes trades et screens sont <strong>privés</strong> : visibles seulement par toi' +
+      (state.isAdmin ? " et l’admin" : " et l’admin de la formation") +
+      ", jamais par les autres élèves.</p>"
+    );
   }
 
   function renderList() {
@@ -95,7 +177,7 @@
     } else {
       body =
         '<div class="tj-table-wrap"><table class="tj-table"><thead><tr>' +
-        "<th>Date</th><th>Symbole</th><th>Sens</th><th>Entrée</th><th>PnL</th><th>Statut</th>" +
+        "<th>Date</th><th>Symbole</th><th>Sens</th><th>Entrée</th><th>PnL</th><th>Screens</th><th>Statut</th>" +
         "</tr></thead><tbody>" +
         rows
           .map(function (t) {
@@ -125,6 +207,9 @@
               esc(fmtPnl(t)) +
               "</td>" +
               "<td>" +
+              esc(String(t.imageCount || 0)) +
+              "</td>" +
+              "<td>" +
               statusBadge(t.status) +
               "</td>" +
               "</tr>"
@@ -132,16 +217,18 @@
           })
           .join("") +
         "</tbody></table></div>" +
-        '<p class="tj-muted" style="margin-top:0.65rem">Clique une ligne pour <strong>lire</strong> le trade (sans édition).</p>';
+        '<p class="tj-muted" style="margin-top:0.65rem">Clique une ligne pour <strong>lire</strong> le trade. Screens ajoutables en édition.</p>';
     }
 
     return (
+      adminBar() +
       '<div class="tj-toolbar">' +
       "<div><h1>Trading Journal</h1>" +
-      '<p class="tj-muted" style="margin:0.25rem 0 0">Journal Forge natif — clic = lecture, bouton = édition.</p></div>' +
+      '<p class="tj-muted" style="margin:0.25rem 0 0">Clic = lecture · Modifier = édition · Screens privés.</p></div>' +
       '<div class="tj-toolbar-actions">' +
       '<button type="button" class="btn btn-primary" id="tj-new">Nouveau trade</button>' +
       "</div></div>" +
+      privacyNote() +
       (state.error ? '<p class="tj-error">' + esc(state.error) + "</p>" : "") +
       body +
       '<p class="tj-legacy">Ancien Journal Pro (radar) : <a href="#" id="tj-legacy-link">ouvrir en secours</a></p>'
@@ -149,39 +236,71 @@
   }
 
   function mediaUrl(tradeId, file) {
-    return (
+    return withOwner(
       "/api/journal-trades/" +
-      encodeURIComponent(tradeId) +
-      "/media/" +
-      encodeURIComponent(file)
+        encodeURIComponent(tradeId) +
+        "/media/" +
+        encodeURIComponent(file)
     );
   }
 
   function renderShots(trade, editable) {
     var images = (trade && trade.images) || [];
-    if (!images.length && !editable) return "";
-    var html = '<div class="tj-shots">';
-    images.forEach(function (img) {
-      html +=
-        "<figure class=\"tj-shot\"><img src=\"" +
-        esc(mediaUrl(trade.id, img.file)) +
-        '" alt="" loading="lazy" />' +
-        (img.caption ? "<figcaption>" + esc(img.caption) + "</figcaption>" : "") +
-        "</figure>";
-    });
-    html += "</div>";
-    if (editable) {
-      html +=
-        '<div style="margin-top:0.75rem">' +
-        '<input type="file" id="tj-shot-file" accept="image/jpeg,image/png,image/webp,image/gif" />' +
-        '<p class="tj-muted" id="tj-shot-status" style="margin:0.35rem 0 0"></p></div>';
+    var html = '<div class="tj-shots-block">';
+    if (!images.length) {
+      html += '<p class="tj-muted">Aucun screen pour ce trade.</p>';
+    } else {
+      html += '<div class="tj-shots">';
+      images.forEach(function (img) {
+        html +=
+          '<figure class="tj-shot" data-image-id="' +
+          esc(img.id) +
+          '">' +
+          '<a href="' +
+          esc(mediaUrl(trade.id, img.file)) +
+          '" target="_blank" rel="noopener">' +
+          '<img src="' +
+          esc(mediaUrl(trade.id, img.file)) +
+          '" alt="" loading="lazy" />' +
+          "</a>";
+        if (editable) {
+          html +=
+            '<figcaption><input type="text" class="tj-caption-input" data-image-id="' +
+            esc(img.id) +
+            '" value="' +
+            esc(img.caption || "") +
+            '" placeholder="Légende…" maxlength="300" />' +
+            '<div class="tj-shot-actions">' +
+            '<button type="button" class="btn btn-secondary tj-caption-save" data-image-id="' +
+            esc(img.id) +
+            '">Sauver légende</button>' +
+            '<button type="button" class="btn btn-secondary tj-shot-del" data-image-id="' +
+            esc(img.id) +
+            '">Supprimer</button>' +
+            "</div></figcaption>";
+        } else if (img.caption) {
+          html += "<figcaption>" + esc(img.caption) + "</figcaption>";
+        }
+        html += "</figure>";
+      });
+      html += "</div>";
     }
+    if (editable && trade && trade.id) {
+      html +=
+        '<div class="tj-upload-box">' +
+        "<label>Ajouter un ou plusieurs screens</label>" +
+        '<input type="file" id="tj-shot-file" accept="image/jpeg,image/png,image/webp,image/gif" multiple />' +
+        '<p class="tj-muted" id="tj-shot-status" style="margin:0.35rem 0 0">JPEG / PNG / WebP — plusieurs fichiers OK.</p>' +
+        "</div>";
+    }
+    html += "</div>";
     return html;
   }
 
   function renderView() {
     var t = state.current || {};
     return (
+      adminBar() +
       '<div class="tj-detail">' +
       '<div class="tj-banner">Mode lecture — tu consultes le détail (sans modification).</div>' +
       '<div class="tj-detail-head"><div>' +
@@ -213,14 +332,12 @@
       (t.notes
         ? '<div class="tj-field"><label>Notes</label><div class="tj-notes">' + esc(t.notes) + "</div></div>"
         : "") +
-      (t.images && t.images.length
-        ? '<div class="tj-field" style="margin-top:1rem"><label>Screens</label>' +
-          renderShots(t, false) +
-          "</div>"
-        : "") +
+      '<div class="tj-field" style="margin-top:1rem"><label>Screens</label>' +
+      renderShots(t, false) +
+      "</div>" +
       '<div class="tj-actions">' +
       '<button type="button" class="btn btn-secondary" id="tj-back-2">Retour liste</button>' +
-      '<button type="button" class="btn btn-primary" id="tj-edit-2">Modifier</button>' +
+      '<button type="button" class="btn btn-primary" id="tj-edit-2">Modifier / screens</button>' +
       '<button type="button" class="btn btn-secondary" id="tj-delete" style="margin-left:auto">Supprimer</button>' +
       "</div></div>"
     );
@@ -245,51 +362,37 @@
     var t = state.current || {};
     var isNew = state.mode === "new";
     return (
+      adminBar() +
       '<div class="tj-form-card">' +
       '<div class="tj-detail-head"><div><h2>' +
       (isNew ? "Nouveau trade" : "Modifier le trade") +
       "</h2>" +
-      '<p class="tj-muted" style="margin:0.25rem 0 0">Enregistre puis tu pourras le relire en un clic.</p></div>' +
+      '<p class="tj-muted" style="margin:0.25rem 0 0">Enregistre, ajoute tes screens, puis relis en un clic.</p></div>' +
       '<button type="button" class="btn btn-secondary" id="tj-cancel">Annuler</button></div>' +
       (state.error ? '<p class="tj-error">' + esc(state.error) + "</p>" : "") +
       '<form id="tj-form" class="tj-form">' +
       input("symbol", "Symbole", formVal(t, "symbol", "XAUUSD")) +
-      select(
-        "side",
-        "Sens",
-        formVal(t, "side", "long"),
-        [
-          ["long", "Long"],
-          ["short", "Short"],
-        ]
-      ) +
-      select(
-        "status",
-        "Statut",
-        formVal(t, "status", "open"),
-        [
-          ["open", "Open"],
-          ["closed", "Closed"],
-          ["idea", "Idea"],
-        ]
-      ) +
+      select("side", "Sens", formVal(t, "side", "long"), [
+        ["long", "Long"],
+        ["short", "Short"],
+      ]) +
+      select("status", "Statut", formVal(t, "status", "open"), [
+        ["open", "Open"],
+        ["closed", "Closed"],
+        ["idea", "Idea"],
+      ]) +
       input("openedAt", "Date", formVal(t, "openedAt", today()), "date") +
       input("entry", "Entrée", formVal(t, "entry", ""), "number") +
       input("sl", "SL", formVal(t, "sl", ""), "number") +
       input("tp", "TP", formVal(t, "tp", ""), "number") +
       input("exit", "Sortie", formVal(t, "exit", ""), "number") +
       input("pnl", "PnL", formVal(t, "pnl", ""), "number") +
-      select(
-        "pnlUnit",
-        "Unité PnL",
-        formVal(t, "pnlUnit", "usd"),
-        [
-          ["usd", "USD"],
-          ["r", "R"],
-          ["pips", "Pips"],
-          ["%", "%"],
-        ]
-      ) +
+      select("pnlUnit", "Unité PnL", formVal(t, "pnlUnit", "usd"), [
+        ["usd", "USD"],
+        ["r", "R"],
+        ["pips", "Pips"],
+        ["%", "%"],
+      ]) +
       input("timeframe", "Timeframe", formVal(t, "timeframe", "M15")) +
       input("setup", "Setup", formVal(t, "setup", "")) +
       input("tags", "Tags (virgules)", (t.tags || []).join(", ")) +
@@ -303,10 +406,10 @@
       '<button type="button" class="btn btn-secondary" id="tj-cancel-2">Annuler</button>' +
       "</div></form>" +
       (!isNew
-        ? '<div class="tj-span-2" style="margin-top:1rem"><label>Screens</label>' +
+        ? '<div class="tj-span-2" style="margin-top:1rem"><label>Screens (privés)</label>' +
           renderShots(t, true) +
           "</div>"
-        : "") +
+        : '<p class="tj-muted">Enregistre d’abord le trade, puis tu pourras ajouter des screens.</p>') +
       "</div>"
     );
   }
@@ -378,6 +481,15 @@
     var root = rootEl();
     if (!root) return;
 
+    var ownerSel = document.getElementById("tj-owner-select");
+    if (ownerSel) {
+      ownerSel.addEventListener("change", function () {
+        var v = ownerSel.value;
+        state.owner = v || normalizeEmail(state.me && state.me.email);
+        loadList().catch(showErr);
+      });
+    }
+
     root.querySelectorAll("tr[data-trade-id]").forEach(function (tr) {
       tr.addEventListener("click", function () {
         openTrade(tr.getAttribute("data-trade-id")).catch(showErr);
@@ -391,9 +503,10 @@
     });
 
     var neu = document.getElementById("tj-new");
-    if (neu) neu.addEventListener("click", function () {
-      setMode("new", null);
-    });
+    if (neu)
+      neu.addEventListener("click", function () {
+        setMode("new", null);
+      });
 
     ["tj-back", "tj-back-2", "tj-cancel", "tj-cancel-2"].forEach(function (id) {
       var el = document.getElementById(id);
@@ -419,7 +532,7 @@
     if (del) {
       del.addEventListener("click", function () {
         if (!state.current || !state.current.id) return;
-        if (!confirm("Supprimer ce trade ?")) return;
+        if (!confirm("Supprimer ce trade et ses screens ?")) return;
         api("/api/journal-trades/" + encodeURIComponent(state.current.id), {
           method: "DELETE",
         })
@@ -441,9 +554,53 @@
     var file = document.getElementById("tj-shot-file");
     if (file) {
       file.addEventListener("change", function () {
-        uploadShot(file).catch(showErr);
+        uploadShots(file).catch(showErr);
       });
     }
+
+    root.querySelectorAll(".tj-shot-del").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var imageId = btn.getAttribute("data-image-id");
+        if (!state.current || !imageId) return;
+        if (!confirm("Supprimer ce screen ?")) return;
+        api(
+          "/api/journal-trades/" +
+            encodeURIComponent(state.current.id) +
+            "/images/" +
+            encodeURIComponent(imageId),
+          { method: "DELETE" }
+        )
+          .then(function (data) {
+            state.current = data.trade;
+            render();
+          })
+          .catch(showErr);
+      });
+    });
+
+    root.querySelectorAll(".tj-caption-save").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var imageId = btn.getAttribute("data-image-id");
+        var input = root.querySelector('.tj-caption-input[data-image-id="' + imageId + '"]');
+        if (!state.current || !imageId || !input) return;
+        api(
+          "/api/journal-trades/" +
+            encodeURIComponent(state.current.id) +
+            "/images/" +
+            encodeURIComponent(imageId),
+          {
+            method: "PATCH",
+            body: JSON.stringify({ caption: input.value }),
+          }
+        )
+          .then(function (data) {
+            state.current = data.trade;
+            var status = document.getElementById("tj-shot-status");
+            if (status) status.textContent = "Légende enregistrée.";
+          })
+          .catch(showErr);
+      });
+    });
 
     var legacy = document.getElementById("tj-legacy-link");
     if (legacy) {
@@ -492,7 +649,9 @@
         body: JSON.stringify(payload),
       });
     }
-    setMode("view", data.trade);
+    setMode("edit", data.trade);
+    var status = document.getElementById("tj-shot-status");
+    if (status) status.textContent = "Trade enregistré — tu peux ajouter des screens.";
   }
 
   function compressImageFile(file, maxSide, quality) {
@@ -532,19 +691,23 @@
     });
   }
 
-  async function uploadShot(input) {
+  async function uploadShots(input) {
     if (!state.current || !state.current.id) return;
-    var file = input.files && input.files[0];
-    if (!file) return;
+    var files = input.files ? Array.prototype.slice.call(input.files, 0) : [];
+    if (!files.length) return;
     var status = document.getElementById("tj-shot-status");
-    if (status) status.textContent = "Upload…";
-    var dataUrl = await compressImageFile(file);
+    if (status) status.textContent = "Upload de " + files.length + " screen(s)…";
+    var dataUrls = [];
+    for (var i = 0; i < files.length; i++) {
+      dataUrls.push(await compressImageFile(files[i]));
+    }
     var data = await api(
       "/api/journal-trades/" + encodeURIComponent(state.current.id) + "/images",
-      { method: "POST", body: JSON.stringify({ dataUrl: dataUrl }) }
+      { method: "POST", body: JSON.stringify({ dataUrls: dataUrls }) }
     );
     state.current = data.trade;
-    if (status) status.textContent = "Screen ajouté.";
+    if (status) status.textContent = (data.count || dataUrls.length) + " screen(s) ajouté(s).";
+    input.value = "";
     render();
   }
 
@@ -570,18 +733,46 @@
       });
   }
 
+  function detectAdmin(me) {
+    if (!me) return false;
+    if (me.isAdmin === true || me.admin === true || me.role === "admin") return true;
+    var list = String(me.adminEmails || "")
+      .split(/[,;\s]+/)
+      .map(normalizeEmail)
+      .filter(Boolean);
+    if (list.length && list.indexOf(normalizeEmail(me.email)) >= 0) return true;
+    return false;
+  }
+
   async function initJournalNative(me) {
     state.me = me || null;
+    state.owner = normalizeEmail(me && me.email);
+    state.isAdmin = detectAdmin(me);
     var root = rootEl();
     if (!root) throw new Error("#journal-native-root manquant");
     root.innerHTML = '<p class="tj-muted">Chargement du journal…</p>';
     try {
-      await api("/api/journal-trades/ping");
+      var ping = await api("/api/journal-trades/ping");
+      if (ping && ping.version) {
+        /* ok */
+      }
     } catch (e) {
       root.innerHTML =
-        '<div class="tj-empty">API journal pas encore déployée sur le VPS.<br/>Lance le script <code>DEPLOY-JOURNAL-NATIVE.sh</code> puis hard refresh.</div>';
+        '<div class="tj-empty">API journal pas encore déployée sur le VPS.<br/>Lance <code>DEPLOY-JOURNAL-NATIVE.sh</code> puis hard refresh.</div>';
       return;
     }
+    // Confirme admin via une tentative soft (403 = non admin)
+    try {
+      var adm = await fetch("/api/journal-trades-admin/students", {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
+      if (adm.ok) {
+        state.isAdmin = true;
+        var body = await adm.json();
+        state.students = body.students || [];
+      }
+    } catch (_) {}
     await loadList();
   }
 
