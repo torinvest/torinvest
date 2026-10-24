@@ -2,9 +2,7 @@
 # Module F3 — 2ᵉ vidéo : replay coaching (protégée, sous la vidéo principale).
 # Même pattern que DEPLOY-F01-COACHING-FROM-FILE.sh.
 #
-# 1) PC (PowerShell) — choisis le MP4 coaching dans Téléchargements :
-#    scp "C:\Users\gheza\Downloads\GMT20261023-093441_Recording_1920x1080.mp4" ubuntu@164.132.46.191:~/f03-coaching.mp4
-#    (alt. 19 oct.) :
+# 1) PC (PowerShell) — recording coaching F3 (19 oct., 328 Mo) :
 #    scp "C:\Users\gheza\Downloads\GMT20261019-170848_Recording_1344x768.mp4" ubuntu@164.132.46.191:~/f03-coaching.mp4
 #
 # 2) VPS :
@@ -37,15 +35,13 @@ if [[ -z "$VIDEO_SRC" ]]; then
     "$PUBLIC_VID" \
     "$HOME/f03-coaching.mp4" \
     "$HOME/f03-coaching.mkv" \
-    "$HOME/GMT20261023-093441_Recording_1920x1080.mp4" \
-    "$HOME"/GMT20261023*_Recording*.mp4 \
     "$HOME/GMT20261019-170848_Recording_1344x768.mp4" \
     "$HOME"/GMT20261019*_Recording*.mp4 \
     "$HOME"/GMT*_Recording*.mp4 \
-    "$HOME/Downloads/GMT20261023-093441_Recording_1920x1080.mp4" \
+    "$HOME/Downloads/GMT20261019-170848_Recording_1344x768.mp4" \
     "$HOME"/Downloads/GMT*_Recording*.mp4 \
     "/tmp/f03-coaching.mp4" \
-    "/tmp/GMT20261023-093441_Recording_1920x1080.mp4"
+    "/tmp/GMT20261019-170848_Recording_1344x768.mp4"
   do
     if [[ -f "$c" ]] && [[ $(stat -c%s "$c" 2>/dev/null || echo 0) -gt 500000 ]]; then
       VIDEO_SRC="$c"
@@ -57,7 +53,7 @@ fi
 
 if [[ -z "$VIDEO_SRC" || ! -f "$VIDEO_SRC" ]]; then
   echo "ERREUR : recording coaching F3 introuvable."
-  echo "  scp \"C:\\Users\\gheza\\Downloads\\GMT20261023-093441_Recording_1920x1080.mp4\" ubuntu@164.132.46.191:~/f03-coaching.mp4"
+  echo "  scp \"C:\\Users\\gheza\\Downloads\\GMT20261019-170848_Recording_1344x768.mp4\" ubuntu@164.132.46.191:~/f03-coaching.mp4"
   echo "  export VIDEO_SRC=~/f03-coaching.mp4 REF=$REF"
   echo "  bash /tmp/d-f03c.sh"
   exit 1
