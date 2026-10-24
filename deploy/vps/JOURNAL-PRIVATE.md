@@ -44,13 +44,13 @@ curl -s https://app.torinvest-trading.com/api/journal-bridge/ping
 grep -n torinvest-journal-forge-sso /var/www/torinvest/trading_journal.php
 ```
 
-## Vue détail lecture seule (view=)
+## Vue détail lecture seule (read= v3)
 
-Clic trade → `?page=history&read=N` (lecture seule v3 ; pas `view=` — collision menus).  
+Clic trade → `?page=history&read=N` (lecture seule ; pas `view=` — collision menus).  
 Bouton **Modifier** → `edit=N`. Redeploy radar :
 
 ```bash
 curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/HOTFIX-JOURNAL-TRADE-READONLY.sh" | bash
 ```
 
-Attendu : URL `&view=N` + bannière « Mode lecture » ; **Modifier** → formulaire.
+Attendu : URL `&read=N` + bannière « Mode lecture » ; **Modifier** → formulaire.
