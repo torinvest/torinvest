@@ -191,10 +191,6 @@ echo '|readonly=' . ($_GET['readonly'] ?? '');
 `
     );
     const outL = execSync("php " + legacyFile, { encoding: "utf8" });
-    if (!outL.includes("RO=1")) {
-      console.error("legacy out:", JSON.stringify(outL));
-      console.error("legacy php:", fs.readFileSync(legacyFile, "utf8"));
-    }
     assert(outL.includes("RO=1"), "legacy read= becomes readonly");
     assert(outL.includes("edit=9"), "legacy sets edit=");
     assert(outL.includes("readonly=1"), "legacy sets readonly=1");
