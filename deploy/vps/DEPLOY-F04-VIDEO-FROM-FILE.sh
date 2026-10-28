@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Module F4 — vidéo PROTÉGÉE (MP4 session Premium), même pattern que F1 / F2 / F3.
+# Module F4 — vidéo PROTÉGÉE (MP4 session Premium).
+# Injectée DANS le placeholder existant data-video-id="f04-actifs-correlations"
+# (« Vidéo — Matrice intermarchés live • XAU vs DXY vs US10Y »).
 #
 # Fichier source (ton PC) — MKV OK, on convertit en H.264 :
 #   E:\TORINVEST\live torinvest\2026-10-27 21-36-56.mkv
 #
-# 1) Upload depuis PowerShell :
+# 1) Upload depuis Ubuntu / PowerShell :
 #    scp "E:\TORINVEST\live torinvest\2026-10-27 21-36-56.mkv" ubuntu@164.132.46.191:~/f04-actifs-marches.mkv
 #
 # 2) Sur le VPS :
