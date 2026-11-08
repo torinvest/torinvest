@@ -91,7 +91,24 @@ inner = f"""{ms}
 </figure>
 {me}"""
 
-# 1) Purge ancien player F4 mal placé (section inventée au-dessus du replay, etc.)
+# Préserver le replay coaching F4 (2ᵉ vidéo) si déjà injecté
+cms, cme = "<!-- FORGE_F04_COACHING_START -->", "<!-- FORGE_F04_COACHING_END -->"
+coach_saved = None
+mcoach = re.search(re.escape(cms) + r".*?" + re.escape(cme), text, flags=re.S)
+if mcoach:
+    coach_saved = mcoach.group(0)
+    text = text[: mcoach.start()] + text[mcoach.end() :]
+else:
+    mcoach2 = re.search(
+        r'<(?:section|div)[^>]*(?:id=["\']f04-coaching["\']|data-video-id=["\']f04-coaching["\'])[^>]*>.*?</(?:section|div)\s*>',
+        text,
+        flags=re.I | re.S,
+    )
+    if mcoach2:
+        coach_saved = mcoach2.group(0)
+        text = text[: mcoach2.start()] + text[mcoach2.end() :]
+
+# 1) Purge ancien player F4 principal (pas le coaching)
 text = re.sub(re.escape(ms) + r".*?" + re.escape(me), "", text, flags=re.S)
 text = re.sub(
     r'<figure[^>]*id=["\']f04-video["\'][^>]*>.*?</figure>',
@@ -108,12 +125,6 @@ text = re.sub(
 # Titre orphelin injecté par l'ancien hotfix (pas le titre natif Matrice intermarchés)
 text = re.sub(
     r'<h2[^>]*class=["\'][^"\']*forge-lesson-video-heading[^"\']*["\'][^>]*>\s*(?:Video|Vidéo)\s*[—\-]\s*Classes[^<]*</h2>\s*',
-    "",
-    text,
-    flags=re.I,
-)
-text = re.sub(
-    r'<p[^>]*class=["\'][^"\']*forge-lesson-video-lead[^"\']*["\'][^>]*>[\s\S]*?</p>\s*',
     "",
     text,
     flags=re.I,
@@ -229,6 +240,33 @@ else:
             for needle in (slot_id, "Vidéo à venir", "Matrice inter", "FORGE_F04"):
                 print(f"  {needle!r}: {needle.lower() in text.lower()}", file=sys.stderr)
             sys.exit(2)
+
+# Remettre le coaching juste sous le slot / la vidéo principale
+if coach_saved and "FORGE_F04_COACHING_START" not in text and 'id="f04-coaching"' not in text:
+    m_end = re.search(r"<!--\s*FORGE_F04_VIDEO_END\s*-->", text, flags=re.I)
+    if m_end:
+        after = m_end.end()
+        close = re.match(r"\s*</(?:div|section|aside|figure|article)\s*>", text[after:], flags=re.I)
+        if close:
+            after = after + close.end()
+        text = text[:after] + "\n\n" + coach_saved + "\n" + text[after:]
+        print("Coaching F4 préservé sous FORGE_F04_VIDEO_END")
+    else:
+        mfig = re.search(
+            r'(<figure[^>]*id=["\']f04-video["\'][^>]*>.*?</figure>)',
+            text,
+            flags=re.I | re.S,
+        )
+        if mfig:
+            after = mfig.end()
+            close = re.match(r"\s*</(?:div|section|aside|figure|article)\s*>", text[after:], flags=re.I)
+            if close:
+                after = after + close.end()
+            text = text[:after] + "\n\n" + coach_saved + "\n" + text[after:]
+            print("Coaching F4 préservé sous #f04-video")
+        else:
+            text = text + "\n" + coach_saved + "\n"
+            print("Coaching F4 préservé (append)")
 
 # CSS
 if "forge-lesson-video.css" not in text and re.search(r"</head>", text, flags=re.I):
