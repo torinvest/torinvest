@@ -7,7 +7,7 @@ set -euo pipefail
 
 APP_DIR="${APP_DIR:-$HOME/torinvest-formation}"
 # Ignore REF ambiant (souvent resté sur une vieille branche → 404)
-SCRIPT_REF="${CHART_EX_REF:-${SHA:-cursor/chart-screens-admin-ux-691a}}"
+SCRIPT_REF="${CHART_EX_REF:-${SHA:-cursor/exercices-screens-limit-691a}}"
 RAW="https://raw.githubusercontent.com/torinvest/torinvest/${SCRIPT_REF}"
 
 echo "======== DEPLOY CHART EXERCISES ($SCRIPT_REF) ========"
