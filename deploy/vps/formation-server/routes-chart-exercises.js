@@ -18,6 +18,8 @@ const path = require("path");
 const crypto = require("crypto");
 
 const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
+/** Screens par module d'exercice (élève) — au-delà de 15 si besoin. */
+const MAX_IMAGES_PER_MODULE = 50;
 const ALLOWED_MIME = {
   "image/jpeg": ".jpg",
   "image/png": ".png",
@@ -110,7 +112,7 @@ module.exports = function createChartExercisesRouter({ dataDir, requireAuth }) {
         done: Array.isArray(raw.done)
           ? raw.done.map((n) => Number(n)).filter((n) => Number.isFinite(n)).slice(0, 40)
           : [],
-        images: Array.isArray(raw.images) ? raw.images.slice(0, 12) : [],
+        images: Array.isArray(raw.images) ? raw.images.slice(0, MAX_IMAGES_PER_MODULE) : [],
         updatedAt: raw.updatedAt || null,
         email: normalizeEmail(email),
       };
@@ -298,8 +300,10 @@ module.exports = function createChartExercisesRouter({ dataDir, requireAuth }) {
       createdAt: new Date().toISOString(),
     };
     prev.images = Array.isArray(prev.images) ? prev.images.slice() : [];
-    if (prev.images.length >= 12) {
-      return res.status(400).json({ error: "Maximum 12 screens par module" });
+    if (prev.images.length >= MAX_IMAGES_PER_MODULE) {
+      return res.status(400).json({
+        error: "Maximum " + MAX_IMAGES_PER_MODULE + " screens par module",
+      });
     }
     prev.images.push(img);
     prev.updatedAt = new Date().toISOString();

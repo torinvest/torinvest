@@ -1116,7 +1116,7 @@ function initChartExercise(moduleId, config) {
     '<label class="btn btn-secondary chart-exercise-upload-btn">Déposer un screen' +
     '<input type="file" id="chart-exercise-file" accept="image/jpeg,image/png,image/webp,image/gif" hidden /></label>' +
     "</div>" +
-    '<p class="chart-exercise-muted">Notes et screens liés à ton compte — visibles quand tu reviens, et pour le coach.</p>' +
+    '<p class="chart-exercise-muted">Notes et screens liés à ton compte (jusqu’à 50 screens) — visibles quand tu reviens, et pour le coach.</p>' +
     '<div id="chart-exercise-gallery" class="chart-exercise-gallery"></div>' +
     '<div id="chart-exercise-msg" class="alert" hidden style="margin-top:0.75rem"></div></div>';
 
