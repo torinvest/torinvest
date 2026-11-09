@@ -3,12 +3,10 @@
 # Même pattern que DEPLOY-F03-COACHING-FROM-FILE.sh.
 #
 # Fichier source (ton PC) :
-#   C:\Users\gheza\OneDrive\Documents\Zoom\2026-11-08 19.11\video1830141920.mp4
+#   C:\Users\gheza\OneDrive\Documents\Zoom\2026-11-08 19.11.42 Coaching one one\video1830141920.mp4
 #
-# 1) Upload (PowerShell ou Ubuntu) :
-#    scp "C:\Users\gheza\OneDrive\Documents\Zoom\2026-11-08 19.11\video1830141920.mp4" ubuntu@164.132.46.191:~/f04-coaching.mp4
-#    # Ubuntu/WSL :
-#    scp "/mnt/c/Users/gheza/OneDrive/Documents/Zoom/2026-11-08 19.11/video1830141920.mp4" ubuntu@164.132.46.191:~/f04-coaching.mp4
+# 1) Upload (PowerShell) :
+#    scp "C:\Users\gheza\OneDrive\Documents\Zoom\2026-11-08 19.11.42 Coaching one one\video1830141920.mp4" ubuntu@164.132.46.191:~/f04-coaching.mp4
 #
 # 2) VPS :
 #    export VIDEO_SRC=~/f04-coaching.mp4
@@ -56,7 +54,7 @@ fi
 
 if [[ -z "$VIDEO_SRC" || ! -f "$VIDEO_SRC" ]]; then
   echo "ERREUR : recording coaching F4 introuvable."
-  echo "  scp \"C:\\Users\\gheza\\OneDrive\\Documents\\Zoom\\2026-11-08 19.11\\video1830141920.mp4\" ubuntu@164.132.46.191:~/f04-coaching.mp4"
+  echo "  scp \"C:\\Users\\gheza\\OneDrive\\Documents\\Zoom\\2026-11-08 19.11.42 Coaching one one\\video1830141920.mp4\" ubuntu@164.132.46.191:~/f04-coaching.mp4"
   echo "  export VIDEO_SRC=~/f04-coaching.mp4 REF=$REF"
   echo "  bash /tmp/d-f04c.sh"
   exit 1
