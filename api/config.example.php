@@ -89,6 +89,8 @@ return [
   // Même secret que FORGE_FORMATION_PROVISION_SECRET sur le VPS formation (pm2)
     'formation_provision_secret' => 'CHANGEZ_MOI_LONG_RANDOM_IDENTIQUE_VPS',
     'formation_provision_url' => 'https://app.torinvest-trading.com/api/internal/formation-provision',
+    // Login membres www avec le même MDP formation
+    'formation_verify_url' => 'https://app.torinvest-trading.com/api/internal/formation-verify',
 
     // --- Membres du site (inscription / soft gate contenus) ---
     // Secret HMAC dédié (sinon repli ai_access_hmac_secret / PIN)

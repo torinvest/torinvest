@@ -103,3 +103,74 @@ function formationProvisionAccompagnementUser(string $email, array $opts = []): 
     }
     return $out;
 }
+
+/**
+ * Vérifie email + mot de passe contre le store formation (app).
+ * Même secret que provision. Ne crée pas de session formation.
+ */
+function formationVerifyPassword(string $email, string $password): array
+{
+    $email = strtolower(trim($email));
+    $password = (string) $password;
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
+        return ['ok' => false, 'error' => 'identifiants_invalides'];
+    }
+
+    $secret = formationProvisionSecret();
+    if ($secret === '') {
+        return ['ok' => false, 'error' => 'formation_provision_secret_missing', 'skipped' => true];
+    }
+
+    $cfg = formationProvisionConfig();
+    $url = trim((string) ($cfg['formation_verify_url'] ?? ''));
+    if ($url === '') {
+        $url = 'https://app.torinvest-trading.com/api/internal/formation-verify';
+    }
+
+    $headers = "Content-Type: application/json\r\nAccept: application/json\r\n"
+        . 'X-Formation-Provision-Key: ' . $secret . "\r\n";
+
+    $ctx = stream_context_create([
+        'http' => [
+            'method' => 'POST',
+            'header' => $headers,
+            'content' => json_encode(
+                ['email' => $email, 'password' => $password],
+                JSON_UNESCAPED_UNICODE
+            ),
+            'timeout' => 12,
+            'ignore_errors' => true,
+        ],
+    ]);
+
+    $raw = @file_get_contents($url, false, $ctx);
+    if ($raw === false) {
+        return ['ok' => false, 'error' => 'formation_unreachable'];
+    }
+
+    $status = 0;
+    if (isset($http_response_header[0]) && preg_match('/\s(\d{3})\s/', $http_response_header[0], $m)) {
+        $status = (int) $m[1];
+    }
+
+    $data = json_decode($raw, true);
+    if (!is_array($data)) {
+        return ['ok' => false, 'error' => 'formation_invalid_response', 'http' => $status];
+    }
+
+    if (empty($data['ok'])) {
+        return [
+            'ok' => false,
+            'error' => (string) ($data['error'] ?? 'invalid_credentials'),
+            'http' => $status,
+        ];
+    }
+
+    return [
+        'ok' => true,
+        'email' => $email,
+        'subscribed' => !empty($data['subscribed']),
+        'via' => (string) ($data['via'] ?? 'formation'),
+        'http' => $status,
+    ];
+}
