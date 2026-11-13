@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/http-session.php';
 require_once __DIR__ . '/rate-limit.php';
+require_once __DIR__ . '/formation-provision-lib.php';
 
 function memberAuthConfig(): array
 {
@@ -213,6 +214,62 @@ function memberAuthRegister(string $email, string $password, string $displayName
     return $session;
 }
 
+/**
+ * Crée ou met à jour un membre site à partir d'un mot de passe formation validé.
+ */
+function memberAuthUpsertFromFormation(string $email, string $password, string $displayName = ''): array
+{
+    $email = memberAuthNormalizeEmail($email);
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    if ($hash === false) {
+        throw new RuntimeException('hash_echec');
+    }
+
+    $pdo = memberAuthPdo();
+    $stmt = $pdo->prepare('SELECT * FROM site_members WHERE email = :email LIMIT 1');
+    $stmt->execute([':email' => $email]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $now = gmdate('c');
+
+    if ($row) {
+        $pdo->prepare(
+            'UPDATE site_members
+             SET password_hash = :hash, last_login_at = :login, status = "active"
+             WHERE id = :id'
+        )->execute([
+            ':hash' => $hash,
+            ':login' => $now,
+            ':id' => (int) $row['id'],
+        ]);
+        $row['password_hash'] = $hash;
+        $row['last_login_at'] = $now;
+        $row['status'] = 'active';
+        return $row;
+    }
+
+    $displayName = trim($displayName);
+    $ins = $pdo->prepare(
+        'INSERT INTO site_members (email, password_hash, display_name, created_at, last_login_at, status)
+         VALUES (:email, :hash, :name, :created, :login, "active")'
+    );
+    $ins->execute([
+        ':email' => $email,
+        ':hash' => $hash,
+        ':name' => $displayName !== '' ? $displayName : null,
+        ':created' => $now,
+        ':login' => $now,
+    ]);
+
+    return [
+        'id' => (int) $pdo->lastInsertId(),
+        'email' => $email,
+        'display_name' => $displayName,
+        'created_at' => $now,
+        'last_login_at' => $now,
+        'status' => 'active',
+    ];
+}
+
 function memberAuthLogin(string $email, string $password): array
 {
     torinvestRateLimitGuard('member_login', 12, 900);
@@ -228,10 +285,26 @@ function memberAuthLogin(string $email, string $password): array
     $stmt = $pdo->prepare('SELECT * FROM site_members WHERE email = :email LIMIT 1');
     $stmt->execute([':email' => $email]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$row || empty($row['password_hash']) || !password_verify($password, (string) $row['password_hash'])) {
+
+    $localOk = $row
+        && !empty($row['password_hash'])
+        && password_verify($password, (string) $row['password_hash']);
+
+    if (!$localOk) {
+        // Même email + mot de passe que la formation (app.torinvest-trading.com)
+        $formation = formationVerifyPassword($email, $password);
+        if (!empty($formation['ok'])) {
+            $row = memberAuthUpsertFromFormation($email, $password, (string) ($row['display_name'] ?? ''));
+            $session = memberAuthIssueSession($row);
+            $session['message'] = 'Connexion réussie (compte formation).';
+            $session['via'] = 'formation';
+            return $session;
+        }
+
         torinvestRateLimitHit('member_login');
         throw new RuntimeException('identifiants_incorrects');
     }
+
     if (strtolower((string) ($row['status'] ?? '')) !== 'active') {
         torinvestRateLimitHit('member_login');
         throw new RuntimeException('compte_inactif');

@@ -518,6 +518,90 @@ function createFormationAuthRouter(options) {
     return res.json(body);
   });
 
+  /**
+   * Vérifie email+mot de passe formation (users.json / démo / admin env).
+   * Utilisé par le site www (membres) pour accepter les mêmes identifiants.
+   * Auth : Header X-Formation-Provision-Key
+   */
+  router.post("/api/internal/formation-verify", async (req, res) => {
+    const headerKey = String(req.headers["x-formation-provision-key"] || "");
+    if (!provisionSecret || !timingSafeEqualString(headerKey, provisionSecret)) {
+      return res.status(401).json({ ok: false, error: "unauthorized" });
+    }
+
+    const email = users.normalizeEmail(req.body?.email);
+    const rawPassword = String(req.body?.password || "");
+    const password = worker.normalizeLicenseKey(rawPassword) || rawPassword.trim();
+    if (!email || !password) {
+      return res.status(400).json({ ok: false, error: "missing_params" });
+    }
+
+    const store = users.readStore(dataDir);
+    const existing = users.findUser(store, email);
+    const hash = existing ? users.passwordHashFromUser(existing) : "";
+    if (hash) {
+      const okPass =
+        (await users.verifyPassword(hash, rawPassword)) ||
+        (await users.verifyPassword(hash, password));
+      if (okPass) {
+        return res.json({
+          ok: true,
+          email,
+          subscribed: !!existing.subscribed,
+          via: "password",
+        });
+      }
+      return res.status(401).json({ ok: false, error: "invalid_credentials" });
+    }
+
+    const demo = matchDemoLogin(email, rawPassword);
+    if (demo) {
+      return res.json({
+        ok: true,
+        email,
+        subscribed: !!demo.subscribed,
+        via: "demo",
+      });
+    }
+
+    // Compte owner / admin (souvent abonne@) stocké en env, hors users.json
+    const envPairs = [
+      {
+        email: users.normalizeEmail(
+          process.env.FORGE_ADMIN_EMAIL ||
+            process.env.FORGE_DEMO_EMAIL ||
+            process.env.DEMO_SUBSCRIBER_EMAIL ||
+            ""
+        ),
+        password: String(
+          process.env.FORGE_ADMIN_PASSWORD ||
+            process.env.FORGE_DEMO_PASSWORD ||
+            process.env.DEMO_SUBSCRIBER_PASSWORD ||
+            ""
+        ),
+        subscribed: true,
+        via: "admin_env",
+      },
+    ];
+    for (const pair of envPairs) {
+      if (
+        pair.email &&
+        pair.password &&
+        email === pair.email &&
+        (rawPassword === pair.password || password === pair.password)
+      ) {
+        return res.json({
+          ok: true,
+          email,
+          subscribed: pair.subscribed,
+          via: pair.via,
+        });
+      }
+    }
+
+    return res.status(401).json({ ok: false, error: "invalid_credentials" });
+  });
+
   return router;
 }
 
