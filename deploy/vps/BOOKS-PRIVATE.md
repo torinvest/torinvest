@@ -30,7 +30,25 @@ rsync -avz --include='*.pdf' --exclude='*' \
   ubuntu@164.132.46.191:/var/lib/torinvest/books/
 ```
 
+### Lot « oct 2026 » (54 PDF, ~521 Mo)
+
+Dossier : `E:\TORINVEST\livre pdf\oct 2026`
+
+**PowerShell (recommandé — 1 archive) :**
+```powershell
+cd "E:\TORINVEST\livre pdf"
+tar -cf oct-2026-books.tar "oct 2026"
+scp oct-2026-books.tar ubuntu@164.132.46.191:~/
+```
+
+**VPS :**
+```bash
+curl -fsSL "https://raw.githubusercontent.com/torinvest/torinvest/main/deploy/vps/UPLOAD-BOOKS-OCT2026.sh" -o /tmp/u-books.sh
+bash /tmp/u-books.sh
+```
+
 Les doublons `(1)` sont masqués dans l’UI s’il existe déjà le fichier sans `(1)`.
+Les PDF déjà présents dans `/var/lib/torinvest/books` ne sont pas écrasés (`cp -n`).
 
 ## Déploiement code
 
