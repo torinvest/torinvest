@@ -6,21 +6,34 @@
   <title>Module Crypto — La Forge</title>
   <meta name="robots" content="noindex,nofollow" />
   <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/legal.css" />
   <link rel="stylesheet" href="/css/lesson-pro.css" />
-  <link rel="stylesheet" href="/css/forge-crypto.css?v=2" />
+  <link rel="stylesheet" href="/css/forge-crypto.css?v=3" />
 </head>
 <body class="crypto-lesson">
   <header class="site-header" data-forge-member-header="crypto"></header>
 
   <div class="container" id="crypto-lesson-root" hidden>
-    <p style="margin:0 0 0.5rem">
-      <a href="/crypto/index.html" style="color:var(--nav-teal,#2dd4bf);font-size:0.9rem">← Parcours Crypto</a>
+    <p style="margin:0 0 0.65rem">
+      <a class="crypto-back" href="/crypto/index.html">← Parcours Crypto</a>
     </p>
+
+    <div class="crypto-ticker" aria-label="Références marché">
+      <span class="crypto-chip crypto-chip--btc"><span class="cx-dot" aria-hidden="true"></span>BTC</span>
+      <span class="crypto-chip crypto-chip--eth"><span class="cx-dot" aria-hidden="true"></span>ETH</span>
+      <span class="crypto-chip crypto-chip--sol"><span class="cx-dot" aria-hidden="true"></span>SOL</span>
+      <span class="crypto-chip crypto-chip--xrp"><span class="cx-dot" aria-hidden="true"></span>XRP</span>
+      <span class="crypto-chip crypto-chip--hype"><span class="cx-dot" aria-hidden="true"></span>HYPE</span>
+      <span class="crypto-chip crypto-chip--chain"><span class="cx-dot" aria-hidden="true"></span>On-chain</span>
+    </div>
+
     <span class="crypto-badge" id="crypto-module-part">Crypto</span>
     <h1 id="crypto-module-title" style="margin:0.2rem 0">Module</h1>
-    <p id="crypto-module-desc" style="color:var(--muted);margin:0 0 1rem"></p>
+    <p id="crypto-module-desc" style="color:var(--cx-muted,#8aa39c);margin:0 0 1rem"></p>
 
     <div class="crypto-objectives">
       <h3>Objectifs</h3>
@@ -30,7 +43,7 @@
     <aside id="crypto-schema-rail" class="crypto-schema-rail" hidden></aside>
 
     <div class="lesson-progress-wrap">
-      <div style="display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;font-size:0.85rem;color:var(--muted);margin-bottom:0.35rem">
+      <div style="display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;font-size:0.85rem;color:var(--cx-muted,#8aa39c);margin-bottom:0.35rem">
         <span id="step-counter">Section 1</span>
         <span id="step-reading"></span>
       </div>
@@ -57,7 +70,7 @@
 
     <div class="crypto-section-block">
       <h2>Quiz de validation</h2>
-      <p style="color:var(--muted);font-size:0.88rem">Seuil 70 % pour valider le module (avec exercices + lecture des sections).</p>
+      <p style="color:var(--cx-muted,#8aa39c);font-size:0.88rem">Seuil 70 % pour valider le module (avec exercices + lecture des sections).</p>
       <form id="module-quiz"></form>
       <button type="submit" form="module-quiz" class="btn btn-primary" style="margin-top:0.75rem">Valider le quiz</button>
       <div id="quiz-result" class="alert" hidden style="margin-top:0.75rem"></div>
@@ -72,10 +85,10 @@
   <script src="/js/forge-gate.js"></script>
   <script src="/js/progress.js"></script>
   <script src="/js/lesson-core.js"></script>
-  <script src="/js/crypto-course-data.js?v=2"></script>
-  <script src="/js/crypto-schemas.js?v=2"></script>
-  <script src="/js/crypto-course-index.js?v=2"></script>
-  <script src="/js/crypto-lesson.js?v=2"></script>
+  <script src="/js/crypto-course-data.js?v=3"></script>
+  <script src="/js/crypto-schemas.js?v=3"></script>
+  <script src="/js/crypto-course-index.js?v=3"></script>
+  <script src="/js/crypto-lesson.js?v=3"></script>
   <script src="/js/forge-legal.js"></script>
 </body>
 </html>
