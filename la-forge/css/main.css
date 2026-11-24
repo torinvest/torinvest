@@ -1521,6 +1521,63 @@ body.forge-ambient > * {
 .coach-chip.confirmed { background: var(--success, #4ade80); color: #052e16; }
 .btn-sm { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
 
+/* Rappel popup live coaching (4h / 1h) */
+.coach-reminder-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.coach-reminder-modal[hidden] { display: none !important; }
+.coach-reminder-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(3px);
+}
+.coach-reminder-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(420px, 100%);
+  padding: 1.25rem 1.35rem 1.35rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 180, 0, 0.45);
+  background: linear-gradient(160deg, rgba(40, 28, 8, 0.96), rgba(12, 14, 18, 0.96));
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45), 0 0 28px rgba(255, 180, 0, 0.12);
+}
+.coach-reminder-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold, #ffb400);
+}
+.coach-reminder-dialog h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1.15rem;
+  color: var(--text, #eee);
+}
+.coach-reminder-body {
+  margin: 0 0 1.1rem;
+  color: var(--muted, #aaa);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+.coach-reminder-hint {
+  display: inline-block;
+  margin-top: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--muted, #888);
+}
+.coach-reminder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 /* Dashboard — bandeaux visuels des cartes hub */
 .card.dash-card {
   display: flex;

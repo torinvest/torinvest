@@ -206,6 +206,7 @@
     renderList();
     renderAdminForm();
     paintCalendarChips();
+    checkCoachingReminderPopups();
   }
 
   async function loadTemplates() {
@@ -326,6 +327,157 @@
     };
   }
 
+  function popupDismissKey(sessionId, windowKey) {
+    return "forge_coach_popup_" + sessionId + "_" + windowKey;
+  }
+
+  function isPopupDismissed(sessionId, windowKey) {
+    try {
+      return localStorage.getItem(popupDismissKey(sessionId, windowKey)) === "1";
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function dismissPopup(sessionId, windowKey) {
+    try {
+      localStorage.setItem(popupDismissKey(sessionId, windowKey), "1");
+    } catch (_) {}
+  }
+
+  /** Heure du créneau interprétée en heure locale navigateur (élèves FR ≈ Europe/Paris). */
+  function sessionStartMs(session) {
+    if (!session || !session.date || !session.start) return NaN;
+    const t = Date.parse(String(session.date) + "T" + String(session.start) + ":00");
+    return Number.isFinite(t) ? t : NaN;
+  }
+
+  function myEmail() {
+    return String((_me && _me.email) || "")
+      .trim()
+      .toLowerCase();
+  }
+
+  function isMyConfirmedLive(session) {
+    if (!session || session.status !== "confirmed") return false;
+    const me = myEmail();
+    if (!me) return false;
+    const student = String(session.studentEmail || "").trim().toLowerCase();
+    const confirmedBy = String(session.confirmedBy || "").trim().toLowerCase();
+    return student === me || confirmedBy === me;
+  }
+
+  /**
+   * Fenêtres d’alerte : popup si on est après T−4h / T−1h et avant le live,
+   * et que la fenêtre n’a pas encore été fermée.
+   */
+  function activeReminderWindows(session, nowMs) {
+    const start = sessionStartMs(session);
+    if (!Number.isFinite(start) || nowMs >= start) return [];
+    const out = [];
+    const windows = [
+      { key: "4h", hours: 4, title: "Dans 4 heures" },
+      { key: "1h", hours: 1, title: "Dans 1 heure" },
+    ];
+    for (const w of windows) {
+      const trigger = start - w.hours * 3600 * 1000;
+      if (nowMs >= trigger && !isPopupDismissed(session.id, w.key)) {
+        out.push(w);
+      }
+    }
+    // Priorité : montrer d’abord le rappel le plus proche (1h avant 4h)
+    out.sort((a, b) => a.hours - b.hours);
+    return out;
+  }
+
+  function ensureReminderModal() {
+    let root = document.getElementById("coach-reminder-modal");
+    if (root) return root;
+    root = document.createElement("div");
+    root.id = "coach-reminder-modal";
+    root.className = "coach-reminder-modal";
+    root.hidden = true;
+    root.innerHTML =
+      '<div class="coach-reminder-backdrop" data-coach-reminder-dismiss></div>' +
+      '<div class="coach-reminder-dialog" role="dialog" aria-modal="true" aria-labelledby="coach-reminder-title">' +
+      '<p class="coach-reminder-eyebrow" id="coach-reminder-eyebrow">Live coaching</p>' +
+      '<h3 id="coach-reminder-title">Rappel</h3>' +
+      '<p class="coach-reminder-body" id="coach-reminder-body"></p>' +
+      '<div class="coach-reminder-actions">' +
+      '<button type="button" class="btn btn-primary" id="coach-reminder-ok">Compris</button>' +
+      '<a class="btn btn-secondary" href="/calendar.html" id="coach-reminder-cal">Calendrier</a>' +
+      "</div></div>";
+    document.body.appendChild(root);
+    return root;
+  }
+
+  let _reminderShowing = null;
+
+  function hideReminderModal() {
+    const root = document.getElementById("coach-reminder-modal");
+    if (root) root.hidden = true;
+    _reminderShowing = null;
+  }
+
+  function showReminderModal(session, windowInfo) {
+    if (_reminderShowing) return;
+    const root = ensureReminderModal();
+    const title = document.getElementById("coach-reminder-title");
+    const body = document.getElementById("coach-reminder-body");
+    const eyebrow = document.getElementById("coach-reminder-eyebrow");
+    if (title) title.textContent = "Rappel — " + windowInfo.title;
+    if (eyebrow) eyebrow.textContent = "Live coaching confirmé";
+    if (body) {
+      body.innerHTML =
+        "<strong>" +
+        esc(session.label || "Live coaching") +
+        "</strong><br>" +
+        esc(session.date) +
+        " · " +
+        esc(session.start) +
+        (session.end ? "–" + esc(session.end) : "") +
+        '<br><span class="coach-reminder-hint">Prépare-toi : le live est bientôt. Un email de rappel t’a aussi été / sera envoyé.</span>';
+    }
+    _reminderShowing = { id: session.id, key: windowInfo.key };
+    root.hidden = false;
+
+    const ok = document.getElementById("coach-reminder-ok");
+    if (ok) {
+      ok.onclick = function () {
+        dismissPopup(session.id, windowInfo.key);
+        hideReminderModal();
+        // Enchaîner un éventuel autre rappel (ex. 4h si 1h déjà vu)
+        setTimeout(checkCoachingReminderPopups, 200);
+      };
+    }
+    root.querySelectorAll("[data-coach-reminder-dismiss]").forEach((el) => {
+      el.onclick = function () {
+        dismissPopup(session.id, windowInfo.key);
+        hideReminderModal();
+      };
+    });
+  }
+
+  function checkCoachingReminderPopups() {
+    if (_reminderShowing) return;
+    const now = Date.now();
+    const mine = _sessions.filter(isMyConfirmedLive);
+    for (const s of mine) {
+      const wins = activeReminderWindows(s, now);
+      if (wins.length) {
+        showReminderModal(s, wins[0]);
+        return;
+      }
+    }
+  }
+
+  let _reminderTimer = null;
+  function startReminderPolling() {
+    checkCoachingReminderPopups();
+    if (_reminderTimer) return;
+    _reminderTimer = setInterval(checkCoachingReminderPopups, 60000);
+  }
+
   async function initForgeCoachingLives(me) {
     _me = me || null;
     _isAdmin = !!(me && me.isAdmin);
@@ -337,6 +489,7 @@
     try {
       await loadTemplates();
       await reload();
+      startReminderPolling();
     } catch (err) {
       const list = document.getElementById("coach-lives-list");
       if (list) {
@@ -405,6 +558,7 @@
       }
       renderList();
       bindActions();
+      startReminderPolling();
     } catch (err) {
       mount.hidden = false;
       mount.innerHTML =
@@ -414,4 +568,5 @@
 
   window.initForgeCoachingLives = initForgeCoachingLives;
   window.initForgeCoachingDay = initForgeCoachingDay;
+  window.checkCoachingReminderPopups = checkCoachingReminderPopups;
 })();

@@ -468,6 +468,19 @@ function createCoachingLivesRouter(options) {
     res.json({ ok: true, session: publicSession(session, email, true) });
   });
 
+  // Rappels email 4h / 1h avant les lives confirmés (process PM2).
+  try {
+    const reminders = require("./coaching-reminders-lib");
+    if (reminders && typeof reminders.startCoachingReminders === "function") {
+      reminders.startCoachingReminders({ dataDir });
+    }
+  } catch (err) {
+    console.warn(
+      "[coaching-lives] reminders non démarrés:",
+      err && err.message ? err.message : err
+    );
+  }
+
   return router;
 }
 
