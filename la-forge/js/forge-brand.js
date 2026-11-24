@@ -413,6 +413,7 @@ function initMemberHeader(active) {
     memberNavLink(base + "/dashboard.html", "dashboard", "Dashboard", "gold", active) +
     memberNavLink(base + "/start.html", "start", "Premiers pas", "amber", active) +
     memberNavLink(base + "/course/index.html", "course", "Formation", "ember", active) +
+    memberNavLink(base + "/crypto/index.html", "crypto", "Crypto", "teal", active) +
     memberNavLink(base + "/fondamental.html", "fondamental", "Fondamental", "aqua", active) +
     memberNavLink(base + "/journal.html", "journal", "Journal", "mint", active) +
     memberNavLink(base + "/atlas.html", "atlas", "Atlas", "steel", active) +

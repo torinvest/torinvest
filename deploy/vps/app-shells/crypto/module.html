@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Module Crypto — La Forge</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="icon" href="/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/css/main.css" />
+  <link rel="stylesheet" href="/css/legal.css" />
+  <link rel="stylesheet" href="/css/lesson-pro.css" />
+  <link rel="stylesheet" href="/css/forge-crypto.css?v=1" />
+</head>
+<body class="crypto-lesson">
+  <header class="site-header" data-forge-member-header="crypto"></header>
+
+  <div class="container" id="crypto-lesson-root" hidden>
+    <p style="margin:0 0 0.5rem">
+      <a href="/crypto/index.html" style="color:var(--nav-teal,#2dd4bf);font-size:0.9rem">← Parcours Crypto</a>
+    </p>
+    <span class="crypto-badge" id="crypto-module-part">Crypto</span>
+    <h1 id="crypto-module-title" style="margin:0.2rem 0">Module</h1>
+    <p id="crypto-module-desc" style="color:var(--muted);margin:0 0 1rem"></p>
+
+    <div class="crypto-objectives">
+      <h3>Objectifs</h3>
+      <div id="crypto-objectives"></div>
+    </div>
+
+    <div class="lesson-progress-wrap">
+      <div style="display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;font-size:0.85rem;color:var(--muted);margin-bottom:0.35rem">
+        <span id="step-counter">Section 1</span>
+        <span id="step-reading"></span>
+      </div>
+      <div class="progress-bar"><div id="lesson-progress" style="width:0%"></div></div>
+    </div>
+
+    <div class="lesson-layout" style="display:grid;grid-template-columns:minmax(200px,280px) 1fr;gap:1.25rem">
+      <aside>
+        <div id="step-buttons"></div>
+        <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+          <button type="button" class="btn btn-secondary btn-sm" id="step-prev">←</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="step-next">→</button>
+        </div>
+      </aside>
+      <div id="step-text" class="lesson-step-text"></div>
+    </div>
+
+    <div class="crypto-section-block">
+      <h2>Exercices</h2>
+      <div id="practice-root"></div>
+      <button type="button" class="btn btn-secondary" id="practice-check" style="margin-top:0.75rem">Corriger les exercices</button>
+      <div id="practice-result" class="alert" hidden style="margin-top:0.75rem"></div>
+    </div>
+
+    <div class="crypto-section-block">
+      <h2>Quiz de validation</h2>
+      <p style="color:var(--muted);font-size:0.88rem">Seuil 70 % pour valider le module (avec exercices + lecture des sections).</p>
+      <form id="module-quiz"></form>
+      <button type="submit" form="module-quiz" class="btn btn-primary" style="margin-top:0.75rem">Valider le quiz</button>
+      <div id="quiz-result" class="alert" hidden style="margin-top:0.75rem"></div>
+    </div>
+
+    <div id="module-nav"></div>
+  </div>
+
+  <footer data-forge-footer></footer>
+  <script src="/js/forge-brand.js"></script>
+  <script src="/js/auth.js?v=7"></script>
+  <script src="/js/forge-gate.js"></script>
+  <script src="/js/progress.js"></script>
+  <script src="/js/lesson-core.js"></script>
+  <script src="/js/crypto-course-data.js?v=1"></script>
+  <script src="/js/crypto-course-index.js?v=1"></script>
+  <script src="/js/crypto-lesson.js?v=1"></script>
+  <script src="/js/forge-legal.js"></script>
+</body>
+</html>

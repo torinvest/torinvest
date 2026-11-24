@@ -28,6 +28,9 @@ JS_FILES=(
   auth.js
   chart-exercise-registry.js
   course-data.js
+  crypto-course-data.js
+  crypto-course-index.js
+  crypto-lesson.js
   fondamental-data.js
   course-index.js
   forge-annotations.js
@@ -77,6 +80,7 @@ CSS_FILES=(
   forge-journal-native.css
   forge-macro-edge.css
   forge-masterclass.css
+  forge-crypto.css
   forge-coaching-fiches.css
   forge-module-tabs.css
   forge-lesson-video.css
@@ -114,6 +118,7 @@ IMG_FILES=(
   dash-atlas.svg
   dash-resources.svg
   dash-fonda.svg
+  dash-crypto.svg
 )
 
 if [[ ! -d "$APP_DIR/public/js" ]]; then
