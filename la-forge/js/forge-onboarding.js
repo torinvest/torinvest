@@ -25,6 +25,11 @@
       href: "/course/index.html",
     },
     {
+      id: "crypto",
+      label: "Découvrir la Formation Crypto",
+      href: "/crypto/index.html",
+    },
+    {
       id: "journal",
       label: "Ouvrir le Trading Journal une fois",
       href: "/journal.html",

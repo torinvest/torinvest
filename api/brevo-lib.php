@@ -600,3 +600,335 @@ function brevoSendCoachingLiveReminder(array $context): array
         'htmlContent' => $html,
     ]);
 }
+
+/**
+ * Rappel live collectif — campagne Brevo liste accompagnement (4h / 1h).
+ */
+function brevoSendCollectiveLiveReminder(array $context): array
+{
+    if (!brevoIsConfigured()) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'brevo_not_configured'];
+    }
+
+    $listIds = [];
+    $acc = brevoListId('accompagnement');
+    if ($acc > 0) {
+        $listIds[] = $acc;
+    }
+    $listIds = array_values(array_unique(array_filter($listIds)));
+    if ($listIds === []) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'no_list_ids', 'listIds' => []];
+    }
+
+    $date = trim((string) ($context['date'] ?? ''));
+    $start = trim((string) ($context['start'] ?? ''));
+    $end = trim((string) ($context['end'] ?? ''));
+    $label = trim((string) ($context['label'] ?? 'Live collectif'));
+    $hoursBefore = (int) ($context['hoursBefore'] ?? 0);
+    if ($hoursBefore !== 1 && $hoursBefore !== 4) {
+        $hoursBefore = 1;
+    }
+    $channel = trim((string) ($context['channel'] ?? ''));
+    $url = trim((string) ($context['url'] ?? ''));
+    $calendarUrl = trim((string) ($context['calendarUrl'] ?? 'https://app.torinvest-trading.com/calendar.html'));
+
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+
+    $when = trim($date . ' · ' . $start . ($end !== '' ? '–' . $end : ''));
+    $subject = $hoursBefore === 4
+        ? 'TORINVEST — Live collectif dans 4 h'
+        : 'TORINVEST — Live collectif dans 1 h';
+
+    $html = '<div style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">';
+    $html .= '<div style="background:linear-gradient(135deg,#2dd4bf,#ffb400);padding:18px 22px;border-radius:12px 12px 0 0;">';
+    $html .= '<strong style="color:#0a1a18;font-size:18px;">TORINVEST — Live collectif</strong></div>';
+    $html .= '<div style="border:1px solid #eee;border-top:none;padding:22px;border-radius:0 0 12px 12px;">';
+    $html .= '<p>Rappel : le <strong>live collectif</strong> commence dans <strong>' . $hoursBefore . ' heure' . ($hoursBefore > 1 ? 's' : '') . '</strong>.</p>';
+    $html .= '<p style="background:#ecfeff;border:1px solid #99f6e4;border-radius:10px;padding:14px;line-height:1.55;">';
+    $html .= '<strong>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</strong><br>';
+    $html .= 'Créneau : <code>' . htmlspecialchars($when, ENT_QUOTES, 'UTF-8') . '</code><br>';
+    if ($channel !== '') {
+        $html .= 'Canal : ' . htmlspecialchars($channel, ENT_QUOTES, 'UTF-8') . '<br>';
+    }
+    $html .= '<span style="font-size:12px;color:#666;">Fuseau Europe/Paris</span></p>';
+    if ($url !== '') {
+        $html .= '<p><a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#2dd4bf;color:#0a1a18;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Rejoindre le live</a></p>';
+    }
+    $html .= '<p><a href="' . htmlspecialchars($calendarUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Ouvrir le calendrier</a></p>';
+    $html .= '</div></div>';
+
+    $campaignName = 'Collective ' . $hoursBefore . 'h ' . gmdate('Y-m-d H:i') . ' — ' . substr($label, 0, 60);
+    try {
+        $create = brevoApiRequest('POST', '/emailCampaigns', [
+            'name' => $campaignName,
+            'subject' => $subject,
+            'sender' => ['name' => $senderName, 'email' => $senderEmail],
+            'htmlContent' => $html,
+            'recipients' => ['listIds' => $listIds],
+        ]);
+        $campaignId = isset($create['id']) ? (int) $create['id'] : 0;
+        if ($campaignId < 1) {
+            return ['ok' => false, 'error' => 'campaign_id_missing', 'create' => $create, 'listIds' => $listIds];
+        }
+        $send = brevoApiRequest('POST', '/emailCampaigns/' . $campaignId . '/sendNow');
+        return [
+            'ok' => true,
+            'campaignId' => $campaignId,
+            'create' => $create,
+            'send' => $send,
+            'listIds' => $listIds,
+        ];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => $e->getMessage(), 'listIds' => $listIds];
+    }
+}
+
+/**
+ * Bilan hebdo dimanche — campagne Brevo liste accompagnement.
+ */
+function brevoSendWeeklyDigest(array $context): array
+{
+    if (!brevoIsConfigured()) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'brevo_not_configured'];
+    }
+
+    $listIds = [];
+    $acc = brevoListId('accompagnement');
+    if ($acc > 0) {
+        $listIds[] = $acc;
+    }
+    $listIds = array_values(array_unique(array_filter($listIds)));
+    if ($listIds === []) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'no_list_ids', 'listIds' => []];
+    }
+
+    $weekKey = trim((string) ($context['weekKey'] ?? ''));
+    $nextLive = trim((string) ($context['nextLive'] ?? ''));
+    $dashboardUrl = trim((string) ($context['dashboardUrl'] ?? 'https://app.torinvest-trading.com/dashboard.html'));
+    $cryptoUrl = trim((string) ($context['cryptoUrl'] ?? 'https://app.torinvest-trading.com/crypto/index.html'));
+    $journalUrl = trim((string) ($context['journalUrl'] ?? 'https://app.torinvest-trading.com/journal.html'));
+    $calendarUrl = trim((string) ($context['calendarUrl'] ?? 'https://app.torinvest-trading.com/calendar.html'));
+    $courseUrl = trim((string) ($context['courseUrl'] ?? 'https://app.torinvest-trading.com/course/index.html'));
+
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+
+    $subject = 'TORINVEST — Ton bilan hebdo La Forge';
+    $html = '<div style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">';
+    $html .= '<div style="background:linear-gradient(135deg,#ffb400,#7c3aed);padding:18px 22px;border-radius:12px 12px 0 0;">';
+    $html .= '<strong style="color:#1a1200;font-size:18px;">TORINVEST — Bilan de la semaine</strong></div>';
+    $html .= '<div style="border:1px solid #eee;border-top:none;padding:22px;border-radius:0 0 12px 12px;">';
+    $html .= '<p>Bonjour,</p>';
+    $html .= '<p>Voici ton <strong>bilan hebdomadaire</strong> La Forge' . ($weekKey !== '' ? ' (' . htmlspecialchars($weekKey, ENT_QUOTES, 'UTF-8') . ')' : '') . '.</p>';
+    $html .= '<ol style="line-height:1.7;padding-left:1.2rem;">';
+    $html .= '<li>Valide ton prochain <strong>lot de modules</strong> Formation.</li>';
+    $html .= '<li>Avance dans la <strong>Formation Crypto</strong> (lots de 3).</li>';
+    $html .= '<li>Journalise au moins <strong>1 trade</strong> (ou une revue) cette semaine.</li>';
+    $html .= '<li>Vérifie ton <strong>calendrier</strong> (coaching 1:1 + lives collectifs).</li>';
+    $html .= '</ol>';
+    if ($nextLive !== '') {
+        $html .= '<p style="background:#fff8e8;border:1px solid #ffd27a;border-radius:10px;padding:14px;line-height:1.55;">';
+        $html .= '<strong>Prochain live collectif</strong><br>' . htmlspecialchars($nextLive, ENT_QUOTES, 'UTF-8') . '</p>';
+    }
+    $html .= '<p>';
+    $html .= '<a href="' . htmlspecialchars($dashboardUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Dashboard</a> ';
+    $html .= '<a href="' . htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Formation</a> ';
+    $html .= '<a href="' . htmlspecialchars($cryptoUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Crypto</a> ';
+    $html .= '<a href="' . htmlspecialchars($journalUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#334155;color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Journal</a> ';
+    $html .= '<a href="' . htmlspecialchars($calendarUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Calendrier</a>';
+    $html .= '</p>';
+    $html .= '<p style="font-size:12px;color:#888;">Contenu pédagogique — une étape claire vaut mieux que dix onglets ouverts.</p>';
+    $html .= '</div></div>';
+
+    $campaignName = 'Weekly digest ' . ($weekKey !== '' ? $weekKey : gmdate('Y-m-d'));
+    try {
+        $create = brevoApiRequest('POST', '/emailCampaigns', [
+            'name' => $campaignName,
+            'subject' => $subject,
+            'sender' => ['name' => $senderName, 'email' => $senderEmail],
+            'htmlContent' => $html,
+            'recipients' => ['listIds' => $listIds],
+        ]);
+        $campaignId = isset($create['id']) ? (int) $create['id'] : 0;
+        if ($campaignId < 1) {
+            return ['ok' => false, 'error' => 'campaign_id_missing', 'create' => $create, 'listIds' => $listIds];
+        }
+        $send = brevoApiRequest('POST', '/emailCampaigns/' . $campaignId . '/sendNow');
+        return [
+            'ok' => true,
+            'campaignId' => $campaignId,
+            'create' => $create,
+            'send' => $send,
+            'listIds' => $listIds,
+        ];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => $e->getMessage(), 'listIds' => $listIds];
+    }
+}
+
+/**
+ * Rappel live collectif — campagne Brevo liste accompagnement (4h / 1h).
+ */
+function brevoSendCollectiveLiveReminder(array $context): array
+{
+    if (!brevoIsConfigured()) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'brevo_not_configured'];
+    }
+
+    $listIds = [];
+    $acc = brevoListId('accompagnement');
+    if ($acc > 0) {
+        $listIds[] = $acc;
+    }
+    $listIds = array_values(array_unique(array_filter($listIds)));
+    if ($listIds === []) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'no_list_ids', 'listIds' => []];
+    }
+
+    $date = trim((string) ($context['date'] ?? ''));
+    $start = trim((string) ($context['start'] ?? ''));
+    $end = trim((string) ($context['end'] ?? ''));
+    $label = trim((string) ($context['label'] ?? 'Live collectif'));
+    $hoursBefore = (int) ($context['hoursBefore'] ?? 0);
+    if ($hoursBefore !== 1 && $hoursBefore !== 4) {
+        $hoursBefore = 1;
+    }
+    $channel = trim((string) ($context['channel'] ?? ''));
+    $url = trim((string) ($context['url'] ?? ''));
+    $calendarUrl = trim((string) ($context['calendarUrl'] ?? 'https://app.torinvest-trading.com/calendar.html'));
+
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+
+    $when = trim($date . ' · ' . $start . ($end !== '' ? '–' . $end : ''));
+    $subject = $hoursBefore === 4
+        ? 'TORINVEST — Live collectif dans 4 h'
+        : 'TORINVEST — Live collectif dans 1 h';
+
+    $html = '<div style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">';
+    $html .= '<div style="background:linear-gradient(135deg,#2dd4bf,#ffb400);padding:18px 22px;border-radius:12px 12px 0 0;">';
+    $html .= '<strong style="color:#0a1a18;font-size:18px;">TORINVEST — Live collectif</strong></div>';
+    $html .= '<div style="border:1px solid #eee;border-top:none;padding:22px;border-radius:0 0 12px 12px;">';
+    $html .= '<p>Rappel : le <strong>live collectif</strong> commence dans <strong>' . $hoursBefore . ' heure' . ($hoursBefore > 1 ? 's' : '') . '</strong>.</p>';
+    $html .= '<p style="background:#ecfeff;border:1px solid #99f6e4;border-radius:10px;padding:14px;line-height:1.55;">';
+    $html .= '<strong>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</strong><br>';
+    $html .= 'Créneau : <code>' . htmlspecialchars($when, ENT_QUOTES, 'UTF-8') . '</code><br>';
+    if ($channel !== '') {
+        $html .= 'Canal : ' . htmlspecialchars($channel, ENT_QUOTES, 'UTF-8') . '<br>';
+    }
+    $html .= '<span style="font-size:12px;color:#666;">Fuseau Europe/Paris</span></p>';
+    if ($url !== '') {
+        $html .= '<p><a href="' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#2dd4bf;color:#0a1a18;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Rejoindre le live</a></p>';
+    }
+    $html .= '<p><a href="' . htmlspecialchars($calendarUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Ouvrir le calendrier</a></p>';
+    $html .= '</div></div>';
+
+    $campaignName = 'Collective ' . $hoursBefore . 'h ' . gmdate('Y-m-d H:i') . ' — ' . substr($label, 0, 60);
+    try {
+        $create = brevoApiRequest('POST', '/emailCampaigns', [
+            'name' => $campaignName,
+            'subject' => $subject,
+            'sender' => ['name' => $senderName, 'email' => $senderEmail],
+            'htmlContent' => $html,
+            'recipients' => ['listIds' => $listIds],
+        ]);
+        $campaignId = isset($create['id']) ? (int) $create['id'] : 0;
+        if ($campaignId < 1) {
+            return ['ok' => false, 'error' => 'campaign_id_missing', 'create' => $create, 'listIds' => $listIds];
+        }
+        $send = brevoApiRequest('POST', '/emailCampaigns/' . $campaignId . '/sendNow');
+        return [
+            'ok' => true,
+            'campaignId' => $campaignId,
+            'create' => $create,
+            'send' => $send,
+            'listIds' => $listIds,
+        ];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => $e->getMessage(), 'listIds' => $listIds];
+    }
+}
+
+/**
+ * Bilan hebdo dimanche — campagne Brevo liste accompagnement.
+ */
+function brevoSendWeeklyDigest(array $context): array
+{
+    if (!brevoIsConfigured()) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'brevo_not_configured'];
+    }
+
+    $listIds = [];
+    $acc = brevoListId('accompagnement');
+    if ($acc > 0) {
+        $listIds[] = $acc;
+    }
+    $listIds = array_values(array_unique(array_filter($listIds)));
+    if ($listIds === []) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'no_list_ids', 'listIds' => []];
+    }
+
+    $weekKey = trim((string) ($context['weekKey'] ?? ''));
+    $nextLive = trim((string) ($context['nextLive'] ?? ''));
+    $dashboardUrl = trim((string) ($context['dashboardUrl'] ?? 'https://app.torinvest-trading.com/dashboard.html'));
+    $cryptoUrl = trim((string) ($context['cryptoUrl'] ?? 'https://app.torinvest-trading.com/crypto/index.html'));
+    $journalUrl = trim((string) ($context['journalUrl'] ?? 'https://app.torinvest-trading.com/journal.html'));
+    $calendarUrl = trim((string) ($context['calendarUrl'] ?? 'https://app.torinvest-trading.com/calendar.html'));
+    $courseUrl = trim((string) ($context['courseUrl'] ?? 'https://app.torinvest-trading.com/course/index.html'));
+
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+
+    $subject = 'TORINVEST — Ton bilan hebdo La Forge';
+    $html = '<div style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">';
+    $html .= '<div style="background:linear-gradient(135deg,#ffb400,#7c3aed);padding:18px 22px;border-radius:12px 12px 0 0;">';
+    $html .= '<strong style="color:#1a1200;font-size:18px;">TORINVEST — Bilan de la semaine</strong></div>';
+    $html .= '<div style="border:1px solid #eee;border-top:none;padding:22px;border-radius:0 0 12px 12px;">';
+    $html .= '<p>Bonjour,</p>';
+    $html .= '<p>Voici ton <strong>bilan hebdomadaire</strong> La Forge' . ($weekKey !== '' ? ' (' . htmlspecialchars($weekKey, ENT_QUOTES, 'UTF-8') . ')' : '') . '.</p>';
+    $html .= '<ol style="line-height:1.7;padding-left:1.2rem;">';
+    $html .= '<li>Valide ton prochain <strong>lot de modules</strong> Formation.</li>';
+    $html .= '<li>Avance dans la <strong>Formation Crypto</strong> (lots de 3).</li>';
+    $html .= '<li>Journalise au moins <strong>1 trade</strong> (ou une revue) cette semaine.</li>';
+    $html .= '<li>Vérifie ton <strong>calendrier</strong> (coaching 1:1 + lives collectifs).</li>';
+    $html .= '</ol>';
+    if ($nextLive !== '') {
+        $html .= '<p style="background:#fff8e8;border:1px solid #ffd27a;border-radius:10px;padding:14px;line-height:1.55;">';
+        $html .= '<strong>Prochain live collectif</strong><br>' . htmlspecialchars($nextLive, ENT_QUOTES, 'UTF-8') . '</p>';
+    }
+    $html .= '<p>';
+    $html .= '<a href="' . htmlspecialchars($dashboardUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Dashboard</a> ';
+    $html .= '<a href="' . htmlspecialchars($courseUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#1a1a1a;color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Formation</a> ';
+    $html .= '<a href="' . htmlspecialchars($cryptoUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#0f766e;color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Crypto</a> ';
+    $html .= '<a href="' . htmlspecialchars($journalUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#334155;color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Journal</a> ';
+    $html .= '<a href="' . htmlspecialchars($calendarUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:999px;margin:4px;">Calendrier</a>';
+    $html .= '</p>';
+    $html .= '<p style="font-size:12px;color:#888;">Contenu pédagogique — une étape claire vaut mieux que dix onglets ouverts.</p>';
+    $html .= '</div></div>';
+
+    $campaignName = 'Weekly digest ' . ($weekKey !== '' ? $weekKey : gmdate('Y-m-d'));
+    try {
+        $create = brevoApiRequest('POST', '/emailCampaigns', [
+            'name' => $campaignName,
+            'subject' => $subject,
+            'sender' => ['name' => $senderName, 'email' => $senderEmail],
+            'htmlContent' => $html,
+            'recipients' => ['listIds' => $listIds],
+        ]);
+        $campaignId = isset($create['id']) ? (int) $create['id'] : 0;
+        if ($campaignId < 1) {
+            return ['ok' => false, 'error' => 'campaign_id_missing', 'create' => $create, 'listIds' => $listIds];
+        }
+        $send = brevoApiRequest('POST', '/emailCampaigns/' . $campaignId . '/sendNow');
+        return [
+            'ok' => true,
+            'campaignId' => $campaignId,
+            'create' => $create,
+            'send' => $send,
+            'listIds' => $listIds,
+        ];
+    } catch (Throwable $e) {
+        return ['ok' => false, 'error' => $e->getMessage(), 'listIds' => $listIds];
+    }
+}

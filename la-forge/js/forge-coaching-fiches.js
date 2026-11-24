@@ -177,6 +177,14 @@
       esc(f.duration) +
       '" placeholder="ex. 45 min" /></label>' +
       "</div>" +
+      '<div class="cf-prep" id="cf-prep">' +
+      '<div class="cf-prep-head">' +
+      "<strong>Préparation live — Journal</strong>" +
+      '<button type="button" class="btn btn-secondary btn-sm" data-cf-load-journal>Charger les 5 derniers trades</button>' +
+      "</div>" +
+      '<p class="cf-hint">Affiche les derniers trades + screens de l’élève avant le live 1:1.</p>' +
+      '<div id="cf-prep-body" class="cf-prep-body"><p class="cf-muted">Saisis l’email puis charge le journal.</p></div>' +
+      "</div>" +
       '<label class="cf-block">Module / thème <input class="cf-input" name="moduleTheme" value="' +
       esc(f.moduleTheme) +
       '" /></label>' +
@@ -697,6 +705,114 @@
     });
   }
 
+  function tradeSortKey(t) {
+    return String((t && (t.openedAt || t.closedAt || t.updatedAt)) || "");
+  }
+
+  function renderPrepTrades(owner, trades) {
+    if (!trades || !trades.length) {
+      return '<p class="cf-muted">Aucun trade dans le journal de ' + esc(owner) + ".</p>";
+    }
+    return (
+      '<ul class="cf-prep-list">' +
+      trades
+        .map(function (t) {
+          var thumbs = (t.images || [])
+            .slice(0, 3)
+            .map(function (img) {
+              var src =
+                "/api/journal-trades/" +
+                encodeURIComponent(t.id) +
+                "/media/" +
+                encodeURIComponent(img.file) +
+                "?owner=" +
+                encodeURIComponent(owner);
+              return (
+                '<a class="cf-prep-thumb" href="' +
+                esc(src) +
+                '" target="_blank" rel="noopener noreferrer">' +
+                '<img src="' +
+                esc(src) +
+                '" alt="" loading="lazy" />' +
+                "</a>"
+              );
+            })
+            .join("");
+          return (
+            '<li class="cf-prep-item">' +
+            '<div class="cf-prep-meta">' +
+            "<strong>" +
+            esc(t.symbol || "?") +
+            "</strong> · " +
+            esc(t.side || "") +
+            " · " +
+            esc(t.status || "") +
+            (t.setup ? " · " + esc(t.setup) : "") +
+            (t.timeframe ? " · " + esc(t.timeframe) : "") +
+            '<br /><span class="cf-muted">' +
+            esc(tradeSortKey(t).slice(0, 16).replace("T", " ")) +
+            (t.pnl != null && t.pnl !== ""
+              ? " · PnL " + esc(String(t.pnl)) + (t.pnlUnit ? " " + esc(t.pnlUnit) : "")
+              : "") +
+            (t.imageCount ? " · " + esc(String(t.imageCount)) + " screen(s)" : "") +
+            "</span></div>" +
+            (thumbs ? '<div class="cf-prep-thumbs">' + thumbs + "</div>" : "") +
+            (t.notes
+              ? '<p class="cf-prep-notes">' + esc(String(t.notes).slice(0, 280)) + "</p>"
+              : "") +
+            "</li>"
+          );
+        })
+        .join("") +
+      "</ul>"
+    );
+  }
+
+  async function loadJournalPrep(root) {
+    var form = root.querySelector("#cf-form");
+    var body = root.querySelector("#cf-prep-body");
+    if (!form || !body) return;
+    var email = String(form.querySelector('[name="studentEmail"]').value || "")
+      .trim()
+      .toLowerCase();
+    if (!email || email.indexOf("@") < 0) {
+      body.innerHTML = '<p class="cf-muted">Email élève requis.</p>';
+      return;
+    }
+    body.innerHTML = '<p class="cf-muted">Chargement du journal…</p>';
+    try {
+      var list = await api(
+        "/api/journal-trades?owner=" + encodeURIComponent(email)
+      );
+      var trades = (list.trades || []).slice(0, 5);
+      var detailed = [];
+      for (var i = 0; i < trades.length; i++) {
+        var t = trades[i];
+        if (t.imageCount > 0) {
+          try {
+            var full = await api(
+              "/api/journal-trades/" +
+                encodeURIComponent(t.id) +
+                "?owner=" +
+                encodeURIComponent(email)
+            );
+            detailed.push(Object.assign({}, t, full.trade || {}));
+          } catch (_) {
+            detailed.push(t);
+          }
+        } else {
+          detailed.push(t);
+        }
+      }
+      body.innerHTML = renderPrepTrades(email, detailed);
+    } catch (err) {
+      body.innerHTML =
+        '<p class="cf-muted">Journal indisponible : ' +
+        esc(err.message || String(err)) +
+        "</p>";
+    }
+  }
+
   function bindEditor(root) {
     var form = root.querySelector("#cf-form");
     root.querySelector("[data-cf-back]")?.addEventListener("click", function () {
@@ -706,6 +822,16 @@
         alert(e.message || String(e));
       });
     });
+
+    root.querySelector("[data-cf-load-journal]")?.addEventListener("click", function () {
+      loadJournalPrep(root);
+    });
+
+    // Auto-load if email already set (ex. ?student=)
+    var emailEl = form && form.querySelector('[name="studentEmail"]');
+    if (emailEl && String(emailEl.value || "").includes("@")) {
+      loadJournalPrep(root);
+    }
 
     form?.addEventListener("submit", async function (ev) {
       ev.preventDefault();
@@ -859,7 +985,28 @@
 
     try {
       await loadList();
-      state.mode = "list";
+      var params = new URLSearchParams(location.search);
+      var studentQ = String(params.get("student") || params.get("email") || "")
+        .trim()
+        .toLowerCase();
+      var fromLive = String(params.get("fromLive") || "").trim();
+      if (studentQ && studentQ.indexOf("@") > 0) {
+        var existing = state.fiches.find(function (f) {
+          return String(f.studentEmail || "").trim().toLowerCase() === studentQ;
+        });
+        if (existing) {
+          state.current = existing;
+        } else {
+          state.current = Object.assign(emptyFiche(), {
+            studentEmail: studentQ,
+            moduleTheme: fromLive ? "Live coaching " + fromLive : "",
+            date: new Date().toISOString().slice(0, 10),
+          });
+        }
+        state.mode = "edit";
+      } else {
+        state.mode = "list";
+      }
       paint();
     } catch (err) {
       root.innerHTML =

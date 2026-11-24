@@ -1505,6 +1505,17 @@ body.forge-ambient > * {
 }
 .coach-admin-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem; }
 .cal-cell.has-coaching { box-shadow: inset 0 0 0 1px rgba(250, 204, 21, 0.35); }
+.cal-cell.has-collective { box-shadow: inset 0 0 0 1px rgba(45, 212, 191, 0.4); }
+.col-chip {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: #2dd4bf;
+  color: #042f2e;
+}
 .coach-chip {
   display: inline-block;
   margin-top: 0.25rem;

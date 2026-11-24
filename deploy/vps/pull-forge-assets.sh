@@ -38,6 +38,7 @@ JS_FILES=(
   forge-brand.js
   forge-calendar.js
   forge-coaching-lives.js
+  forge-collective-lives.js
   forge-coaching-fiches.js
   forge-module-guides.js
   forge-module-tabs.js
