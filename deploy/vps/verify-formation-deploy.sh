@@ -81,6 +81,8 @@ grep -q 'module-list' "$APP_DIR/public/course/index.html" && echo "  OK course i
 grep -q 'forge-unlock.js' "$APP_DIR/public/course/index.html" && echo "  OK unlock scripts index" || { echo "  MISSING forge-unlock on index"; FAIL=$((FAIL + 1)); }
 grep -q 'module-list' "$APP_DIR/public/crypto/index.html" && echo "  OK crypto index shell" || { echo "  MISSING crypto index"; FAIL=$((FAIL + 1)); }
 grep -q 'CRYPTO_MODULES' "$APP_DIR/public/js/crypto-course-data.js" && echo "  OK crypto curriculum" || { echo "  MISSING CRYPTO_MODULES"; FAIL=$((FAIL + 1)); }
+grep -q 'crypto-chip' "$APP_DIR/public/css/forge-crypto.css" && echo "  OK crypto CSS futuriste" || { echo "  MISSING crypto-chip CSS (assets stale?)"; FAIL=$((FAIL + 1)); }
+grep -q 'crypto-ticker' "$APP_DIR/public/crypto/index.html" && echo "  OK crypto ticker HTML" || { echo "  MISSING crypto-ticker"; FAIL=$((FAIL + 1)); }
 grep -q 'crypto/index.html' "$APP_DIR/public/js/forge-brand.js" && echo "  OK crypto nav" || { echo "  MISSING crypto nav"; FAIL=$((FAIL + 1)); }
 grep -q 'crypto/index.html' "$APP_DIR/public/dashboard.html" && echo "  OK crypto dashboard tab" || { echo "  MISSING crypto dashboard"; FAIL=$((FAIL + 1)); }
 grep -q 'isModuleUnlocked' "$APP_DIR/public/js/forge-unlock.js" && echo "  OK forge-unlock" || { echo "  MISSING forge-unlock logic"; FAIL=$((FAIL + 1)); }

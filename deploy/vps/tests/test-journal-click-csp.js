@@ -69,8 +69,13 @@ assert.ok(
   "helmet patch must NOT set script-src-attr none"
 );
 assert.ok(
-  helmet.includes("torinvest-csp-v4-tj-onclick"),
-  "helmet patch version marker v4"
+  helmet.includes("torinvest-csp-v5-fonts-crypto") ||
+    helmet.includes("torinvest-csp-v4-tj-onclick"),
+  "helmet patch version marker v5 (fonts) or v4"
+);
+assert.ok(
+  helmet.includes("fonts.googleapis.com"),
+  "helmet style-src must allow Google Fonts for Crypto UI"
 );
 
 // Document the TJ click contract that CSP must not break

@@ -20,7 +20,7 @@ if (!fs.existsSync(serverJs)) {
 
 let src = fs.readFileSync(serverJs, "utf8");
 const marker = "/* torinvest-journal-csp */";
-const versionMarker = "/* torinvest-csp-v4-tj-onclick */";
+const versionMarker = "/* torinvest-csp-v5-fonts-crypto */";
 
 const patchBody = `
 ${marker}
@@ -29,6 +29,7 @@ try {
   const helmet = require("helmet");
   // Remplace / étend CSP si helmet déjà monté plus haut : on remonte une politique élargie.
   // v4: script-src-attr 'unsafe-inline' — TJ Pro trade rows use onclick="openTrade(...)".
+  // v5: style-src fonts.googleapis.com — Orbitron/Space Grotesk (rubrique Crypto).
   app.use(helmet({
     contentSecurityPolicy: {
       useDefaults: true,
@@ -36,7 +37,11 @@ try {
         "default-src": ["'self'"],
         "script-src": ["'self'", "'unsafe-inline'", "blob:"],
         "script-src-attr": ["'unsafe-inline'"],
-        "style-src": ["'self'", "'unsafe-inline'"],
+        "style-src": [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com",
+        ],
         "img-src": ["'self'", "data:", "blob:", "https:"],
         "connect-src": [
           "'self'",
@@ -64,9 +69,9 @@ try {
     },
     crossOriginEmbedderPolicy: false,
   }));
-  console.log("[torinvest] helmet CSP élargi (journal onclick + atlas + youtube)");
+  console.log("[torinvest] helmet CSP élargi (journal + atlas + youtube + fonts crypto)");
 } catch (e) {
-  console.warn("[torinvest] patch helmet journal/atlas/youtube ignoré:", e && e.message);
+  console.warn("[torinvest] patch helmet journal/atlas/youtube/fonts ignoré:", e && e.message);
 }
 `;
 
@@ -94,6 +99,7 @@ function stripExistingCspPatch(input) {
     );
     return input
       .replace(/\/\* torinvest-journal-csp \*\//g, "")
+      .replace(/\/\* torinvest-csp-v5-fonts-crypto \*\//g, "")
       .replace(/\/\* torinvest-csp-v4-tj-onclick \*\//g, "")
       .replace(/\/\* torinvest-csp-v3-youtube \*\//g, "");
   }
@@ -102,17 +108,20 @@ function stripExistingCspPatch(input) {
 }
 
 if (src.includes(versionMarker)) {
-  console.log("OK — patch CSP journal onclick (v4) déjà présent");
+  console.log("OK — patch CSP fonts crypto (v5) déjà présent");
   process.exit(0);
 }
 
-if (src.includes(marker) || src.includes("/* torinvest-csp-v3-youtube */")) {
-  console.log("→ Mise à jour patch CSP (→ v4 tj onclick)");
+if (
+  src.includes(marker) ||
+  src.includes("/* torinvest-csp-v4-tj-onclick */") ||
+  src.includes("/* torinvest-csp-v3-youtube */")
+) {
+  console.log("→ Mise à jour patch CSP (→ v5 fonts crypto)");
   src = stripExistingCspPatch(src);
-  // Also strip older version-only leftovers if marker already removed
-  if (src.includes("/* torinvest-csp-v3-youtube */")) {
-    src = src.replace(/\/\* torinvest-csp-v3-youtube \*\//g, "");
-  }
+  src = src
+    .replace(/\/\* torinvest-csp-v4-tj-onclick \*\//g, "")
+    .replace(/\/\* torinvest-csp-v3-youtube \*\//g, "");
 }
 
 const helmetRe = /app\.use\(\s*helmet\s*\([^)]*\)\s*\)\s*;?/;
