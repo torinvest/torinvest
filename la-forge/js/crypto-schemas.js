@@ -6,11 +6,16 @@
   "use strict";
 
   var TEAL = "#2dd4bf";
-  var GOLD = "#f5d76e";
-  var MUTED = "#8a9a96";
-  var RED = "#ce8a7e";
-  var GREEN = "#8dccaf";
-  var LINE = "#3a4a46";
+  var GOLD = "#f7931a"; /* BTC */
+  var ETH = "#627eea";
+  var SOL = "#14f195";
+  var SOL2 = "#9945ff";
+  var XRP = "#00aae4";
+  var HYPE = "#97fce4";
+  var MUTED = "#8aa39c";
+  var RED = "#ff8f86";
+  var GREEN = "#7dffc8";
+  var LINE = "#2a3a38";
 
   function label(x, y, text, color, size) {
     return (
@@ -108,10 +113,24 @@
         "</title><desc>" +
         caption +
         "</desc>" +
-        // grid soft
-        line(40, 60, 820, 60, "#2a3532", "2 6") +
-        line(40, 160, 820, 160, "#2a3532", "2 6") +
-        line(40, 260, 820, 260, "#2a3532", "2 6") +
+        '<defs><linearGradient id="cxg" x1="0" y1="0" x2="1" y2="1">' +
+        '<stop offset="0%" stop-color="' +
+        GOLD +
+        '" stop-opacity="0.35"/>' +
+        '<stop offset="40%" stop-color="' +
+        ETH +
+        '" stop-opacity="0.35"/>' +
+        '<stop offset="75%" stop-color="' +
+        SOL +
+        '" stop-opacity="0.35"/>' +
+        '<stop offset="100%" stop-color="' +
+        SOL2 +
+        '" stop-opacity="0.3"/>' +
+        "</linearGradient></defs>" +
+        '<rect x="20" y="20" width="820" height="280" rx="14" fill="#060d12" stroke="url(#cxg)" stroke-width="1.5"/>' +
+        line(40, 70, 820, 70, "#1e2c2a", "2 6") +
+        line(40, 160, 820, 160, "#1e2c2a", "2 6") +
+        line(40, 250, 820, 250, "#1e2c2a", "2 6") +
         inner +
         "</svg>",
     };
@@ -177,21 +196,17 @@
     },
 
     token_taxonomy: function () {
-      var boxes = [
-        [50, 70, "L1", "BTC ETH SOL"],
-        [230, 70, "L2 / gas", "ARB OP"],
-        [410, 70, "DeFi", "AAVE UNI"],
-        [590, 70, "Stables", "USDT USDC"],
-        [140, 180, "Memecoins", "narrative"],
-        [360, 180, "Governance", "votes"],
-        [580, 180, "RWA", "droit+custody"],
-      ];
-      var s = "";
-      boxes.forEach(function (b) {
-        s += node(b[0], b[1], 150, 70, b[2], b[3]);
-      });
-      s += label(50, 290, "Chaque classe = liquidité, horizon et risque différents — ne mélange pas les budgets", MUTED, 12);
-      return wrap(s, "Taxonomie des tokens", "Classe l’actif avant le ticker : horizon et risque doivent matcher.");
+      var s =
+        node(40, 55, 130, 70, "BTC", "benchmark") +
+        node(185, 55, 130, 70, "ETH", "smart contracts") +
+        node(330, 55, 130, 70, "SOL", "high throughput") +
+        node(475, 55, 130, 70, "XRP", "rails / liquidity") +
+        node(620, 55, 140, 70, "HYPE", "perp / narrative") +
+        node(110, 160, 150, 70, "L2 / DeFi", "ARB · OP · AAVE") +
+        node(310, 160, 150, 70, "Stables", "USDT · USDC") +
+        node(510, 160, 150, 70, "RWA / gov", "droit + votes") +
+        label(40, 270, "BTC · ETH · SOL · XRP · HYPE — classes et horizons différents, budgets séparés", MUTED, 12);
+      return wrap(s, "Univers tickers", "Classe l’actif avant le ticker : horizon et risque doivent matcher.");
     },
 
     cex_dex: function () {
