@@ -34,6 +34,7 @@ for f in \
   public/img/dash-crypto.svg \
   public/js/crypto-course-data.js \
   public/js/crypto-course-index.js \
+  public/js/crypto-schemas.js \
   public/js/crypto-lesson.js \
   public/css/forge-crypto.css
 do
