@@ -107,8 +107,116 @@
   margin: 1.5rem 0 0.5rem;
 }
 
+.crypto-lesson-grid {
+  display: grid;
+  grid-template-columns: minmax(200px, 280px) 1fr;
+  gap: 1.25rem;
+}
+
+.crypto-schema-rail {
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem 1rem;
+  border: 1px solid rgba(45, 212, 191, 0.28);
+  border-radius: 12px;
+  background: linear-gradient(160deg, rgba(45, 212, 191, 0.07), rgba(0, 0, 0, 0.15));
+}
+
+.crypto-schema-rail h3 {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+  color: var(--nav-teal, #2dd4bf);
+}
+
+.crypto-schema-cap {
+  margin: 0.55rem 0 0;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.crypto-schema {
+  margin: 0.75rem 0 1rem;
+}
+
+.crypto-schema-frame {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  background: #0c1412;
+  overflow: auto;
+  padding: 0.35rem;
+}
+
+.crypto-schema-frame svg {
+  display: block;
+  width: 100%;
+  min-width: 520px;
+  height: auto;
+}
+
+.crypto-schema figcaption {
+  margin-top: 0.45rem;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.crypto-bullets {
+  margin: 0.5rem 0 0.75rem;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.crypto-checklist {
+  margin: 0.85rem 0;
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 215, 110, 0.3);
+  background: rgba(245, 215, 110, 0.06);
+  font-size: 0.9rem;
+}
+
+.crypto-checklist ol {
+  margin: 0.45rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.crypto-lesson .inst-box,
+.crypto-lesson .err-box,
+.crypto-lesson .example-box,
+.crypto-lesson .key-box {
+  margin: 0.75rem 0;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.crypto-lesson .inst-box {
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  background: rgba(45, 212, 191, 0.06);
+}
+
+.crypto-lesson .err-box {
+  border: 1px solid rgba(206, 138, 126, 0.35);
+  background: rgba(206, 138, 126, 0.08);
+}
+
+.crypto-lesson .example-box {
+  border: 1px solid rgba(141, 204, 175, 0.3);
+  background: rgba(141, 204, 175, 0.06);
+}
+
+.crypto-lesson .key-box {
+  border: 1px solid rgba(245, 215, 110, 0.35);
+  background: rgba(245, 215, 110, 0.07);
+}
+
 @media (max-width: 800px) {
-  .crypto-lesson .lesson-layout {
+  .crypto-lesson-grid {
     grid-template-columns: 1fr !important;
   }
 }

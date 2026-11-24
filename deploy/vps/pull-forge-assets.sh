@@ -30,6 +30,7 @@ JS_FILES=(
   course-data.js
   crypto-course-data.js
   crypto-course-index.js
+  crypto-schemas.js
   crypto-lesson.js
   fondamental-data.js
   course-index.js

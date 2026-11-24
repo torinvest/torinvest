@@ -98,7 +98,7 @@ const MODULES = [
 ];
 
 function stepsFrom(sections) {
-  return sections.map(function (s, i) {
+  return sections.map(function (s) {
     return {
       title: s.title,
       sub: s.sub || "",
@@ -108,10 +108,377 @@ function stepsFrom(sections) {
       error: s.error || "",
       example: s.example || "",
       key: s.key || "",
+      schema: s.schema || "",
+      bullets: s.bullets || [],
+      checklist: s.checklist || [],
       readMin: s.readMin || 5,
     };
   });
 }
+
+/** Schéma principal + section d’ouverture visuelle par module */
+const MODULE_SCHEMA = {
+  "c01-intro-crypto": "blockchain",
+  "c02-bitcoin": "btc_halving",
+  "c03-ethereum": "eth_stack",
+  "c04-tokens": "token_taxonomy",
+  "c05-cex-dex": "cex_dex",
+  "c06-stablecoins": "stable_peg",
+  "c07-onchain": "onchain_flow",
+  "c08-cycles": "cycle_regimes",
+  "c09-wallets": "keys_custody",
+  "c10-securite": "keys_custody",
+  "c11-defi": "defi_stack",
+  "c12-nft-rw": "token_taxonomy",
+  "c13-metriques": "onchain_flow",
+  "c14-correlations": "correlation_risk",
+  "c15-volatilite": "risk_sizing",
+  "c16-price-action": "sessions_crypto",
+  "c17-regulation": "cex_dex",
+  "c18-narratifs": "narrative_flow",
+  "c19-portfolio": "portfolio_buckets",
+  "c20-psycho": "psycho_fomo",
+  "c21-infra": "l2_bridge",
+  "c22-macro": "macro_liquidity",
+  "c23-journal": "journal_loop",
+  "c24-capstone": "playbook",
+};
+
+/** Sections bonus (profondeur + schémas) injectées dans chaque leçon */
+const EXTRA_BY_MODULE = {
+  "c01-intro-crypto": {
+    midSchema: "keys_custody",
+    deep: {
+      title: "Carte mentale — 3 couches du trader crypto",
+      body: "Avant tout trade, situe-toi sur trois couches. Si l’une est floue, réduis la taille à zéro.",
+      schema: "blockchain",
+      bullets: [
+        "Couche tech : chaîne, contrat, custody, frais, bridge",
+        "Couche marché : liquidité, sessions, funding, corrélation BTC",
+        "Couche risque : sizing, levier, invalidation, journal",
+      ],
+      checklist: [
+        "Je sais où sont les clés (ou j’accepte le risque CEX)",
+        "Je sais sur quelle chaîne / quel contrat j’interagis",
+        "J’ai un risque % et une invalidation écrits",
+      ],
+      key: "La crypto punit l’improvisation opérationnelle autant que le mauvais setup.",
+      readMin: 7,
+    },
+  },
+  "c02-bitcoin": {
+    midSchema: "cycle_regimes",
+    deep: {
+      title: "Lire BTC comme benchmark",
+      body: "Avant un alt, place BTC en USD et la dominance. Un bull alt season et un bear BTC-only sont deux métiers différents.",
+      schema: "btc_halving",
+      bullets: [
+        "BTC/USD : direction et volatilité du benchmark",
+        "Dominance : rotation capital vers/depuis les alts",
+        "Funding / open interest : crowding sur perps",
+      ],
+      checklist: ["Régime BTC noté", "Dominance consultée", "Pas d’alt faible contre BTC fort sans plan"],
+      key: "BTC d’abord, ticker ensuite.",
+      readMin: 6,
+    },
+  },
+  "c03-ethereum": {
+    midSchema: "l2_bridge",
+    deep: {
+      title: "Gas, congestions et priorités",
+      body: "Le gas n’est pas un détail UX : c’est le prix du bloc. En congestion, une mauvaise estimation brûle du capital ou laisse la tx pendante.",
+      schema: "eth_stack",
+      bullets: [
+        "Base fee + priority tip déterminent l’inclusion",
+        "L2 réduit les frais mais ajoute bridge / sequencer risk",
+        "Approve infinite = dette de sécurité future",
+      ],
+      checklist: ["Réseau correct", "Allowance minimale", "Contrat vérifié sur explorateur"],
+      error: "Payer des frais élevés pour un mint douteux « parce que FOMO ».",
+      readMin: 6,
+    },
+  },
+  "c04-tokens": {
+    midSchema: "narrative_flow",
+    deep: {
+      title: "Grille de due diligence rapide",
+      body: "Si tu ne peux pas remplir cette grille en 10 minutes, la taille doit être play money ou zéro.",
+      schema: "token_taxonomy",
+      bullets: [
+        "Contrat + chain + explorateur officiel",
+        "Holders top / concentration",
+        "Liquidité (où ? lock ?)",
+        "Unlocks / vesting à 30–90 jours",
+        "Utilité réelle vs pure narrative",
+      ],
+      checklist: ["Contrat OK", "Unlocks lus", "Horizon aligné au bucket portfolio"],
+      readMin: 7,
+    },
+  },
+  "c05-cex-dex": {
+    midSchema: "amm_pool",
+    deep: {
+      title: "Microstructure — où se forme le prix",
+      body: "Court terme, les perps CEX mènent souvent le tape. Le spot DEX peut diverger (liquidity islands).",
+      schema: "cex_dex",
+      bullets: [
+        "Funding = coût à porter + signal crowding",
+        "Profondeur order book ≠ liquidité garantie en stress",
+        "Withdraw : réseau + memo/tag + test amount",
+      ],
+      checklist: ["Besoin fiat/levier/custody clarifié", "Adresse + réseau vérifiés sur écran device"],
+      readMin: 6,
+    },
+  },
+  "c06-stablecoins": {
+    midSchema: "defi_stack",
+    deep: {
+      title: "Stress test mental du peg",
+      body: "Imagine USDC ou USDT à 0.92 pendant 48 h. Quel % de ton stack casse ? Quelle action préécrite ?",
+      schema: "stable_peg",
+      bullets: [
+        "Diversifier émetteurs si notional élevé",
+        "Éviter bridge obscur + stable unique",
+        "Sur CEX : risque double (émetteur + exchange)",
+      ],
+      checklist: ["Exposition stables cartographiée", "Plan depeg écrit"],
+      readMin: 6,
+    },
+  },
+  "c07-onchain": {
+    midSchema: "amm_pool",
+    deep: {
+      title: "Lire un explorateur comme un pro",
+      body: "Hash, from/to, value, token transfers, internal txs, logs. Apprends à vérifier un contrat avant de signer.",
+      schema: "onchain_flow",
+      bullets: [
+        "Comparer l’adresse au site officiel (bookmark)",
+        "Méfiance des labels « whale buy » sans contexte",
+        "Simuler / small test sur nouveaux contrats",
+      ],
+      checklist: ["Explorateur ouvert", "Contrat = source officielle", "Pas de seed demandée"],
+      readMin: 6,
+    },
+  },
+  "c08-cycles": {
+    midSchema: "correlation_risk",
+    deep: {
+      title: "Tableau de bord de régime (hebdo)",
+      body: "Chaque dimanche : 5 cases. Ça prend 5 minutes et évite de trader la mauvaise saison.",
+      schema: "cycle_regimes",
+      bullets: [
+        "Distance BTC vs ATH / range 12 mois",
+        "Dominance BTC tendance",
+        "Funding median majors",
+        "Breadth alts (combien outperform BTC)",
+        "Macro : DXY / yields / risk appetite",
+      ],
+      checklist: ["Régime noté dans le journal", "Taille adaptée au régime"],
+      readMin: 6,
+    },
+  },
+  "c09-wallets": {
+    midSchema: "portfolio_buckets",
+    deep: {
+      title: "Architecture custody recommandée",
+      body: "Schéma minimal : cold (épargne) · hot (ops DeFi borné) · CEX (trading borné). Documente où vit chaque bucket.",
+      schema: "keys_custody",
+      bullets: [
+        "Seed offline, jamais photo cloud",
+        "Vérifier adresse sur écran hardware",
+        "Test restore seed (sans exposer)",
+      ],
+      checklist: ["Map custody écrite", "Backup seed testé", "Hot wallet plafonné"],
+      readMin: 7,
+    },
+  },
+  "c10-securite": {
+    midSchema: "onchain_flow",
+    deep: {
+      title: "Incident response (à coller près de ton écran)",
+      body: "Quand ça sent le drain, l’ordre des actions compte. Paniquer en public avec sa seed empire tout.",
+      schema: "keys_custody",
+      bullets: [
+        "1) Transférer restants vers wallet safe si possible",
+        "2) Revoke approvals (via outil connu / bookmark)",
+        "3) Changer mots de passe / 2FA",
+        "4) Documenter hashes pour suivi",
+      ],
+      checklist: ["Bookmarks officiels seulement", "Revoke périodique planifié"],
+      error: "Cliquer le premier Google ad « Uniswap » et approve infinite.",
+      readMin: 7,
+    },
+  },
+  "c11-defi": {
+    midSchema: "amm_pool",
+    deep: {
+      title: "Impermanent loss — intuition visuelle",
+      body: "LP ≠ hold. Si A pompe vs B, tu te retrouves avec moins du winner. Les fees doivent compenser — souvent elles ne le font pas sur paires volatiles.",
+      schema: "defi_stack",
+      bullets: [
+        "Stable/stable : IL faible, yield souvent bas",
+        "Volatile/volatile : IL élevé",
+        "Audit ≠ immunité ; TVL ≠ sécurité",
+      ],
+      checklist: ["Risques listés", "Taille = perte technique OK", "Exit plan si exploit / depeg"],
+      readMin: 7,
+    },
+  },
+  "c12-nft-rw": {
+    midSchema: "narrative_flow",
+    deep: {
+      title: "RWA : crypto + droit",
+      body: "Tokeniser un actif réel déplace une partie du risque vers le custodian et le cadre juridique. Ce n’est pas « trustless » magique.",
+      schema: "token_taxonomy",
+      bullets: ["Qui détient l’actif sous-jacent ?", "Quel droit / juridiction ?", "Liquidité secondaire réelle ?"],
+      checklist: ["Pas de sizing « hype mint » hors play money"],
+      readMin: 5,
+    },
+  },
+  "c13-metriques": {
+    midSchema: "cycle_regimes",
+    deep: {
+      title: "Dashboard minimal (anti data-theater)",
+      body: "3 à 7 métriques max, toujours avec le prix et la liquidité. Une métrique verte ne justifie pas une entrée.",
+      schema: "onchain_flow",
+      bullets: ["Active addresses / fees (usage)", "MVRV ou SOPR (cohortes)", "Exchange flows (pression)", "Funding (crowding)"],
+      checklist: ["Source data notée", "Confluence prix + métrique", "Pas d’entrée single-signal"],
+      readMin: 6,
+    },
+  },
+  "c14-correlations": {
+    midSchema: "macro_liquidity",
+    deep: {
+      title: "Matrice de double risque",
+      body: "Liste tes expositions : crypto, actions tech, job, immobilier levier… Souvent un seul facteur risk-on.",
+      schema: "correlation_risk",
+      bullets: ["Stress Nasdaq → impact crypto ?", "Flight to quality = BTC/stables pas shitcoin", "Or ≠ hedge BTC garanti"],
+      checklist: ["Routine matin : DXY, yields, indices, BTC.dom, funding"],
+      readMin: 6,
+    },
+  },
+  "c15-volatilite": {
+    midSchema: "playbook",
+    deep: {
+      title: "Atelier sizing (exemple chiffré)",
+      body: "Compte 10 000 €, risque 0,75 % = 75 €. Stop à 3 % du prix → taille ≈ 75 / 0,03 = 2 500 € notionnels. Le levier sort de ce calcul, pas de l’ego.",
+      schema: "risk_sizing",
+      bullets: ["Max levier écrit", "Max daily loss → pause", "Pas de revenge size"],
+      checklist: ["Risque % défini", "Stop placé avant entrée", "Levier cohérent avec taille"],
+      readMin: 7,
+    },
+  },
+  "c16-price-action": {
+    midSchema: "playbook",
+    deep: {
+      title: "Séquence A+ crypto (schéma mental)",
+      body: "HTF bias → niveau liquidité → sweep → displacement/MSS → retour zone (FVG/OB) → exécution avec R clair. Même grammaire que la Formation ÉLITE, microstructure 24/7 différente.",
+      schema: "sessions_crypto",
+      bullets: ["Pas de LTF contre daily sans raison", "Week-end thin = taille ↓", "News sans edge = flat"],
+      checklist: ["Bias HTF", "Session liquide", "Invalidation écrite"],
+      readMin: 7,
+    },
+  },
+  "c17-regulation": {
+    midSchema: "portfolio_buckets",
+    deep: {
+      title: "Hygiène compliance trader",
+      body: "Rails fiat et CEX régulés = KYC. Historique de txs = ami fiscal. Ceci n’est pas un conseil fiscal personnalisé.",
+      schema: "cex_dex",
+      bullets: ["Exporter historiques régulièrement", "Séparer comptes perso / trading si besoin", "Sources officielles > influencers"],
+      checklist: ["Pas de contournement illégal KYC", "Traces txs OK"],
+      readMin: 5,
+    },
+  },
+  "c18-narratifs": {
+    midSchema: "cycle_regimes",
+    deep: {
+      title: "Template trade catalyseur",
+      body: "Catalyst → hypothèse → niveaux → taille → invalidation → exit. Si une case manque, pas de trade.",
+      schema: "narrative_flow",
+      bullets: ["Unlock calendar suivi", "Funding extrême = crowding", "Sell-the-news fréquent sur events évidents"],
+      checklist: ["Hypothèse écrite", "Invalidation claire", "Taille bornée"],
+      readMin: 6,
+    },
+  },
+  "c19-portfolio": {
+    midSchema: "keys_custody",
+    deep: {
+      title: "Fiche caps (à remplir)",
+      body: "Core % · Satellite % · Trading % · Stables % · Cap alt unique · Cap DeFi · Cap levier. Sans chiffres, ce n’est pas un plan.",
+      schema: "portfolio_buckets",
+      bullets: ["Rebalance selon règles", "Drawdown -30 % : actions préécrites", "Trading blow-up ≠ cold"],
+      checklist: ["Caps écrits", "Map custody", "Plan drawdown"],
+      readMin: 6,
+    },
+  },
+  "c20-psycho": {
+    midSchema: "playbook",
+    deep: {
+      title: "Protocoles anti-FOMO",
+      body: "Watchlist préécrite, size max émotion, obligation de checklist, pause après tilt. L’Atlas Psycho complète ce module.",
+      schema: "psycho_fomo",
+      bullets: ["Coin +200 % hors liste → skip ou pullback plan", "Émotion 5/5 → no trade", "Weekly review des tags tilt"],
+      checklist: ["Rituel pré-session", "Rituel post-session 5 lignes"],
+      readMin: 6,
+    },
+  },
+  "c21-infra": {
+    midSchema: "eth_stack",
+    deep: {
+      title: "Choisir ses rails",
+      body: "1–2 écosystèmes maîtrisés valent mieux que 15 wallets chaotiques. Documente RPCs, bridges canoniques, adresses.",
+      schema: "l2_bridge",
+      bullets: ["Bridge canonique only pour gros notionals", "Comprendre finalité / délais withdraw", "Sequencer centralisé = downtime possible"],
+      checklist: ["Écosystème principal choisi", "Procédure bridge testée en petit"],
+      readMin: 6,
+    },
+  },
+  "c22-macro": {
+    midSchema: "correlation_risk",
+    deep: {
+      title: "Bias macro en 3 minutes",
+      body: "Rates/DXY → risk assets → crypto beta. Puis seulement setups. Macro Edge La Forge peut servir de desk complémentaire.",
+      schema: "macro_liquidity",
+      bullets: ["FOMC/CPI : taille ou flat", "Pas d’entry pendant le bruit sans edge", "Journaliser le bias du jour"],
+      checklist: ["Bias noté avant chart LTF"],
+      readMin: 5,
+    },
+  },
+  "c23-journal": {
+    midSchema: "psycho_fomo",
+    deep: {
+      title: "Tags qui changent ton expectancy",
+      body: "sweep-mss · news-fade · narrative-chase · weekend-thin · revenge. Les stats par tag montrent où tu saignes.",
+      schema: "journal_loop",
+      bullets: ["Émotion 1–5 corrélée au PnL", "Screenshot obligatoire sur A+ et sur tilt", "Une règle max changée par revue"],
+      checklist: ["Champs complets", "Review dimanche bloquée"],
+      readMin: 6,
+    },
+  },
+  "c24-capstone": {
+    midSchema: "risk_sizing",
+    deep: {
+      title: "Playbook une page — modèle",
+      body: "Recopie et remplis. Si tu ne peux pas, tu n’es pas prêt à trader size réelle.",
+      schema: "playbook",
+      bullets: [
+        "Marchés autorisés / interdits",
+        "Sessions de travail",
+        "Setups A seulement",
+        "Risque % · max daily loss · max levier",
+        "Custody map · catalysts suivis",
+      ],
+      checklist: [
+        "Playbook écrit",
+        "4 semaines de journal planifiées",
+        "Lien Formation ÉLITE (PA/ICT) assumé",
+      ],
+      key: "Exécution disciplinée > nouveau ticker.",
+      readMin: 8,
+    },
+  },
+};
 
 function q(qText, a, correct) {
   return { q: qText, a: a, correct: correct };
@@ -1249,7 +1616,62 @@ function buildLesson(id) {
   const builder = LESSON_BUILDERS[id];
   if (!builder) throw new Error("Missing lesson " + id);
   const raw = builder();
-  const steps = stepsFrom(raw.sections);
+  const extra = EXTRA_BY_MODULE[id] || {};
+  const schemaId = MODULE_SCHEMA[id] || "blockchain";
+
+  // Marquer un schéma au milieu du module existant
+  const sections = raw.sections.slice();
+  if (sections.length >= 3 && extra.midSchema) {
+    sections[2] = Object.assign({}, sections[2], { schema: extra.midSchema });
+  } else if (sections.length >= 2) {
+    sections[1] = Object.assign({}, sections[1], { schema: schemaId });
+  }
+
+  const overview = {
+    title: "Schéma clé du module",
+    sub: "Visualise avant de lire",
+    body:
+      "Commence par le schéma. Ensuite parcours les sections : chaque bloc ajoute une couche (tech, marché, risque). " +
+      "Objectif : repartir avec une image mentale claire, pas seulement des définitions.",
+    schema: schemaId,
+    bullets: (raw.objectives || []).map(function (o) {
+      return o;
+    }),
+    key: "Si tu ne peux pas redessiner le schéma de mémoire, relis cette section.",
+    readMin: 5,
+  };
+
+  const deep = extra.deep
+    ? Object.assign(
+        {
+          title: "Approfondissement",
+          body: "",
+          readMin: 6,
+        },
+        extra.deep
+      )
+    : null;
+
+  const closing = {
+    title: "Synthèse opérationnelle",
+    body:
+      "Ferme le module seulement quand tu as : (1) parcouru les sections, (2) réussi les exercices ≥70 %, (3) validé le quiz ≥70 %. " +
+      "Note 3 lignes dans ton journal : ce que tu retiens, une erreur à éviter, une action concrète cette semaine.",
+    checklist: [
+      "Schéma compris",
+      "Exercices ≥ 70 %",
+      "Quiz ≥ 70 %",
+      "3 lignes journal",
+    ],
+    key: "Validation = lecture + pratique + quiz — pas un scroll.",
+    readMin: 4,
+  };
+
+  const allSections = [overview].concat(sections);
+  if (deep) allSections.push(deep);
+  allSections.push(closing);
+
+  const steps = stepsFrom(allSections);
   return {
     objectives: raw.objectives,
     steps: steps,

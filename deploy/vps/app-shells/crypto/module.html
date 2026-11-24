@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/css/main.css" />
   <link rel="stylesheet" href="/css/legal.css" />
   <link rel="stylesheet" href="/css/lesson-pro.css" />
-  <link rel="stylesheet" href="/css/forge-crypto.css?v=1" />
+  <link rel="stylesheet" href="/css/forge-crypto.css?v=2" />
 </head>
 <body class="crypto-lesson">
   <header class="site-header" data-forge-member-header="crypto"></header>
@@ -27,6 +27,8 @@
       <div id="crypto-objectives"></div>
     </div>
 
+    <aside id="crypto-schema-rail" class="crypto-schema-rail" hidden></aside>
+
     <div class="lesson-progress-wrap">
       <div style="display:flex;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;font-size:0.85rem;color:var(--muted);margin-bottom:0.35rem">
         <span id="step-counter">Section 1</span>
@@ -35,7 +37,7 @@
       <div class="progress-bar"><div id="lesson-progress" style="width:0%"></div></div>
     </div>
 
-    <div class="lesson-layout" style="display:grid;grid-template-columns:minmax(200px,280px) 1fr;gap:1.25rem">
+    <div class="lesson-layout crypto-lesson-grid">
       <aside>
         <div id="step-buttons"></div>
         <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
@@ -70,9 +72,10 @@
   <script src="/js/forge-gate.js"></script>
   <script src="/js/progress.js"></script>
   <script src="/js/lesson-core.js"></script>
-  <script src="/js/crypto-course-data.js?v=1"></script>
-  <script src="/js/crypto-course-index.js?v=1"></script>
-  <script src="/js/crypto-lesson.js?v=1"></script>
+  <script src="/js/crypto-course-data.js?v=2"></script>
+  <script src="/js/crypto-schemas.js?v=2"></script>
+  <script src="/js/crypto-course-index.js?v=2"></script>
+  <script src="/js/crypto-lesson.js?v=2"></script>
   <script src="/js/forge-legal.js"></script>
 </body>
 </html>
