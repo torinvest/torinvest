@@ -543,3 +543,60 @@ function swingAnalysisNotifyDiscord(array $context): array
         'error' => 'discord_http_' . $status,
     ];
 }
+
+/**
+ * Rappel transactionnel live coaching (4 h / 1 h avant).
+ *
+ * @param array{email:string,date?:string,start?:string,end?:string,label?:string,hoursBefore?:int|string,calendarUrl?:string} $context
+ * @return array{ok:bool,skipped?:bool,reason?:string,error?:string,messageId?:mixed}
+ */
+function brevoSendCoachingLiveReminder(array $context): array
+{
+    if (!brevoIsConfigured()) {
+        return ['ok' => false, 'skipped' => true, 'reason' => 'brevo_not_configured'];
+    }
+
+    $email = strtolower(trim((string) ($context['email'] ?? '')));
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        throw new InvalidArgumentException('Email Brevo invalide');
+    }
+
+    $date = trim((string) ($context['date'] ?? ''));
+    $start = trim((string) ($context['start'] ?? ''));
+    $end = trim((string) ($context['end'] ?? ''));
+    $label = trim((string) ($context['label'] ?? 'Live coaching'));
+    $hoursBefore = (int) ($context['hoursBefore'] ?? 0);
+    if ($hoursBefore !== 1 && $hoursBefore !== 4) {
+        $hoursBefore = 1;
+    }
+    $calendarUrl = trim((string) ($context['calendarUrl'] ?? 'https://app.torinvest-trading.com/calendar.html'));
+
+    $senderEmail = trim((string) brevoConfigValue('brevo_sender_email', 'contact@torinvest-trading.com'));
+    $senderName = trim((string) brevoConfigValue('brevo_sender_name', 'TORINVEST'));
+
+    $when = trim($date . ' · ' . $start . ($end !== '' ? '–' . $end : ''));
+    $subject = $hoursBefore === 4
+        ? 'TORINVEST — Rappel live coaching dans 4 h'
+        : 'TORINVEST — Rappel live coaching dans 1 h';
+
+    $html = '<div style="font-family:system-ui,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">';
+    $html .= '<div style="background:linear-gradient(135deg,#ffb400,#ff4b5c);padding:18px 22px;border-radius:12px 12px 0 0;">';
+    $html .= '<strong style="color:#1a1200;font-size:18px;">TORINVEST — Live coaching</strong></div>';
+    $html .= '<div style="border:1px solid #eee;border-top:none;padding:22px;border-radius:0 0 12px 12px;">';
+    $html .= '<p>Bonjour,</p>';
+    $html .= '<p>Rappel : ton <strong>live coaching</strong> confirmé commence dans <strong>' . $hoursBefore . ' heure' . ($hoursBefore > 1 ? 's' : '') . '</strong>.</p>';
+    $html .= '<p style="background:#fff8e8;border:1px solid #ffd27a;border-radius:10px;padding:14px;line-height:1.55;">';
+    $html .= '<strong>' . htmlspecialchars($label, ENT_QUOTES, 'UTF-8') . '</strong><br>';
+    $html .= 'Créneau : <code>' . htmlspecialchars($when, ENT_QUOTES, 'UTF-8') . '</code><br>';
+    $html .= '<span style="font-size:12px;color:#666;">Fuseau Europe/Paris (heure du calendrier La Forge)</span></p>';
+    $html .= '<p><a href="' . htmlspecialchars($calendarUrl, ENT_QUOTES, 'UTF-8') . '" style="display:inline-block;background:#ffb400;color:#1a1200;text-decoration:none;font-weight:700;padding:12px 18px;border-radius:999px;">Ouvrir le calendrier</a></p>';
+    $html .= '<p style="font-size:12px;color:#888;">Tu reçois aussi une alerte sur la page Calendrier si tu es connecté.</p>';
+    $html .= '</div></div>';
+
+    return brevoApiRequest('POST', '/smtp/email', [
+        'sender' => ['name' => $senderName, 'email' => $senderEmail],
+        'to' => [['email' => $email]],
+        'subject' => $subject,
+        'htmlContent' => $html,
+    ]);
+}
