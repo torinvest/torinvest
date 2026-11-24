@@ -1,0 +1,114 @@
+/* Rubrique Crypto — accents teal sur le chrome Formation */
+
+.crypto-hero {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.crypto-hero h1 {
+  margin: 0.15rem 0;
+}
+
+.crypto-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--nav-teal, #2dd4bf);
+  border: 1px solid rgba(45, 212, 191, 0.45);
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  margin-bottom: 0.35rem;
+}
+
+.crypto-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.crypto-objectives {
+  margin: 0 0 1.25rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  border-radius: 10px;
+  background: rgba(45, 212, 191, 0.06);
+}
+
+.crypto-objectives h3 {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: var(--nav-teal, #2dd4bf);
+}
+
+.crypto-objectives ul {
+  margin: 0;
+  padding-left: 1.15rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.crypto-lesson .lesson-layout {
+  margin-top: 1rem;
+}
+
+.crypto-lesson #step-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.crypto-lesson .step-btn {
+  text-align: left;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text, #eee);
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.86rem;
+}
+
+.crypto-lesson .step-btn.active {
+  border-color: rgba(45, 212, 191, 0.55);
+  background: rgba(45, 212, 191, 0.12);
+  color: var(--nav-teal, #2dd4bf);
+}
+
+.crypto-lesson .lesson-progress-wrap {
+  margin: 0.75rem 0 1rem;
+}
+
+.crypto-lesson .lesson-progress-wrap .progress-bar {
+  height: 6px;
+}
+
+.crypto-section-block {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.crypto-section-block h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.15rem;
+}
+
+#module-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 1.5rem 0 0.5rem;
+}
+
+@media (max-width: 800px) {
+  .crypto-lesson .lesson-layout {
+    grid-template-columns: 1fr !important;
+  }
+}

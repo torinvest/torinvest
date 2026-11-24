@@ -28,7 +28,14 @@ for f in \
   public/calendar.html \
   public/calendar-day.html \
   public/course/index.html \
-  public/img/forge-anvil.png
+  public/crypto/index.html \
+  public/crypto/module.html \
+  public/img/forge-anvil.png \
+  public/img/dash-crypto.svg \
+  public/js/crypto-course-data.js \
+  public/js/crypto-course-index.js \
+  public/js/crypto-lesson.js \
+  public/css/forge-crypto.css
 do
   check_file "$f"
 done
@@ -71,6 +78,10 @@ grep -q 'enrichFrames' "$APP_DIR/public/js/forge-replay.js" && echo "  OK replay
 grep -q 'FORGE_REPLAY_VERSION' "$APP_DIR/public/js/forge-replay.js" && echo "  OK FORGE_REPLAY_VERSION" || { echo "  MISSING replay version"; FAIL=$((FAIL + 1)); }
 grep -q 'module-list' "$APP_DIR/public/course/index.html" && echo "  OK course index shell" || { echo "  MISSING course index"; FAIL=$((FAIL + 1)); }
 grep -q 'forge-unlock.js' "$APP_DIR/public/course/index.html" && echo "  OK unlock scripts index" || { echo "  MISSING forge-unlock on index"; FAIL=$((FAIL + 1)); }
+grep -q 'module-list' "$APP_DIR/public/crypto/index.html" && echo "  OK crypto index shell" || { echo "  MISSING crypto index"; FAIL=$((FAIL + 1)); }
+grep -q 'CRYPTO_MODULES' "$APP_DIR/public/js/crypto-course-data.js" && echo "  OK crypto curriculum" || { echo "  MISSING CRYPTO_MODULES"; FAIL=$((FAIL + 1)); }
+grep -q 'crypto/index.html' "$APP_DIR/public/js/forge-brand.js" && echo "  OK crypto nav" || { echo "  MISSING crypto nav"; FAIL=$((FAIL + 1)); }
+grep -q 'crypto/index.html' "$APP_DIR/public/dashboard.html" && echo "  OK crypto dashboard tab" || { echo "  MISSING crypto dashboard"; FAIL=$((FAIL + 1)); }
 grep -q 'isModuleUnlocked' "$APP_DIR/public/js/forge-unlock.js" && echo "  OK forge-unlock" || { echo "  MISSING forge-unlock logic"; FAIL=$((FAIL + 1)); }
 grep -q 'login-form' "$APP_DIR/public/login.html" && echo "  OK login form" || { echo "  MISSING login form"; FAIL=$((FAIL + 1)); }
 

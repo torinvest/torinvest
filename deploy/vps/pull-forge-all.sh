@@ -37,6 +37,8 @@ for page in dashboard.html start.html calendar.html calendar-day.html login.html
   pull_shell "deploy/vps/app-shells/${page}" "public/${page}"
 done
 pull_shell "deploy/vps/app-shells/course/index.html" "public/course/index.html"
+pull_shell "deploy/vps/app-shells/crypto/index.html" "public/crypto/index.html"
+pull_shell "deploy/vps/app-shells/crypto/module.html" "public/crypto/module.html"
 
 echo "==> Patches serveur (server-patches/)"
 PATCHES_DIR="$APP_DIR/server-patches"
