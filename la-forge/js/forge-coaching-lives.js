@@ -154,6 +154,9 @@
           "–" +
           esc(s.end) +
           "</div>" +
+          (s.objective
+            ? '<div class="coach-meta">Objectif : ' + esc(s.objective) + "</div>"
+            : "") +
           student +
           (actions.length ? '<div class="coach-actions">' + actions.join("") + "</div>" : "") +
           "</article>"
@@ -308,7 +311,8 @@
         templateId: String(fd.get("templateId") || "") || null,
         date: String(fd.get("date") || "").trim(),
         studentEmail: String(fd.get("studentEmail") || "").trim() || null,
-        notes: String(fd.get("notes") || "").trim() || "",
+        objective: String(fd.get("objective") || "").trim() || "",
+        notes: String(fd.get("notes") || fd.get("objective") || "").trim() || "",
       };
       if (!payload.date) {
         alert("Choisis une date.");

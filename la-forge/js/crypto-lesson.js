@@ -237,6 +237,19 @@
     renderModuleSchemaRail(id);
     initCryptoSteps(id, lesson.steps || [], lesson.totalSteps || (lesson.steps || []).length);
 
+    if (typeof ForgePedagogy !== "undefined") {
+      ForgePedagogy.initMiniCase(id);
+      ForgePedagogy.initSessionChecklist(id);
+    }
+
+    var chartWrap = document.getElementById("crypto-chart-wrap");
+    var chartCfg =
+      typeof CHART_EXERCISE_REGISTRY !== "undefined" ? CHART_EXERCISE_REGISTRY[id] : null;
+    if (chartCfg && chartWrap && typeof initChartExercise === "function") {
+      chartWrap.hidden = false;
+      initChartExercise(id, chartCfg);
+    }
+
     if (typeof initPractice === "function" && lesson.practice) {
       initPractice(id, lesson.practice);
     }

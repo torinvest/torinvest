@@ -1673,3 +1673,67 @@ body.forge-ambient > * {
     transform: none;
   }
 }
+
+/* Mode d’emploi écosystème */
+.eco-guide { margin: 1rem 0 1.5rem; }
+.eco-guide-head h2 { margin: 0.35rem 0; color: var(--gold); font-size: 1.2rem; }
+.eco-guide-head p { color: var(--muted); margin: 0 0 1rem; line-height: 1.55; font-size: 0.92rem; }
+.eco-guide-grid { display: grid; gap: 0.65rem; }
+.eco-guide-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 0.65rem 0.9rem 0.85rem;
+}
+.eco-guide-card summary {
+  cursor: pointer;
+  list-style: none;
+  display: grid;
+  gap: 0.2rem;
+}
+.eco-guide-card summary::-webkit-details-marker { display: none; }
+.eco-guide-card summary strong { color: var(--text); font-size: 0.98rem; }
+.eco-guide-card summary span { color: var(--muted); font-size: 0.85rem; line-height: 1.45; }
+.eco-guide-card ol {
+  margin: 0.65rem 0 0.35rem;
+  padding-left: 1.15rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+.eco-guide-cta { margin: 0.5rem 0 0; }
+
+/* Pédagogie modules */
+.ped-checklist, .ped-minicase, .ped-atlas-quiz, .ped-swing-ex, .ped-macro-scenario {
+  margin: 1rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 215, 0, 0.04);
+}
+.ped-checklist h3, .ped-minicase h3, .ped-atlas-quiz h3, .ped-swing-ex h3, .ped-macro-scenario h3 {
+  margin: 0 0 0.35rem;
+  color: var(--gold);
+  font-size: 1rem;
+}
+.ped-muted, .ped-tip, .ped-check-status { color: var(--muted); font-size: 0.85rem; line-height: 1.5; }
+.ped-checklist ul { list-style: none; margin: 0.5rem 0 0; padding: 0; }
+.ped-checklist li { margin: 0.35rem 0; font-size: 0.9rem; }
+.ped-minicase-grid {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-top: 0.55rem;
+}
+.ped-before, .ped-after {
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.ped-before { background: rgba(248, 113, 113, 0.06); }
+.ped-after { background: rgba(74, 222, 128, 0.06); }
+.ped-before h4, .ped-after h4 { margin: 0 0 0.35rem; font-size: 0.88rem; }
+.ped-before h4 { color: #fca5a5; }
+.ped-after h4 { color: #86efac; }
+.ped-before p, .ped-after p { margin: 0; font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+.quiz-gate-warn { margin: 0.75rem 0; }

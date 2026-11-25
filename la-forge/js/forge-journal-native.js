@@ -329,8 +329,19 @@
       field("Clôture", t.closedAt || "—") +
       field("Tags", (t.tags || []).join(", ") || "—") +
       "</div>" +
+      field("Module lié", t.moduleId || "—") +
       (t.notes
         ? '<div class="tj-field"><label>Notes</label><div class="tj-notes">' + esc(t.notes) + "</div></div>"
+        : "") +
+      (t.review && (t.review.q1 || t.review.q2 || t.review.q3)
+        ? '<div class="tj-field"><label>Revue guidée</label><div class="tj-notes">' +
+          "<p><strong>1.</strong> " +
+          esc(t.review.q1 || "—") +
+          "</p><p><strong>2.</strong> " +
+          esc(t.review.q2 || "—") +
+          "</p><p><strong>3.</strong> " +
+          esc(t.review.q3 || "—") +
+          "</p></div></div>"
         : "") +
       '<div class="tj-field" style="margin-top:1rem"><label>Screens</label>' +
       renderShots(t, false) +
@@ -396,11 +407,25 @@
       input("timeframe", "Timeframe", formVal(t, "timeframe", "M15")) +
       input("setup", "Setup", formVal(t, "setup", "")) +
       input("tags", "Tags (virgules)", (t.tags || []).join(", ")) +
+      input("moduleId", "Module lié (ex. module-09, f04, c16-price-action)", formVal(t, "moduleId", "")) +
       input("closedAt", "Clôture", formVal(t, "closedAt", ""), "date") +
       '<div class="tj-span-2"><label for="tj-notes">Notes</label>' +
       '<textarea id="tj-notes" name="notes">' +
       esc(formVal(t, "notes", "")) +
       "</textarea></div>" +
+      '<div class="tj-span-2 ped-checklist" style="margin:0">' +
+      "<h3 style=\"margin:0 0 0.35rem;color:var(--gold);font-size:0.95rem\">Revue guidée (3 Q)</h3>" +
+      '<p class="tj-muted" style="margin:0 0 0.5rem">À remplir surtout si le trade est Closed.</p>' +
+      '<label>1. Setup / plan respecté ?<textarea name="reviewQ1" rows="2">' +
+      esc((t.review && t.review.q1) || "") +
+      "</textarea></label>" +
+      '<label>2. Erreur de process (si oui) ?<textarea name="reviewQ2" rows="2">' +
+      esc((t.review && t.review.q2) || "") +
+      "</textarea></label>" +
+      '<label>3. Correctif pour la prochaine fois ?<textarea name="reviewQ3" rows="2">' +
+      esc((t.review && t.review.q3) || "") +
+      "</textarea></label>" +
+      "</div>" +
       '<div class="tj-span-2 tj-actions">' +
       '<button type="submit" class="btn btn-primary">Enregistrer</button>' +
       '<button type="button" class="btn btn-secondary" id="tj-cancel-2">Annuler</button>' +
@@ -628,7 +653,13 @@
       timeframe: fd.get("timeframe"),
       setup: fd.get("setup"),
       tags: String(fd.get("tags") || ""),
+      moduleId: String(fd.get("moduleId") || "").trim(),
       notes: fd.get("notes"),
+      review: {
+        q1: String(fd.get("reviewQ1") || "").trim(),
+        q2: String(fd.get("reviewQ2") || "").trim(),
+        q3: String(fd.get("reviewQ3") || "").trim(),
+      },
     };
   }
 

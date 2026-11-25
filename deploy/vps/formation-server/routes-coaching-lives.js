@@ -160,6 +160,7 @@ function publicSession(session, viewerEmail, viewerIsAdmin) {
     end: session.end,
     label: session.label,
     status: session.status,
+    objective: session.objective || session.notes || "",
     templateId: session.templateId || null,
     studentEmail:
       viewerIsAdmin || mine
@@ -326,7 +327,8 @@ function createCoachingLivesRouter(options) {
       proposedAt: new Date().toISOString(),
       confirmedBy: null,
       confirmedAt: null,
-      notes: String(body.notes || "").slice(0, 500),
+      notes: String(body.notes || body.objective || "").slice(0, 500),
+      objective: String(body.objective || body.notes || "").slice(0, 300),
     };
     store.sessions.push(session);
     writeStore(store.sessions);

@@ -52,7 +52,9 @@
           <input type="date" id="coach-date" name="date" required />
           <label for="coach-student">Email élève (optionnel — sinon créneau ouvert)</label>
           <input type="email" id="coach-student" name="studentEmail" placeholder="eleve@exemple.com" />
-          <label for="coach-notes">Note (optionnel)</label>
+          <label for="coach-objective">Objectif pédagogique</label>
+          <input type="text" id="coach-objective" name="objective" maxlength="300" placeholder="ex. revoir FVG + invalidation" />
+          <label for="coach-notes">Note interne (optionnel)</label>
           <input type="text" id="coach-notes" name="notes" maxlength="500" />
           <button type="submit" class="btn btn-primary btn-sm">Proposer ce live</button>
         </form>
@@ -82,8 +84,8 @@
           </select>
           <label for="col-url">Lien (optionnel)</label>
           <input type="url" id="col-url" name="url" placeholder="https://…" />
-          <label for="col-notes">Note</label>
-          <input type="text" id="col-notes" name="notes" maxlength="500" />
+          <label for="col-notes">Objectif pédagogique</label>
+          <input type="text" id="col-notes" name="notes" maxlength="500" placeholder="ex. AMD London + journal" />
           <button type="submit" class="btn btn-primary btn-sm">Planifier le live collectif</button>
         </form>
       </div>

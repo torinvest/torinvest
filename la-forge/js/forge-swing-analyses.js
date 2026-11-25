@@ -510,8 +510,28 @@
           checks +
           "</ul></section>"
         : "") +
+      '<section class="swa-section ped-swing-ex" id="swa-exercise">' +
+      "<h2>Exercice — reproduire ce scénario</h2>" +
+      '<p class="swa-muted">Sur TradingView : annote base / bull / bear, puis dépose un screen. Clé exercice : <code>swing_' +
+      esc(a.id) +
+      "</code></p>" +
+      '<div id="chart-exercise-root"></div>' +
+      "</section>" +
       '<p class="swa-disclaimer">Contenu pédagogique — pas un conseil en investissement. Respecte ton plan de risque.</p>' +
       "</div>";
+
+    if (typeof initChartExercise === "function") {
+      initChartExercise("swing_" + a.id, {
+        intro: "Reproduis le scénario swing sur ton TF.",
+        chartHint: "Compare ta lecture à base / bull / bear — trade la réaction, pas le niveau.",
+        tasks: [
+          { title: "Contexte", desc: "Note biais HTF + catalyseur." },
+          { title: "Niveaux", desc: "Trace entrée / invalidation / objectifs." },
+          { title: "Scénarios", desc: "Annoter base, bull et bear en 3 couleurs." },
+          { title: "Screen", desc: "Upload 1 capture annotée." },
+        ],
+      });
+    }
 
     document.getElementById("swa-back").onclick = function () {
       state.mode = "list";

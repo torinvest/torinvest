@@ -41,8 +41,10 @@
 
     <p style="color:var(--muted);font-size:0.92rem;margin-bottom:1rem;line-height:1.6;border-left:3px solid rgba(255,215,0,.45);padding-left:0.85rem">
       <strong style="color:var(--gold)">Chemin guidé</strong> — une prochaine étape, puis formation / Crypto / Fondamental / Journal / lives.
-      Nouveau ? Commence par <a href="https://app.torinvest-trading.com/start.html" style="color:var(--gold)">Premiers pas</a>.
+      Nouveau ? Commence par <a href="https://app.torinvest-trading.com/start.html" style="color:var(--gold)">Premiers pas</a>
+      (mode d’emploi complet de l’écosystème).
     </p>
+    <div id="ecosystem-guide-root" style="margin-bottom:1.25rem"></div>
 
     <div id="dash-next-step" style="margin-bottom:1.25rem"></div>
     <div id="dash-ranks" style="margin-bottom:1.25rem"></div>
@@ -156,6 +158,12 @@
   <script src="/la-forge/js/fondamental-data.js?v=1"></script>
   <script src="/la-forge/js/forge-unlock.js"></script>
   <script src="/la-forge/js/forge-onboarding.js?v=3"></script>
+  <script src="/la-forge/js/forge-ecosystem-guide.js?v=1"></script>
+  <script>
+    if (window.ForgeEcosystemGuide) {
+      ForgeEcosystemGuide.render(document.getElementById("ecosystem-guide-root"));
+    }
+  </script>
   <script>
     const MODULE_IDS = getAllModuleIds();
     document.getElementById("dash-hours").textContent =

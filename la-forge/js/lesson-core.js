@@ -647,6 +647,16 @@ function initQuiz(moduleId, questions, totalSteps) {
   if (!form) return;
   const stepsTotal = totalSteps || 12;
 
+  // Hosts pédagogiques (mini-cas + checklist) si présents dans le DOM
+  if (typeof ForgePedagogy !== "undefined") {
+    if (document.getElementById("mini-case-root")) {
+      ForgePedagogy.initMiniCase(moduleId);
+    }
+    if (document.getElementById("session-checklist-root")) {
+      ForgePedagogy.initSessionChecklist(moduleId);
+    }
+  }
+
   function applyAnswerReview(answers) {
     if (!Array.isArray(answers)) return;
     questions.forEach((q, i) => {
@@ -681,8 +691,52 @@ function initQuiz(moduleId, questions, totalSteps) {
     )
     .join("");
 
-  form.addEventListener("submit", (e) => {
+  let gateEl = document.getElementById("quiz-chart-gate");
+  if (!gateEl && form.parentNode) {
+    gateEl = document.createElement("div");
+    gateEl.id = "quiz-chart-gate";
+    gateEl.className = "alert alert-warn quiz-gate-warn";
+    gateEl.hidden = true;
+    form.parentNode.insertBefore(gateEl, form);
+  }
+
+  async function refreshChartGate() {
+    if (typeof ForgePedagogy === "undefined" || !ForgePedagogy.isChartExerciseSatisfied) {
+      return { ok: true };
+    }
+    const gate = await ForgePedagogy.isChartExerciseSatisfied(moduleId);
+    if (!gate.required) {
+      if (gateEl) gateEl.hidden = true;
+      return gate;
+    }
+    if (gateEl) {
+      gateEl.hidden = gate.ok;
+      gateEl.textContent = gate.ok
+        ? ""
+        : ForgePedagogy.chartGateMessage(moduleId) +
+          " (" +
+          (gate.done || 0) +
+          "/" +
+          (gate.need || "?") +
+          " tâches).";
+    }
+    return gate;
+  }
+
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const gate = await refreshChartGate();
+    if (gate && gate.required && !gate.ok) {
+      if (resultEl) {
+        resultEl.hidden = false;
+        resultEl.className = "alert alert-warn";
+        resultEl.textContent =
+          typeof ForgePedagogy !== "undefined"
+            ? ForgePedagogy.chartGateMessage(moduleId)
+            : "Exercice chart requis avant le quiz.";
+      }
+      return;
+    }
     let score = 0;
     const answers = [];
     questions.forEach((q, i) => {
@@ -703,6 +757,8 @@ function initQuiz(moduleId, questions, totalSteps) {
       ? "Validé — " + score + "/" + questions.length + " (" + pct + "%). Tes réponses restent visibles ci-dessous."
       : score + "/" + questions.length + " (" + pct + "%) — seuil 70% requis. Tes réponses sont conservées ; tu peux réessayer.";
   });
+
+  refreshChartGate();
 
   const prev = typeof getModuleProgress === "function" ? getModuleProgress(moduleId) : null;
   if (prev && prev.quizScore > 0 && resultEl) {
@@ -961,9 +1017,36 @@ function initCoursePageGate() {
 
 initCoursePageGate();
 
+function ensurePedagogyHosts() {
+  const id =
+    (typeof detectModuleIdFromPage === "function" && detectModuleIdFromPage()) ||
+    null;
+  if (!id) return;
+  const quizForm = document.getElementById("module-quiz");
+  const anchor = quizForm && quizForm.closest("section");
+  const parent = (anchor && anchor.parentNode) || document.querySelector(".container");
+  if (!parent) return;
+  if (!document.getElementById("mini-case-root")) {
+    const el = document.createElement("div");
+    el.id = "mini-case-root";
+    if (anchor) parent.insertBefore(el, anchor);
+    else parent.appendChild(el);
+  }
+  if (!document.getElementById("session-checklist-root")) {
+    const el = document.createElement("div");
+    el.id = "session-checklist-root";
+    if (anchor) parent.insertBefore(el, anchor);
+    else parent.appendChild(el);
+  }
+}
+
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initAllChartHosts);
+  document.addEventListener("DOMContentLoaded", function () {
+    ensurePedagogyHosts();
+    initAllChartHosts();
+  });
 } else {
+  ensurePedagogyHosts();
   initAllChartHosts();
 }
 
