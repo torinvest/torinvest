@@ -59,13 +59,44 @@
       </div>
     </section>
 
+    <section id="collective-panel" class="coach-panel" aria-label="Lives collectifs">
+      <h2>Lives collectifs</h2>
+      <p class="coach-lead">Sessions groupe pour tous les élèves Premium. Rappels mail + popup 4 h et 1 h avant.</p>
+      <div id="collective-lives-list"></div>
+      <div id="collective-admin-panel" class="coach-admin" hidden>
+        <form id="collective-propose-form" class="coach-form">
+          <label for="col-label">Titre</label>
+          <input type="text" id="col-label" name="label" maxlength="120" placeholder="Live trading collectif" />
+          <label for="col-date">Date</label>
+          <input type="date" id="col-date" name="date" required />
+          <label for="col-start">Début</label>
+          <input type="time" id="col-start" name="start" required value="18:00" />
+          <label for="col-end">Fin</label>
+          <input type="time" id="col-end" name="end" value="19:00" />
+          <label for="col-channel">Canal</label>
+          <select id="col-channel" name="channel">
+            <option value="discord">Discord</option>
+            <option value="youtube">YouTube</option>
+            <option value="kick">Kick</option>
+            <option value="autre">Autre</option>
+          </select>
+          <label for="col-url">Lien (optionnel)</label>
+          <input type="url" id="col-url" name="url" placeholder="https://…" />
+          <label for="col-notes">Note</label>
+          <input type="text" id="col-notes" name="notes" maxlength="500" />
+          <button type="submit" class="btn btn-primary btn-sm">Planifier le live collectif</button>
+        </form>
+      </div>
+    </section>
+
   <footer data-forge-footer></footer>
   <script src="/js/forge-brand.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/forge-gate.js"></script>
   <script src="/js/course-data.js"></script>
   <script src="/js/forge-calendar.js"></script>
-  <script src="/js/forge-coaching-lives.js?v=remind1"></script>
+  <script src="/js/forge-coaching-lives.js?v=ecol1"></script>
+  <script src="/js/forge-collective-lives.js?v=ecol1"></script>
   <script>
     initForgeGate({ requirePremium: true }).then(async (me) => {
       if (!me) return;
@@ -74,6 +105,7 @@
       const now = new Date();
       renderMonthCalendar("calendar-root", now.getFullYear(), now.getMonth());
       initForgeCoachingLives(me);
+      initForgeCollectiveLives(me);
     });
   </script>
 <script src="/js/forge-legal.js"></script>

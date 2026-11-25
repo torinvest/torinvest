@@ -55,6 +55,9 @@ function hasFondamentalBridge() {
 function hasCoaching() {
   return /createCoachingLivesRouter|routes-coaching-lives/.test(content);
 }
+function hasCollectiveLives() {
+  return /createCollectiveLivesRouter|routes-collective-lives/.test(content);
+}
 function hasCoachingFiches() {
   return /createCoachingFichesRouter|routes-coaching-fiches/.test(content);
 }
@@ -97,6 +100,7 @@ function managedBlock(dataDirExpr) {
     "const createProgressRouter = require(\"./server-patches/routes-progress\");",
     "const createCalendarRouter = require(\"./server-patches/routes-calendar\");",
     "const createCoachingLivesRouter = require(\"./server-patches/routes-coaching-lives\");",
+    "const createCollectiveLivesRouter = require(\"./server-patches/routes-collective-lives\");",
     "const createCoachingFichesRouter = require(\"./server-patches/routes-coaching-fiches\");",
     "const createModuleQaRouter = require(\"./server-patches/routes-module-qa\");",
     "const createSwingAnalysesRouter = require(\"./server-patches/routes-swing-analyses\");",
@@ -123,6 +127,12 @@ function managedBlock(dataDirExpr) {
     ");",
     "app.use(",
     "  createCoachingLivesRouter({",
+    "    dataDir: " + dataDirExpr + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+    "app.use(",
+    "  createCollectiveLivesRouter({",
     "    dataDir: " + dataDirExpr + ",",
     "    requireAuth,",
     "  })",
@@ -324,6 +334,7 @@ if (content.includes(MARK_BEGIN) && content.includes(MARK_END)) {
 
 // Toujours tenter d'ajouter coaching si calendar présent
 ensureCoachingMounted();
+ensureCollectiveLivesMounted();
 ensureCoachingFichesMounted();
 ensureModuleQaMounted();
 ensureSwingAnalysesMounted();
@@ -612,6 +623,51 @@ function ensureModuleQaMounted() {
   ].join("\n");
   content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + qaUse);
   console.log("Module Q&A router ajouté.");
+}
+
+function ensureCollectiveLivesMounted() {
+  if (!/createCalendarRouter|createCoachingLivesRouter/.test(content)) return;
+  if (hasCollectiveLives()) {
+    console.log("OK — collective lives déjà monté.");
+    return;
+  }
+
+  if (!/createCollectiveLivesRouter/.test(content)) {
+    const replaced = content.replace(
+      /(const createCoachingLivesRouter = require\(["']\.\/server-patches\/routes-coaching-lives["']\);)/,
+      '$1\nconst createCollectiveLivesRouter = require("./server-patches/routes-collective-lives");'
+    );
+    if (replaced !== content) {
+      content = replaced;
+    } else {
+      content = content.replace(
+        /(const createCalendarRouter = require\([^)]+\);)/,
+        '$1\nconst createCollectiveLivesRouter = require("./server-patches/routes-collective-lives");'
+      );
+    }
+  }
+
+  const livesUseRe = /app\.use\(\s*createCoachingLivesRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const calendarUseRe = /app\.use\(\s*createCalendarRouter\(\{[\s\S]*?\}\)\s*\);/m;
+  const anchorMatch = content.match(livesUseRe) || content.match(calendarUseRe);
+  if (!anchorMatch) {
+    console.warn("WARN — point d'insertion collective-lives introuvable.");
+    return;
+  }
+
+  const dataDirExpr =
+    (anchorMatch[0].match(/dataDir:\s*([\s\S]*?),\s*requireAuth/) || [])[1] ||
+    'path.join(__dirname, "data")';
+  const colUse = [
+    "app.use(",
+    "  createCollectiveLivesRouter({",
+    "    dataDir: " + dataDirExpr.trim() + ",",
+    "    requireAuth,",
+    "  })",
+    ");",
+  ].join("\n");
+  content = content.replace(anchorMatch[0], anchorMatch[0] + "\n" + colUse);
+  console.log("Collective lives router ajouté.");
 }
 
 function ensureCoachingFichesMounted() {

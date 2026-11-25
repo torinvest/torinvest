@@ -31,6 +31,7 @@
       <span class="btn btn-secondary" style="pointer-events:none;opacity:0.9">Dashboard</span>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/start.html">Premiers pas</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/course/index.html">Formation</a>
+      <a class="btn btn-secondary" href="https://app.torinvest-trading.com/crypto/index.html">Crypto</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/fondamental.html">Fondamental</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/journal.html">Journal</a>
       <a class="btn btn-secondary" href="https://app.torinvest-trading.com/books.html">Livres</a>
@@ -39,7 +40,7 @@
     </div>
 
     <p style="color:var(--muted);font-size:0.92rem;margin-bottom:1rem;line-height:1.6;border-left:3px solid rgba(255,215,0,.45);padding-left:0.85rem">
-      <strong style="color:var(--gold)">Chemin guidé</strong> — une prochaine étape, puis formation / Fondamental / Journal / lives.
+      <strong style="color:var(--gold)">Chemin guidé</strong> — une prochaine étape, puis formation / Crypto / Fondamental / Journal / lives.
       Nouveau ? Commence par <a href="https://app.torinvest-trading.com/start.html" style="color:var(--gold)">Premiers pas</a>.
     </p>
 
@@ -73,6 +74,19 @@
             <a class="btn btn-primary" href="https://app.torinvest-trading.com/course/index.html" id="course-link">Ouvrir la formation</a>
             <a class="btn btn-secondary" href="https://app.torinvest-trading.com/calendar.html" id="calendar-link">Calendrier</a>
           </div>
+        </div>
+      </div>
+      <div class="card dash-card" id="crypto-access">
+        <div class="dash-card-visual dash-card-visual--icon" aria-hidden="true">
+          <img class="dash-visual-icon" src="/la-forge/img/dash-crypto.svg" alt="" width="160" height="96" loading="lazy" />
+        </div>
+        <div class="dash-card-body">
+          <h3>Formation Crypto</h3>
+          <p style="color:var(--muted);font-size:0.88rem;margin-bottom:0.75rem;line-height:1.55" id="crypto-dash-meta">
+            24 modules · ~36 h — bases, marchés, DeFi, analyse, macro et process.
+            Même logique que la Formation trading (lots de 3 + quiz).
+          </p>
+          <a class="btn btn-primary" href="https://app.torinvest-trading.com/crypto/index.html" id="crypto-link">Ouvrir Crypto</a>
         </div>
       </div>
       <div class="card dash-card" id="fondamental-access">
@@ -138,9 +152,10 @@
   <script src="/la-forge/js/forge-gate.js"></script>
   <script src="/la-forge/js/progress.js"></script>
   <script src="/la-forge/js/course-data.js?v=70"></script>
+  <script src="/la-forge/js/crypto-course-data.js?v=1"></script>
   <script src="/la-forge/js/fondamental-data.js?v=1"></script>
   <script src="/la-forge/js/forge-unlock.js"></script>
-  <script src="/la-forge/js/forge-onboarding.js?v=2"></script>
+  <script src="/la-forge/js/forge-onboarding.js?v=3"></script>
   <script>
     const MODULE_IDS = getAllModuleIds();
     document.getElementById("dash-hours").textContent =
@@ -154,6 +169,12 @@
     const fondaMeta = document.getElementById("fonda-dash-meta");
     if (fondaMeta && typeof getFondaMetaLabel === "function") {
       fondaMeta.textContent = getFondaMetaLabel();
+    }
+    const cryptoMeta = document.getElementById("crypto-dash-meta");
+    if (cryptoMeta && typeof getCryptoStatsLine === "function") {
+      cryptoMeta.textContent =
+        getCryptoStatsLine() +
+        " — bases, marchés, DeFi, analyse, macro et process. Même logique que la Formation trading (lots de 3 + quiz).";
     }
     const dcl = document.getElementById("dash-course-line");
     if (dcl) dcl.textContent = "Module 0 → " + MODULES.length + " · ICT/SMC · macro · pro avancé · mindset";

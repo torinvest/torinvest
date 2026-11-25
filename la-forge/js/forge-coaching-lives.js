@@ -114,6 +114,20 @@
               '">Annuler</button>'
           );
         }
+        if (
+          _isAdmin &&
+          s.studentEmail &&
+          s.studentEmail !== "(réservé)" &&
+          String(s.studentEmail).includes("@")
+        ) {
+          actions.push(
+            '<a class="btn btn-secondary btn-sm" href="/coaching-fiches.html?student=' +
+              encodeURIComponent(s.studentEmail) +
+              "&fromLive=" +
+              encodeURIComponent(s.date || "") +
+              '">Fiche + Journal</a>'
+          );
+        }
         const student =
           s.studentEmail && s.studentEmail !== "(réservé)"
             ? '<div class="coach-meta">Élève : ' + esc(s.studentEmail) + "</div>"
