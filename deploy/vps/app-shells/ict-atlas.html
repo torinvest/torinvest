@@ -56,6 +56,7 @@
 <div class="under-chart"><span id="subtopic"></span><span class="legend"><i></i> Bougie haussière <i class="red"></i> Bougie baissière</span></div>
 <section class="explanations" aria-label="Comprendre le concept"><article><span class="card-kicker">01 / COMPRENDRE</span><h2 id="definition-title"></h2><p id="definition"></p></article><article><span class="card-kicker">02 / OBSERVER</span><h2 id="observe-title"></h2><p id="observe"></p></article><article class="warning-card"><span class="card-kicker">03 / GARDER DU RECUL</span><h2 id="mistake-title"></h2><p id="mistake"></p></article></section>
 <section class="reading"><div><span class="eyebrow">SUR TON GRAPHIQUE</span><h2>Le lire, étape par étape.</h2></div><ol id="steps"></ol></section>
+<section class="reading" aria-label="Quiz express"><div id="atlas-quiz-root"></div></section>
 <div class="lesson-footer"><button id="previous" class="button secondary">← Précédent</button><span id="page-count"></span><button id="next" class="button primary">Concept suivant →</button></div>
 <footer id="sources"><div class="footer-top"><span class="brand small">ATLAS<span class="brand-light"> ICT</span></span><p>Une lecture du marché. Une méthode à mettre à l’épreuve.</p></div><p>ICT (Inner Circle Trader) désigne l’approche enseignée par Michael J. Huddleston. Cet atlas indépendant en propose une synthèse pédagogique, sans affiliation. Les graphiques sont des illustrations construites, pas des données de marché ni des résultats de backtest.</p><p>Sources primaires : <a href="https://www.youtube.com/innercircletrader" target="_blank" rel="noopener noreferrer">chaîne The Inner Circle Trader ↗</a> · <a href="https://www.youtube.com/watch?v=nQfHZ2DEJ8c" target="_blank" rel="noopener noreferrer">Mentorship 2022, épisode 3 ↗</a> · <a href="https://www.youtube.com/watch?v=Bkt8B3kLATQ" target="_blank" rel="noopener noreferrer">épisode 6 ↗</a></p><p class="risk">Un schéma ICT n’est pas une garantie de retournement ou de rendement. La présence d’ordres institutionnels ne se déduit pas avec certitude des seules bougies. Toute mise en pratique exige des règles explicites et des tests incluant frais, spread et glissement.</p></footer></main></div>
     </div>
@@ -66,6 +67,7 @@
   <script src="/js/forge-brand.js"></script>
   <script src="/js/auth.js?v=7"></script>
   <script src="/js/forge-gate.js"></script>
+  <script src="/js/forge-pedagogy.js?v=1"></script>
   <script src="/js/forge-ict-atlas.js?v=1"></script>
   <script>
     initForgeGate({ requirePremium: true }).then(function (me) {
@@ -74,6 +76,7 @@
       if (!root) return;
       root.hidden = false;
       if (typeof bootForgeIctAtlas === "function") bootForgeIctAtlas();
+      if (window.ForgePedagogy) ForgePedagogy.initAtlasDefaultQuiz("ict");
     });
   </script>
   <script src="/js/forge-legal.js"></script>

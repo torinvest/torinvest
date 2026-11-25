@@ -126,6 +126,12 @@ function sanitizeTrade(input, prev) {
     setup: clip(src.setup, 120),
     timeframe: clip(src.timeframe, 20),
     notes: clip(src.notes, 12000),
+    moduleId: clip(src.moduleId, 60) || prev?.moduleId || "",
+    review: {
+      q1: clip((src.review && src.review.q1) || src.reviewQ1, 2000) || (prev?.review && prev.review.q1) || "",
+      q2: clip((src.review && src.review.q2) || src.reviewQ2, 2000) || (prev?.review && prev.review.q2) || "",
+      q3: clip((src.review && src.review.q3) || src.reviewQ3, 2000) || (prev?.review && prev.review.q3) || "",
+    },
     tags: Array.isArray(src.tags)
       ? src.tags.map((t) => clip(t, 40)).filter(Boolean).slice(0, 12)
       : typeof src.tags === "string"
@@ -155,6 +161,7 @@ function summaryOf(t) {
     closedAt: t.closedAt,
     setup: t.setup,
     timeframe: t.timeframe,
+    moduleId: t.moduleId || "",
     imageCount: Array.isArray(t.images) ? t.images.length : 0,
     updatedAt: t.updatedAt,
   };

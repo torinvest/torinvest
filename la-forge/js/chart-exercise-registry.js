@@ -96,6 +96,26 @@ const CHART_EXERCISE_REGISTRY = {
   "pro-scaling": { intro: "Architecture comptes.", tasks: [{ title: "Ladder", desc: "Demo → micro live → scale steps." }, { title: "Aggregation", desc: "Table tous comptes risk total." }, { title: "Payout split", desc: "50/30/20 ou votre règle." }, { title: "+0,25% rule", desc: "Critères augmenter taille." }] },
   "pro-asie": { intro: "Planning hebdo EU.", tasks: [{ title: "Horaires", desc: "Blocs London/NY/analyse écrits." }, { title: "Sommeil", desc: "Heure coucher/réveil cible." }, { title: "Asian H/L", desc: "Alertes sans veiller — review matin." }, { title: "Energy score", desc: "Seuil skip session si <6." }] },
   "pro-tilt": { intro: "Protocole signé.", tasks: [{ title: "Triggers", desc: "5 triggers tilt personnels." }, { title: "2 loss protocol", desc: "Actions exactes 24h off." }, { title: "Escalation", desc: "Ladder si violation." }, { title: "Buddy", desc: "Nom partenaire accountability." }] },
+  "c16-price-action": {
+    intro: "BTC ou ETH H1/M15 — même grammaire que XAU, volatilité crypto.",
+    chartHint: "Annote structure + liquidité + 1 setup (pas d’indicateur seul).",
+    tasks: [
+      { title: "Structure", desc: "HH/HL ou LH/LL sur 20–40 bougies." },
+      { title: "Liquidité", desc: "1 pool BSL ou SSL évident." },
+      { title: "Confirmation", desc: "MSS / displacement / FVG — 1 seul." },
+      { title: "Plan", desc: "Entrée, SL, TP + taille adaptée crypto." },
+    ],
+  },
+  "c24-capstone": {
+    intro: "Capstone — checklist trader crypto complète sur 1 paire.",
+    chartHint: "BTC/ETH/SOL — process avant narrative.",
+    tasks: [
+      { title: "Bias", desc: "Biais HTF écrit (risk-on/off + structure)." },
+      { title: "Setup", desc: "1 setup avec invalidation claire." },
+      { title: "Risque", desc: "Max daily loss + taille position." },
+      { title: "Revue", desc: "3 lignes post-trade (ou revue si flat)." },
+    ],
+  },
 };
 
 const CHART_EXERCISE_SECTION =

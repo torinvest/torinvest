@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Premiers pas — La Forge</title>
+  <link rel="icon" href="/la-forge/img/forge-anvil.png" type="image/png" />
+  <link rel="stylesheet" href="/la-forge/css/main.css?v=eco1" />
+  <link rel="stylesheet" href="/la-forge/css/legal.css" />
+</head>
+<body>
+  <header class="site-header" data-forge-member-header="start"></header>
+
+  <div class="container" style="max-width:820px">
+    <div style="margin-bottom:1.25rem;text-align:center">
+      <div data-forge-emblem="110" style="margin-bottom:0.75rem"></div>
+      <span class="forge-hero-tag">Mode d’emploi · onboarding</span>
+      <h1 style="margin:0.25rem 0;color:var(--gold)">Premiers pas</h1>
+      <p style="color:var(--muted);line-height:1.6;margin:0 auto;max-width:42rem">
+        Un seul chemin : connecte-toi, rejoins Discord, ouvre le Module 0, touche le Journal
+        et Fondamental. Ensuite le dashboard te guide chaque semaine — et ce guide explique
+        <strong style="color:var(--text)">comment utiliser chaque rubrique</strong>.
+      </p>
+    </div>
+    <div data-forge-market-legend style="justify-content:center;margin-bottom:1rem"></div>
+
+    <div class="card forge-feature-card" style="margin-bottom:1rem">
+      <h3 style="margin-top:0">Tunnel La Forge</h3>
+      <ol style="color:var(--muted);line-height:1.7;padding-left:1.2rem;margin:0.5rem 0 0">
+        <li>Je me connecte (email Stripe + clé TOR)</li>
+        <li>Je fais le Module 0</li>
+        <li>Je valide mon lot de modules (sections + chart + quiz 70 %)</li>
+        <li>Je journalise (tag module + revue 3 Q)</li>
+        <li>Je viens au live / Discord avec 1 question précise</li>
+        <li>Je recommence</li>
+      </ol>
+    </div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="margin-top:0">Checklist démarrage</h3>
+      <div id="start-checklist">Chargement…</div>
+    </div>
+
+    <div id="ecosystem-guide-root" style="margin-bottom:1.25rem"></div>
+
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="margin-top:0">Dans un module — ordre exact</h3>
+      <ol style="color:var(--muted);line-height:1.7;padding-left:1.2rem;margin:0.5rem 0 0;font-size:0.92rem">
+        <li>Lire les sections (progression)</li>
+        <li>Mini-cas avant / après (si présent)</li>
+        <li>Exercice chart TradingView + screen</li>
+        <li>Checklist de session (5 cases)</li>
+        <li>Exercices MCQ</li>
+        <li>Quiz de validation (≥ 70 %)</li>
+      </ol>
+    </div>
+
+    <p style="display:flex;flex-wrap:wrap;gap:0.5rem">
+      <a class="btn btn-primary" href="https://app.torinvest-trading.com/dashboard.html">Aller au dashboard</a>
+      <a class="btn btn-secondary" href="https://app.torinvest-trading.com/course/index.html">Ouvrir la formation</a>
+      <a class="btn btn-secondary" href="https://app.torinvest-trading.com/crypto/index.html">Ouvrir Crypto</a>
+      <a class="btn btn-secondary" href="https://app.torinvest-trading.com/calendar.html">Calendrier</a>
+    </p>
+  </div>
+
+  <footer data-forge-footer></footer>
+
+  <script src="/la-forge/js/forge-brand.js"></script>
+  <script src="/la-forge/js/auth.js"></script>
+  <script src="/la-forge/js/forge-gate.js"></script>
+  <script src="/la-forge/js/forge-onboarding.js?v=3"></script>
+  <script src="/la-forge/js/forge-ecosystem-guide.js?v=1"></script>
+  <script>
+    if (window.ForgeEcosystemGuide) {
+      ForgeEcosystemGuide.render(document.getElementById("ecosystem-guide-root"));
+    }
+    getMe().then(function (me) {
+      if (!me) {
+        window.location.href =
+          "https://app.torinvest-trading.com/login.html?next=" +
+          encodeURIComponent("/start.html");
+        return;
+      }
+      ForgeOnboarding.markDone(me.email, "login");
+      ForgeOnboarding.renderChecklist(
+        document.getElementById("start-checklist"),
+        me.email
+      );
+    });
+  </script>
+  <script src="/la-forge/js/forge-legal.js"></script>
+</body>
+</html>

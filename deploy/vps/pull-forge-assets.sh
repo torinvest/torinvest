@@ -40,6 +40,8 @@ JS_FILES=(
   forge-coaching-lives.js
   forge-collective-lives.js
   forge-coaching-fiches.js
+  forge-ecosystem-guide.js
+  forge-pedagogy.js
   forge-module-guides.js
   forge-module-tabs.js
   forge-module-qa-admin.js

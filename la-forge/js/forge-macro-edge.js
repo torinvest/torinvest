@@ -135,6 +135,7 @@
         inflEnv
       ) +
       "</div>" +
+      renderRiskScenario(snap) +
       '<p class="me-score-note">' +
       esc(
         snap.scoreNote ||
@@ -178,6 +179,7 @@
         policy.environment || policy.status || ""
       ) +
       "</div>" +
+      renderRiskScenario(snap) +
       '<p class="me-score-note">' +
       esc(
         snap.scoreNote ||
@@ -185,6 +187,61 @@
       ) +
       "</p>"
     );
+  }
+
+  function renderRiskScenario(snap) {
+    const risk = snap.riskDriver || {};
+    const env = String(risk.environment || risk.status || "n/d");
+    return (
+      '<div class="ped-macro-scenario" id="me-risk-scenario">' +
+      "<h3>Mini-scénario risk-on / risk-off</h3>" +
+      '<p class="ped-muted">Régime affiché : <strong style="color:var(--gold)">' +
+      esc(env) +
+      "</strong> — réponds puis ouvre l’exercice chart f04 / mac01.</p>" +
+      '<form id="me-risk-form">' +
+      '<fieldset class="quiz-q"><legend>1. Comment lis-tu ce régime pour XAU aujourd’hui ?</legend>' +
+      '<label class="quiz-opt"><input type="radio" name="me1" value="0" required /> Bias long (risk-off support or)</label>' +
+      '<label class="quiz-opt"><input type="radio" name="me1" value="1" /> Bias short / prudent (risk-on)</label>' +
+      '<label class="quiz-opt"><input type="radio" name="me1" value="2" /> Flat — attendre confirmation structure</label>' +
+      "</fieldset>" +
+      '<fieldset class="quiz-q"><legend>2. Prochaine action pédagogique ?</legend>' +
+      '<label class="quiz-opt"><input type="radio" name="me2" value="0" required /> Exercice chart f04 (régime + DXY)</label>' +
+      '<label class="quiz-opt"><input type="radio" name="me2" value="1" /> Exercice mac01 (taux / real yields)</label>' +
+      '<label class="quiz-opt"><input type="radio" name="me2" value="2" /> Journaliser le biais sans trade</label>' +
+      "</fieldset>" +
+      '<button type="submit" class="btn btn-secondary btn-sm">Valider le scénario</button>' +
+      ' <a class="btn btn-secondary btn-sm" href="/course/index.html">Formation</a>' +
+      '</form><div id="me-risk-result" class="alert" hidden style="margin-top:0.65rem"></div></div>'
+    );
+  }
+
+  function bindRiskScenario() {
+    const form = document.getElementById("me-risk-form");
+    const result = document.getElementById("me-risk-result");
+    if (!form || form.dataset.bound === "1") return;
+    form.dataset.bound = "1";
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      const a1 = form.querySelector('input[name="me1"]:checked');
+      const a2 = form.querySelector('input[name="me2"]:checked');
+      if (!a1 || !a2) return;
+      try {
+        localStorage.setItem(
+          "forge_macro_risk_scenario",
+          JSON.stringify({
+            q1: a1.value,
+            q2: a2.value,
+            at: new Date().toISOString(),
+          })
+        );
+      } catch (_) {}
+      if (result) {
+        result.hidden = false;
+        result.className = "alert alert-success";
+        result.textContent =
+          "Scénario enregistré — enchaîne sur l’exercice chart (f04 / mac01) ou le journal.";
+      }
+    });
   }
 
   function renderLevels(snap, order, titleTip) {
@@ -678,6 +735,7 @@
 
     bindDeskSwitch(root);
     bindExplain(snap);
+    bindRiskScenario();
   }
 
   function renderFx(root, snap) {
@@ -770,6 +828,7 @@
 
     bindDeskSwitch(root);
     bindExplain(snap);
+    bindRiskScenario();
   }
 
   function render(root, snap, desk) {

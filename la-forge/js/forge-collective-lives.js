@@ -98,6 +98,9 @@
           (s.channel
             ? '<div class="coach-meta">Canal : ' + esc(s.channel) + "</div>"
             : "") +
+          (s.notes
+            ? '<div class="coach-meta">Objectif : ' + esc(s.notes) + "</div>"
+            : "") +
           (actions.length ? '<div class="coach-actions">' + actions.join("") + "</div>" : "") +
           "</article>"
         );
